@@ -1,0 +1,35 @@
+Consistency and constraint-violation fixes required (refer to 'Validation Report' context). Target agents: {{targetAgents}}.
+
+{{iterationGuidance}}
+CRITICAL: This is NOT a generation task - focus ONLY on fixing violations and consistency issues discovered in the validation report.
+
+For each worker, specify ONLY targeted fixes:
+
+1) SHACL VIOLATIONS (from Validation Report):
+   - Identify exact instance URIs that caused violations
+   - Specify which property/constraint caused violation (cardinality, datatype, class, pattern)
+   - Provide exact triples to remove (if overconstrained) or add (if underconstrained)
+   - Example: "Installation inst-001 missing rp:installationID: add triple <rpid:installation_inst-001> rp:installationID 'INST-001' ."
+   - After fix, worker MUST validate with shacl_validator to confirm violation resolved
+
+2) CONSISTENCY FIXES (prefix/URI normalization):
+   - Identify entities using inconsistent URI patterns (mixed formats within same type)
+   - Specify canonical pattern to enforce per entity type
+   - Provide exact URI rewrite mappings: "old_uri -> new_uri"
+   - Require triplestore_remove for old URIs and triplestore_add for corrected data with canonical prefixes
+
+3) PREFIX NORMALIZATION:
+   - If data uses full URIs instead of prefixes, rewrite with canonical prefix declarations
+   - Ensure all triplestore operations include @prefix block at top (normalized, alphabetical order)
+
+4) DUPLICATE ENTITY CLEANUP:
+   - Identify and merge duplicate entities (same semantic entity with different URIs)
+   - Specify which properties to keep/consolidate
+   - Provide exact remove/add operations
+
+Assign fixes by shape and/or entity type (NOT by worker count - some may have no fixes if their data is correct).
+For each worker assignment: list exact violations to fix, exact triples to remove/add, affected shape scope, validation targets.
+
+Delegate only unresolved fixes; skip workers already finished.
+Call delegate_tasks once per target worker with concrete fix operations.
+Each worker must validate after fixes with shacl_validator(source="store") and report zero violations.

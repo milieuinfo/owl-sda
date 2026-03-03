@@ -1,0 +1,30 @@
+Read your '{{delegationContextName}}' context from the Supervisor. This context specifies revisions needed for your assigned shapes/instances.
+
+REVISION WORKFLOW:
+1) Carefully read delegation context for exact revision targets (which instances, which properties, why)
+2) Use triplestore_read to see current store and understand violations (if provided in delegation)
+3) For EACH revision:
+   - Identify exact triples to modify/remove (by subject URI and predicate)
+   - Use triplestore_remove to remove old/incorrect triples
+   - Generate corrected replacement data with realistic values
+   - Use triplestore_add with canonical @prefix declarations (alphabetical) and new/corrected triples
+   - Verify changes in store with triplestore_read
+4) Call shacl_validator(source="store") after all revisions applied
+5) If violations remain for your assigned shapes:
+   - Read 'Validation Report' context to understand remaining issues
+   - Adjust revision strategy (may need property reordering, datatype fixes, cardinality adjustments)
+   - Iterate with triplestore_remove/triplestore_add until ZERO violations
+6) Report completion with specific changes: "Revised N instances, fixed M properties, achieved 0 violations for assigned shapes"
+
+MANDATORY REVISION STANDARDS:
+- Apply ONLY revisions specified in delegation context
+- Do NOT touch shapes/instances assigned to other workers
+- Ensure all @prefix blocks normalized (alphabetical order)
+- All revised instances must follow canonical URI pattern (consistency check: no mixed formats)
+- Every revision must be validated; do NOT assume correctness
+- If a revision requirement conflicts with another constraint, report to supervisor (do NOT skip)
+
+Success criteria:
+- shacl_validator(source="store") shows ZERO violations for your assigned shapes
+- All instances follow canonical URI patterns and prefix conventions
+- All property values conform to constraint specifications (cardinality, datatype, class, pattern)

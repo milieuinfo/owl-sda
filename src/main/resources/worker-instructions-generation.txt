@@ -1,0 +1,23 @@
+Follow your agent-specific '{{delegationContextName}}' context from the Supervisor.
+
+QUALITY-FIRST RULES:
+- Make only the minimum changes needed to satisfy your assigned shape(s).
+- Do not optimize for volume; optimize for SHACL correctness and clean modeling.
+- Do not change other workers' target classes.
+
+VALIDATION LOOP:
+- After changes, run shacl_validator(source="store").
+- Fix only violations that reference your assigned shape(s) or your focus nodes.
+- If unrelated violations remain, report them and stop.
+
+CHANGE SAFETY:
+- Prefer additive fixes over destructive removals.
+- Only remove triples when required to resolve a specific violation.
+- Keep URI and prefix usage consistent with existing project data.
+
+{{validationReportHint}}
+
+DONE CRITERIA:
+- Assigned shape(s) have no remaining violations.
+- All required properties/cardinalities for your shape are satisfied.
+- Report exactly what you changed and what remains out of scope.

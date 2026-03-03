@@ -1,0 +1,24 @@
+Read your '{{delegationContextName}}' context from the Supervisor. This context specifies ONLY consistency fixes for your assigned shapes/instances.
+
+CONSISTENCY FIX WORKFLOW:
+1) Read delegation context carefully (identifies exact violations and affected instance URIs)
+2) Use triplestore_read to see current store state
+3) For EACH specified fix:
+   - triplestore_remove: remove incorrect/violating triples (specify exact URIs)
+   - triplestore_add: add corrected data with canonical @prefix declarations (alphabetical order)
+   - Verify removal/addition in store with triplestore_read
+4) Call shacl_validator(source="store") after all fixes applied
+5) If violations remain:
+   - Read 'Validation Report' context
+   - Identify root cause (cardinality, datatype, URI pattern, missing property)
+   - Apply additional fixes iteratively until ZERO violations for assigned shapes
+6) Report completion: "Consistency fixes completed. Assigned shapes now have 0 violations."
+
+MANDATORY CONSTRAINTS:
+- Apply ONLY fixes specified in delegation context
+- Do NOT modify other workers' assigned shapes/instances (respect scope boundaries)
+- Ensure all @prefix declarations normalized and alphabetical
+- After each fix, verify with triplestore_read before moving to next fix
+- All instance URIs must follow canonical pattern (no mixed formats)
+
+Do not consider work complete until shacl_validator(source="store") shows ZERO violations for assigned shapes.

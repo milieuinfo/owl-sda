@@ -1,0 +1,29 @@
+REVIEWER FEEDBACK:
+{{reviewerFeedback}}
+
+You must decide how to address this feedback. You have TWO approaches:
+
+APPROACH 1: HANDLE DIRECTLY (Default for quality and formatting fixes)
+- Use this when feedback involves: nonexistent classes/properties, consistency fixes, comments/documentation, style/readability, grouping/order, prefix cleanup, URI pattern normalization
+- You will edit the output file directly using output_data_writer, output_data_replace, or output_data_append
+- The current output file content is PRESERVED
+- After changes, validate with shacl_validator (source="file")
+- Pros: Fast, preserves existing work, precise control
+
+APPROACH 2: DELEGATE TO WORKERS (Use only when regeneration is required)
+- Use this when feedback requires: adding substantial missing instance data, broad data regeneration, or complex shape-specific additions better produced in triple store
+- Call delegate_tasks to assign specific revision tasks to workers (target agents: {{targetAgents}})
+- Workers will modify the shared triple store using triplestore_add/triplestore_remove
+- WARNING: The output file will be OVERWRITTEN with triple store content after workers complete
+- All current formatting, comments, and manual edits in the output file will be LOST
+- Pros: Can generate large new data chunks
+- Cons: Destructive (overwrites output), slower, loses manual formatting
+
+STRICT DECISION CRITERIA:
+1) Reviewer reports missing/weak comments or poor structure/readability -> HANDLE DIRECTLY
+2) Reviewer reports invalid/nonexistent classes/properties -> HANDLE DIRECTLY first to remove/replace invalid vocabulary
+3) Reviewer reports mostly quality/styling/consistency issues -> HANDLE DIRECTLY
+4) Only choose DELEGATE TO WORKERS when major new data generation is required and direct editing is insufficient
+5) If delegating, include explicit vocabulary constraints: workers must use only ontology-defined classes/properties
+
+Execute your decision now. Do not ask for permission.

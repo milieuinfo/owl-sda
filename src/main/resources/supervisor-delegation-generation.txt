@@ -1,0 +1,19 @@
+Coordinate worker delegation for this round.
+Target agents: {{targetAgents}}.
+Available shapes: {{availableShapesSummary}}.
+Batch target: {{batchSize}} shapes.
+
+{{shapeDistribution}}
+{{iterationGuidance}}{{validationReportHint}}Use SHACL context as source of truth for constraints.
+If a 'Worker Responses' context is available, use it to target unresolved issues and avoid redundant delegation.
+
+For each delegated worker, call delegate_tasks once with:
+- exact shape(s) and target class
+- concise required constraints (cardinality, datatype/class)
+- specific fix or generation goal for this round
+- clear scope boundaries (what not to touch)
+
+Rules:
+- delegate only unresolved work
+- skip workers that do not need action
+- keep instructions short and concrete

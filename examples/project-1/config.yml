@@ -1,0 +1,68 @@
+program-timeout-ms: 1800000
+
+input-path: "examples/project-1/input.ttl"
+output-path: "examples/project-1/output.ttl"
+user-input: "Create a data example for a brownie production facility. Introduce multiple versions of the operation."
+user-context:
+  - name: 'example file'
+    path: 'examples/project-1/input-example.txt'
+log-level: "INFO"
+
+client:
+  worker:
+    model: "gpt-5-mini"
+    timeout-ms: 250000
+    batch-size: 1
+    pool-count: 5
+  supervisor:
+    model: "gpt-5-mini"
+    #model: "gpt-5.1"
+    timeout-ms: 360000
+  reviewer:
+    model: "gpt-5-mini"
+    #model: "claude-3.5-sonnet"
+    timeout-ms: 360000
+
+benchmark:
+  enabled: true
+  output-dir: "examples/project-1/benchmark/"
+
+shacl:
+  output-dir: "examples/project-1/shacl/"
+
+reasoner:
+  rules-file: "examples/project-1/reasoner.rules"
+  reasoner-type: "owl"
+  inferred-output-path: "examples/project-1/inferred.ttl"
+
+extract:
+  cache-dir: "examples/project-1/external/"
+  cache-ttl-ms: 3600000
+  mirrors:
+    - uri: "http://www.w3.org/ns/prov#"
+      mirrors:
+        - "https://www.w3.org/ns/prov-o"
+    - uri: "http://purl.org/net/p-plan#"
+      mirrors:
+        - "https://dgarijo.github.io/Vocabularies/P-PLAN/Releases/Release12032014/p-plan.owl"
+    - uri: "http://www.w3.org/ns/sosa/prov"
+      mirrors:
+        - "https://raw.githubusercontent.com/w3c/sdw/refs/heads/gh-pages/ssn/rdf/sosa-prov-mapping.ttl"
+    - uri: "http://qudt.org/schema/qudt/"
+      mirrors:
+        - "https://raw.githubusercontent.com/qudt/qudt-public-repo/refs/heads/main/src/main/rdf/schema/SCHEMA_QUDT.ttl"
+    - uri: "http://xmlns.com/foaf/0.1/"
+      mirrors:
+        - "https://xmlns.com/foaf/spec/index.rdf"
+    - uri: "http://www.w3.org/ns/locn#"
+      mirrors:
+        - "https://www.w3.org/ns/legacy_locn.ttl"
+    - uri: "http://www.w3.org/ns/adms#"
+      mirrors:
+        - "https://www.w3.org/ns/legacy_adms.ttl"
+    - uri: "http://dbpedia.org/ontology/"
+      mirrors:
+        - "https://downloads.dbpedia.org/2016-10/dbpedia_2016-10.nt"
+    - uri: "http://www.opengis.net/ont/geosparql#"
+      mirrors:
+        - "https://raw.githubusercontent.com/opengeospatial/ogc-geosparql/refs/heads/master/vocabularies/geo.ttl"
