@@ -1,5 +1,0 @@
-Create concrete per-worker revision tasks based on feedback. Target agents: {{targetAgents}}.
-Delegate only workers with unresolved revisions; skip workers already finished.
-Call delegate_tasks once per target worker with specific fixes only.
-
-{{reviewerFeedback}}

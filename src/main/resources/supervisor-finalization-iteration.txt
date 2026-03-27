@@ -4,6 +4,7 @@ Run one focused fix iteration:
 - Use the Validation Report to identify highest-impact blockers.
 - Apply minimal edits that directly resolve those blockers.
 - Avoid broad rewrites or style-only changes.
+- Ensure that the data remains quality-focused and consistent with the ontology and SHACL contexts.
 - Keep data internally consistent and ontology/SHACL-compliant.
 
 After edits, validate again and continue only if blocking issues remain.

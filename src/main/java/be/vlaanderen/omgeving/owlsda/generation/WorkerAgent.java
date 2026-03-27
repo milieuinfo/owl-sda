@@ -1,6 +1,7 @@
 package be.vlaanderen.omgeving.owlsda.generation;
 
 import be.vlaanderen.omgeving.owlsda.agent.RequestMessage;
+import be.vlaanderen.omgeving.owlsda.agent.Session;
 import be.vlaanderen.omgeving.owlsda.agent.SessionPool;
 import be.vlaanderen.omgeving.owlsda.agent.SessionPool.SessionWithId;
 import be.vlaanderen.omgeving.owlsda.agent.context.ShaclContext;
@@ -25,17 +26,27 @@ public record WorkerAgent(SessionPool workerSessionPool, Shacl shacl, int worker
   public void run() {
     SessionWithId sessionWithId = null;
     try {
-      sessionWithId = workerSessionPool.borrowSession();
+      String expectedSessionId = String.format("POOL-%d", workerIndex);
+      sessionWithId = isDelegationMode
+          ? workerSessionPool.borrowSessionById(expectedSessionId)
+          : workerSessionPool.borrowSession();
+
       logger.info("[{}] Processing shapes {}-{}", sessionWithId.sessionId(), startIndex,
           endIndex - 1);
+      if (isDelegationMode && !expectedSessionId.equals(sessionWithId.sessionId())) {
+        logger.warn("[{}] Delegation mode session mismatch: expected {}, got {}",
+            sessionWithId.sessionId(), expectedSessionId, sessionWithId.sessionId());
+      }
 
       if (startIndex >= endIndex) {
         success.set(true);
         return;
       }
 
+      Session session = sessionWithId.session();
+
       // In delegation mode, only run when this worker has fresh non-empty delegation instructions.
-      if (isDelegationMode && !hasActiveDelegationInstructions(sessionWithId.session())) {
+      if (isDelegationMode && !hasActiveDelegationInstructions(session)) {
         logger.info("[{}] No delegation instructions for this round; skipping worker execution",
             sessionWithId.sessionId());
         success.set(true);
@@ -45,24 +56,11 @@ public record WorkerAgent(SessionPool workerSessionPool, Shacl shacl, int worker
       // Only add SHACL context during initial generation, not during delegation/fix mode
       if (!isDelegationMode) {
         ShaclContext shaclContext = new ShaclContext(shacl, startIndex, endIndex, totalShapes);
-        sessionWithId.session().addContextIfChanged(shaclContext);
+        session.addContextIfChanged(shaclContext);
       }
 
-      String workerInstructions = instructions;
-      if (totalWorkers > 1) {
-        workerInstructions += String.format(
-            "\n\nAssignment context: shapes %d-%d (worker %d of %d). "
-                + "Follow your delegated task exactly (generate or fix as instructed). "
-                + "Use triplestore_add/remove/read and validation tools as needed.",
-            startIndex, endIndex - 1, workerIndex + 1, totalWorkers);
-      } else {
-        workerInstructions +=
-            "\n\nAssignment context: single-worker run. "
-                + "Follow your delegated task exactly (generate or fix as instructed). "
-                + "Use triplestore_add/remove/read and validation tools as needed.";
-      }
-
-      sessionWithId.session().prompt(new RequestMessage(workerInstructions)).get();
+      String workerInstructions = buildWorkerInstructions(session);
+      session.prompt(new RequestMessage(workerInstructions, "worker-instructions-generation")).get();
       success.set(true);
     } catch (Exception e) {
       String sessionId = sessionWithId != null ? sessionWithId.sessionId() : "UNKNOWN";
@@ -75,13 +73,48 @@ public record WorkerAgent(SessionPool workerSessionPool, Shacl shacl, int worker
     }
   }
 
-  private boolean hasActiveDelegationInstructions(be.vlaanderen.omgeving.owlsda.agent.Session session) {
+  private String buildWorkerInstructions(Session session) {
+    String workerInstructions = instructions;
+    if (totalWorkers > 1) {
+      workerInstructions += String.format(
+          "\n\nAssignment context: shapes %d-%d (worker %d of %d). "
+              + "Follow your delegated task exactly (generate or fix as instructed). "
+              + "Use triplestore_add/remove/read and validation tools as needed.",
+          startIndex, endIndex - 1, workerIndex + 1, totalWorkers);
+    } else {
+      workerInstructions +=
+          "\n\nAssignment context: single-worker run. "
+              + "Follow your delegated task exactly (generate or fix as instructed). "
+              + "Use triplestore_add/remove/read and validation tools as needed.";
+    }
+
+    if (!isDelegationMode) {
+      return workerInstructions;
+    }
+
+    String delegationSnapshot = getDelegationContextContent(session);
+    if (delegationSnapshot == null || delegationSnapshot.isBlank()) {
+      return workerInstructions;
+    }
+
+    return workerInstructions
+        + "\n\nLIVE DELEGATION SNAPSHOT (authoritative for this round; use this even if you do not call context_read):\n"
+        + delegationSnapshot.trim()
+        + "\n\nIf this live snapshot differs from your memory of earlier rounds, follow this snapshot."
+        + " Use context_read to inspect the stored context verbatim when needed.";
+  }
+
+  private String getDelegationContextContent(Session session) {
     for (Context context : session.getContext()) {
       if (DELEGATION_CONTEXT_NAME.equals(context.getName())) {
-        String content = context.getContent();
-        return content != null && !content.isBlank();
+        return context.getContent();
       }
     }
-    return false;
+    return null;
+  }
+
+  private boolean hasActiveDelegationInstructions(Session session) {
+    String delegationInstructions = getDelegationContextContent(session);
+    return delegationInstructions != null && !delegationInstructions.isBlank();
   }
 }

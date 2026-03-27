@@ -1,14 +1,10 @@
-package be.vlaanderen.omgeving.owlsda.session;
+package be.vlaanderen.omgeving.owlsda.agent;
 
 import be.vlaanderen.omgeving.owlsda.agent.handler.OutputReplaceHandler;
 import be.vlaanderen.omgeving.owlsda.config.Config;
 import be.vlaanderen.omgeving.owlsda.exception.LanguageModelException;
 import be.vlaanderen.omgeving.owlsda.generation.ShapeProcessingTracker;
 import be.vlaanderen.omgeving.owlsda.generation.SupervisorReviewCoordinator;
-import be.vlaanderen.omgeving.owlsda.agent.Client;
-import be.vlaanderen.omgeving.owlsda.agent.Session;
-import be.vlaanderen.omgeving.owlsda.agent.SessionConfig;
-import be.vlaanderen.omgeving.owlsda.agent.SessionPool;
 import be.vlaanderen.omgeving.owlsda.agent.context.Context;
 import be.vlaanderen.omgeving.owlsda.agent.context.ContextFactory;
 import be.vlaanderen.omgeving.owlsda.agent.context.ValidationContext;
@@ -27,6 +23,7 @@ import be.vlaanderen.omgeving.owlsda.agent.handler.TripleStoreClearHandler;
 import be.vlaanderen.omgeving.owlsda.agent.handler.TripleStoreReadHandler;
 import be.vlaanderen.omgeving.owlsda.agent.handler.TripleStoreRemoveHandler;
 import be.vlaanderen.omgeving.owlsda.agent.handler.WorkerTripleStore;
+import be.vlaanderen.omgeving.owlsda.agent.handler.WorkerProgressHandler;
 import be.vlaanderen.omgeving.owlsda.ontology.Shacl;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,15 +34,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Manages all LLM sessions: worker pool, supervisor, and reviewer.
- * Handles session creation and configuration with proper context access.
+ * Manages all agent sessions: worker pool, supervisor, and reviewer
  */
 @Getter
 public class SessionManager {
   private static final Logger logger = LoggerFactory.getLogger(SessionManager.class);
+  private static final String DELEGATION_CONTEXT_NAME = "Delegation Instructions";
 
   private final Config config;
 
+  /**
+   * SHACL shapes for validation
+   */
+  @Setter
   private Shacl shacl;
   @Setter
   private Shacl inferredShacl;
@@ -68,16 +69,6 @@ public class SessionManager {
   public SessionManager(Config config) {
     this.config = config;
     this.sharedTripleStore = new WorkerTripleStore(config.getOutputPath());
-  }
-
-  /**
-   * Set SHACL and initialize the shape processing tracker.
-   */
-  public void setShacl(Shacl shacl) {
-    this.shacl = shacl;
-    if (shacl != null) {
-      this.shapeProcessingTracker = new ShapeProcessingTracker(shacl);
-    }
   }
 
   /**
@@ -121,6 +112,11 @@ public class SessionManager {
         handlers.add(new ContextReaderHandler(() ->
             sessionRef[0] != null ? sessionRef[0].getContext() : List.of()
         ));
+        handlers.add(new WorkerProgressHandler(workerId, progress -> {
+          if (sessionRef[0] != null) {
+            sessionRef[0].addContextIfChanged(progress);
+          }
+        }));
 
         // Triple store handlers (shared store with unique worker ID)
         handlers.add(new TripleStoreAddHandler(sharedTripleStore, workerId));
@@ -145,6 +141,7 @@ public class SessionManager {
             .systemContext(ContextFactory.createWorkerContext())
             .model(config.getClient().getWorker().getModel())
             .timeoutMs(config.getClient().getWorker().getTimeoutMs())
+            .betweenMessageTimeoutMs(config.getClient().getWorker().getBetweenMessageTimeoutMs())
             .handlers(handlers)
             .build();
 
@@ -191,6 +188,7 @@ public class SessionManager {
           .systemContext(ContextFactory.createSupervisorContext())
           .model(config.getClient().getSupervisor().getModel())
           .timeoutMs(config.getClient().getSupervisor().getTimeoutMs())
+          .betweenMessageTimeoutMs(config.getClient().getSupervisor().getBetweenMessageTimeoutMs())
           .handlers(handlers)
           .build();
 
@@ -223,6 +221,12 @@ public class SessionManager {
     delegation.setType("text/plain");
     delegation.setContent(instructions);
 
+    // Canonical alias consumed by workers and supervisor delegation tracking.
+    Context canonicalDelegation = new Context();
+    canonicalDelegation.setName(DELEGATION_CONTEXT_NAME);
+    canonicalDelegation.setType("text/plain");
+    canonicalDelegation.setContent(instructions);
+
     if (supervisorSession != null) {
       Context supervisorDelegationView = new Context();
       supervisorDelegationView.setName(name + " [" + resolvedTargetAgent + "]");
@@ -232,6 +236,7 @@ public class SessionManager {
     }
 
     targetSession.addContextIfChanged(delegation);
+    targetSession.addContextIfChanged(canonicalDelegation);
     logger.info("Delegation '{}' routed to {}", name, resolvedTargetAgent);
 
     return DelegationHandler.PublicationResult.success(resolvedTargetAgent);
@@ -305,6 +310,7 @@ public class SessionManager {
           .systemContext(ContextFactory.createReviewerContext())
           .model(config.getClient().getReviewer().getModel())
           .timeoutMs(config.getClient().getReviewer().getTimeoutMs())
+          .betweenMessageTimeoutMs(config.getClient().getReviewer().getBetweenMessageTimeoutMs())
           .handlers(handlers)
           .build();
 

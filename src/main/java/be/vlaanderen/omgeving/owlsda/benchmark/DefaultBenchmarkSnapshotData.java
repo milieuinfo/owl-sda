@@ -9,6 +9,7 @@ import java.util.List;
  */
 public record DefaultBenchmarkSnapshotData(
     String stage,
+    int round,
     int shapesProcessed,
     long durationMs,
     Session generatorSession,

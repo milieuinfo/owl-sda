@@ -7,13 +7,25 @@ Batch target: {{batchSize}} shapes.
 {{iterationGuidance}}{{validationReportHint}}Use SHACL context as source of truth for constraints.
 If a 'Worker Responses' context is available, use it to target unresolved issues and avoid redundant delegation.
 
+Before delegating:
+- Read latest worker responses and validation context.
+- Identify unresolved shape-specific work.
+- Identify consistency issues and instruct workers to modify their data.
+- For each worker assignment, include concrete unresolved violations from the Validation Report (focus node + missing/invalid property) so the worker can fix exact nodes.
+- If a shape has no unresolved violations, do not delegate that shape in follow-up rounds.
+
 For each delegated worker, call delegate_tasks once with:
 - exact shape(s) and target class
-- concise required constraints (cardinality, datatype/class)
-- specific fix or generation goal for this round
-- clear scope boundaries (what not to touch)
+- required constraints (cardinality, datatype/class). A translation of SHACL constraints into clear instructions is expected.
+- EXPLICIT goal: "Generate/create instances of [TargetClass] if none exist" OR "Fix violations for existing instances"
+- clear scope boundaries
+- mandatory tool call requirement: worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues)
 
 Rules:
-- delegate only unresolved work
+- delegate unresolved work
+- delegate consistency or quality fixes
 - skip workers that do not need action
-- keep instructions short and concrete
+- keep instructions clear and concrete
+- include exact focus nodes/properties for unresolved violations when available
+- ALWAYS instruct workers to CREATE instances if the target class has no instances yet
+- Workers should fix shapes they were previously assigned to, but you can reassign shapes if needed to resolve issues or balance workload.

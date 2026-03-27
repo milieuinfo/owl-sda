@@ -1,19 +1,17 @@
 package be.vlaanderen.omgeving.owlsda.generation;
 
-import be.vlaanderen.omgeving.owlsda.benchmark.BenchmarkService;
-import be.vlaanderen.omgeving.owlsda.benchmark.DefaultBenchmarkSnapshotData;
-import be.vlaanderen.omgeving.owlsda.config.Config;
 import be.vlaanderen.omgeving.owlsda.agent.Session;
 import be.vlaanderen.omgeving.owlsda.agent.SessionPool;
 import be.vlaanderen.omgeving.owlsda.agent.handler.WorkerTripleStore;
+import be.vlaanderen.omgeving.owlsda.benchmark.BenchmarkService;
+import be.vlaanderen.omgeving.owlsda.benchmark.DefaultBenchmarkSnapshotData;
+import be.vlaanderen.omgeving.owlsda.config.Config;
 import be.vlaanderen.omgeving.owlsda.ontology.Shacl;
 import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
@@ -33,24 +31,22 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
 
   private static final Logger logger = LoggerFactory.getLogger(SupervisorWorkflow.class);
   private static final int MAX_CONSECUTIVE_EMPTY_DELEGATION_ROUNDS = 3;
+  private static final int MAX_CONSECUTIVE_NO_PROGRESS_ROUNDS = 5;
+  private static final int MAX_FINALIZATION_ATTEMPTS = 3;
 
   /**
    * Collects worker sessions from the pool for snapshotting delegation instructions.
    */
   private List<Session> getWorkerSessions() {
-    List<Session> sessions = new ArrayList<>();
-    if (workerSessionPool != null) {
-      // Access the allSessions field from SessionPool to get all worker sessions
-      // This includes both available and currently-in-use sessions
-      try {
-        // Use reflection to access the private allSessions list if needed,
-        // or if there's a public getter, use that instead
-        sessions.addAll(workerSessionPool.getAllSessions());
-      } catch (Exception e) {
-        logger.warn("Failed to get worker sessions: {}", e.getMessage());
-      }
+    if (workerSessionPool == null) {
+      return List.of();
     }
-    return sessions;
+    try {
+      return new ArrayList<>(workerSessionPool.getAllSessions());
+    } catch (Exception e) {
+      logger.warn("Failed to get worker sessions: {}", e.getMessage());
+      return List.of();
+    }
   }
 
   private Session getSupervisorSession() {
@@ -62,93 +58,251 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
   }
 
   public void run(int shapesPerBatch) {
-    if (shacl == null || shacl.getShapes() == null) {
+    if (!hasValidShaclShapes()) {
       logger.error("Cannot run workflow: SHACL or shapes are null");
       return;
     }
 
     int totalShapes = shacl.getShapes().size();
-    int shapes = shapesPerBatch;
     int poolCount = (config != null) ? config.getPoolCount() : 1;
     int batchSize = (config != null) ? config.getBatchSize() : 1;
+
+    runGenerationPhase(shapesPerBatch, totalShapes, poolCount, batchSize);
+  }
+
+  private boolean hasValidShaclShapes() {
+    return shacl != null && shacl.getShapes() != null;
+  }
+
+  private void runGenerationPhase(int shapesPerBatch, int totalShapes, int poolCount,
+      int batchSize) {
+    int shapes = shapesPerBatch;
     boolean firstPass = true;
     int consecutiveEmptyDelegationRounds = 0;
+    int consecutiveNoProgressRounds = 0;
+    int lastProcessedShapes = 0;
+    int lastViolations = Integer.MAX_VALUE;
+    int round = 0;
 
-    // Phase 1: Delegate batches of shapes to workers for processing
     while (shapes <= totalShapes) {
+      round++;
       long batchStart = System.currentTimeMillis();
       try {
-        // Supervisor delegates batch to concurrent workers
         boolean success = supervisor.orchestrate(shapes, firstPass);
         firstPass = false;
 
-        long durationMs = System.currentTimeMillis() - batchStart;
-        if (benchmarkService != null && benchmarkService.isEnabled()) {
-          List<Session> workerSessions = getWorkerSessions();
-          int currentViolations = getCurrentOutputViolations();
-          int completedShapes = getCompletedShapesCount();
-          benchmarkService.createBatchSnapshot(
-              new DefaultBenchmarkSnapshotData(
-                  "GENERATE",
-                  completedShapes,
-                  durationMs,
-                  getSupervisorSession(),
-                  getReviewerSession(),
-                  sharedTripleStore,
-                  workerSessions
-              ),
-              currentViolations
-          );
-        }
+        captureBenchmarkSnapshot("GENERATE", batchStart, round);
 
         if (success) {
           consecutiveEmptyDelegationRounds = 0;
 
-          // Check if any shapes have successfully passed (processed with no related violations)
-          int shapesWithNoViolations = countShapesWithNoViolations();
+          int processedShapes = getCompletedShapesCount();
+          int processedDelta = processedShapes - lastProcessedShapes;
+          int currentViolations = getCurrentOutputViolations();
+          int violationDelta = (lastViolations == Integer.MAX_VALUE || currentViolations < 0)
+              ? 0
+              : lastViolations - currentViolations;
 
-          if (shapesWithNoViolations > 0 && shapes < totalShapes) {
-            // Add new shapes to process since some have successfully passed
-            int newShapesTarget = Math.min(shapes + (batchSize * poolCount), totalShapes);
-            logger.info("Adding new shapes to process: {} shapes passed validation, expanding from {} to {} shapes",
-                shapesWithNoViolations, shapes, newShapesTarget);
-            shapes = newShapesTarget;
-          } else if (shapes >= totalShapes) {
-            // All shapes have been delegated, exit loop
-            logger.info("All {} shapes have been delegated for processing", totalShapes);
-            break;
-          }
-        } else {
-          int delegatedWorkers = supervisor.getDelegatedWorkerCount();
-          if (delegatedWorkers == 0) {
-            consecutiveEmptyDelegationRounds++;
-            logger.error(
-                "Supervisor delegated to 0 workers in round {}. consecutive empty delegation rounds: {}/{}",
-                shapes,
-                consecutiveEmptyDelegationRounds,
-                MAX_CONSECUTIVE_EMPTY_DELEGATION_ROUNDS
-            );
+          logger.info(
+              "Progress: {}/{} shapes completed (delta: +{}), violations: {} (delta: {})",
+              processedShapes,
+              totalShapes,
+              Math.max(processedDelta, 0),
+              currentViolations,
+              (lastViolations == Integer.MAX_VALUE ? "n/a" : String.valueOf(violationDelta))
+          );
 
-            if (consecutiveEmptyDelegationRounds >= MAX_CONSECUTIVE_EMPTY_DELEGATION_ROUNDS) {
-              logger.error(
-                  "Stopping workflow to avoid infinite loop: supervisor repeatedly produced no worker delegations"
+          // Never finalize while validation issues remain.
+          if (processedShapes >= totalShapes) {
+            if (currentViolations > 0) {
+              int reopenedShapes = reopenShapesWithViolations();
+              logger.warn(
+                  "All shapes were marked processed but {} validation issue(s) remain; reopened {} violating shape(s) for delegated repair",
+                  currentViolations,
+                  reopenedShapes
               );
+              if (reopenedShapes == 0) {
+                logger.error("Validation issues remain but no violating shapes could be mapped; stopping to avoid infinite finalize loop");
+                return;
+              }
+              // Keep full scope available for follow-up delegated repair rounds.
+              shapes = totalShapes;
+              lastProcessedShapes = getCompletedShapesCount();
+              lastViolations = currentViolations;
+              continue;
+            }
+
+            logger.info("All {} shapes processed and validation is clean; proceeding to finalization", totalShapes);
+            runFinalizationWithBenchmark();
+            runReviewWithBenchmark();
+            return;
+          }
+
+          boolean progressedByShapes = processedDelta > 0;
+          boolean progressedByViolations = lastViolations == Integer.MAX_VALUE
+              || (currentViolations >= 0 && currentViolations < lastViolations);
+
+          if (!progressedByShapes && !progressedByViolations) {
+            consecutiveNoProgressRounds++;
+            logger.warn("No progress in this round ({}/{} consecutive no-progress rounds)",
+                consecutiveNoProgressRounds, MAX_CONSECUTIVE_NO_PROGRESS_ROUNDS);
+
+            // Log remaining unprocessed shapes for diagnostics
+            logUnprocessedShapeNames(processedShapes, totalShapes);
+
+            if (consecutiveNoProgressRounds >= MAX_CONSECUTIVE_NO_PROGRESS_ROUNDS) {
+              logger.error("Stopping workflow: {} consecutive rounds produced no progress in shapes or validation",
+                  MAX_CONSECUTIVE_NO_PROGRESS_ROUNDS);
+              // Before aborting, check if there are unprocessed shapes left and try a final aggressive delegation
+              if (processedShapes < totalShapes) {
+                logger.warn("Workflow stalled with {} unprocessed shapes; attempting final delegation to all remaining shapes",
+                    totalShapes - processedShapes);
+                shapes = totalShapes;
+                boolean finalAttempt = supervisor.orchestrate(shapes, false);
+                if (finalAttempt && getCompletedShapesCount() > processedShapes) {
+                  logger.info("Final aggressive delegation succeeded; resuming workflow");
+                  consecutiveNoProgressRounds = 0;
+                  lastProcessedShapes = getCompletedShapesCount();
+                  continue;
+                }
+              }
               return;
             }
           } else {
-            consecutiveEmptyDelegationRounds = 0;
-            logger.error("Batch processing failed after delegating to {} worker(s), retrying batch with {} shapes",
-                delegatedWorkers, shapes);
+            consecutiveNoProgressRounds = 0;
+            lastProcessedShapes = processedShapes;
+            if (currentViolations >= 0) {
+              lastViolations = currentViolations;
+            }
           }
+
+          int previousShapes = shapes;
+          shapes = calculateNextShapesTarget(shapes, totalShapes, poolCount, batchSize);
+          if (shapes > previousShapes) {
+            logger.info("Expanding delegation scope from {} to {} shapes", previousShapes, shapes);
+          }
+          continue;
+        }
+
+        int delegatedWorkers = supervisor.getDelegatedWorkerCount();
+        boolean shouldAbort = shouldAbortAfterFailedRound(shapes, delegatedWorkers,
+            consecutiveEmptyDelegationRounds);
+        if (delegatedWorkers == 0) {
+          consecutiveEmptyDelegationRounds++;
+        } else {
+          consecutiveEmptyDelegationRounds = 0;
+        }
+
+        if (shouldAbort) {
+          return;
         }
       } catch (Exception e) {
         logger.error("Workflow error during batch processing: {}", e.getMessage(), e);
         return;
       }
     }
+  }
 
-    // Phase 2: All shapes processed - finalize output
-    finalizeWorkflow();
+  /**
+   * Reopens processed shapes that are still referenced by current validation violations.
+   * This allows supervisor delegation rounds to continue repairs before finalization.
+   */
+  private int reopenShapesWithViolations() {
+    if (shacl == null || shacl.getShapes() == null || shacl.getShapes().isEmpty()) {
+      return 0;
+    }
+
+    Model dataModel = getCurrentDataModel();
+    if (dataModel == null) {
+      return 0;
+    }
+
+    ValidationReport report = shacl.validate(dataModel);
+
+    int reopened = 0;
+    for (Shacl.Shape shape : shacl.getShapes()) {
+      if (!shape.isProcessed()) {
+        continue;
+      }
+
+      String targetClassUri = ShapeValidationMatcher.getTargetClassUri(shape).orElse(null);
+      if (targetClassUri == null) {
+        continue;
+      }
+
+      Resource targetClass = dataModel.createResource(targetClassUri);
+      if (ShapeValidationMatcher.hasViolationsForTargetClass(
+          dataModel, shacl != null ? shacl.getOntology() : null, report, targetClass)) {
+        shape.setProcessed(false);
+        reopened++;
+      }
+    }
+
+    return reopened;
+  }
+
+  private int calculateNextShapesTarget(int currentShapes, int totalShapes, int poolCount,
+      int batchSize) {
+    int shapesWithNoViolations = countShapesWithNoViolations();
+    if (shapesWithNoViolations > 0 && currentShapes < totalShapes) {
+      int newShapesTarget = Math.min(currentShapes + (batchSize * poolCount), totalShapes);
+      logger.info(
+          "Adding new shapes to process: {} shapes passed validation, expanding from {} to {} shapes",
+          shapesWithNoViolations, currentShapes, newShapesTarget);
+      return newShapesTarget;
+    }
+    return currentShapes;
+  }
+
+  private boolean shouldAbortAfterFailedRound(int shapes, int delegatedWorkers,
+      int consecutiveEmptyDelegationRounds) {
+    if (delegatedWorkers == 0) {
+      int nextEmptyRoundCount = consecutiveEmptyDelegationRounds + 1;
+      logger.error(
+          "Supervisor delegated to 0 workers in round {}. consecutive empty delegation rounds: {}/{}",
+          shapes,
+          nextEmptyRoundCount,
+          MAX_CONSECUTIVE_EMPTY_DELEGATION_ROUNDS
+      );
+      if (nextEmptyRoundCount >= MAX_CONSECUTIVE_EMPTY_DELEGATION_ROUNDS) {
+        logger.error(
+            "Stopping workflow to avoid infinite loop: supervisor repeatedly produced no worker delegations");
+        return true;
+      }
+      return false;
+    }
+
+    logger.error(
+        "Batch processing failed after delegating to {} worker(s), retrying batch with {} shapes",
+        delegatedWorkers, shapes);
+    return false;
+  }
+
+  private void captureBenchmarkSnapshot(String stage, long stageStart) {
+    captureBenchmarkSnapshot(stage, stageStart, 0);
+  }
+
+  private void captureBenchmarkSnapshot(String stage, long stageStart, int round) {
+    if (benchmarkService == null || !benchmarkService.isEnabled()) {
+      return;
+    }
+
+    long durationMs = System.currentTimeMillis() - stageStart;
+    int currentViolations = getCurrentOutputViolations();
+    int completedShapes = getCompletedShapesCount();
+    benchmarkService.createBatchSnapshot(
+        new DefaultBenchmarkSnapshotData(
+            stage,
+            round,
+            completedShapes,
+            durationMs,
+            getSupervisorSession(),
+            getReviewerSession(),
+            sharedTripleStore,
+            getWorkerSessions()
+        ),
+        currentViolations
+    );
   }
 
   private int getCurrentOutputViolations() {
@@ -161,7 +315,9 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
       try {
         return countViolations(sharedTripleStore.getModel());
       } catch (Exception e) {
-        logger.debug("Could not calculate shared-triple-store violations for benchmark snapshot: {}", e.getMessage());
+        logger.debug(
+            "Could not calculate shared-triple-store violations for benchmark snapshot: {}",
+            e.getMessage());
       }
     }
 
@@ -174,7 +330,8 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
           dataModel.read(new StringReader(turtleData), null, "TURTLE");
           return countViolations(dataModel);
         } catch (Exception e) {
-          logger.debug("Could not calculate output-file violations for benchmark snapshot: {}", e.getMessage());
+          logger.debug("Could not calculate output-file violations for benchmark snapshot: {}",
+              e.getMessage());
         }
       }
     }
@@ -200,16 +357,15 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
   }
 
   /**
-   * Counts how many processed shapes have no related validation violations.
-   * A shape is considered to have "no violations" if it has been marked as processed
-   * and there are no validation report entries targeting instances of that shape's target class.
+   * Counts how many processed shapes have no related validation violations. A shape is considered
+   * to have "no violations" if it has been marked as processed and there are no validation report
+   * entries targeting instances of that shape's target class.
    */
   private int countShapesWithNoViolations() {
     if (shacl == null || shacl.getShapes() == null) {
       return 0;
     }
 
-    // Get current validation report
     Model dataModel = getCurrentDataModel();
     if (dataModel == null) {
       return 0;
@@ -217,23 +373,21 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
 
     ValidationReport report = shacl.validate(dataModel);
 
-    // Build set of shape URIs that have violations
-    Set<String> shapesWithViolations = new HashSet<>();
-    report.getEntries().forEach(entry -> {
-      if (entry.source() != null) {
-        shapesWithViolations.add(entry.source().toString());
-      }
-    });
-
-    // Count processed shapes that have no violations
     int count = 0;
     for (Shacl.Shape shape : shacl.getShapes()) {
-      if (shape.isProcessed()) {
-        // Get the shape URI from the shape's model
-        String shapeUri = getShapeUri(shape);
-        if (shapeUri != null && !shapesWithViolations.contains(shapeUri)) {
-          count++;
-        }
+      if (!shape.isProcessed()) {
+        continue;
+      }
+
+      String targetClassUri = ShapeValidationMatcher.getTargetClassUri(shape).orElse(null);
+      if (targetClassUri == null) {
+        continue;
+      }
+
+      Resource targetClass = dataModel.createResource(targetClassUri);
+      if (!ShapeValidationMatcher.hasViolationsForTargetClass(
+          dataModel, shacl != null ? shacl.getOntology() : null, report, targetClass)) {
+        count++;
       }
     }
 
@@ -271,86 +425,65 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
     return null;
   }
 
-  /**
-   * Extracts the shape URI from a Shape object.
-   */
-  private String getShapeUri(Shacl.Shape shape) {
-    try {
-      Model shapeModel = shape.getModel();
-      if (shapeModel != null) {
-        Resource nodeShape = shapeModel.createResource("http://www.w3.org/ns/shacl#NodeShape");
-        Resource shapeResource = shapeModel.listResourcesWithProperty(
-            org.apache.jena.vocabulary.RDF.type, nodeShape
-        ).nextResource();
-        if (shapeResource != null) {
-          return shapeResource.getURI();
-        }
-      }
-    } catch (Exception e) {
-      logger.debug("Could not extract shape URI for shape {}: {}", shape.getName(), e.getMessage());
+  private void runFinalizationWithBenchmark() {
+    int poolCount = (config != null) ? config.getPoolCount() : 1;
+    if (poolCount <= 1 || supervisor == null) {
+      return;
     }
-    return null;
-  }
 
-  private void finalizeWorkflow() {
-    try {
-      int poolCount = (config != null) ? config.getPoolCount() : 1;
+    logger.info("All shapes processed - Supervisor directly editing output for consistency");
 
-      // FINALIZING stage
-      if (poolCount > 1 && supervisor != null) {
-        logger.info("All shapes processed - Supervisor directly editing output for consistency");
+    for (int attempt = 1; attempt <= MAX_FINALIZATION_ATTEMPTS; attempt++) {
+      try {
         long finalizationStart = System.currentTimeMillis();
         supervisor.finalizeOutput();
-        long finalizationDuration = System.currentTimeMillis() - finalizationStart;
-
-        // Create FINALIZING benchmark
-        if (benchmarkService != null && benchmarkService.isEnabled()) {
-          int currentViolations = getCurrentOutputViolations();
-          int completedShapes = getCompletedShapesCount();
-          benchmarkService.createBatchSnapshot(
-              new DefaultBenchmarkSnapshotData(
-                  "FINALIZING",
-                  completedShapes,
-                  finalizationDuration,
-                  getSupervisorSession(),
-                  getReviewerSession(),
-                  sharedTripleStore,
-                  getWorkerSessions()
-              ),
-              currentViolations
-          );
-        }
+        captureBenchmarkSnapshot("FINALIZING", finalizationStart);
+        return;
+      } catch (Exception e) {
+        logger.error("Finalization error (attempt {}/{}): {}", attempt, MAX_FINALIZATION_ATTEMPTS,
+            e.getMessage(), e);
       }
+    }
 
-      // REVIEW stage
-      if (reviewCoordinator != null) {
-        logger.info("Running final review on finalized output");
+    logger.error("Finalization failed after {} attempts", MAX_FINALIZATION_ATTEMPTS);
+  }
+
+  private void runReviewWithBenchmark() {
+    if (reviewCoordinator == null) {
+      return;
+    }
+
+    logger.info("Running final review on finalized output");
+
+    for (int attempt = 1; attempt <= MAX_FINALIZATION_ATTEMPTS; attempt++) {
+      try {
         long reviewStart = System.currentTimeMillis();
         reviewCoordinator.review();
-        long reviewDuration = System.currentTimeMillis() - reviewStart;
-
-        // Create REVIEW benchmark
-        if (benchmarkService != null && benchmarkService.isEnabled()) {
-          int currentViolations = getCurrentOutputViolations();
-          int completedShapes = getCompletedShapesCount();
-          benchmarkService.createBatchSnapshot(
-              new DefaultBenchmarkSnapshotData(
-                  "REVIEW",
-                  completedShapes,
-                  reviewDuration,
-                  getSupervisorSession(),
-                  getReviewerSession(),
-                  sharedTripleStore,
-                  getWorkerSessions()
-              ),
-              currentViolations
-          );
-        }
+        captureBenchmarkSnapshot("REVIEW", reviewStart);
+        return;
+      } catch (Exception e) {
+        logger.error("Review error (attempt {}/{}): {}", attempt, MAX_FINALIZATION_ATTEMPTS,
+            e.getMessage(), e);
       }
-    } catch (Exception e) {
-      logger.error("Finalization error: {}", e.getMessage(), e);
-      // Retry
-      finalizeWorkflow();
+    }
+
+    logger.error("Review failed after {} attempts", MAX_FINALIZATION_ATTEMPTS);
+  }
+
+  private void logUnprocessedShapeNames(int processedShapes, int totalShapes) {
+    if (shacl == null || shacl.getShapes() == null) {
+      return;
+    }
+
+    List<String> unprocessedNames = shacl.getShapes().stream()
+        .filter(shape -> !shape.isProcessed())
+        .map(Shacl.Shape::getName)
+        .toList();
+
+    if (!unprocessedNames.isEmpty()) {
+      logger.warn("Unprocessed shapes ({}/{}): {}",
+          unprocessedNames.size(), totalShapes - processedShapes,
+          String.join(", ", unprocessedNames));
     }
   }
 }

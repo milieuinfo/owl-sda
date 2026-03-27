@@ -50,7 +50,7 @@ public class OutputReplaceHandlerTest {
     CompletableFuture<Object> result = handler.handle(arguments);
 
     @SuppressWarnings("unchecked")
-    Map<String, Object> response = (Map<String, Object>) result.get();
+    Map<String, Object> response = (Map<String, Object>) result.join();
     assertEquals("success", response.get("status"));
 
     String newContent = Files.readString(tempFile);
@@ -81,7 +81,7 @@ public class OutputReplaceHandlerTest {
     CompletableFuture<Object> result = handler.handle(arguments);
 
     @SuppressWarnings("unchecked")
-    Map<String, Object> response = (Map<String, Object>) result.get();
+    Map<String, Object> response = (Map<String, Object>) result.join();
     assertEquals("success", response.get("status"));
     assertEquals(2, response.get("start_line"));
     assertEquals(4, response.get("end_line"));
@@ -114,7 +114,7 @@ public class OutputReplaceHandlerTest {
     CompletableFuture<Object> result = handler.handle(arguments);
 
     @SuppressWarnings("unchecked")
-    Map<String, Object> response = (Map<String, Object>) result.get();
+    Map<String, Object> response = (Map<String, Object>) result.join();
     assertEquals("success", response.get("status"));
 
     String newContent = Files.readString(tempFile);
@@ -142,7 +142,7 @@ public class OutputReplaceHandlerTest {
     CompletableFuture<Object> result = handler.handle(arguments);
 
     @SuppressWarnings("unchecked")
-    Map<String, Object> response = (Map<String, Object>) result.get();
+    Map<String, Object> response = (Map<String, Object>) result.join();
     assertEquals("success", response.get("status"));
 
     String newContent = Files.readString(tempFile);
@@ -163,7 +163,7 @@ public class OutputReplaceHandlerTest {
     CompletableFuture<Object> result = handler.handle(arguments);
 
     @SuppressWarnings("unchecked")
-    Map<String, Object> response = (Map<String, Object>) result.get();
+    Map<String, Object> response = (Map<String, Object>) result.join();
     assertEquals("success", response.get("status"));
 
     assertTrue(Files.exists(tempFile));
@@ -195,7 +195,7 @@ public class OutputReplaceHandlerTest {
     CompletableFuture<Object> result = handler.handle(arguments);
 
     @SuppressWarnings("unchecked")
-    Map<String, Object> response = (Map<String, Object>) result.get();
+    Map<String, Object> response = (Map<String, Object>) result.join();
     assertEquals("success", response.get("status"));
     assertEquals(1, response.get("lines_replaced"));
 
@@ -217,7 +217,7 @@ public class OutputReplaceHandlerTest {
     CompletableFuture<Object> result = invalidHandler.handle(arguments);
 
     @SuppressWarnings("unchecked")
-    Map<String, Object> response = (Map<String, Object>) result.get();
+    Map<String, Object> response = (Map<String, Object>) result.join();
     assertTrue(response.containsKey("error"));
     assertTrue(response.get("error").toString().contains("not configured"));
   }
@@ -232,9 +232,8 @@ public class OutputReplaceHandlerTest {
     CompletableFuture<Object> result = handler.handle(arguments);
 
     @SuppressWarnings("unchecked")
-    Map<String, Object> response = (Map<String, Object>) result.get();
+    Map<String, Object> response = (Map<String, Object>) result.join();
     assertTrue(response.containsKey("error"));
     assertTrue(response.get("error").toString().contains("No output provided"));
   }
 }
-

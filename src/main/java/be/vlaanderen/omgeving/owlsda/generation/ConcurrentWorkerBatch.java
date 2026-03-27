@@ -1,6 +1,7 @@
 package be.vlaanderen.omgeving.owlsda.generation;
 
 import be.vlaanderen.omgeving.owlsda.config.Config;
+import be.vlaanderen.omgeving.owlsda.agent.Session;
 import be.vlaanderen.omgeving.owlsda.agent.SessionPool;
 import be.vlaanderen.omgeving.owlsda.ontology.Shacl;
 import be.vlaanderen.omgeving.owlsda.validation.OutputValidator;
@@ -17,6 +18,8 @@ public record ConcurrentWorkerBatch(Config config, SessionPool workerSessionPool
                                     OutputValidator validator) {
 
   private static final Logger logger = LoggerFactory.getLogger(ConcurrentWorkerBatch.class);
+  private static final long MONITOR_INTERVAL_MS = 5000L;
+  private static final long STUCK_JOIN_GRACE_MS = 10000L;
 
   public boolean run(String instructions, int shapes, boolean isDelegationMode)
       throws InterruptedException {
@@ -63,8 +66,32 @@ public record ConcurrentWorkerBatch(Config config, SessionPool workerSessionPool
       thread.start();
     }
 
-    for (Thread thread : threads) {
-      thread.join();
+    boolean stuckWorkersDetected = false;
+
+    // Monitor worker progress periodically
+    while (threads.stream().anyMatch(Thread::isAlive)) {
+      Thread.sleep(MONITOR_INTERVAL_MS);
+      logWorkerActivityStatus();
+
+      // Break if any worker has been idle > 2x their configured timeout.
+      if (hasStuckWorkers()) {
+        logger.warn("Detected worker(s) stuck/idle for extended time; interrupting active workers");
+        stuckWorkersDetected = true;
+        interruptAliveWorkers(threads);
+        break;
+      }
+    }
+
+    boolean hasUnfinishedWorkers = joinWorkersWithTimeout(threads, STUCK_JOIN_GRACE_MS);
+    if (hasUnfinishedWorkers) {
+      logger.error("One or more worker threads did not stop within {}ms after interruption",
+          STUCK_JOIN_GRACE_MS);
+      return false;
+    }
+
+    if (stuckWorkersDetected) {
+      logger.warn("Worker batch failed due to stuck/idle worker detection");
+      return false;
     }
 
     boolean allSuccess = results.stream().allMatch(AtomicBoolean::get);
@@ -92,5 +119,76 @@ public record ConcurrentWorkerBatch(Config config, SessionPool workerSessionPool
 
   public int getWorkerCount() {
     return workerSessionPool.getSize();
+  }
+
+  private void logWorkerActivityStatus() {
+    if (workerSessionPool == null) {
+      return;
+    }
+
+    List<Session> allSessions = workerSessionPool.getAllSessions();
+    for (int i = 0; i < allSessions.size(); i++) {
+      Session session = allSessions.get(i);
+      if (session instanceof be.vlaanderen.omgeving.owlsda.agent.copilot.CopilotSDKSession copilotSession) {
+        long lastActivityMs = copilotSession.getLastAssistantActivityMs();
+        long elapsedMs = System.currentTimeMillis() - lastActivityMs;
+        int messageCount = copilotSession.getMessageLog().size();
+        logger.debug("POOL-{}: {} messages, last activity {} ms ago",
+            i, messageCount, elapsedMs);
+      }
+    }
+  }
+
+  private void interruptAliveWorkers(List<Thread> threads) {
+    for (Thread thread : threads) {
+      if (thread.isAlive()) {
+        thread.interrupt();
+      }
+    }
+  }
+
+  private boolean joinWorkersWithTimeout(List<Thread> threads, long timeoutMs)
+      throws InterruptedException {
+    long deadline = System.currentTimeMillis() + timeoutMs;
+    boolean unfinished = false;
+
+    for (Thread thread : threads) {
+      long remaining = deadline - System.currentTimeMillis();
+      if (remaining <= 0) {
+        if (thread.isAlive()) {
+          unfinished = true;
+        }
+        continue;
+      }
+
+      thread.join(remaining);
+      if (thread.isAlive()) {
+        unfinished = true;
+      }
+    }
+
+    return unfinished;
+  }
+
+  private boolean hasStuckWorkers() {
+    if (workerSessionPool == null || config == null) {
+      return false;
+    }
+
+    long workerTimeoutMs = config.getClient().getWorker().getTimeoutMs();
+    long stuckThresholdMs = workerTimeoutMs * 2; // 2x timeout = stuck
+
+    List<Session> allSessions = workerSessionPool.getAllSessions();
+    for (Session session : allSessions) {
+      if (session instanceof be.vlaanderen.omgeving.owlsda.agent.copilot.CopilotSDKSession copilotSession) {
+        if (copilotSession.isIdleSince(stuckThresholdMs)) {
+          logger.warn("Worker {} has been idle for {}ms (threshold: {}ms)",
+              workerSessionPool.getSessionId(session), stuckThresholdMs, stuckThresholdMs);
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 }

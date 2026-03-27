@@ -1,8 +1,8 @@
-program-timeout-ms: 1800000
+program-timeout-ms: 3800000
 
 input-path: "examples/project-1/input.ttl"
 output-path: "examples/project-1/output.ttl"
-user-input: "Create a data example for a brownie production facility. Introduce multiple versions of the operation."
+user-input: "Create a data example for a brownie production facility. Introduce multiple versions of the operation in different years with different systems, processes and subprocesses."
 user-context:
   - name: 'example file'
     path: 'examples/project-1/input-example.txt'
@@ -11,16 +11,17 @@ log-level: "INFO"
 client:
   worker:
     model: "gpt-5-mini"
-    timeout-ms: 250000
+    timeout-ms: 350000
+    between-message-timeout-ms: 200000
     batch-size: 1
     pool-count: 5
   supervisor:
-    model: "gpt-5-mini"
-    #model: "gpt-5.1"
+    #model: "gpt-5-mini" # DEBUGGING (free)
+    model: "gpt-5.1"
     timeout-ms: 360000
   reviewer:
-    model: "gpt-5-mini"
-    #model: "claude-3.5-sonnet"
+    #model: "gpt-5-mini" # DEBUGGING (free)
+    model: "claude-3.5-sonnet"
     timeout-ms: 360000
 
 benchmark:

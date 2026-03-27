@@ -10,6 +10,11 @@ import java.util.List;
 public interface BenchmarkSnapshotData {
   String stage(); // GENERATE, FINALIZING, or REVIEW
 
+  /**
+   * Monotonically increasing round number within the current run.
+   */
+  int round();
+
   int shapesProcessed();
 
   long durationMs();

@@ -111,6 +111,8 @@ public class Config {
     public static class WorkerProperties {
       private String model = "gpt-5.1";
       private int timeoutMs = 60000;
+      // Max idle time between assistant events (messages/tool requests). 0 disables this guard.
+      private int betweenMessageTimeoutMs = 0;
       private int batchSize = 5;
       private int poolCount = 1;
     }
@@ -121,6 +123,8 @@ public class Config {
     public static class SupervisorProperties {
       private String model = "gpt-5.1";
       private int timeoutMs = 120000;  // Supervisor may need more time for orchestration
+      // Max idle time between assistant events (messages/tool requests). 0 disables this guard.
+      private int betweenMessageTimeoutMs = 0;
     }
 
     @Setter
@@ -129,6 +133,8 @@ public class Config {
     public static class ReviewerProperties {
       private String model = "gpt-5.1";
       private int timeoutMs = 60000;
+      // Max idle time between assistant events (messages/tool requests). 0 disables this guard.
+      private int betweenMessageTimeoutMs = 0;
     }
   }
 

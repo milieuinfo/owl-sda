@@ -10,7 +10,7 @@ import picocli.CommandLine.Option;
 
 @Command(
     name = "owlsda",
-    description = "OWLSDA - OWL Synthetic Data AI-Agent",
+    description = "OWL-SDA | OWL Synthetic Data AI-Agent",
     version = "1.0-SNAPSHOT"
 )
 public class Main implements Runnable {
@@ -36,7 +36,7 @@ public class Main implements Runnable {
       if (ll != null && !ll.isEmpty()) {
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", ll.toUpperCase());
       }
-      // Set log file if log-to-file is enabled
+      // Set the log file if log-to-file is enabled
       if (config.isLogToFile() && config.getLogFilePath() != null && !config.getLogFilePath().isEmpty()) {
         System.setProperty("org.slf4j.simpleLogger.logFile", config.getLogFilePath());
       }

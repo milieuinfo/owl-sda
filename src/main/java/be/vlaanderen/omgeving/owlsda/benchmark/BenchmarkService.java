@@ -203,7 +203,7 @@ public class BenchmarkService {
       );
 
       writeSessionContexts(snapshotDir, snapshotData.generatorSession(), snapshotData.reviewerSession());
-      writeWorkerContexts(snapshotDir, snapshotData.workerSessions());
+      writeWorkerContexts(snapshotDir, snapshotData.workerSessions(), snapshotData.round());
       writeSessionMessageLogs(
           snapshotDir,
           snapshotData.generatorSession(),
@@ -250,12 +250,13 @@ public class BenchmarkService {
     return createBatchSnapshot(
         new DefaultBenchmarkSnapshotData(
             "GENERATE", // Default stage for backward compatibility
+            0,          // round not tracked in legacy call path
             shapesProcessed,
             durationMs,
             generatorSession,
             reviewerSession,
             tripleStore,
-            workerSessions == null ? List.of() : workerSessions
+            workerSessions == null ? List.<Session>of() : workerSessions
         ),
         currentViolations
     );
@@ -323,8 +324,11 @@ public class BenchmarkService {
   /**
    * Writes individual worker delegation instructions to subdirectories in the snapshot.
    * Each worker session's contexts are saved to a separate directory labeled with the worker index.
+   * When {@code round} is greater than zero the context files are prefixed with {@code round_N-}
+   * so that multiple delegation rounds within the same session can be distinguished.
    */
-  private void writeWorkerContexts(Path snapshotDir, List<Session> workerSessions) throws IOException {
+  private void writeWorkerContexts(Path snapshotDir, List<Session> workerSessions, int round)
+      throws IOException {
     if (workerSessions == null || workerSessions.isEmpty()) {
       log.debug("No worker sessions to snapshot");
       return;
@@ -333,26 +337,36 @@ public class BenchmarkService {
     Path workersDir = snapshotDir.resolve("worker_contexts");
     Files.createDirectories(workersDir);
 
+    String filePrefix = round > 0 ? "round_" + round + "-" : "";
+
     for (int i = 0; i < workerSessions.size(); i++) {
       Session workerSession = workerSessions.get(i);
       if (workerSession != null) {
         Path workerDir = workersDir.resolve("worker_" + i);
         Files.createDirectories(workerDir);
-        writeContexts(workerDir, workerSession.getContext());
+        writeContexts(workerDir, workerSession.getContext(), filePrefix);
       }
     }
 
-    log.debug("Saved {} worker delegation contexts", workerSessions.size());
+    log.debug("Saved {} worker delegation contexts (round={})", workerSessions.size(), round);
   }
 
   /**
    * Writes a list of contexts to a directory.
    */
   private void writeContexts(Path targetDir, java.util.List<Context> contexts) throws IOException {
+    writeContexts(targetDir, contexts, "");
+  }
+
+  /**
+   * Writes a list of contexts to a directory, prepending {@code filePrefix} to each file name.
+   */
+  private void writeContexts(Path targetDir, java.util.List<Context> contexts, String filePrefix)
+      throws IOException {
     int i = 0;
     for (Context c : contexts) {
       String name = c.getName() != null ? c.getName() : "context_" + i++;
-      Path target = targetDir.resolve(safeFileName(name) + ".txt");
+      Path target = targetDir.resolve(filePrefix + safeFileName(name) + ".txt");
       String content = c.getContent();
       if (content == null) {
         content = "";

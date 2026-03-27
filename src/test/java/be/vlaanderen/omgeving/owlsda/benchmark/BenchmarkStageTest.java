@@ -46,6 +46,7 @@ public class BenchmarkStageTest {
     // Create snapshots for each stage
     DefaultBenchmarkSnapshotData generateSnapshot = new DefaultBenchmarkSnapshotData(
         "GENERATE",
+        0,
         10,
         1000L,
         null,
@@ -57,6 +58,7 @@ public class BenchmarkStageTest {
 
     DefaultBenchmarkSnapshotData finalizingSnapshot = new DefaultBenchmarkSnapshotData(
         "FINALIZING",
+        0,
         10,
         500L,
         null,
@@ -68,6 +70,7 @@ public class BenchmarkStageTest {
 
     DefaultBenchmarkSnapshotData reviewSnapshot = new DefaultBenchmarkSnapshotData(
         "REVIEW",
+        0,
         10,
         300L,
         null,
@@ -110,6 +113,7 @@ public class BenchmarkStageTest {
     // Create a snapshot
     DefaultBenchmarkSnapshotData snapshot = new DefaultBenchmarkSnapshotData(
         "GENERATE",
+        0,
         5,
         1500L,
         null,
@@ -189,6 +193,7 @@ public class BenchmarkStageTest {
     String snapshotId = benchmarkService.createBatchSnapshot(
         new DefaultBenchmarkSnapshotData(
             "GENERATE",
+            0,
             10,
             1200L,
             supervisor,

@@ -39,7 +39,10 @@ public record OutputFeedbackHandler(
             "state", Map.of(
                 "type", "string",
                 "enum", new String[]{"ACCEPTED", "REJECTED", "REVISION_REQUESTED"},
-                "description", "The feedback state for the generated output")
+                "description", "The feedback state for the generated output"),
+            "feedback", Map.of(
+                "type", "string",
+                "description", "Actionable reviewer feedback for supervisor revisions. Required when state is REVISION_REQUESTED or REJECTED.")
         ),
         "required", new String[]{"state"}
     );
@@ -52,6 +55,7 @@ public record OutputFeedbackHandler(
       logger.warn("No feedback state provided, defaulting to REVISION_REQUESTED");
       stateStr = FeedbackState.REVISION_REQUESTED.toString();
     }
+
     FeedbackState state;
     try {
       state = FeedbackState.valueOf(stateStr);
@@ -59,30 +63,56 @@ public record OutputFeedbackHandler(
       logger.warn("Invalid feedback state: {}. Defaulting to REVISION_REQUESTED", stateStr);
       state = FeedbackState.REVISION_REQUESTED;
     }
+
+    String feedbackText = extractFeedbackText(arguments.get("feedback"));
+
     SupervisorReviewCoordinator coordinator = reviewCoordinatorProvider.get();
     if (coordinator != null) {
-      handleFeedback(coordinator, state);
+      handleFeedback(coordinator, state, feedbackText);
     }
     return CompletableFuture.completedFuture(null);
   }
 
-  private void handleFeedback(SupervisorReviewCoordinator coordinator, FeedbackState state) {
+  private void handleFeedback(SupervisorReviewCoordinator coordinator, FeedbackState state, String feedbackText) {
     switch (state) {
       case ACCEPTED:
         coordinator.setReady(true);
         coordinator.setError(false);
+        coordinator.setReviewerFeedbackText("");
         logger.info("Output feedback: ACCEPTED (ready for use)");
         break;
       case REJECTED:
         coordinator.setReady(false);
         coordinator.setError(true);
-        logger.info("Output feedback: REJECTED (generation failed)");
+        coordinator.setReviewerFeedbackText(feedbackText);
+        if (feedbackText.isBlank()) {
+          logger.warn("Output feedback: REJECTED without actionable feedback text");
+        } else {
+          logger.info("Output feedback: REJECTED (generation failed)");
+        }
         break;
       case REVISION_REQUESTED:
         coordinator.setReady(false);
         coordinator.setError(false);
-        logger.info("Output feedback: REVISION_REQUESTED (requires changes)");
+        coordinator.setReviewerFeedbackText(feedbackText);
+        if (feedbackText.isBlank()) {
+          logger.warn("Output feedback: REVISION_REQUESTED without actionable feedback text");
+        } else {
+          logger.info("Output feedback: REVISION_REQUESTED (requires changes)");
+        }
         break;
     }
+  }
+
+  private String extractFeedbackText(Object feedbackArgument) {
+    if (feedbackArgument == null) {
+      return "";
+    }
+
+    if (feedbackArgument instanceof String feedback) {
+      return feedback.trim();
+    }
+
+    return feedbackArgument.toString().trim();
   }
 }

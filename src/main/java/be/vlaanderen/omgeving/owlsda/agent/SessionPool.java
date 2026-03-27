@@ -76,7 +76,10 @@ public class SessionPool implements AutoCloseable {
       String sessionId = String.format("POOL-%d", nextSessionId.getAndIncrement());
       allSessions.add(session);
       sessionIdMap.put(session, sessionId);
-      availableSessions.offer(new SessionWithId(session, sessionId));
+      boolean queued = availableSessions.offer(new SessionWithId(session, sessionId));
+      if (!queued) {
+        logger.error("[{}] Failed to enqueue newly added session", sessionId);
+      }
       logger.info("[{}] Session added to pool ({}/{})", sessionId, allSessions.size(), poolSize);
     } else {
       logger.warn("Pool is already full ({} sessions), cannot add more sessions", poolSize);
@@ -99,6 +102,50 @@ public class SessionPool implements AutoCloseable {
   }
 
   /**
+   * Borrows a specific session from the pool by ID. Blocks until that session becomes available.
+   * Non-matching borrowed sessions are temporarily held and then returned to the queue.
+   *
+   * @param sessionId target session ID (for example: POOL-0)
+   * @return the requested SessionWithId
+   * @throws InterruptedException if interrupted while waiting
+   */
+  public SessionWithId borrowSessionById(String sessionId) throws InterruptedException {
+    if (sessionId == null || sessionId.isBlank()) {
+      return borrowSession();
+    }
+
+    // Avoid indefinite waits caused by invalid target IDs.
+    if (!sessionIdMap.containsValue(sessionId)) {
+      logger.warn("Unknown target session '{}'; falling back to generic borrow", sessionId);
+      return borrowSession();
+    }
+
+    int retries = 0;
+    while (true) {
+      SessionWithId candidate = availableSessions.take();
+      if (sessionId.equals(candidate.sessionId())) {
+        String threadId = Thread.currentThread().getName();
+        logger.info("[{}] Borrowed by thread [{}] via targeted borrow ({} sessions still available)",
+            candidate.sessionId(), threadId, availableSessions.size());
+        return candidate;
+      }
+
+      // Never keep non-target sessions out of the queue; other workers may need them.
+      boolean requeued = availableSessions.offer(candidate);
+      if (!requeued) {
+        logger.error("Failed to requeue non-target session {} while waiting for {}",
+            candidate.sessionId(), sessionId);
+      }
+      retries++;
+      if (retries % 50 == 0) {
+        logger.debug("Waiting for targeted session {} (attempts: {}, available: {})",
+            sessionId, retries, availableSessions.size());
+      }
+      Thread.yield();
+    }
+  }
+
+  /**
    * Returns a session to the pool for reuse. Logs the session ID to track when it becomes available
    * again. Triggers callback if set.
    *
@@ -108,7 +155,10 @@ public class SessionPool implements AutoCloseable {
     if (session != null && allSessions.contains(session)) {
       String sessionId = sessionIdMap.getOrDefault(session, "UNKNOWN");
       SessionWithId sessionWithId = new SessionWithId(session, sessionId);
-      availableSessions.offer(sessionWithId);
+      boolean queued = availableSessions.offer(sessionWithId);
+      if (!queued) {
+        logger.error("[{}] Failed to return session to pool; queue is unexpectedly full", sessionId);
+      }
       logger.info("[{}] Returned to pool ({} sessions now available)",
           sessionId, availableSessions.size());
 
@@ -131,7 +181,7 @@ public class SessionPool implements AutoCloseable {
    * @return the pool size
    */
   public int getSize() {
-    return poolSize;
+    return allSessions.size();
   }
 
   /**
@@ -153,4 +203,3 @@ public class SessionPool implements AutoCloseable {
     return sessionIdMap.getOrDefault(session, "UNKNOWN");
   }
 }
-

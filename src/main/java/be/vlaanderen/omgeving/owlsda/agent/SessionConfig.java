@@ -12,9 +12,6 @@ public final class SessionConfig {
   private String model;
   private Context systemContext;
   private int timeoutMs;
+  private int betweenMessageTimeoutMs;
   private List<SessionHandler> handlers;
-
-  public void addHandler(SessionHandler handler) {
-    handlers.add(handler);
-  }
 }

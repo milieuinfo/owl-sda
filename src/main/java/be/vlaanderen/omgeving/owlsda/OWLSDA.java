@@ -14,7 +14,7 @@ import be.vlaanderen.omgeving.owlsda.ontology.Ontology;
 import be.vlaanderen.omgeving.owlsda.ontology.OntologyExtractor;
 import be.vlaanderen.omgeving.owlsda.ontology.OntologyReasoner;
 import be.vlaanderen.omgeving.owlsda.ontology.Shacl;
-import be.vlaanderen.omgeving.owlsda.session.SessionManager;
+import be.vlaanderen.omgeving.owlsda.agent.SessionManager;
 import be.vlaanderen.omgeving.owlsda.validation.OutputValidator;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -233,7 +233,7 @@ public class OWLSDA {
         sessionManager.getShapeProcessingTracker()
     );
     SupervisorReviewCoordinator reviewCoordinator = new SupervisorReviewCoordinator(
-        reviewerSession, supervisor, validator);
+        reviewerSession, supervisor, validator, benchmarkService, sessionManager.getSharedTripleStore());
 
     sessionManager.setReviewerServiceProvider(() -> reviewCoordinator);
 
@@ -246,9 +246,5 @@ public class OWLSDA {
         sessionManager.getSharedTripleStore(),
         sessionManager.getWorkerSessionPool()
     );
-  }
-
-  public String getOutputData() {
-    return validator.getOutputDataAsString();
   }
 }

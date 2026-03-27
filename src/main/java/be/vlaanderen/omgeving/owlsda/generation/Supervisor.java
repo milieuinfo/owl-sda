@@ -9,11 +9,15 @@ import be.vlaanderen.omgeving.owlsda.agent.context.Context;
 import be.vlaanderen.omgeving.owlsda.ontology.Shacl;
 import be.vlaanderen.omgeving.owlsda.validation.OutputValidator;
 import be.vlaanderen.omgeving.owlsda.agent.handler.WorkerTripleStore;
+import be.vlaanderen.omgeving.owlsda.agent.handler.WorkerProgressHandler;
 import be.vlaanderen.omgeving.owlsda.agent.SessionMessageLogEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.shacl.ValidationReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +33,7 @@ public record Supervisor(Session supervisorSession, OutputValidator validator,
   private static final Logger logger = LoggerFactory.getLogger(Supervisor.class);
   private static final String DELEGATION_CONTEXT_NAME = "Delegation Instructions";
   private static final String WORKER_RESPONSES_CONTEXT_NAME = "Worker Responses";
+  private static final String WORKER_PROGRESS_CONTEXT_NAME = WorkerProgressHandler.CONTEXT_NAME;
   private static final int MAX_WORKER_RESPONSE_CHARS = 1200;
 
   public boolean orchestrate(int shapes, boolean firstPass) {
@@ -63,52 +68,69 @@ public record Supervisor(Session supervisorSession, OutputValidator validator,
         return false;
       }
 
-      // Reset all worker delegation contexts for this round; only explicitly delegated workers get new instructions.
-      clearWorkerDelegationInstructions();
+      reopenShapesWithOutstandingViolations();
 
-      // Always provide SHACL scope for delegation and fixes.
-      int contextEnd = Math.min(shapes, getUnprocessedShapes().size());
-      if (contextEnd > 0) {
-        supervisorSession.addContextIfChanged(new ShaclContext(shacl, 0, contextEnd, shacl.getShapes().size()));
-      }
-
-      boolean hasValidationReport = validationReport != null && !validationReport.isEmpty();
-
-      if (hasValidationReport) {
-        supervisorSession.addContext(new ValidationContext(validationReport));
-      }
-
+      boolean hasValidationReport = prepareDelegationRound(shapes, validationReport);
       String instructions = buildDelegationInstructions(shapes, firstPass, hasValidationReport);
       String workerInstructions = buildWorkerInstructions(firstPass, hasValidationReport);
 
-      flushSharedStoreBeforeSupervisorPrompt();
-      ResponseMessage response = supervisorSession.prompt(new RequestMessage(instructions)).get();
-      logger.info("Supervisor delegation response: {}", response.getMessage());
-
-      List<Session> delegatedWorkerSessions = getDelegatedWorkerSessions();
-      int delegatedWorkerCount = delegatedWorkerSessions.size();
-      if (delegatedWorkerCount == 0) {
-        logger.warn("Supervisor did not delegate tasks in first attempt; issuing strict retry prompt");
-        delegatedWorkerCount = forceDelegationRetry(shapes, hasValidationReport);
-        delegatedWorkerSessions = getDelegatedWorkerSessions();
-      }
-
-      if (delegatedWorkerCount == 0) {
+      List<Session> delegatedWorkerSessions = requestDelegationAssignments(shapes, instructions,
+          hasValidationReport);
+      if (delegatedWorkerSessions.isEmpty()) {
         logger.error("Supervisor did not delegate any tasks to workers for this round; aborting round to avoid infinite retry loop");
         return false;
       }
 
-      logger.info("Delegation round assigned tasks to {} worker(s)", delegatedWorkerCount);
-      boolean batchSuccess = concurrentWorkerBatch.runWithDelegation(workerInstructions, shapes);
-      publishWorkerResponsesToSupervisor(delegatedWorkerSessions);
-      if (batchSuccess) {
-        markDelegatedShapesAsProcessed(delegatedWorkerCount);
-      }
-      return batchSuccess;
+      return executeDelegatedRound(shapes, workerInstructions, delegatedWorkerSessions);
     } catch (Exception e) {
       logger.error("Failed to delegate: {}", e.getMessage(), e);
       return false;
     }
+  }
+
+  private boolean prepareDelegationRound(int shapes, String validationReport) {
+    clearWorkerDelegationInstructions();
+
+    if (shacl != null && shacl.getShapes() != null && !shacl.getShapes().isEmpty()) {
+      supervisorSession.addContextIfChanged(new ShaclContext(shacl, 0, shacl.getShapes().size(),
+          shacl.getShapes().size()));
+    }
+
+    boolean hasValidationReport = validationReport != null && !validationReport.isEmpty();
+    if (hasValidationReport) {
+      supervisorSession.addContext(new ValidationContext(validationReport));
+    }
+    return hasValidationReport;
+  }
+
+  private List<Session> requestDelegationAssignments(int shapes, String instructions,
+                                                     boolean hasValidationReport) throws Exception {
+    flushSharedStoreBeforeSupervisorPrompt();
+    ResponseMessage response = supervisorSession.prompt(new RequestMessage(instructions)).get();
+    logger.info("Supervisor delegation response: {}", response.getMessage());
+
+    List<Session> delegatedWorkerSessions = getDelegatedWorkerSessions();
+    int delegatedWorkerCount = delegatedWorkerSessions.size();
+    if (delegatedWorkerCount == 0) {
+      logger.warn("Supervisor did not delegate tasks in first attempt; issuing strict retry prompt");
+      forceDelegationRetry(shapes, hasValidationReport);
+      delegatedWorkerSessions = getDelegatedWorkerSessions();
+    }
+
+    return delegatedWorkerSessions;
+  }
+
+  private boolean executeDelegatedRound(int shapes, String workerInstructions,
+                                        List<Session> delegatedWorkerSessions) throws Exception {
+    int delegatedWorkerCount = delegatedWorkerSessions.size();
+    logger.info("Delegation round assigned tasks to {} worker(s)", delegatedWorkerCount);
+
+    boolean batchSuccess = concurrentWorkerBatch.runWithDelegation(workerInstructions, shapes);
+    publishWorkerResponsesToSupervisor(delegatedWorkerSessions);
+    if (batchSuccess) {
+      markDelegatedShapesAsProcessed(delegatedWorkerCount);
+    }
+    return batchSuccess;
   }
 
   /**
@@ -123,6 +145,14 @@ public record Supervisor(Session supervisorSession, OutputValidator validator,
         : "";
 
     // Calculate optimal shape distribution across all workers
+    Map<String, String> placeholders = getPlaceholders(shapes, validationContextHint,
+        iterationGuidance);
+
+    return InstructionFactory.render("supervisor-delegation-generation", placeholders);
+  }
+
+  private Map<String, String> getPlaceholders(int shapes, String validationContextHint,
+      String iterationGuidance) {
     String shapeDistribution = calculateOptimalDistribution(shapes);
 
     Map<String, String> placeholders = new HashMap<>();
@@ -132,8 +162,7 @@ public record Supervisor(Session supervisorSession, OutputValidator validator,
     placeholders.put("iterationGuidance", iterationGuidance);
     placeholders.put("batchSize", String.valueOf(shapes));
     placeholders.put("shapeDistribution", shapeDistribution);
-
-    return InstructionFactory.render("supervisor-delegation-generation", placeholders);
+    return placeholders;
   }
 
   /**
@@ -219,32 +248,95 @@ public record Supervisor(Session supervisorSession, OutputValidator validator,
     return shacl.getShapes().stream().filter(shape -> !shape.isProcessed()).toList();
   }
 
+  private void reopenShapesWithOutstandingViolations() {
+    if (shacl == null || shacl.getShapes() == null || shacl.getShapes().isEmpty()
+        || sharedTripleStore == null || sharedTripleStore.size() == 0) {
+      return;
+    }
+
+    try {
+      Model model = sharedTripleStore.getModel();
+      ValidationReport validationReport = shacl.validate(model);
+      if (validationReport == null) {
+        return;
+      }
+
+      List<String> reopenedShapeNames = new ArrayList<>();
+      for (Shacl.Shape shape : shacl.getShapes()) {
+        if (!shape.isProcessed()) {
+          continue;
+        }
+
+        String targetClassUri = ShapeValidationMatcher.getTargetClassUri(shape).orElse(null);
+        if (targetClassUri == null) {
+          continue;
+        }
+
+        Resource targetClass = model.createResource(targetClassUri);
+        boolean hasClassViolations = ShapeValidationMatcher.hasViolationsForTargetClass(
+            model, shacl != null ? shacl.getOntology() : null, validationReport, targetClass);
+        if (hasClassViolations) {
+          shape.setProcessed(false);
+          reopenedShapeNames.add(shape.getName());
+        }
+      }
+
+      if (!reopenedShapeNames.isEmpty()) {
+        logger.warn("Reopened {} processed shape(s) due to active class-related violations: {}",
+            reopenedShapeNames.size(), String.join(", ", reopenedShapeNames));
+      }
+    } catch (Exception e) {
+      logger.warn("Failed to reopen shapes with outstanding violations: {}", e.getMessage());
+    }
+  }
+
   private void markDelegatedShapesAsProcessed(int delegatedWorkerCount) {
     List<Shacl.Shape> unprocessedShapes = getUnprocessedShapes();
     if (unprocessedShapes.isEmpty()) {
+      logger.warn("No unprocessed shapes available to mark");
       return;
     }
+
+    logger.info("Total unprocessed shapes: {}", unprocessedShapes.size());
 
     int batchSize = (concurrentWorkerBatch.config() != null)
         ? concurrentWorkerBatch.config().getBatchSize()
         : 1;
     int shapesToMark = Math.min(unprocessedShapes.size(), delegatedWorkerCount * batchSize);
     if (shapesToMark <= 0) {
+      logger.warn("shapesToMark calculated as {}, returning", shapesToMark);
       return;
     }
 
-    List<String> completedShapeNames = new ArrayList<>();
-    for (int i = 0; i < shapesToMark; i++) {
-      Shacl.Shape shape = unprocessedShapes.get(i);
-      shape.setProcessed(true);
-      completedShapeNames.add(shape.getName());
+    logger.info("Evaluating {} shapes for completion (batchSize={}, delegatedWorkerCount={})",
+        shapesToMark, batchSize, delegatedWorkerCount);
+
+    ShapeCompletionEvaluator evaluator = new ShapeCompletionEvaluator(sharedTripleStore, shacl);
+    ShapeCompletionEvaluator.CompletionBatch completionBatch = evaluator.evaluate(unprocessedShapes, shapesToMark);
+
+    for (Shacl.Shape completedShape : completionBatch.completedShapes()) {
+      completedShape.setProcessed(true);
     }
 
-    if (shapeProcessingTracker != null) {
-      shapeProcessingTracker.markCompleted(completedShapeNames);
+    if (shapeProcessingTracker != null && !completionBatch.completedShapeNames().isEmpty()) {
+      shapeProcessingTracker.markCompleted(completionBatch.completedShapeNames());
     }
 
-    logger.info("Marked {} shape(s) as processed: {}", shapesToMark, String.join(", ", completedShapeNames));
+    if (!completionBatch.completedShapeNames().isEmpty()) {
+      logger.info("Marked {} shape(s) as processed: {}", completionBatch.completedShapeNames().size(),
+          String.join(", ", completionBatch.completedShapeNames()));
+    }
+
+    if (!completionBatch.skippedShapeNames().isEmpty()) {
+      logger.warn("Skipped marking {} shape(s) as processed (no instances generated): {}",
+          completionBatch.skippedShapeNames().size(), String.join(", ", completionBatch.skippedShapeNames()));
+    }
+
+    if (!completionBatch.skippedByValidationShapeNames().isEmpty()) {
+      logger.warn("Skipped marking {} shape(s) as processed (class-related validation violations remain): {}",
+          completionBatch.skippedByValidationShapeNames().size(),
+          String.join(", ", completionBatch.skippedByValidationShapeNames()));
+    }
   }
 
   /**
@@ -324,7 +416,10 @@ public record Supervisor(Session supervisorSession, OutputValidator validator,
   }
 
   /**
-   * Clear delegation context for all workers at the start of each delegation round so workers without new assignments do not retain stale instructions.
+   * Clear delegation context and stale progress report for all workers at the start of each
+   * delegation round. Workers without new assignments must not retain stale instructions, and
+   * the Worker Progress Report must be wiped so the supervisor cannot mistake a prior round's
+   * result for current-round progress.
    */
   private void clearWorkerDelegationInstructions() {
     if (concurrentWorkerBatch == null || concurrentWorkerBatch.workerSessionPool() == null) {
@@ -332,11 +427,31 @@ public record Supervisor(Session supervisorSession, OutputValidator validator,
     }
 
     for (Session workerSession : concurrentWorkerBatch.workerSessionPool().getAllSessions()) {
-      Context clearedDelegation = new Context();
-      clearedDelegation.setName(DELEGATION_CONTEXT_NAME);
-      clearedDelegation.setType("text/plain");
-      clearedDelegation.setContent("");
-      workerSession.addContextIfChanged(clearedDelegation);
+      List<String> delegationContextNames = workerSession.getContext().stream()
+          .map(Context::getName)
+          .filter(this::isDelegationContextName)
+          .distinct()
+          .toList();
+
+      if (delegationContextNames.isEmpty()) {
+        delegationContextNames = List.of(DELEGATION_CONTEXT_NAME);
+      }
+
+      for (String contextName : delegationContextNames) {
+        Context clearedDelegation = new Context();
+        clearedDelegation.setName(contextName);
+        clearedDelegation.setType("text/plain");
+        clearedDelegation.setContent("");
+        workerSession.addContextIfChanged(clearedDelegation);
+      }
+
+      // Clear the Worker Progress Report so the supervisor does not read a stale result
+      // from a previous round and mistake it for a report from the current round.
+      Context clearedProgress = new Context();
+      clearedProgress.setName(WORKER_PROGRESS_CONTEXT_NAME);
+      clearedProgress.setType("text/plain");
+      clearedProgress.setContent("");
+      workerSession.addContextIfChanged(clearedProgress);
     }
   }
 
@@ -371,12 +486,19 @@ public record Supervisor(Session supervisorSession, OutputValidator validator,
 
   private boolean hasActiveDelegationInstructions(Session workerSession) {
     for (Context context : workerSession.getContext()) {
-      if (DELEGATION_CONTEXT_NAME.equals(context.getName())) {
-        String content = context.getContent();
-        return content != null && !content.isBlank();
+      String contextName = context.getName();
+      if (!DELEGATION_CONTEXT_NAME.equals(contextName)) {
+        continue;
       }
+
+      String content = context.getContent();
+      return content != null && !content.isBlank();
     }
     return false;
+  }
+
+  private boolean isDelegationContextName(String contextName) {
+    return contextName != null && contextName.toLowerCase().contains("delegation");
   }
 
   private String getTargetAgentRange() {
@@ -404,7 +526,9 @@ public record Supervisor(Session supervisorSession, OutputValidator validator,
     try {
       String retryInstruction = buildMandatoryDelegationRetryInstruction(shapes, hasValidationReport);
       flushSharedStoreBeforeSupervisorPrompt();
-      ResponseMessage retryResponse = supervisorSession.prompt(new RequestMessage(retryInstruction)).get();
+      ResponseMessage retryResponse = supervisorSession.prompt(
+          new RequestMessage(retryInstruction, "supervisor-delegation-generation-retry")
+      ).get();
       logger.info("Supervisor strict delegation retry response: {}", retryResponse.getMessage());
       return getDelegatedWorkerCount();
     } catch (Exception e) {
@@ -449,6 +573,17 @@ public record Supervisor(Session supervisorSession, OutputValidator validator,
         continue;
       }
 
+      String workerReport = getWorkerProgressReport(workerSession);
+      if (workerReport != null && !workerReport.isBlank()) {
+        content.append(workerId)
+            .append(" [STRUCTURED_PROGRESS]:\n")
+            .append(truncate(workerReport))
+            .append("\n\n");
+        // Progress report already provides full context; skip the raw message log.
+        continue;
+      }
+
+      // No structured progress report for this round — fall back to latest message.
       SessionMessageLogEntry latest = getLatestWorkerResponse(workerSession);
       if (latest == null) {
         continue;
@@ -471,6 +606,15 @@ public record Supervisor(Session supervisorSession, OutputValidator validator,
     workerResponses.setType("text/plain");
     workerResponses.setContent(content.toString().trim());
     supervisorSession.addContextIfChanged(workerResponses);
+  }
+
+  private String getWorkerProgressReport(Session workerSession) {
+    for (Context context : workerSession.getContext()) {
+      if (WORKER_PROGRESS_CONTEXT_NAME.equals(context.getName())) {
+        return context.getContent();
+      }
+    }
+    return null;
   }
 
   private SessionMessageLogEntry getLatestWorkerResponse(Session workerSession) {
