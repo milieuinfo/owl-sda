@@ -1,1 +1,25 @@
-# OWL-SDA
+---
+layout: home
+
+hero:
+  name: "OWL-SDA"
+  text: "OWL Synthetic Data AI-Agent"
+  tagline: Generate synthetic RDF instance data from OWL ontologies using Large Language Models.
+  actions:
+    - theme: brand
+      text: Get Started
+      link: /guide/introduction
+    - theme: alt
+      text: Configuration Reference
+      link: /guide/configuration
+
+features:
+  - title: Ontology-Driven Generation
+    details: Automatically derives SHACL shapes from your OWL ontology and uses them to guide and validate the generated RDF data.
+  - title: Multi-Agent Architecture
+    details: A supervisor coordinates a configurable pool of parallel worker agents, enabling concurrent generation of large datasets.
+  - title: Built-in Review Loop
+    details: A dedicated reviewer agent validates the generated output and requests revisions until the data meets quality standards.
+  - title: Benchmark Snapshots
+    details: Capture timestamped snapshots of every generation round including token usage, violations, and context state for full observability.
+---

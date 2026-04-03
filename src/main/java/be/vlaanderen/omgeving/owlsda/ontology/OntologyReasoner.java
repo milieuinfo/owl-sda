@@ -17,6 +17,11 @@ import org.apache.jena.reasoner.rulesys.Rule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Applies inference to an {@link Ontology} model using a configured Jena reasoner.
+ * Supports OWL, RDFS, transitive, and custom rule-based reasoners. Caches the
+ * inferred model to disk to skip re-inference on subsequent runs.
+ */
 public class OntologyReasoner {
   private static final Logger logger = LoggerFactory.getLogger(OntologyReasoner.class);
 
@@ -25,7 +30,6 @@ public class OntologyReasoner {
 
   public OntologyReasoner(Config config) {
     this.config = config;
-    // initialize reasoner
     initialize();
   }
 
@@ -74,27 +78,25 @@ public class OntologyReasoner {
       }
     }
 
-    InfModel inf = null;
-
-    // Check if inferred output already exists
+    // Check if cached inferred output already exists; load it to skip expensive inference
     try {
       var outPath = config.getReasoner().getInferredOutputPath();
       if (outPath != null && !outPath.isBlank()) {
         Path outputFile = Paths.get(outPath);
         if (Files.exists(outputFile)) {
-          logger.info("Inferred model output already exists at {}, skipping inference", outPath);
-          // Load the existing inferred model
-          inf = ModelFactory.createInfModel(reasoner, union);
-          info.setInferredModel(inf);
+          logger.info("Loading cached inferred model from {}", outPath);
+          Model cachedModel = ModelFactory.createDefaultModel();
+          cachedModel.read(outputFile.toUri().toString(), "TURTLE");
+          info.setInferredModel(ModelFactory.createInfModel(reasoner, cachedModel));
           return;
         }
       }
     } catch (Exception e) {
-      logger.warn("Failed to check inferred output file: {}", e.getMessage());
+      logger.warn("Failed to load cached inferred model, re-running inference: {}", e.getMessage());
     }
 
     // Create the InfModel once over the union model. This avoids copying data and speeds up reasoning.
-    inf = ModelFactory.createInfModel(reasoner, union);
+    InfModel inf = ModelFactory.createInfModel(reasoner, union);
     logger.info("Preparing inferred model (this may take some time for large ontologies)...");
     inf.prepare();
 

@@ -1,8 +1,9 @@
 package be.vlaanderen.omgeving.owlsda.generation;
 
 import java.io.InputStream;
-import java.util.HashMap;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +14,7 @@ import org.slf4j.LoggerFactory;
 public class InstructionFactory {
 
   private static final Logger logger = LoggerFactory.getLogger(InstructionFactory.class);
-  private static final Map<String, String> templateCache = new HashMap<>();
+  private static final Map<String, String> templateCache = new ConcurrentHashMap<>();
 
   /**
    * Load a template from resources and render it with the provided placeholders.
@@ -46,28 +47,23 @@ public class InstructionFactory {
    * @return Rendered instruction string
    */
   public static String render(String templateName, String placeholderKey, String placeholderValue) {
-    Map<String, String> placeholders = new HashMap<>();
-    placeholders.put(placeholderKey, placeholderValue);
-    return render(templateName, placeholders);
+    return render(templateName, Map.of(placeholderKey, placeholderValue != null ? placeholderValue : ""));
   }
 
   private static String loadTemplate(String templateName) {
-    // Check cache first
-    if (templateCache.containsKey(templateName)) {
-      return templateCache.get(templateName);
-    }
-
-    String resourcePath = templateName.endsWith(".txt") ? templateName : templateName + ".txt";
-    try (InputStream is = InstructionFactory.class.getClassLoader().getResourceAsStream(resourcePath)) {
-      if (is == null) {
-        throw new RuntimeException("Instruction template not found: " + resourcePath);
+    return templateCache.computeIfAbsent(templateName, key -> {
+      String resourcePath = key.endsWith(".txt") ? key : key + ".txt";
+      try (InputStream is = InstructionFactory.class.getClassLoader().getResourceAsStream(resourcePath)) {
+        if (is == null) {
+          throw new RuntimeException("Instruction template not found: " + resourcePath);
+        }
+        return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+      } catch (RuntimeException e) {
+        throw e;
+      } catch (Exception e) {
+        throw new RuntimeException("Failed to load instruction template: " + resourcePath, e);
       }
-      String content = new String(is.readAllBytes());
-      templateCache.put(templateName, content);
-      return content;
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to load instruction template: " + resourcePath, e);
-    }
+    });
   }
 
   private static String replacePlaceholders(String template, Map<String, String> placeholders) {

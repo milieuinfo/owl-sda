@@ -21,9 +21,9 @@ public class Main implements Runnable {
       required = true,
       defaultValue = "examples/project-1/config.yml"
   )
-  private String configLocation = "";
+  private String configLocation;
 
-  static void main(String[] args) {
+  public static void main(String[] args) {
     int exitCode = new CommandLine(new Main()).execute(args);
     System.exit(exitCode);
   }
@@ -46,7 +46,6 @@ public class Main implements Runnable {
       OWLSDA app = new OWLSDA(config);
       app.run();
     } catch (IOException e) {
-      // Create a fallback logger in case configuration failed before logger initialization
       Logger logger = LoggerFactory.getLogger(Main.class);
       logger.error("Failed to load configuration", e);
       throw new RuntimeException(e);

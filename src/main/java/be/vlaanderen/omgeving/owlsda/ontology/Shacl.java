@@ -32,10 +32,8 @@ public class Shacl {
 
   private static final String SH = "http://www.w3.org/ns/shacl#";
   private final Logger logger = LoggerFactory.getLogger(Shacl.class);
-  @Getter
   @Setter
   private Model model;
-  @Getter
   @Setter
   private Model ontology;
   private final List<Shape> shapes = new ArrayList<>();
@@ -70,26 +68,26 @@ public class Shacl {
   }
 
   private void refresh() {
-    // Get all shapes and store in list
+    shapes.clear();
+
+    // Collect all NodeShape resources and extract each shape's model
     Iterator<Resource> it = model.listResourcesWithProperty(RDF.type,
         model.createResource(SH + "NodeShape"));
     while (it.hasNext()) {
       Resource shapeRes = it.next();
-      // Extract all properties of the shapeRes from 'model', including nested blank nodes
       Model shapeModel = ModelFactory.createDefaultModel();
       shapeModel.setNsPrefixes(model.getNsPrefixMap());
       extractShapeWithBlankNodes(shapeRes, shapeModel);
       shapes.add(new Shape(shapeModel));
     }
-    // Sort the shapes by the one with the most constraints)
+    // Sort shapes by constraint count (most constrained first)
     shapes.sort((s1, s2) -> {
       long count1 = s1.getModel().listStatements(null, null, (RDFNode) null).toList().size();
       long count2 = s2.getModel().listStatements(null, null, (RDFNode) null).toList().size();
       return Long.compare(count2, count1);
     });
-    // Log the shapes
     jenaShapes = Shapes.parse(model);
-    logger.info("Loaded {} SHACL shapes:", shapes.size());
+    logger.info("Loaded {} SHACL shapes", shapes.size());
   }
 
   /**

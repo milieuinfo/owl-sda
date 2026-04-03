@@ -29,10 +29,14 @@ import org.apache.jena.vocabulary.OWL2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Resolves and loads external ontology references (via {@code owl:imports} or namespace prefixes)
+ * into the {@link Ontology}'s external model map. Supports HTTP fetching with optional mirroring,
+ * file-based caching, and TTL-based cache expiry.
+ */
 public class OntologyExtractor {
 
-  private static final Logger logger = LoggerFactory.getLogger(
-      OntologyExtractor.class);
+  private static final Logger logger = LoggerFactory.getLogger(OntologyExtractor.class);
   private final HttpClient httpClient;
   private final Path cacheDir;
   private final Config config;
@@ -433,24 +437,14 @@ public class OntologyExtractor {
         return parsed;
       }
     }
-    // If content-type is missing or unrecognized try filename
-    switch (reference) {
-      case String r when r.endsWith(".json") || r.endsWith(".jsonld") -> {
-        lang = "JSON-LD";
-      }
-      case String r when r.endsWith(".rdf") || r.endsWith(".xml") -> {
-        lang = "RDF/XML";
-      }
-      case String r when r.endsWith(".nt") || r.endsWith(".ntriples") -> {
-        lang = "N-TRIPLES";
-      }
-      case String r when r.endsWith(".n3") -> {
-        lang = "N3";
-      }
-      default -> {
-        lang = "TURTLE";
-      }
-    }
+    // If content-type is missing or unrecognized, infer from file extension
+    lang = switch (reference) {
+      case String r when r.endsWith(".json") || r.endsWith(".jsonld") -> "JSON-LD";
+      case String r when r.endsWith(".rdf") || r.endsWith(".xml") -> "RDF/XML";
+      case String r when r.endsWith(".nt") || r.endsWith(".ntriples") -> "N-TRIPLES";
+      case String r when r.endsWith(".n3") -> "N3";
+      default -> "TURTLE";
+    };
     return parseWithLang(body, lang);
   }
 

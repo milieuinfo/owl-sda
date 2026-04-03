@@ -7,6 +7,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class OutputFeedbackHandlerTest {
 
@@ -37,5 +38,30 @@ public class OutputFeedbackHandlerTest {
     assertFalse(coordinator.isError());
     assertEquals("", coordinator.consumeReviewerFeedbackText());
   }
-}
 
+  @Test
+  public void handle_MissingState_ThrowsError() {
+    SupervisorReviewCoordinator coordinator = new SupervisorReviewCoordinator(null, null, null, null, null);
+    OutputFeedbackHandler handler = new OutputFeedbackHandler(() -> coordinator);
+
+    try {
+      handler.handle(Map.of("feedback", "some feedback"));
+      fail("Expected IllegalArgumentException for missing state");
+    } catch (IllegalArgumentException e) {
+      assertEquals("output_feedback.state is required", e.getMessage());
+    }
+  }
+
+  @Test
+  public void handle_RevisionRequestedWithoutFeedback_ThrowsError() {
+    SupervisorReviewCoordinator coordinator = new SupervisorReviewCoordinator(null, null, null, null, null);
+    OutputFeedbackHandler handler = new OutputFeedbackHandler(() -> coordinator);
+
+    try {
+      handler.handle(Map.of("state", "REVISION_REQUESTED")).join();
+      fail("Expected IllegalArgumentException for missing feedback");
+    } catch (IllegalArgumentException e) {
+      assertEquals("output_feedback.feedback is required when state=REVISION_REQUESTED", e.getMessage());
+    }
+  }
+}

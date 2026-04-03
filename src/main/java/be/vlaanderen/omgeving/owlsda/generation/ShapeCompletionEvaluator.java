@@ -3,7 +3,9 @@ package be.vlaanderen.omgeving.owlsda.generation;
 import be.vlaanderen.omgeving.owlsda.agent.handler.WorkerTripleStore;
 import be.vlaanderen.omgeving.owlsda.ontology.Shacl;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
@@ -82,16 +84,17 @@ class ShapeCompletionEvaluator {
         logger.warn("Shape '{}': No instances found for target class '{}' (store size: {} triples)",
             shape.getName(), targetClassUri, model.size());
 
-        // Debug: log what types ARE in the model
-        logger.info("Available rdf:type statements in store:");
-        java.util.Map<String, Integer> typeCounts = new java.util.HashMap<>();
-        model.listStatements(null, rdfType, (Resource) null).forEachRemaining(stmt -> {
-          String type = stmt.getObject().toString();
-          typeCounts.put(type, typeCounts.getOrDefault(type, 0) + 1);
-        });
-        typeCounts.forEach((type, count) -> logger.info("  {} : {} instances", type, count));
-        logger.info("Total rdf:type statements found: {}", typeCounts.values().stream().mapToInt(Integer::intValue).sum());
-        
+        if (logger.isDebugEnabled()) {
+          Map<String, Integer> typeCounts = new HashMap<>();
+          model.listStatements(null, rdfType, (Resource) null).forEachRemaining(stmt -> {
+            String type = stmt.getObject().toString();
+            typeCounts.merge(type, 1, Integer::sum);
+          });
+          typeCounts.forEach((type, count) -> logger.debug("  {} : {} instances", type, count));
+          logger.debug("Total rdf:type statements found: {}",
+              typeCounts.values().stream().mapToInt(Integer::intValue).sum());
+        }
+
         return CompletionStatus.SKIPPED_NO_INSTANCES;
       }
 

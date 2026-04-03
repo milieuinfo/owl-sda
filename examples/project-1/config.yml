@@ -23,6 +23,7 @@ client:
     #model: "gpt-5-mini" # DEBUGGING (free)
     model: "claude-3.5-sonnet"
     timeout-ms: 360000
+    max-review-attempts: 3
 
 benchmark:
   enabled: true

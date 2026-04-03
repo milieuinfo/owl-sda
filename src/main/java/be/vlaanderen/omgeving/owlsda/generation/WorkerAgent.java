@@ -6,6 +6,7 @@ import be.vlaanderen.omgeving.owlsda.agent.SessionPool;
 import be.vlaanderen.omgeving.owlsda.agent.SessionPool.SessionWithId;
 import be.vlaanderen.omgeving.owlsda.agent.context.ShaclContext;
 import be.vlaanderen.omgeving.owlsda.agent.context.Context;
+import be.vlaanderen.omgeving.owlsda.agent.handler.DelegationHandler;
 import be.vlaanderen.omgeving.owlsda.ontology.Shacl;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
@@ -20,7 +21,7 @@ public record WorkerAgent(SessionPool workerSessionPool, Shacl shacl, int worker
                           boolean isDelegationMode) implements Runnable {
 
   private static final Logger logger = LoggerFactory.getLogger(WorkerAgent.class);
-  private static final String DELEGATION_CONTEXT_NAME = "Delegation Instructions";
+  private static final String DELEGATION_CONTEXT_NAME = DelegationHandler.DELEGATION_CONTEXT_NAME;
 
   @Override
   public void run() {

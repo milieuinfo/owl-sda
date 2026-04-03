@@ -11,6 +11,9 @@ import org.slf4j.LoggerFactory;
  */
 public record DelegationHandler(DelegationPublisher publishContext) implements SessionHandler {
 
+  /** Canonical name for the context used to carry per-worker delegation instructions. */
+  public static final String DELEGATION_CONTEXT_NAME = "Delegation Instructions";
+
   private static final Logger logger = LoggerFactory.getLogger(DelegationHandler.class);
 
   @FunctionalInterface
@@ -64,7 +67,7 @@ public record DelegationHandler(DelegationPublisher publishContext) implements S
 
   @Override
   public CompletableFuture<Object> handle(Map<String, Object> arguments) {
-    String name = (String) arguments.getOrDefault("context_name", "Delegation Instructions");
+    String name = (String) arguments.getOrDefault("context_name", DELEGATION_CONTEXT_NAME);
     String targetAgent = (String) arguments.get("target_agent");
     String instructions = (String) arguments.get("instructions");
 

@@ -135,6 +135,8 @@ public class Config {
       private int timeoutMs = 60000;
       // Max idle time between assistant events (messages/tool requests). 0 disables this guard.
       private int betweenMessageTimeoutMs = 0;
+      // Soft limit for review iterations; on the last attempt reviewer must choose ACCEPTED or REJECTED.
+      private int maxReviewAttempts = 3;
     }
   }
 

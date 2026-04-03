@@ -2,7 +2,6 @@ package be.vlaanderen.omgeving.owlsda;
 
 import be.vlaanderen.omgeving.owlsda.benchmark.BenchmarkService;
 import be.vlaanderen.omgeving.owlsda.config.Config;
-import be.vlaanderen.omgeving.owlsda.exception.LanguageModelException;
 import be.vlaanderen.omgeving.owlsda.generation.ConcurrentWorkerBatch;
 import be.vlaanderen.omgeving.owlsda.generation.Supervisor;
 import be.vlaanderen.omgeving.owlsda.generation.SupervisorReviewCoordinator;
@@ -98,14 +97,14 @@ public class OWLSDA {
   }
 
   private void cleanupOutputAndBenchmarks() {
-    deleteFileIfExists(config.getOutputPath(), "output file");
+    deleteOutputFile(config.getOutputPath());
 
     if (config.getBenchmark() != null && config.getBenchmark().isEnabled()) {
-      deleteDirectoryContents(config.getBenchmark().getOutputDir(), "benchmark directory");
+      deleteBenchmarkDirectory(config.getBenchmark().getOutputDir());
     }
   }
 
-  private void deleteFileIfExists(String filePath, String label) {
+  private void deleteOutputFile(String filePath) {
     if (filePath == null || filePath.isBlank()) {
       return;
     }
@@ -113,14 +112,14 @@ public class OWLSDA {
     try {
       Path path = Path.of(filePath);
       if (Files.deleteIfExists(path)) {
-        logger.info("Deleted previous {}: {}", label, path);
+        logger.info("Deleted previous output file: {}", path);
       }
     } catch (Exception e) {
-      logger.warn("Could not delete {} '{}': {}", label, filePath, e.getMessage());
+      logger.warn("Could not delete output file '{}': {}", filePath, e.getMessage());
     }
   }
 
-  private void deleteDirectoryContents(String dirPath, String label) {
+  private void deleteBenchmarkDirectory(String dirPath) {
     if (dirPath == null || dirPath.isBlank()) {
       return;
     }
@@ -138,13 +137,13 @@ public class OWLSDA {
           throw new RuntimeException(e);
         }
       });
-      logger.info("Deleted previous {}: {}", label, dir);
+      logger.info("Deleted previous benchmark directory: {}", dir);
     } catch (Exception e) {
-      logger.warn("Could not delete {} '{}': {}", label, dirPath, e.getMessage());
+      logger.warn("Could not delete benchmark directory '{}': {}", dirPath, e.getMessage());
     }
   }
 
-  private void initialize() throws LanguageModelException {
+  private void initialize() {
     ontology = new Ontology();
     ontology.setFilePath(config.getInputPath());
   }
@@ -201,7 +200,6 @@ public class OWLSDA {
     sessionManager.setInferredShacl(inferredShacl);
     sessionManager.initialize();
 
-    // Add ontology context to all sessions (workers, supervisor, and reviewer)
     OntologyContext ontologyContext = new OntologyContext(ontology);
     sessionManager.addContextToAllSessions(ontologyContext);
     logger.info("Added ontology context to all sessions");
@@ -209,8 +207,17 @@ public class OWLSDA {
     // Add user-defined contexts if provided
     if (config.getUserContext() != null && !config.getUserContext().isEmpty()) {
       for (Config.UserContextEntry entry : config.getUserContext()) {
+        if (entry == null || entry.getPath() == null || entry.getPath().isBlank()) {
+          logger.warn("Skipping user context with missing path: {}",
+              entry != null ? entry.getName() : "<null>");
+          continue;
+        }
+
         Context userContext = new Context();
-        userContext.setName(entry.getName());
+        String contextName = (entry.getName() == null || entry.getName().isBlank())
+            ? "user-context"
+            : entry.getName();
+        userContext.setName(contextName);
         userContext.setFilePath(entry.getPath());
         userContext.setType("text/plain");
         sessionManager.addContextToAllSessions(userContext);
@@ -232,8 +239,19 @@ public class OWLSDA {
         sessionManager.getSharedTripleStore(),
         sessionManager.getShapeProcessingTracker()
     );
+    int maxReviewAttempts = config.getClient() != null
+        && config.getClient().getReviewer() != null
+        ? config.getClient().getReviewer().getMaxReviewAttempts()
+        : 3;
+
     SupervisorReviewCoordinator reviewCoordinator = new SupervisorReviewCoordinator(
-        reviewerSession, supervisor, validator, benchmarkService, sessionManager.getSharedTripleStore());
+        reviewerSession,
+        supervisor,
+        validator,
+        benchmarkService,
+        sessionManager.getSharedTripleStore(),
+        maxReviewAttempts
+    );
 
     sessionManager.setReviewerServiceProvider(() -> reviewCoordinator);
 

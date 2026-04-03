@@ -1,4 +1,5 @@
 package be.vlaanderen.omgeving.owlsda.agent.handler;
+
 import be.vlaanderen.omgeving.owlsda.generation.SupervisorReviewCoordinator;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -51,17 +52,15 @@ public record OutputFeedbackHandler(
   @Override
   public CompletableFuture<Object> handle(Map<String, Object> arguments) {
     String stateStr = (String) arguments.get("state");
-    if (stateStr == null) {
-      logger.warn("No feedback state provided, defaulting to REVISION_REQUESTED");
-      stateStr = FeedbackState.REVISION_REQUESTED.toString();
+    if (stateStr == null || stateStr.isBlank()) {
+      throw new IllegalArgumentException("output_feedback.state is required");
     }
 
     FeedbackState state;
     try {
-      state = FeedbackState.valueOf(stateStr);
+      state = FeedbackState.valueOf(stateStr.trim().toUpperCase());
     } catch (IllegalArgumentException e) {
-      logger.warn("Invalid feedback state: {}. Defaulting to REVISION_REQUESTED", stateStr);
-      state = FeedbackState.REVISION_REQUESTED;
+      throw new IllegalArgumentException("Invalid output_feedback.state: " + stateStr, e);
     }
 
     String feedbackText = extractFeedbackText(arguments.get("feedback"));
@@ -73,7 +72,10 @@ public record OutputFeedbackHandler(
     return CompletableFuture.completedFuture(null);
   }
 
-  private void handleFeedback(SupervisorReviewCoordinator coordinator, FeedbackState state, String feedbackText) {
+  private void handleFeedback(SupervisorReviewCoordinator coordinator, FeedbackState state,
+      String feedbackText) {
+    coordinator.markReviewerDecisionReceived();
+
     switch (state) {
       case ACCEPTED:
         coordinator.setReady(true);
@@ -82,25 +84,26 @@ public record OutputFeedbackHandler(
         logger.info("Output feedback: ACCEPTED (ready for use)");
         break;
       case REJECTED:
+        requireActionableFeedback(state, feedbackText);
         coordinator.setReady(false);
         coordinator.setError(true);
         coordinator.setReviewerFeedbackText(feedbackText);
-        if (feedbackText.isBlank()) {
-          logger.warn("Output feedback: REJECTED without actionable feedback text");
-        } else {
-          logger.info("Output feedback: REJECTED (generation failed)");
-        }
+        logger.info("Output feedback: REJECTED (generation failed)");
         break;
       case REVISION_REQUESTED:
+        requireActionableFeedback(state, feedbackText);
         coordinator.setReady(false);
         coordinator.setError(false);
         coordinator.setReviewerFeedbackText(feedbackText);
-        if (feedbackText.isBlank()) {
-          logger.warn("Output feedback: REVISION_REQUESTED without actionable feedback text");
-        } else {
-          logger.info("Output feedback: REVISION_REQUESTED (requires changes)");
-        }
+        logger.info("Output feedback: REVISION_REQUESTED (requires changes)");
         break;
+    }
+  }
+
+  private void requireActionableFeedback(FeedbackState state, String feedbackText) {
+    if (feedbackText == null || feedbackText.isBlank()) {
+      throw new IllegalArgumentException(
+          "output_feedback.feedback is required when state=" + state.name());
     }
   }
 

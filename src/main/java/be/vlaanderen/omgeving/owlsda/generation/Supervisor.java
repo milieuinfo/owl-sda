@@ -10,6 +10,7 @@ import be.vlaanderen.omgeving.owlsda.ontology.Shacl;
 import be.vlaanderen.omgeving.owlsda.validation.OutputValidator;
 import be.vlaanderen.omgeving.owlsda.agent.handler.WorkerTripleStore;
 import be.vlaanderen.omgeving.owlsda.agent.handler.WorkerProgressHandler;
+import be.vlaanderen.omgeving.owlsda.agent.handler.DelegationHandler;
 import be.vlaanderen.omgeving.owlsda.agent.SessionMessageLogEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +32,7 @@ public record Supervisor(Session supervisorSession, OutputValidator validator,
                          ShapeProcessingTracker shapeProcessingTracker) {
 
   private static final Logger logger = LoggerFactory.getLogger(Supervisor.class);
-  private static final String DELEGATION_CONTEXT_NAME = "Delegation Instructions";
+  private static final String DELEGATION_CONTEXT_NAME = DelegationHandler.DELEGATION_CONTEXT_NAME;
   private static final String WORKER_RESPONSES_CONTEXT_NAME = "Worker Responses";
   private static final String WORKER_PROGRESS_CONTEXT_NAME = WorkerProgressHandler.CONTEXT_NAME;
   private static final int MAX_WORKER_RESPONSE_CHARS = 1200;

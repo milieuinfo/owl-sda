@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  */
 @Getter
 public class OutputValidator {
-  private final Logger logger = LoggerFactory.getLogger(OutputValidator.class);
+  private static final Logger logger = LoggerFactory.getLogger(OutputValidator.class);
 
   private final String outputPath;
   private final Shacl shacl;
@@ -45,16 +45,13 @@ public class OutputValidator {
    * Get output data as a string from file.
    */
   public String getOutputDataAsString() {
+    if (outputPath == null) {
+      throw new IllegalArgumentException("Output path is not configured");
+    }
     try {
-      if (outputPath == null) {
-        throw new IllegalArgumentException("Output path is not configured");
-      }
-
-      try (var reader = Files.newBufferedReader(Path.of(outputPath))) {
-        return reader.lines().reduce("", (a, b) -> a + "\n" + b);
-      }
+      return Files.readString(Path.of(outputPath));
     } catch (Exception e) {
-      throw new RuntimeException("Unable to read output data: " + e.getMessage());
+      throw new RuntimeException("Unable to read output data: " + e.getMessage(), e);
     }
   }
 

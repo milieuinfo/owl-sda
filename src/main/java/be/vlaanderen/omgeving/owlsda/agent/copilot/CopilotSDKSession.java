@@ -29,13 +29,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CopilotSDKSession implements Session {
-  private final Logger logger = LoggerFactory.getLogger(CopilotSDKSession.class);
+  private static final Logger logger = LoggerFactory.getLogger(CopilotSDKSession.class);
 
   private final Set<CopilotSDKContext> contexts = ConcurrentHashMap.newKeySet();
   private final CopilotSession session;
   private final SessionConfig config;
 
-  private final java.util.List<SessionMessageLogEntry> messageLog = new CopyOnWriteArrayList<>();
+  private final List<SessionMessageLogEntry> messageLog = new CopyOnWriteArrayList<>();
   private final AtomicLong totalTokensUsed = new AtomicLong(0L);
   private final AtomicLong lastAssistantActivityMs = new AtomicLong(System.currentTimeMillis());
   private final ScheduledThreadPoolExecutor inactivityMonitorExecutor;
@@ -107,7 +107,7 @@ public class CopilotSDKSession implements Session {
       logger.debug("Session is now idle");
     });
     session.setEventErrorHandler(
-        (eventIgnored, e) -> logger.error("Error occurred while processing event", e));
+        (_, e) -> logger.error("Error occurred while processing event", e));
   }
 
   @Override
@@ -247,7 +247,7 @@ public class CopilotSDKSession implements Session {
   }
 
   @Override
-  public java.util.List<SessionMessageLogEntry> getMessageLog() {
+  public List<SessionMessageLogEntry> getMessageLog() {
     return List.copyOf(messageLog);
   }
 

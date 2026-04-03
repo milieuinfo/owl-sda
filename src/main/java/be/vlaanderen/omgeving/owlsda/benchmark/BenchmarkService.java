@@ -45,16 +45,18 @@ public class BenchmarkService {
 
   /**
    * Checks if a snapshot should be created based on state changes.
-   * Compares current state with last snapshot to detect changes.
+   * The stage name is included in the hash so that lifecycle transitions
+   * (e.g. GENERATE → FINALIZING → REVIEW) always produce distinct snapshots
+   * even when session content has not changed.
    */
-  private boolean shouldCreateSnapshot(Session generatorSession, Session reviewerSession,
+  private boolean shouldCreateSnapshot(String stage, Session generatorSession, Session reviewerSession,
       WorkerTripleStore tripleStore, List<Session> workerSessions) {
     if (!isEnabled()) {
       return false;
     }
 
-    // Calculate hash of current state
-    int currentHash = calculateStateHash(generatorSession, reviewerSession, tripleStore, workerSessions);
+    // Calculate hash of current state (stage-aware)
+    int currentHash = calculateStateHash(stage, generatorSession, reviewerSession, tripleStore, workerSessions);
 
     // Check if state has changed since last snapshot
     if (currentHash == lastSnapshotHash && lastSnapshotHash != 0) {
@@ -67,11 +69,15 @@ public class BenchmarkService {
 
   /**
    * Calculates a hash representing the current state of contexts, output, and triple store.
+   * Includes the stage name so that distinct workflow stages always hash differently.
    * Handles null sessions gracefully for worker return snapshots.
    */
-  private int calculateStateHash(Session generatorSession, Session reviewerSession,
+  private int calculateStateHash(String stage, Session generatorSession, Session reviewerSession,
       WorkerTripleStore tripleStore, List<Session> workerSessions) {
     int hash = 17;
+
+    // Include the stage so GENERATE / FINALIZING / REVIEW always differ
+    hash = 31 * hash + (stage != null ? stage.hashCode() : 0);
 
     // Hash generator contexts (if available)
     if (generatorSession != null) {
@@ -171,6 +177,7 @@ public class BenchmarkService {
    */
   public String createBatchSnapshot(BenchmarkSnapshotData snapshotData, int currentViolations) {
     if (!shouldCreateSnapshot(
+        snapshotData.stage(),
         snapshotData.generatorSession(),
         snapshotData.reviewerSession(),
         snapshotData.tripleStore(),
@@ -215,6 +222,7 @@ public class BenchmarkService {
       copyLogFileToSnapshot(snapshotDir);
 
       lastSnapshotHash = calculateStateHash(
+          snapshotData.stage(),
           snapshotData.generatorSession(),
           snapshotData.reviewerSession(),
           snapshotData.tripleStore(),
@@ -354,14 +362,14 @@ public class BenchmarkService {
   /**
    * Writes a list of contexts to a directory.
    */
-  private void writeContexts(Path targetDir, java.util.List<Context> contexts) throws IOException {
+  private void writeContexts(Path targetDir, List<Context> contexts) throws IOException {
     writeContexts(targetDir, contexts, "");
   }
 
   /**
    * Writes a list of contexts to a directory, prepending {@code filePrefix} to each file name.
    */
-  private void writeContexts(Path targetDir, java.util.List<Context> contexts, String filePrefix)
+  private void writeContexts(Path targetDir, List<Context> contexts, String filePrefix)
       throws IOException {
     int i = 0;
     for (Context c : contexts) {

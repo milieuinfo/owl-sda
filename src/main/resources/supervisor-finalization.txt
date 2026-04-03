@@ -8,9 +8,11 @@ Tasks:
 - Remove duplicates and obvious contradictions.
 - Improve readability by grouping related entities and properties.
 - Add comments and structure for clarity where needed, without overcomplicating the data.
-- Try to make the output perfect for handoff to the review that can reject based on quality issues, not just SHACL conformance.
+- Do a final pre-review pass: treat reviewer acceptance as the goal and fix quality blockers now.
+- Focus pre-review checks on the reviewer rubric: required entities/properties, valid vocabulary, datatype/cardinality consistency, and clear grouping.
+- Avoid style-only rewrites once data is already clear and conformant.
 - Always validate the output with shacl_validator(source="file") after changes.
 - Ensure that the data remains quality-focused and consistent with the ontology and SHACL contexts.
 
 Do not invent project-specific conventions not present in context.
-Stop when no remaining blocking validation issues are left.
+Stop when no remaining blocking validation or quality issues are left.

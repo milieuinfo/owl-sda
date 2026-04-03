@@ -7,7 +7,6 @@ import be.vlaanderen.omgeving.owlsda.generation.ShapeProcessingTracker;
 import be.vlaanderen.omgeving.owlsda.generation.SupervisorReviewCoordinator;
 import be.vlaanderen.omgeving.owlsda.agent.context.Context;
 import be.vlaanderen.omgeving.owlsda.agent.context.ContextFactory;
-import be.vlaanderen.omgeving.owlsda.agent.context.ValidationContext;
 import be.vlaanderen.omgeving.owlsda.agent.copilot.CopilotSDKClient;
 import be.vlaanderen.omgeving.owlsda.agent.handler.ContextReaderHandler;
 import be.vlaanderen.omgeving.owlsda.agent.handler.DelegationHandler;
@@ -34,17 +33,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Manages all agent sessions: worker pool, supervisor, and reviewer
+ * Manages all agent sessions: worker pool, supervisor, and reviewer.
  */
 @Getter
 public class SessionManager {
   private static final Logger logger = LoggerFactory.getLogger(SessionManager.class);
-  private static final String DELEGATION_CONTEXT_NAME = "Delegation Instructions";
+  private static final String DELEGATION_CONTEXT_NAME = DelegationHandler.DELEGATION_CONTEXT_NAME;
 
   private final Config config;
 
   /**
-   * SHACL shapes for validation
+   * SHACL shapes used for validation.
    */
   @Setter
   private Shacl shacl;
@@ -52,7 +51,7 @@ public class SessionManager {
   private Shacl inferredShacl;
 
   /**
-   *  Set the reviewer service provider
+   * Lazy provider for the reviewer service, set after the full workflow is constructed.
    */
   @Setter
   private ReviewerServiceProvider reviewerServiceProvider;
@@ -63,7 +62,6 @@ public class SessionManager {
   private Session reviewerSession;
   private final WorkerTripleStore sharedTripleStore;
 
-  @Getter
   private ShapeProcessingTracker shapeProcessingTracker;
 
   public SessionManager(Config config) {
@@ -102,7 +100,7 @@ public class SessionManager {
 
     for (int i = 0; i < poolCount; i++) {
       try {
-        ArrayList<SessionHandler> handlers = new ArrayList<>();
+        List<SessionHandler> handlers = new ArrayList<>();
 
         // Worker ID for this session
         String workerId = "POOL-" + i;
@@ -133,7 +131,7 @@ public class SessionManager {
               shacl,
               null,
               sharedTripleStore,
-              this::addValidationContextToAllSessionsIfChanged
+              this::addContextToAllSessionsIfChanged
           ));
         }
 
@@ -159,7 +157,7 @@ public class SessionManager {
 
   private void initializeSupervisorSession() {
     try {
-      ArrayList<SessionHandler> handlers = new ArrayList<>();
+      List<SessionHandler> handlers = new ArrayList<>();
       handlers.add(new ContextReaderHandler(
           () -> supervisorSession != null ? supervisorSession.getContext() : List.of()
       ));
@@ -180,7 +178,7 @@ public class SessionManager {
             shacl,
             config,
             null,
-            this::addValidationContextToAllSessionsIfChanged
+            this::addContextToAllSessionsIfChanged
         ));
       }
 
@@ -288,7 +286,7 @@ public class SessionManager {
 
   private void initializeReviewerSession() {
     try {
-      ArrayList<SessionHandler> handlers = new ArrayList<>();
+      List<SessionHandler> handlers = new ArrayList<>();
       handlers.add(new ContextReaderHandler(
           () -> reviewerSession != null ? reviewerSession.getContext() : List.of()
       ));
@@ -299,7 +297,7 @@ public class SessionManager {
             inferredShacl,
             config,
             null,
-            this::addValidationContextToAllSessionsIfChanged
+            this::addContextToAllSessionsIfChanged
         ));
       }
 
@@ -330,7 +328,9 @@ public class SessionManager {
     allSessions.add(reviewerSession);
 
     for (Session session : allSessions) {
-      session.addContext(context);
+      if (session != null) {
+        session.addContext(context);
+      }
     }
 
     logger.debug("Added context '{}' to all sessions", context.getName());
@@ -350,12 +350,8 @@ public class SessionManager {
     logger.debug("Added/updated context '{}' to all sessions (if changed)", context.getName());
   }
 
-  private void addValidationContextToAllSessionsIfChanged(ValidationContext validationContext) {
-    addContextToAllSessionsIfChanged(validationContext);
-  }
 
-  public void shutdown() {
-    try {
+  public void shutdown() {    try {
       if (workerSessionPool != null) {
         for (Session session : workerSessionPool.getAllSessions()) {
           safeCloseSession(session, "worker");

@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * Preserves content outside the specified range while replacing the target lines.
  */
 public class OutputReplaceHandler implements SessionHandler {
-  private final Logger logger = LoggerFactory.getLogger(OutputReplaceHandler.class);
+  private static final Logger logger = LoggerFactory.getLogger(OutputReplaceHandler.class);
   private final Config config;
 
   public OutputReplaceHandler(Config config) {

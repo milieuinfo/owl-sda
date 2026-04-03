@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 @Getter
 public class SessionPool implements AutoCloseable {
 
-  private final static Logger logger = LoggerFactory.getLogger(SessionPool.class);
+  private static final Logger logger = LoggerFactory.getLogger(SessionPool.class);
 
   private final List<Session> allSessions;
   private final BlockingQueue<SessionWithId> availableSessions;
@@ -30,8 +30,8 @@ public class SessionPool implements AutoCloseable {
   private final AtomicInteger nextSessionId = new AtomicInteger(0);
   private final Map<Session, String> sessionIdMap = new HashMap<>();
   /**
-   *  Sets a callback to be notified when sessions are returned to the pool.
-   *  Useful for triggering actions like benchmark snapshots.
+   * Sets a callback to be notified when sessions are returned to the pool.
+   * Useful for triggering actions like benchmark snapshots.
    */
   @Setter
   private SessionReturnCallback sessionReturnCallback;

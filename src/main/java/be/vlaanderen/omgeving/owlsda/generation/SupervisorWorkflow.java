@@ -153,18 +153,15 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
             if (consecutiveNoProgressRounds >= MAX_CONSECUTIVE_NO_PROGRESS_ROUNDS) {
               logger.error("Stopping workflow: {} consecutive rounds produced no progress in shapes or validation",
                   MAX_CONSECUTIVE_NO_PROGRESS_ROUNDS);
-              // Before aborting, check if there are unprocessed shapes left and try a final aggressive delegation
-              if (processedShapes < totalShapes) {
-                logger.warn("Workflow stalled with {} unprocessed shapes; attempting final delegation to all remaining shapes",
-                    totalShapes - processedShapes);
-                shapes = totalShapes;
-                boolean finalAttempt = supervisor.orchestrate(shapes, false);
-                if (finalAttempt && getCompletedShapesCount() > processedShapes) {
-                  logger.info("Final aggressive delegation succeeded; resuming workflow");
-                  consecutiveNoProgressRounds = 0;
-                  lastProcessedShapes = getCompletedShapesCount();
-                  continue;
-                }
+              logger.warn("Workflow stalled with {} unprocessed shapes; attempting final delegation to all remaining shapes",
+                  totalShapes - processedShapes);
+              shapes = totalShapes;
+              boolean finalAttempt = supervisor.orchestrate(shapes, false);
+              if (finalAttempt && getCompletedShapesCount() > processedShapes) {
+                logger.info("Final aggressive delegation succeeded; resuming workflow");
+                consecutiveNoProgressRounds = 0;
+                lastProcessedShapes = getCompletedShapesCount();
+                continue;
               }
               return;
             }
@@ -232,7 +229,7 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
 
       Resource targetClass = dataModel.createResource(targetClassUri);
       if (ShapeValidationMatcher.hasViolationsForTargetClass(
-          dataModel, shacl != null ? shacl.getOntology() : null, report, targetClass)) {
+          dataModel, shacl.getOntology(), report, targetClass)) {
         shape.setProcessed(false);
         reopened++;
       }
@@ -386,7 +383,7 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
 
       Resource targetClass = dataModel.createResource(targetClassUri);
       if (!ShapeValidationMatcher.hasViolationsForTargetClass(
-          dataModel, shacl != null ? shacl.getOntology() : null, report, targetClass)) {
+          dataModel, shacl.getOntology(), report, targetClass)) {
         count++;
       }
     }
@@ -455,19 +452,26 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
 
     logger.info("Running final review on finalized output");
 
-    for (int attempt = 1; attempt <= MAX_FINALIZATION_ATTEMPTS; attempt++) {
-      try {
-        long reviewStart = System.currentTimeMillis();
-        reviewCoordinator.review();
-        captureBenchmarkSnapshot("REVIEW", reviewStart);
-        return;
-      } catch (Exception e) {
-        logger.error("Review error (attempt {}/{}): {}", attempt, MAX_FINALIZATION_ATTEMPTS,
-            e.getMessage(), e);
-      }
-    }
+    long reviewStart = System.currentTimeMillis();
+    try {
+      reviewCoordinator.review();
 
-    logger.error("Review failed after {} attempts", MAX_FINALIZATION_ATTEMPTS);
+      if (reviewCoordinator.isReady()) {
+        logger.info("Review completed with ACCEPTED decision");
+        captureBenchmarkSnapshot("REVIEW_ACCEPTED", reviewStart);
+        return;
+      }
+
+      if (reviewCoordinator.isError()) {
+        logger.warn("Review ended without acceptance (REJECTED or terminal review failure)");
+        captureBenchmarkSnapshot("REVIEW_REJECTED", reviewStart);
+        return;
+      }
+
+      throw new IllegalStateException("Review ended without a terminal decision");
+    } catch (Exception e) {
+      logger.error("Review error: {}", e.getMessage(), e);
+    }
   }
 
   private void logUnprocessedShapeNames(int processedShapes, int totalShapes) {

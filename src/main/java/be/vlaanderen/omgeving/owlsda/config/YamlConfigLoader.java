@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -96,7 +97,7 @@ public final class YamlConfigLoader {
       return null;
     }
 
-    try (Reader reader = new InputStreamReader(in)) {
+    try (Reader reader = new InputStreamReader(in, StandardCharsets.UTF_8)) {
       Yaml yaml = createYaml();
       try {
         return yaml.loadAs(reader, type);
@@ -114,7 +115,7 @@ public final class YamlConfigLoader {
     if (!Files.exists(p)) {
       throw new IOException("File not found: " + path);
     }
-    try (InputStream in = Files.newInputStream(p); Reader reader = new InputStreamReader(in)) {
+    try (InputStream in = Files.newInputStream(p); Reader reader = new InputStreamReader(in, StandardCharsets.UTF_8)) {
       Yaml yaml = createYaml();
       try {
         return yaml.loadAs(reader, type);

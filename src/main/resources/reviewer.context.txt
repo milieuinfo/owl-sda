@@ -17,6 +17,11 @@ Critical behavior:
 - When state=ACCEPTED, your textual feedback is not applied to output and is not sent back to supervisor for another revision round.
 - Therefore, do NOT mark ACCEPTED unless all required fixes are already complete.
 
+Iteration budget behavior:
+- The workflow sets a configurable review iteration budget.
+- Be flexible and converge quickly: do not request a new revision for non-blocking polish.
+- On the final configured attempt, make a final decision (ACCEPTED or REJECTED), not another revision request.
+
 What to check:
 - Required entities and properties are present.
 - Data uses only ontology/SHACL-supported vocabulary.

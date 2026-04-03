@@ -3,12 +3,12 @@ package be.vlaanderen.omgeving.owlsda.agent.handler;
 import be.vlaanderen.omgeving.owlsda.config.Config;
 import be.vlaanderen.omgeving.owlsda.agent.context.ValidationContext;
 import be.vlaanderen.omgeving.owlsda.ontology.Shacl;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * - "store" mode: Validates worker's triple store (workers only)
  */
 public class OutputValidatorHandler implements SessionHandler {
-  private final Logger logger = LoggerFactory.getLogger(OutputValidatorHandler.class);
+  private static final Logger logger = LoggerFactory.getLogger(OutputValidatorHandler.class);
   private final Shacl shacl;
   private final Config config;
   private final WorkerTripleStore tripleStore;
@@ -98,7 +98,8 @@ public class OutputValidatorHandler implements SessionHandler {
   @Override
   public CompletableFuture<Object> handle(Map<String, Object> arguments) {
     String source = (String) arguments.getOrDefault("source", "data");
-    boolean formatOnError = (boolean) arguments.getOrDefault("format-on-error", true);
+    Object formatOnErrorArg = arguments.getOrDefault("format-on-error", true);
+    boolean formatOnError = !(Boolean.FALSE.equals(formatOnErrorArg));
 
     return switch (source) {
       case "file" -> validateFile(formatOnError);
@@ -203,14 +204,7 @@ public class OutputValidatorHandler implements SessionHandler {
    * Read output file contents.
    */
   private String readOutputFile(String filePath) throws IOException {
-    StringBuilder content = new StringBuilder();
-    try (BufferedReader reader = Files.newBufferedReader(Path.of(filePath))) {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        content.append(line).append("\n");
-      }
-    }
-    return content.toString();
+    return Files.readString(Path.of(filePath));
   }
 
   /**
@@ -233,7 +227,7 @@ public class OutputValidatorHandler implements SessionHandler {
 
     if (formatOnError) {
       String reportString = formatValidationReport(report);
-      Map<String, Object> response = new java.util.HashMap<>();
+      Map<String, Object> response = new HashMap<>();
       response.put("status", "invalid");
       response.put("message", "Data does NOT conform to SHACL shapes");
       response.put("violations", report.getEntries().size());

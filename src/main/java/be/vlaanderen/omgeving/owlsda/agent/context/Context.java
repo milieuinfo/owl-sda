@@ -2,6 +2,7 @@ package be.vlaanderen.omgeving.owlsda.agent.context;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -10,7 +11,7 @@ import org.slf4j.LoggerFactory;
 @Getter
 @Setter
 public class Context {
-  private final Logger logger = LoggerFactory.getLogger(this.getClass());
+  private static final Logger logger = LoggerFactory.getLogger(Context.class);
 
   private String name;
   private String type;
@@ -30,23 +31,13 @@ public class Context {
   }
 
   /**
-   * Sets the content directly without creating a file.
+   * Sets the content directly.
    *
-   * @param content The content to be saved.
+   * @param content The content to set.
    */
   public void setContent(String content) {
     this.content = content;
     this.contentHash = content != null ? content.hashCode() : 0;
-    // Save to a temporary file and set the file path
-    try {
-      this.content = content;
-      this.contentHash = content != null ? content.hashCode() : 0;
-      File tempFile = File.createTempFile("context", ".txt");
-      Files.write(tempFile.toPath(), content.getBytes());
-      this.filePath = tempFile.getAbsolutePath();
-    } catch (Exception e) {
-      logger.error("Failed to set content for context", e);
-    }
   }
 
   /**
@@ -61,9 +52,9 @@ public class Context {
   }
 
   /**
-   * Retrieves the content of the context by reading it from the file path.
+   * Retrieves the content of the context by reading it from the file path if content is not set.
    *
-   * @return The content as a String, or null if the file path is not set or an error occurs.
+   * @return The content as a String, or null if neither content nor filePath is set.
    */
   public String getContent() {
     if (content != null) {
@@ -73,7 +64,7 @@ public class Context {
       return null;
     }
     try {
-      return new String(Files.readAllBytes(new File(filePath).toPath()));
+      return Files.readString(Path.of(filePath));
     } catch (Exception e) {
       logger.error("Failed to read content from file path: {}", filePath, e);
       return null;
@@ -89,14 +80,19 @@ public class Context {
     this.filePath = file.getAbsolutePath();
   }
 
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
     }
-    return name.equals(((Context) o).name);
+    if (!(o instanceof Context other)) {
+      return false;
+    }
+    return name != null && name.equals(other.name);
   }
 
+  @Override
   public int hashCode() {
-    return name.hashCode();
+    return name != null ? name.hashCode() : 0;
   }
 }
