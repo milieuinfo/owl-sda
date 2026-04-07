@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
@@ -32,6 +33,7 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
   private static final Logger logger = LoggerFactory.getLogger(SupervisorWorkflow.class);
   private static final int MAX_CONSECUTIVE_EMPTY_DELEGATION_ROUNDS = 3;
   private static final int MAX_CONSECUTIVE_NO_PROGRESS_ROUNDS = 5;
+  private static final int MAX_CONSECUTIVE_STALLED_VIOLATION_ROUNDS = 4;
   private static final int MAX_FINALIZATION_ATTEMPTS = 3;
 
   /**
@@ -83,6 +85,8 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
     int lastProcessedShapes = 0;
     int lastViolations = Integer.MAX_VALUE;
     int round = 0;
+    int consecutiveStalledViolationRounds = 0;
+    String lastViolationSignature = null;
 
     while (shapes <= totalShapes) {
       round++;
@@ -98,7 +102,8 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
 
           int processedShapes = getCompletedShapesCount();
           int processedDelta = processedShapes - lastProcessedShapes;
-          int currentViolations = getCurrentOutputViolations();
+          ViolationSnapshot violationSnapshot = getCurrentViolationSnapshot();
+          int currentViolations = violationSnapshot.count();
           int violationDelta = (lastViolations == Integer.MAX_VALUE || currentViolations < 0)
               ? 0
               : lastViolations - currentViolations;
@@ -141,6 +146,33 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
           boolean progressedByShapes = processedDelta > 0;
           boolean progressedByViolations = lastViolations == Integer.MAX_VALUE
               || (currentViolations >= 0 && currentViolations < lastViolations);
+
+          boolean sameViolationSignature = currentViolations > 0
+              && violationSnapshot.hasSignature()
+              && Objects.equals(violationSnapshot.signature(), lastViolationSignature);
+          if (!progressedByViolations && sameViolationSignature) {
+            consecutiveStalledViolationRounds++;
+            logger.warn(
+                "Validation stall detected: unchanged violation signature from {} for {}/{} rounds",
+                violationSnapshot.source(),
+                consecutiveStalledViolationRounds,
+                MAX_CONSECUTIVE_STALLED_VIOLATION_ROUNDS
+            );
+            if (consecutiveStalledViolationRounds >= MAX_CONSECUTIVE_STALLED_VIOLATION_ROUNDS) {
+              logger.error(
+                  "Stopping workflow: unresolved violations are unchanged across {} consecutive rounds. Last known violation count: {}",
+                  MAX_CONSECUTIVE_STALLED_VIOLATION_ROUNDS,
+                  currentViolations
+              );
+              return;
+            }
+          } else {
+            consecutiveStalledViolationRounds = 0;
+          }
+
+          if (violationSnapshot.hasSignature()) {
+            lastViolationSignature = violationSnapshot.signature();
+          }
 
           if (!progressedByShapes && !progressedByViolations) {
             consecutiveNoProgressRounds++;
@@ -303,14 +335,20 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
   }
 
   private int getCurrentOutputViolations() {
+    return getCurrentViolationSnapshot().count();
+  }
+
+  private ViolationSnapshot getCurrentViolationSnapshot() {
     if (shacl == null) {
-      return -1;
+      return ViolationSnapshot.unknown();
     }
 
     // During generation, the shared store is the live source of truth.
     if (sharedTripleStore != null && sharedTripleStore.size() > 0) {
       try {
-        return countViolations(sharedTripleStore.getModel());
+        ValidationReport report = shacl.validate(sharedTripleStore.getModel());
+        return new ViolationSnapshot(report.getEntries().size(), buildViolationSignature(report),
+            "store");
       } catch (Exception e) {
         logger.debug(
             "Could not calculate shared-triple-store violations for benchmark snapshot: {}",
@@ -325,7 +363,9 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
           String turtleData = Files.readString(outputFile);
           Model dataModel = ModelFactory.createDefaultModel();
           dataModel.read(new StringReader(turtleData), null, "TURTLE");
-          return countViolations(dataModel);
+          ValidationReport report = shacl.validate(dataModel);
+          return new ViolationSnapshot(report.getEntries().size(), buildViolationSignature(report),
+              "file");
         } catch (Exception e) {
           logger.debug("Could not calculate output-file violations for benchmark snapshot: {}",
               e.getMessage());
@@ -333,12 +373,39 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
       }
     }
 
-    return -1;
+    return ViolationSnapshot.unknown();
   }
 
   private int countViolations(Model dataModel) {
     ValidationReport report = shacl.validate(dataModel);
     return report.getEntries().size();
+  }
+
+  private String buildViolationSignature(ValidationReport report) {
+    if (report == null || report.getEntries() == null || report.getEntries().isEmpty()) {
+      return "";
+    }
+
+    List<String> focusNodes = report.getEntries().stream()
+        .map(entry -> {
+          if (entry.focusNode() == null) {
+            return "null";
+          }
+          return entry.focusNode().isBlank() ? "_:blank" : entry.focusNode().toString();
+        })
+        .sorted()
+        .toList();
+    return report.getEntries().size() + "|" + String.join("|", focusNodes);
+  }
+
+  private record ViolationSnapshot(int count, String signature, String source) {
+    private static ViolationSnapshot unknown() {
+      return new ViolationSnapshot(-1, "", "unknown");
+    }
+
+    private boolean hasSignature() {
+      return signature != null && !signature.isBlank();
+    }
   }
 
   /**

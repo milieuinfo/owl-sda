@@ -12,6 +12,7 @@ import be.vlaanderen.omgeving.owlsda.agent.handler.WorkerTripleStore;
 import be.vlaanderen.omgeving.owlsda.agent.handler.WorkerProgressHandler;
 import be.vlaanderen.omgeving.owlsda.agent.handler.DelegationHandler;
 import be.vlaanderen.omgeving.owlsda.agent.SessionMessageLogEntry;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,14 +50,51 @@ public record Supervisor(Session supervisorSession, OutputValidator validator,
         return false;
       }
 
-      // First pass has no initial report; follow-up passes can start from a known report
-      String report = firstPass ? null : validator.validate();
+      // First pass has no initial report; follow-up passes should use live shared-store validation.
+      String report = firstPass ? null : getDelegationValidationReport();
 
       return delegate(shapes, report, firstPass);
     } catch (Exception e) {
       logger.error("Supervisor orchestration failed: {}", e.getMessage(), e);
       return false;
     }
+  }
+
+  private String getDelegationValidationReport() {
+    String sharedStoreReport = validateSharedStore();
+    if (sharedStoreReport != null) {
+      return sharedStoreReport;
+    }
+
+    return validator.validate();
+  }
+
+  private String validateSharedStore() {
+    if (sharedTripleStore == null || sharedTripleStore.size() == 0 || shacl == null) {
+      return null;
+    }
+
+    try {
+      ValidationReport report = shacl.validate(sharedTripleStore.getModel());
+      if (report.conforms()) {
+        return null;
+      }
+
+      return formatValidationReport(report, "store");
+    } catch (Exception e) {
+      logger.warn("Failed shared-store validation for delegation, falling back to file validation: {}",
+          e.getMessage());
+      return null;
+    }
+  }
+
+  private String formatValidationReport(ValidationReport report, String source) {
+    StringWriter reportString = new StringWriter();
+    reportString.append("Data does NOT conform to SHACL shapes (source='")
+        .append(source)
+        .append("'). Violations:\n");
+    report.getModel().write(reportString, "TURTLE");
+    return reportString.toString();
   }
 
   /**

@@ -17,11 +17,11 @@ client:
     pool-count: 5
   supervisor:
     #model: "gpt-5-mini" # DEBUGGING (free)
-    model: "gpt-5.1"
+    model: "gpt-5.4"
     timeout-ms: 360000
   reviewer:
     #model: "gpt-5-mini" # DEBUGGING (free)
-    model: "claude-3.5-sonnet"
+    model: "claude-4.6-sonnet"
     timeout-ms: 360000
     max-review-attempts: 3
 

@@ -175,7 +175,7 @@ public class SessionManager {
       if (shacl != null) {
         // Supervisor can validate both file and argument data and publish validation context to all sessions
         handlers.add(new OutputValidatorHandler(
-            shacl,
+            inferredShacl,
             config,
             null,
             this::addContextToAllSessionsIfChanged
