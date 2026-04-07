@@ -1,0 +1,69 @@
+## Task: Generate instances for WithdrawalPointShape
+
+**Target Shape:** `:WithdrawalPointShape`
+**Target Class:** `:WithdrawalPoint`
+**Goal:** CREATE at least 1–2 instances of `:WithdrawalPoint` — none exist yet.
+
+### Scenario
+MyGlassFactory is a glass factory. Withdrawal points are systems where raw materials (e.g., water, sand) are withdrawn/extracted.
+
+### Prefixes
+```turtle
+@prefix :       <https://example.org/ns/riepr#> .
+@prefix ex:     <https://example.org/id/> .
+@prefix concept: <https://example.org/id/concept/> .
+@prefix adms:   <http://www.w3.org/ns/adms#> .
+@prefix dc:     <http://purl.org/dc/terms/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sosa:   <http://www.w3.org/ns/sosa/> .
+@prefix ssn:    <http://www.w3.org/ns/ssn/> .
+@prefix dbo:    <http://dbpedia.org/ontology/> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix ogc:    <http://www.opengis.net/ont/geosparql#> .
+@prefix prov:   <http://www.w3.org/ns/prov#> .
+```
+
+### Required Properties (minCount ≥ 1)
+- `rdfs:label` (at least 1, plain literal)
+- `dc:created` (xsd:dateTime, exactly 1)
+- `dc:modified` (xsd:dateTime, exactly 1)
+- `dc:issued` (xsd:date, exactly 1) — validity start
+- `adms:status` → `adms:Status` node (exactly 1) — use `concept:active`
+- `sosa:isHostedBy` → `:OperationLocation` (exactly 1) — use `ex:location/myGlassFactory`
+
+### Optional Properties
+- `dc:type` (max 1)
+- `ogc:hasGeometry` (max 1)
+- `dbo:depth` (max 1) — depth of withdrawal point
+- `prov:wasRevisionOf` → `ssn:System` (max 1)
+- `ssn:hasSubSystem` → `:Filter` or `ssn:System`
+- `dc:valid` (xsd:date)
+- `adms:identifier` → `adms:Identifier`
+- `ssn:hasDeployment` → `:Operation`
+
+### Example Instance
+```turtle
+ex:withdrawalpoint/waterIntake1 a :WithdrawalPoint ;
+    rdfs:label "Water Intake Point 1"@en ;
+    dc:created "2024-01-01T00:00:00"^^xsd:dateTime ;
+    dc:modified "2024-01-01T00:00:00"^^xsd:dateTime ;
+    dc:issued "2024-01-01"^^xsd:date ;
+    adms:status concept:active ;
+    sosa:isHostedBy ex:location/myGlassFactory ;
+    dbo:depth "5.0"^^xsd:decimal .
+```
+
+### Instructions
+1. Add `a :WithdrawalPoint` to each instance.
+2. Use IRIs under `ex:withdrawalpoint/` namespace.
+3. Reference `ex:location/myGlassFactory` as the hosted location.
+4. Create 2 meaningful withdrawal points (e.g., water intake, sand extraction point).
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: WithdrawalPointShape
+- `target_class`: :WithdrawalPoint
+- `changed_triples_count`: number of triples added
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

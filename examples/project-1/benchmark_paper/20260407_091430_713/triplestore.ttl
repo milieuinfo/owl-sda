@@ -1,0 +1,286 @@
+@prefix :        <https://example.org/ns/riepr#> .
+@prefix adms:    <http://www.w3.org/ns/adms#> .
+@prefix concept: <https://example.org/id/concept/> .
+@prefix dbo:     <http://dbpedia.org/ontology/> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix ex:      <https://example.org/id/> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix locn:    <http://www.w3.org/ns/locn#> .
+@prefix ogc:     <http://www.opengis.net/ont/geosparql#> .
+@prefix org:     <http://www.w3.org/ns/org#> .
+@prefix pplan:   <http://purl.org/net/p-plan#> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix qudt:    <http://qudt.org/schema/qudt/> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix sosa:    <http://www.w3.org/ns/sosa/> .
+@prefix ssn:     <http://www.w3.org/ns/ssn/> .
+@prefix unit:    <http://qudt.org/vocab/unit/> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+<https://example.org/id/filter/dustFilter1>
+        a                ssn:System , :Filter ;
+        rdfs:label       "Furnace Dust Filter"@en ;
+        dc:created       "2024-11-01T09:00:00"^^xsd:dateTime ;
+        dc:issued        "2024-11-01"^^xsd:date ;
+        dc:modified      "2026-01-15T10:00:00"^^xsd:dateTime ;
+        dc:type          "ElectrostaticPrecipitator" ;
+        adms:status      concept:active ;
+        sosa:isHostedBy  <https://example.org/id/location/myGlassFactory> .
+
+<https://example.org/id/address/myGlassFactory>
+        a                 locn:Address ;
+        locn:fullAddress  "Industrial Zone, Belgium"@en .
+
+<https://example.org/id/measurementinstrument/flowMeter>
+        a                ssn:System , :MeasurementInstrument ;
+        rdfs:label       "Effluent Flow Meter"@en ;
+        dc:created       "2024-07-02T11:00:00"^^xsd:dateTime ;
+        dc:issued        "2023-08-01"^^xsd:date ;
+        dc:modified      "2024-07-02T11:00:00"^^xsd:dateTime ;
+        adms:status      concept:active ;
+        sosa:isHostedBy  <https://example.org/id/location/myGlassFactory> .
+
+<https://example.org/id/operator/myGlassFactory>
+        a             :Operator ;
+        rdfs:label    "MyGlassFactory NV"@en ;
+        dc:type       concept:organization ;
+        locn:address  <https://example.org/id/address/myGlassFactory> .
+
+<https://example.org/id/filter/waterFilter1>
+        a                ssn:System , :Filter ;
+        rdfs:label       "Water Intake Filter 1"@en ;
+        dc:created       "2025-05-10T06:00:00"^^xsd:dateTime ;
+        dc:issued        "2025-05-01"^^xsd:date ;
+        dc:modified      "2026-03-20T12:00:00"^^xsd:dateTime ;
+        dc:type          "BagFilter" ;
+        adms:status      concept:active ;
+        sosa:isHostedBy  <https://example.org/id/location/myGlassFactory> .
+
+<https://example.org/id/process/forming>
+        a                   :Process ;
+        rdfs:label          "Glass Forming"@en ;
+        dc:created          "2026-04-07T07:05:35Z"^^xsd:dateTime ;
+        dc:issued           "2026-04-07"^^xsd:date ;
+        dc:modified         "2026-04-07T07:05:35Z"^^xsd:dateTime ;
+        pplan:isStepOfPlan  <https://example.org/id/process/glassProduction> ;
+        adms:status         concept:active ;
+        :section            <https://example.org/id/section/C1> .
+
+<https://example.org/id/installation/furnace>
+        a                :Installation ;
+        rdfs:label       "Glass Furnace"@en ;
+        dc:created       "2024-01-01T08:00:00"^^xsd:dateTime ;
+        dc:issued        "2020-01-01"^^xsd:date ;
+        dc:modified      "2024-01-01T08:00:00"^^xsd:dateTime ;
+        adms:status      concept:active ;
+        sosa:isHostedBy  <https://example.org/id/location/myGlassFactory> ;
+        ssn:hasProperty  <https://example.org/id/installationproperty/furnace-capacity> , <https://example.org/id/installationproperty/furnace-temperature> .
+
+<https://example.org/id/processvariable/sand>
+        a                   :ProcessVariable ;
+        rdfs:label          "Sand (Input)"@en ;
+        dc:type             concept:rawMaterial ;
+        pplan:isInputVarOf  <https://example.org/id/process/melting> .
+
+<https://example.org/id/section/C1>
+        a                :Section ;
+        dc:type          concept:processSection ;
+        skos:definition  "Forming and finishing processes"@en ;
+        skos:notation    "C1" .
+
+<https://example.org/id/installation/glass-former>
+        a                :Installation ;
+        rdfs:label       "Glass Forming Machine"@en ;
+        dc:created       "2024-06-15T09:30:00"^^xsd:dateTime ;
+        dc:issued        "2021-06-15"^^xsd:date ;
+        dc:modified      "2024-06-15T09:30:00"^^xsd:dateTime ;
+        adms:status      concept:active ;
+        sosa:isHostedBy  <https://example.org/id/location/myGlassFactory> ;
+        ssn:hasProperty  <https://example.org/id/installationproperty/glassformer-power> .
+
+<https://example.org/id/measurementpoint/stack1>
+        a                 :MeasurementPoint , ssn:System ;
+        rdfs:label        "Measurement Point Stack 1"@en ;
+        dc:created        "2026-04-07T07:00:00"^^xsd:dateTime ;
+        dc:issued         "2026-04-07"^^xsd:date ;
+        dc:modified       "2026-04-07T07:00:00"^^xsd:dateTime ;
+        adms:status       concept:active ;
+        sosa:isHostedBy   <https://example.org/id/location/myGlassFactory> ;
+        ssn:hasSubSystem  <https://example.org/id/measurementinstrument/gasAnalyzer> ;
+        :section          <https://example.org/id/section/B1> .
+
+<https://example.org/id/processvariable/moltenGlass>
+        a           pplan:Variable , :ProcessVariable ;
+        rdfs:label  "Molten Glass (Output)"@en ;
+        dc:type     concept:product .
+
+<https://example.org/id/section/B1>
+        a                :Section ;
+        dc:type          concept:emissionSection ;
+        skos:definition  "Air emission monitoring"@en ;
+        skos:notation    "B1" .
+
+<https://example.org/id/withdrawalpoint/sandExtraction1>
+        a                :WithdrawalPoint ;
+        rdfs:label       "Sand Extraction Point A"@en ;
+        dbo:depth        2.5 ;
+        dc:created       "2026-04-07T07:05:35Z"^^xsd:dateTime ;
+        dc:issued        "2026-04-07"^^xsd:date ;
+        dc:modified      "2026-04-07T07:05:35Z"^^xsd:dateTime ;
+        adms:status      concept:active ;
+        sosa:isHostedBy  <https://example.org/id/location/myGlassFactory> .
+
+<https://example.org/id/process/melting>
+        a                   :Process ;
+        rdfs:label          "Glass Melting"@en ;
+        dc:created          "2026-04-07T07:05:35Z"^^xsd:dateTime ;
+        dc:issued           "2026-04-07"^^xsd:date ;
+        dc:modified         "2026-04-07T07:05:35Z"^^xsd:dateTime ;
+        pplan:hasOutputVar  <https://example.org/id/processvariable/moltenGlass> ;
+        pplan:isStepOfPlan  <https://example.org/id/process/glassProduction> ;
+        adms:status         concept:active ;
+        :section            <https://example.org/id/section/A1> .
+
+<https://example.org/id/emissionpoint/stack1>
+        a                :EmissionPoint ;
+        rdfs:label       "Chimney Stack 1"@en ;
+        dbo:diameter     1.2 ;
+        dbo:height       25.0 ;
+        dc:created       "2026-04-07T00:00:00"^^xsd:dateTime ;
+        dc:issued        "2026-01-01"^^xsd:date ;
+        dc:modified      "2026-04-07T00:00:00"^^xsd:dateTime ;
+        adms:status      concept:active ;
+        sosa:isHostedBy  <https://example.org/id/location/myGlassFactory> .
+
+<https://example.org/id/installationproperty/furnace-temperature>
+        a                  :InstallationProperty ;
+        dc:type            concept:maxOperatingTemperature ;
+        qudt:hasUnit       unit:DEG_C ;
+        qudt:numericValue  1600.0 ;
+        ssn:isPropertyOf   <https://example.org/id/installation/furnace> .
+
+<https://example.org/id/section/A1>
+        a                :Section ;
+        dc:type          concept:combustionSection ;
+        skos:definition  "Combustion and melting processes"@en ;
+        skos:notation    "A1" .
+
+<https://example.org/id/geometry/myGlassFactory>
+        a          ogc:Geometry ;
+        ogc:asWKT  "POINT(4.35 50.85)"^^ogc:wktLiteral .
+
+<https://example.org/id/withdrawalpoint/waterIntake1>
+        a                 ssn:System , :WithdrawalPoint ;
+        rdfs:label        "Water Intake Point 1"@en ;
+        dbo:depth         5.0 ;
+        dc:created        "2026-04-07T07:05:35Z"^^xsd:dateTime ;
+        dc:issued         "2026-04-07"^^xsd:date ;
+        dc:modified       "2026-04-07T07:05:35Z"^^xsd:dateTime ;
+        adms:status       concept:active ;
+        sosa:isHostedBy   <https://example.org/id/location/myGlassFactory> ;
+        ssn:hasSubSystem  <https://example.org/id/filter/waterFilter1> .
+
+<https://example.org/id/emissionpoint/discharge1>
+        a                :EmissionPoint ;
+        rdfs:label       "Effluent Discharge Point A"@en ;
+        dbo:depth        3.5 ;
+        dc:created       "2025-06-15T08:30:00"^^xsd:dateTime ;
+        dc:issued        "2025-06-01"^^xsd:date ;
+        dc:modified      "2026-04-01T09:00:00"^^xsd:dateTime ;
+        dc:type          "DischargePoint" ;
+        adms:status      concept:active ;
+        sosa:isHostedBy  <https://example.org/id/location/myGlassFactory> .
+
+<https://example.org/id/contactperson/janJansen>
+        a             :Contactpersoon , :OperatorContactPerson ;
+        rdfs:label    "Jan Jansen"@en ;
+        dc:created    "2026-04-07T07:08:50Z"^^xsd:dateTime ;
+        dc:issued     "2026-01-01"^^xsd:date ;
+        dc:modified   "2026-04-07T07:08:50Z"^^xsd:dateTime ;
+        org:hasRole   "Regulatory Contact" ;
+        org:memberOf  <https://example.org/id/operation/myGlassFactory-v1> ;
+        foaf:mbox     <mailto:jan.jansen@myglassfactory.example> ;
+        foaf:name     "Jan Jansen" .
+
+<https://example.org/id/location/myGlassFactory>
+        a                     :OperationLocation ;
+        rdfs:label            "MyGlassFactory Site"@en ;
+        dc:created            "2024-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued             "2024-01-01"^^xsd:date ;
+        dc:modified           "2024-01-01T00:00:00"^^xsd:dateTime ;
+        ogc:hasGeometry       <https://example.org/id/geometry/myGlassFactory> ;
+        prov:wasAttributedTo  <https://example.org/id/operator/myGlassFactory> .
+
+concept:active  a  adms:Status .
+
+<https://example.org/id/measurementinstrument/gasAnalyzer>
+        a                ssn:System , :MeasurementInstrument ;
+        rdfs:label       "Stack Gas Analyzer"@en ;
+        dc:created       "2024-07-01T10:00:00"^^xsd:dateTime ;
+        dc:issued        "2022-05-01"^^xsd:date ;
+        dc:modified      "2024-07-01T10:00:00"^^xsd:dateTime ;
+        adms:status      concept:active ;
+        sosa:isHostedBy  <https://example.org/id/location/myGlassFactory> .
+
+<https://example.org/id/operation/myGlassFactory-v1>
+        a                       :Operation ;
+        rdfs:label              "MyGlassFactory Operation 2026"@en ;
+        dc:created              "2026-04-07T07:08:50"^^xsd:dateTime ;
+        dc:issued               "2026-04-07"^^xsd:date ;
+        dc:modified             "2026-04-07T07:08:50"^^xsd:dateTime ;
+        adms:status             concept:active ;
+        ssn:deployedOnPlatform  <https://example.org/id/location/myGlassFactory> ;
+        ssn:implements          <https://example.org/id/process/glassProduction> .
+
+<https://example.org/id/process/glassProduction>
+        a            :Process ;
+        rdfs:label   "Glass Production Process"@en ;
+        dc:created   "2026-04-07T07:05:35Z"^^xsd:dateTime ;
+        dc:issued    "2026-04-07"^^xsd:date ;
+        dc:modified  "2026-04-07T07:05:35Z"^^xsd:dateTime ;
+        adms:status  concept:active .
+
+<https://example.org/id/installationproperty/glassformer-power>
+        a                  :InstallationProperty ;
+        dc:type            concept:installedPower ;
+        qudt:hasUnit       unit:MegaW ;
+        qudt:numericValue  2.5 ;
+        ssn:isPropertyOf   <https://example.org/id/installation/glass-former> .
+
+<https://example.org/id/contactperson/annaDeRoeck>
+        a             :OperatorContactPerson , :Contactpersoon ;
+        rdfs:label    "Anna De Roeck"@en ;
+        dc:created    "2026-04-07T07:08:50Z"^^xsd:dateTime ;
+        dc:issued     "2026-01-01"^^xsd:date ;
+        dc:modified   "2026-04-07T07:08:50Z"^^xsd:dateTime ;
+        org:hasRole   "Environmental Officer" ;
+        org:memberOf  <https://example.org/id/operation/myGlassFactory-v1> ;
+        foaf:mbox     <mailto:anna.deroeck@myglassfactory.example> ;
+        foaf:name     "Anna De Roeck" ;
+        foaf:phone    "+32-123-456-789" .
+
+<https://example.org/id/installationproperty/furnace-capacity>
+        a                  :InstallationProperty ;
+        dc:type            concept:nominalCapacity ;
+        qudt:hasUnit       unit:TON-PER-DAY ;
+        qudt:numericValue  200.0 ;
+        ssn:isPropertyOf   <https://example.org/id/installation/furnace> .
+
+<https://example.org/id/measurementpoint/water-discharge>
+        a                 ssn:System , :MeasurementPoint ;
+        rdfs:label        "Measurement Point Water Discharge"@en ;
+        dc:created        "2026-04-07T07:05:00"^^xsd:dateTime ;
+        dc:issued         "2026-04-07"^^xsd:date ;
+        dc:modified       "2026-04-07T07:05:00"^^xsd:dateTime ;
+        adms:status       concept:active ;
+        sosa:isHostedBy   <https://example.org/id/location/myGlassFactory> ;
+        ssn:hasSubSystem  <https://example.org/id/measurementinstrument/flowMeter> .
+
+<https://example.org/id/processvariable/naturalGas>
+        a                   :ProcessVariable ;
+        rdfs:label          "Natural Gas (Fuel Input)"@en ;
+        dc:type             concept:fuel ;
+        pplan:isInputVarOf  <https://example.org/id/process/melting> ;
+        qudt:hasUnit        unit:M3 ;
+        qudt:numericValue   1500.0 .

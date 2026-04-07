@@ -1,0 +1,52 @@
+## Task: Generate instances for EmissionProcedureShape
+
+**Target Shape:** `:EmissionProcedureShape`
+**Target Class:** `:EmissionProcedure`
+**Goal:** CREATE at least 1–2 instances of `:EmissionProcedure` — none exist yet.
+
+### Context
+MyGlassFactory uses emission procedures to describe how emissions are calculated or estimated (e.g., emission factor calculation, direct measurement method for stack emissions). A `:EmissionProcedure` is a `sosa:Procedure` and can be referenced by processes via `dc:type`.
+
+This shape has **no property constraints** beyond `sh:targetClass :EmissionProcedure` — any typed instance conforms. Add `rdfs:label` and optional properties for data quality.
+
+### Prefixes
+```turtle
+@prefix :        <https://example.org/ns/riepr#> .
+@prefix ex:      <https://example.org/id/> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix sosa:    <http://www.w3.org/ns/sosa/> .
+@prefix concept: <https://example.org/id/concept/> .
+```
+
+### Example Instances
+```turtle
+ex:emissionprocedure/emissionFactor a :EmissionProcedure, sosa:Procedure ;
+    rdfs:label "Emission Factor Calculation Method"@en ;
+    dc:type concept:calculationMethod .
+
+ex:emissionprocedure/directMeasurement a :EmissionProcedure, sosa:Procedure ;
+    rdfs:label "Direct Stack Emission Measurement"@en ;
+    dc:type concept:directMeasurement .
+```
+
+Optionally link to an existing process that does not yet have a `dc:type`:
+```turtle
+ex:process/glassProduction dc:type ex:emissionprocedure/emissionFactor .
+```
+**Important:** `dc:type` has maxCount 1 on `:ProcessShape` — only add if the target process has no `dc:type` yet. Check first.
+
+### Instructions
+1. Add `a :EmissionProcedure` and `a sosa:Procedure` to each instance.
+2. Use IRIs under `ex:emissionprocedure/` namespace.
+3. Create 1–2 meaningful instances with `rdfs:label` and optionally `dc:type`.
+4. If linking to processes via `dc:type`, verify the process does not already have a `dc:type` (maxCount 1 constraint on ProcessShape).
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: EmissionProcedureShape
+- `target_class`: :EmissionProcedure
+- `changed_triples_count`: number of triples added
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

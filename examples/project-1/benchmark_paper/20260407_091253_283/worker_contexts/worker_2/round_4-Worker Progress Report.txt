@@ -1,0 +1,8 @@
+worker_id=POOL-2
+status=VERIFIED_NO_CHANGE
+target_shape=MeasurementInstrumentShape
+target_class=:MeasurementInstrument
+changed_triples_count=0
+created_or_updated_subjects=NONE
+validation_result=CONFORMS
+remaining_issues=none

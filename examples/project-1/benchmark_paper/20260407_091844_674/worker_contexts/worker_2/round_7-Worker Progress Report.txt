@@ -1,0 +1,8 @@
+worker_id=POOL-2
+status=CREATED
+target_shape=MeasurementProcedureShape
+target_class=:MeasurementProcedure
+changed_triples_count=9
+created_or_updated_subjects=https://example.org/id/measurementprocedure/continuousEmissionMonitoring,https://example.org/id/measurementprocedure/annualStackTest,https://example.org/id/process/melting
+validation_result=CONFORMS
+remaining_issues=none

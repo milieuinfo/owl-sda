@@ -1,0 +1,51 @@
+## Task: Generate instances for ConsumptionProcedureShape
+
+**Target Shape:** `:ConsumptionProcedureShape`
+**Target Class:** `:ConsumptionProcedure`
+**Goal:** CREATE at least 1 instance of `:ConsumptionProcedure` — none exist yet.
+
+### Context
+MyGlassFactory uses consumption procedures to describe how consumption of raw materials or energy is calculated (e.g., mass balance method for sand consumption, fuel metering for natural gas). A `:ConsumptionProcedure` is a `sosa:Procedure`.
+
+This shape has **no additional property constraints** beyond the type. Add meaningful properties for data quality.
+
+### Prefixes
+```turtle
+@prefix :       <https://example.org/ns/riepr#> .
+@prefix ex:     <https://example.org/id/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dc:     <http://purl.org/dc/terms/> .
+@prefix sosa:   <http://www.w3.org/ns/sosa/> .
+@prefix concept: <https://example.org/id/concept/> .
+```
+
+### Example Instances
+```turtle
+ex:consumptionprocedure/massBalance a :ConsumptionProcedure, sosa:Procedure ;
+    rdfs:label "Mass Balance Method"@en ;
+    dc:type concept:calculationMethod .
+
+ex:consumptionprocedure/fuelMetering a :ConsumptionProcedure, sosa:Procedure ;
+    rdfs:label "Fuel Flow Metering"@en ;
+    dc:type concept:directMeasurement .
+```
+
+Optionally link to a process:
+```turtle
+ex:process/glassProduction dc:type ex:consumptionprocedure/massBalance .
+```
+
+### Instructions
+1. Add `a :ConsumptionProcedure` (and `a sosa:Procedure`) to each instance.
+2. Use IRIs under `ex:consumptionprocedure/` namespace.
+3. Create 1–2 instances with `rdfs:label` and optionally `dc:type`.
+4. Optionally link to existing processes via `dc:type`.
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: ConsumptionProcedureShape
+- `target_class`: :ConsumptionProcedure
+- `changed_triples_count`: number of triples added
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

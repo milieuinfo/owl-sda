@@ -1,0 +1,29 @@
+## Task: Fix remaining pplan:Variable type on moltenGlass process variable
+
+**Target Shape:** ProcessShape (cross-shape consistency fix)
+**Target Class:** `pplan:Variable`
+**Goal:** FIX — `ex:processvariable/moltenGlass` is still missing `a pplan:Variable`. Previous fix only covered `sand` and `naturalGas`.
+
+### Single fix to apply
+Add this one triple to the shared triple store:
+```turtle
+<https://example.org/id/processvariable/moltenGlass> a <http://purl.org/net/p-plan#Variable> .
+```
+
+### Why
+`ProcessShape` requires nodes linked via `pplan:hasOutputVar` to be typed as `pplan:Variable`. The `ex:processvariable/moltenGlass` node is referenced via `pplan:hasOutputVar` from `ex:process/melting` but is only typed as `:ProcessVariable`, not `pplan:Variable`.
+
+### Scope
+- Only add this 1 triple
+- Do NOT modify any other properties
+- Do NOT create new instances
+- Run `validate_store` after inserting to confirm no ProcessShape violations remain
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: ProcessShape (consistency fix)
+- `target_class`: pplan:Variable
+- `changed_triples_count`: 1
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

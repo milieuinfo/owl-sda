@@ -1,0 +1,60 @@
+## Task: Generate instances for ObservationResultShape
+
+**Target Shape:** `:ObservationResultShape`
+**Target Class:** `:ObservationResult`
+**Goal:** CREATE at least 2 instances of `:ObservationResult` — none exist yet.
+
+### Context
+MyGlassFactory observations produce measurement results (e.g., measured CO₂ concentration, NOx mass flow). An ObservationResult is the result of an observation and is a `sosa:Result`.
+
+Observations being created by POOL-2:
+- `ex:observation/co2-stack1-2024` → result: `ex:observationresult/co2-stack1-2024`
+- `ex:observation/nox-stack1-2024` → result: `ex:observationresult/nox-stack1-2024`
+
+### Prefixes
+```turtle
+@prefix :       <https://example.org/ns/riepr#> .
+@prefix ex:     <https://example.org/id/> .
+@prefix sosa:   <http://www.w3.org/ns/sosa/> .
+@prefix qudt:   <http://qudt.org/schema/qudt/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit:   <http://qudt.org/vocab/unit/> .
+```
+
+### Shape Constraints
+`:ObservationResultShape` has `sh:targetClass :ObservationResult` with no additional property constraints — any typed node conforms. Add meaningful properties for data quality.
+
+### Recommended Properties (for data quality)
+- `a :ObservationResult, sosa:Result` — ensure it is also typed as `sosa:Result` so it satisfies the `ObservationShape sosa:hasResult sh:class sosa:Result` constraint
+- `qudt:numericValue` — the measured value
+- `qudt:hasUnit` — unit of measure
+- `rdfs:label` — human-readable label
+
+### Example Instances
+```turtle
+ex:observationresult/co2-stack1-2024 a :ObservationResult, sosa:Result ;
+    rdfs:label "CO2 Measurement Result Stack 1 (2024)"@en ;
+    qudt:numericValue "12500.0"^^xsd:decimal ;
+    qudt:hasUnit unit:KiloGM-PER-HR .
+
+ex:observationresult/nox-stack1-2024 a :ObservationResult, sosa:Result ;
+    rdfs:label "NOx Measurement Result Stack 1 (2024)"@en ;
+    qudt:numericValue "45.3"^^xsd:decimal ;
+    qudt:hasUnit unit:KiloGM-PER-HR .
+```
+
+### Instructions
+1. Add `a :ObservationResult` AND `a sosa:Result` to each instance (dual typing required to satisfy ObservationShape's `sosa:hasResult sh:class sosa:Result` constraint).
+2. Use IRIs under `ex:observationresult/` namespace — use exactly these IRIs: `ex:observationresult/co2-stack1-2024`, `ex:observationresult/nox-stack1-2024` so POOL-2 can reference them.
+3. Include `qudt:numericValue` and `qudt:hasUnit` for data quality.
+4. Include `rdfs:label`.
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: ObservationResultShape
+- `target_class`: :ObservationResult
+- `changed_triples_count`: number of triples added
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

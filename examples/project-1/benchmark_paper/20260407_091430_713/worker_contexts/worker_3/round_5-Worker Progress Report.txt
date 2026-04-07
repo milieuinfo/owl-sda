@@ -1,0 +1,8 @@
+worker_id=POOL-3
+status=CREATED
+target_shape=InstallationPropertyShape
+target_class=:InstallationProperty
+changed_triples_count=18
+created_or_updated_subjects=https://example.org/id/installationproperty/furnace-capacity, https://example.org/id/installationproperty/furnace-temperature, https://example.org/id/installationproperty/glassformer-power
+validation_result=NON_CONFORMS
+remaining_issues=Unrelated class-constraint violation on process variable resource (pplan:hasOutputVar)

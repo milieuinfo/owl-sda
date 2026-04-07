@@ -1,0 +1,49 @@
+POOL-0 [STRUCTURED_PROGRESS]:
+worker_id=POOL-0
+status=BLOCKED
+target_shape=MeasurementInstrumentShape
+target_class=:MeasurementInstrument
+changed_triples_count=18
+created_or_updated_subjects=https://example.org/id/measurementinstrument/gasAnalyzer, https://example.org/id/measurementinstrument/flowMeter, https://example.org/id/measurementpoint/stack1, https://example.org/id/measurementpoint/water-discharge
+validation_result=NON_CONFORMS
+remaining_issues=measurementpoint nodes missing ssn:System typing; ex:location/myGlassFactory missing required props - OUT_OF_SCOPE
+
+POOL-1 [STRUCTURED_PROGRESS]:
+worker_id=POOL-1
+status=FIXED
+target_shape=FilterShape
+target_class=:Filter
+changed_triples_count=1
+created_or_updated_subjects=https://example.org/id/filter/waterFilter1, https://example.org/id/filter/dustFilter1
+validation_result=CONFORMS
+remaining_issues=Unrelated violations remain for measurement instruments/measurement points (not related to FilterShape)
+
+POOL-2 [STRUCTURED_PROGRESS]:
+worker_id=POOL-2
+status=FIXED
+target_shape=OperationLocationShape
+target_class=:OperationLocation
+changed_triples_count=14
+created_or_updated_subjects=https://example.org/id/location/myGlassFactory,https://example.org/id/geometry/myGlassFactory,https://example.org/id/operator/myGlassFactory,https://example.org/id/address/myGlassFactory
+validation_result=CONFORMS
+remaining_issues=none
+
+POOL-3 [STRUCTURED_PROGRESS]:
+worker_id=POOL-3
+status=FIXED
+target_shape=OperationShape
+target_class=:Operation
+changed_triples_count=3
+created_or_updated_subjects=https://example.org/id/operation/myGlassFactory-v1
+validation_result=NON_CONFORMS
+remaining_issues=Unrelated class-constraint violations remain on measurementinstrument and filter resources (not part of OperationShape)
+
+POOL-4 [STRUCTURED_PROGRESS]:
+worker_id=POOL-4
+status=CREATED
+target_shape=OperatorContactPersonShape
+target_class=:OperatorContactPerson
+changed_triples_count=21
+created_or_updated_subjects=https://example.org/id/contactperson/janJansen,https://example.org/id/contactperson/annaDeRoeck
+validation_result=CONFORMS
+remaining_issues=Unrelated class constraint violations for ssn:System and operation class mismatches on ex:operation/myGlassFactory-v1

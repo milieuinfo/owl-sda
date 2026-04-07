@@ -1,0 +1,8 @@
+worker_id=POOL-3
+status=FIXED
+target_shape=OperationShape
+target_class=:Operation
+changed_triples_count=3
+created_or_updated_subjects=https://example.org/id/operation/myGlassFactory-v1
+validation_result=NON_CONFORMS
+remaining_issues=Unrelated class-constraint violations remain on measurementinstrument and filter resources (not part of OperationShape)

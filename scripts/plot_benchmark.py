@@ -58,11 +58,14 @@ def plot_benchmark(benchmark_dir):
     iterations = list(range(len(proc_data)))
     durations_sec = [item['durationMs'] / 1000.0 for item in proc_data]
     shapes_processed = [item['shapesProcessed'] for item in proc_data]
+    current_violations = [item.get('currentViolations', 0) for item in proc_data]
 
     # Compute aggregated token counts per iteration, using final review workers if needed
     workers_tokens = []
     reviewer_tokens = []
     supervisor_tokens = []
+    # Forward-fill workers token sum so REVIEW iterations don't drop to 0
+    last_workers_sum = None
     for item in proc_data:
         tokens = item.get('tokens', {})
         workers = tokens.get('workers', {}) or {}
@@ -70,10 +73,15 @@ def plot_benchmark(benchmark_dir):
             workers_sum = sum(workers.values())
         else:
             workers_sum = 0
-        # If this is a REVIEW* stage, always use the final aggregated REVIEW workers value when available
+        # If this is a REVIEW* stage, and an aggregated final REVIEW workers value exists, use it
         st = item.get('stage', '')
         if st.startswith('REVIEW') and final_review_workers_sum is not None:
             workers_sum = final_review_workers_sum
+        # If workers_sum is zero/empty, reuse the last available non-zero workers sum
+        if workers_sum == 0 and last_workers_sum is not None:
+            workers_sum = last_workers_sum
+        elif workers_sum > 0:
+            last_workers_sum = workers_sum
         workers_tokens.append(workers_sum)
         reviewer_tokens.append(tokens.get('reviewer', 0) or 0)
         supervisor_tokens.append(tokens.get('supervisor', 0) or 0)
@@ -101,12 +109,22 @@ def plot_benchmark(benchmark_dir):
     axes[0].grid(True, alpha=0.3)
     axes[0].set_xlim(-0.5, len(iterations) - 0.5)
     
-    # Plot 2: Shapes Processed
-    axes[1].plot(iterations, shapes_processed, marker='s', linestyle='-', color='#ff7f0e', linewidth=2)
-    axes[1].set_ylabel('Shapes Processed', fontsize=11, fontweight='bold')
-    axes[1].grid(True, alpha=0.3)
-    axes[1].set_xlim(-0.5, len(iterations) - 0.5)
-    axes[1].set_ylim(bottom=0)
+    # Plot 2: Shapes Processed (with violations as red line on secondary y-axis)
+    ax_shapes = axes[1]
+    ax_shapes.plot(iterations, shapes_processed, marker='s', linestyle='-', color='#ff7f0e', linewidth=2, label='Shapes Processed')
+    ax_shapes.set_ylabel('Shapes Processed', fontsize=11, fontweight='bold')
+    ax_shapes.grid(True, alpha=0.3)
+    ax_shapes.set_xlim(-0.5, len(iterations) - 0.5)
+    ax_shapes.set_ylim(bottom=0)
+    # secondary y-axis for violations
+    ax_viol = ax_shapes.twinx()
+    ax_viol.plot(iterations, current_violations, marker='o', linestyle='-', color='red', linewidth=2, label='Violations')
+    ax_viol.set_ylabel('Violations', color='red', fontsize=11, fontweight='bold')
+    ax_viol.tick_params(axis='y', colors='red')
+    # combined legend for shapes and violations
+    h1, l1 = ax_shapes.get_legend_handles_labels()
+    h2, l2 = ax_viol.get_legend_handles_labels()
+    ax_shapes.legend(h1 + h2, l1 + l2, loc='upper right')
     
     # Plot 3: Token counts (workers aggregated, reviewer, supervisor)
     axes[2].plot(iterations, workers_tokens, marker='o', linestyle='-', color='#ff7f0e', linewidth=2, label='Workers (sum)')

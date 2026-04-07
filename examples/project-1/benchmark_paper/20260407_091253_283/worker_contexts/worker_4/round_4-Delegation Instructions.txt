@@ -1,0 +1,57 @@
+## Task: Verify and complete OperatorShape
+
+**Target Shape:** `:OperatorShape`
+**Target Class:** `:Operator`
+**Goal:** Verify existing `ex:operator/myGlassFactory` conforms to OperatorShape. Fix any violations. Create additional instances if needed.
+
+### Existing Instance
+`ex:operator/myGlassFactory` was created in a previous round with:
+- `a :Operator`
+- `rdfs:label "MyGlassFactory NV"@en`
+- `dc:type concept:organization`
+- `locn:address ex:address/myGlassFactory`
+
+### OperatorShape Required Constraints
+| Property | Type/Class | Cardinality | Notes |
+|---|---|---|---|
+| `rdfs:label` | literal | minCount 1 | ✅ already present |
+| `locn:address` | `locn:Address` | minCount 1, maxCount 1 | ✅ already present |
+| `dc:type` | literal | minCount 1, maxCount 1 | ✅ already present |
+
+### OperatorShape Optional Constraints
+| Property | Type/Class | Cardinality |
+|---|---|---|
+| `org:classification` | — | max 1 |
+| `dc:modified` | xsd:dateTime | max 1 |
+| `org:hasMember` | `:Contactpersoon` | — |
+| `dc:valid` | xsd:date | max 1 |
+| `dc:issued` | xsd:date | max 1 |
+| `dc:created` | xsd:dateTime | max 1 |
+
+### Instructions
+1. Run SHACL validation against `:OperatorShape` for `ex:operator/myGlassFactory`.
+2. If it already conforms → report CONFORMS with 0 changed triples.
+3. If violations exist → fix them per the constraints above.
+4. Optionally enrich with `dc:created`, `dc:modified`, `dc:issued`, `org:hasMember` linking to existing contact persons (`ex:contactperson/janJansen`, `ex:contactperson/annaDeRoeck`).
+5. Verify `ex:address/myGlassFactory` is correctly typed as `a locn:Address` with at least a `locn:fullAddress` or similar property.
+
+### Prefixes
+```turtle
+@prefix :     <https://example.org/ns/riepr#> .
+@prefix ex:   <https://example.org/id/> .
+@prefix dc:   <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix locn: <http://www.w3.org/ns/locn#> .
+@prefix org:  <http://www.w3.org/ns/org#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix concept: <https://example.org/id/concept/> .
+```
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: OperatorShape
+- `target_class`: :Operator
+- `changed_triples_count`: triples added/modified
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

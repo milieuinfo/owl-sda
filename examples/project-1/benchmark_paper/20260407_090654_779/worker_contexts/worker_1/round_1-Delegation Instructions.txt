@@ -1,0 +1,72 @@
+## Task: Generate instances for EmissionPointShape
+
+**Target Shape:** `:EmissionPointShape`
+**Target Class:** `:EmissionPoint`
+**Goal:** CREATE at least 1–2 instances of `:EmissionPoint` — none exist yet.
+
+### Scenario
+MyGlassFactory is a glass factory. Emission points are systems where emissions are released (e.g., chimney stack, discharge point).
+
+### Prefixes
+```turtle
+@prefix :       <https://example.org/ns/riepr#> .
+@prefix ex:     <https://example.org/id/> .
+@prefix concept: <https://example.org/id/concept/> .
+@prefix adms:   <http://www.w3.org/ns/adms#> .
+@prefix dc:     <http://purl.org/dc/terms/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sosa:   <http://www.w3.org/ns/sosa/> .
+@prefix ssn:    <http://www.w3.org/ns/ssn/> .
+@prefix dbo:    <http://dbpedia.org/ontology/> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix ogc:    <http://www.opengis.net/ont/geosparql#> .
+@prefix prov:   <http://www.w3.org/ns/prov#> .
+```
+
+### Required Properties (minCount ≥ 1)
+- `rdfs:label` (at least 1, plain literal)
+- `dc:created` (xsd:dateTime, exactly 1)
+- `dc:modified` (xsd:dateTime, exactly 1)
+- `dc:issued` (xsd:date, exactly 1) — validity start
+- `adms:status` → `adms:Status` node (exactly 1) — use `concept:active`
+- `sosa:isHostedBy` → `:OperationLocation` (exactly 1) — use `ex:location/myGlassFactory`
+
+### Optional Properties
+- `dbo:diameter` (max 1) — for stack type
+- `dbo:height` (max 1) — for stack type
+- `dbo:depth` (max 1) — for discharge point type
+- `dc:type` (max 1)
+- `ogc:hasGeometry` (max 1)
+- `adms:identifier` → `adms:Identifier`
+- `ssn:hasSubSystem` → `ssn:System`
+- `prov:wasRevisionOf` → `ssn:System` (max 1)
+- `dc:valid` (xsd:date)
+- `ssn:hasDeployment` → `:Operation`
+
+### Example Instance
+```turtle
+ex:emissionpoint/stack1 a :EmissionPoint ;
+    rdfs:label "Chimney Stack 1"@en ;
+    dc:created "2024-01-01T00:00:00"^^xsd:dateTime ;
+    dc:modified "2024-01-01T00:00:00"^^xsd:dateTime ;
+    dc:issued "2024-01-01"^^xsd:date ;
+    adms:status concept:active ;
+    sosa:isHostedBy ex:location/myGlassFactory ;
+    dbo:height "25.0"^^xsd:decimal ;
+    dbo:diameter "1.2"^^xsd:decimal .
+```
+
+### Instructions
+1. Add `a :EmissionPoint` to each instance.
+2. Use IRIs under `ex:emissionpoint/` namespace.
+3. Reference `ex:location/myGlassFactory` as the hosted location.
+4. Create 2 meaningful emission points (e.g., stack chimney, discharge point).
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: EmissionPointShape
+- `target_class`: :EmissionPoint
+- `changed_triples_count`: number of triples added
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

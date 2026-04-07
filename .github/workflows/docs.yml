@@ -1,29 +1,28 @@
-name: Build and Deploy Docs
+name: Docs Build
 
 on:
+  pull_request:
+    paths:
+      - "docs/**"
+      - ".github/workflows/docs.yml"
   push:
     branches:
       - main
     paths:
-      - 'docs/**'
-      - '.github/workflows/docs.yml'
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'docs/**'
-      - '.github/workflows/docs.yml'
-  # Allow manual runs from the Actions tab
-  workflow_dispatch:
+      - "docs/**"
+      - ".github/workflows/docs.yml"
 
-# Allow only one concurrent deployment; cancel in-progress runs for the same ref.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 concurrency:
-  group: pages-${{ github.ref }}
-  cancel-in-progress: true
+  group: pages
+  cancel-in-progress: false
 
 jobs:
-  build:
-    name: Build Docs
+  build-docs:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -31,43 +30,46 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Required for lastUpdated timestamps in VitePress
 
-      - name: Set up Node.js
+      - name: Setup Pages
+        if: github.event_name == 'push'
+        uses: actions/configure-pages@v5
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: docs/package.json
+          node-version: "20"
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
-      - name: Build docs
-        run: npm run docs:build
+      - name: Build documentation
         env:
-          VITEPRESS_BASE: /OWL-SDA/
+          DOCS_BASE: ${{ format('/{0}/', github.event.repository.name) }}
+          VITEPRESS_BASE: ${{ format('/{0}/', github.event.repository.name) }}
+        run: npm run docs:build
+
+      - name: Add .nojekyll
+        run: touch .vitepress/dist/.nojekyll
 
       - name: Upload Pages artifact
-        # Only upload on pushes to main (not on PRs)
-        if: github.event_name != 'pull_request'
+        if: github.event_name == 'push'
         uses: actions/upload-pages-artifact@v3
         with:
           path: docs/.vitepress/dist
 
   deploy:
-    name: Deploy to GitHub Pages
-    needs: build
-    # Only deploy on pushes to main (not on PRs)
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build-docs
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    permissions:
-      pages: write
-      id-token: write
     steps:
       - name: Deploy to GitHub Pages
         id: deployment

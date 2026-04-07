@@ -1,0 +1,73 @@
+## Task: Generate instances for ProcessVariableShape
+
+**Target Shape:** `:ProcessVariableShape`
+**Target Class:** `:ProcessVariable`
+**Goal:** CREATE at least 2–3 instances of `:ProcessVariable` — none exist yet.
+
+### Context
+MyGlassFactory has glass production processes. Process variables represent input/output substances or quantities in a process (e.g., sand as input to the melting process, molten glass as output, natural gas as fuel input).
+
+Existing processes to link to:
+- `ex:process/glassProduction` — top-level
+- `ex:process/melting` — subprocess (step of glassProduction)
+- `ex:process/forming` — subprocess (step of glassProduction)
+
+### Prefixes
+```turtle
+@prefix :       <https://example.org/ns/riepr#> .
+@prefix ex:     <https://example.org/id/> .
+@prefix concept: <https://example.org/id/concept/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dc:     <http://purl.org/dc/terms/> .
+@prefix qudt:   <http://qudt.org/schema/qudt/> .
+@prefix pplan:  <http://purl.org/net/p-plan#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit:   <http://qudt.org/vocab/unit/> .
+```
+
+### Shape Constraints (all optional but include where meaningful)
+| Property | Type | Cardinality | Notes |
+|---|---|---|---|
+| `rdfs:label` | literal | 0..* | Include a descriptive label |
+| `qudt:hasUnit` | — | 0..1 | Unit of measurement |
+| `qudt:numericValue` | — | 0..1 | Numeric value |
+| `dc:type` | — | 0..1 | Type of variable |
+| `pplan:isInputVarOf` | `:Process` | 0..* | Link as input to a process |
+| inverse: `pplan:hasOutputVar` from Process | `:Process` | — | Or add `pplan:hasOutputVar` on the process |
+
+### Example Instances
+```turtle
+ex:processvariable/sand a :ProcessVariable ;
+    rdfs:label "Sand (Input)"@en ;
+    dc:type concept:rawMaterial ;
+    pplan:isInputVarOf ex:process/melting .
+
+ex:processvariable/naturalGas a :ProcessVariable ;
+    rdfs:label "Natural Gas (Fuel Input)"@en ;
+    dc:type concept:fuel ;
+    qudt:hasUnit unit:M3 ;
+    qudt:numericValue "1500.0"^^xsd:decimal ;
+    pplan:isInputVarOf ex:process/melting .
+
+ex:processvariable/moltenGlass a :ProcessVariable ;
+    rdfs:label "Molten Glass (Output)"@en ;
+    dc:type concept:product .
+```
+
+Also add `pplan:hasOutputVar ex:processvariable/moltenGlass` on `ex:process/melting`.
+
+### Instructions
+1. Add `a :ProcessVariable` to each instance.
+2. Use IRIs under `ex:processvariable/` namespace.
+3. Create 3 meaningful variables: at least 1 input and 1 output.
+4. Link inputs to processes via `pplan:isInputVarOf`.
+5. Link outputs by adding `pplan:hasOutputVar` on the relevant process node.
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: ProcessVariableShape
+- `target_class`: :ProcessVariable
+- `changed_triples_count`: number of triples added
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

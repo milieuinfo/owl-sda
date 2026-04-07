@@ -1,0 +1,73 @@
+## Task: Generate instances for OperationShape
+
+**Target Shape:** `:OperationShape`
+**Target Class:** `:Operation`
+**Goal:** CREATE at least 1 instance of `:Operation` — none exist yet.
+
+### Context
+MyGlassFactory runs a glass production operation. An operation deploys systems and implements a process, is located at an operation location, and has a status. Existing resources to reference:
+- Location: `ex:location/myGlassFactory`
+- Process: `ex:process/glassProduction` (main), `ex:process/melting`, `ex:process/forming`
+- Systems: `ex:installation/furnace`, `ex:installation/glass-former`, `ex:emissionpoint/stack1`, etc.
+
+### Prefixes
+```turtle
+@prefix :       <https://example.org/ns/riepr#> .
+@prefix ex:     <https://example.org/id/> .
+@prefix concept: <https://example.org/id/concept/> .
+@prefix adms:   <http://www.w3.org/ns/adms#> .
+@prefix dc:     <http://purl.org/dc/terms/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ssn:    <http://www.w3.org/ns/ssn/> .
+@prefix org:    <http://www.w3.org/ns/org#> .
+@prefix prov:   <http://www.w3.org/ns/prov#> .
+@prefix adms:   <http://www.w3.org/ns/adms#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+```
+
+### Required Properties (minCount ≥ 1)
+- `rdfs:label` (at least 1, plain literal)
+- `dc:created` (xsd:dateTime, exactly 1)
+- `dc:modified` (xsd:dateTime, exactly 1)
+- `dc:issued` (xsd:date, exactly 1) — validity start
+- `adms:status` → `adms:Status` (exactly 1) — use `concept:active`
+- `ssn:deployedOnPlatform` → `:OperationLocation` (exactly 1) — use `ex:location/myGlassFactory`
+- `ssn:implements` → `:Process` (exactly 1) — use `ex:process/glassProduction`
+
+### Optional Properties
+- `ssn:deployedSystem` → `ssn:System` — link to deployed systems
+- `adms:identifier` → `adms:Identifier`
+- `dc:valid` (xsd:date)
+- `org:hasMember` → `:Contactpersoon`
+
+### Example Instance
+```turtle
+ex:operation/myGlassFactory-v1 a :Operation ;
+    rdfs:label "MyGlassFactory Operation 2024"@en ;
+    dc:created "2024-01-01T00:00:00"^^xsd:dateTime ;
+    dc:modified "2024-01-01T00:00:00"^^xsd:dateTime ;
+    dc:issued "2024-01-01"^^xsd:date ;
+    adms:status concept:active ;
+    ssn:deployedOnPlatform ex:location/myGlassFactory ;
+    ssn:implements ex:process/glassProduction ;
+    ssn:deployedSystem ex:installation/furnace ;
+    ssn:deployedSystem ex:installation/glass-former ;
+    ssn:deployedSystem ex:emissionpoint/stack1 ;
+    ssn:deployedSystem ex:emissionpoint/discharge1 .
+```
+
+### Instructions
+1. Add `a :Operation` to each instance.
+2. Use IRIs under `ex:operation/` namespace.
+3. Link to `ex:location/myGlassFactory` via `ssn:deployedOnPlatform`.
+4. Link to `ex:process/glassProduction` via `ssn:implements`.
+5. Optionally add `ssn:hasDeployment` back-references on existing installations/systems (e.g., `ex:installation/furnace ssn:hasDeployment ex:operation/myGlassFactory-v1`).
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: OperationShape
+- `target_class`: :Operation
+- `changed_triples_count`: number of triples added
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

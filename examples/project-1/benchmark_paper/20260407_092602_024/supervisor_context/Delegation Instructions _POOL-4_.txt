@@ -1,0 +1,51 @@
+## Task: Generate instances for TransportProcedureShape
+
+**Target Shape:** `:TransportProcedureShape`
+**Target Class:** `:TransportProcedure`
+**Goal:** CREATE at least 1 instance of `:TransportProcedure` — none exist yet.
+
+### Context
+MyGlassFactory uses transport procedures to describe how substances or materials are transported within or between processes (e.g., conveyor transport of raw materials, pipeline transport of molten glass). A `:TransportProcedure` is a `sosa:Procedure`.
+
+This shape has **no additional property constraints** beyond the type. Add meaningful properties for data quality.
+
+### Prefixes
+```turtle
+@prefix :       <https://example.org/ns/riepr#> .
+@prefix ex:     <https://example.org/id/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dc:     <http://purl.org/dc/terms/> .
+@prefix sosa:   <http://www.w3.org/ns/sosa/> .
+@prefix concept: <https://example.org/id/concept/> .
+```
+
+### Example Instances
+```turtle
+ex:transportprocedure/conveyorTransport a :TransportProcedure, sosa:Procedure ;
+    rdfs:label "Conveyor Belt Transport of Raw Materials"@en ;
+    dc:type concept:mechanicalTransport .
+
+ex:transportprocedure/pipelineTransport a :TransportProcedure, sosa:Procedure ;
+    rdfs:label "Pipeline Transport of Molten Glass"@en ;
+    dc:type concept:pipelineTransport .
+```
+
+Optionally link to a process:
+```turtle
+ex:process/forming dc:type ex:transportprocedure/pipelineTransport .
+```
+
+### Instructions
+1. Add `a :TransportProcedure` (and `a sosa:Procedure`) to each instance.
+2. Use IRIs under `ex:transportprocedure/` namespace.
+3. Create 1–2 instances with `rdfs:label` and optionally `dc:type`.
+4. Optionally link to existing processes (`ex:process/glassProduction`, `ex:process/forming`) via `dc:type`.
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: TransportProcedureShape
+- `target_class`: :TransportProcedure
+- `changed_triples_count`: number of triples added
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

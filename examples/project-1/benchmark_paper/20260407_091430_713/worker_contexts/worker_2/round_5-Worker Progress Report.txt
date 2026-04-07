@@ -1,0 +1,8 @@
+worker_id=POOL-2
+status=CREATED
+target_shape=ProcessVariableShape
+target_class=:ProcessVariable
+changed_triples_count=15
+created_or_updated_subjects=https://example.org/id/processvariable/sand,https://example.org/id/processvariable/naturalGas,https://example.org/id/processvariable/moltenGlass,https://example.org/id/process/melting
+validation_result=CONFORMS
+remaining_issues=none

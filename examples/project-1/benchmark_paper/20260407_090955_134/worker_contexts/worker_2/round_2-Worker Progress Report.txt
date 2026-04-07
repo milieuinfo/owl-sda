@@ -1,0 +1,8 @@
+worker_id=POOL-2
+status=FIXED
+target_shape=OperationLocationShape
+target_class=:OperationLocation
+changed_triples_count=14
+created_or_updated_subjects=https://example.org/id/location/myGlassFactory,https://example.org/id/geometry/myGlassFactory,https://example.org/id/operator/myGlassFactory,https://example.org/id/address/myGlassFactory
+validation_result=CONFORMS
+remaining_issues=none

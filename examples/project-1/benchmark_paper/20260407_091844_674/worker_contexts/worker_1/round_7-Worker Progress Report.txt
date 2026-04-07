@@ -1,0 +1,8 @@
+worker_id=POOL-1
+status=CREATED
+target_shape=AbstractEmissionPointShape
+target_class=:AbstractEmissionPoint
+changed_triples_count=7
+created_or_updated_subjects=https://example.org/id/abstractemissionpoint/stack-group, https://example.org/id/abstractemissionpoint/water-group
+validation_result=CONFORMS
+remaining_issues=none

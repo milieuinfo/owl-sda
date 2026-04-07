@@ -1,0 +1,8 @@
+worker_id=POOL-4
+status=CREATED
+target_shape=OperatorContactPersonShape
+target_class=:OperatorContactPerson
+changed_triples_count=21
+created_or_updated_subjects=https://example.org/id/contactperson/janJansen,https://example.org/id/contactperson/annaDeRoeck
+validation_result=CONFORMS
+remaining_issues=Unrelated class constraint violations for ssn:System and operation class mismatches on ex:operation/myGlassFactory-v1

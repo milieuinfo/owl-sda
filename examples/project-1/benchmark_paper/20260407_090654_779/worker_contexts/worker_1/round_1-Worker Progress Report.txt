@@ -1,0 +1,8 @@
+worker_id=POOL-1
+status=CREATED
+target_shape=EmissionPointShape
+target_class=:EmissionPoint
+changed_triples_count=18
+created_or_updated_subjects=https://example.org/id/emissionpoint/stack1, https://example.org/id/emissionpoint/discharge1
+validation_result=CONFORMS
+remaining_issues=Unrelated violations on <https://example.org/id/location/myGlassFactory> (missing rdfs:label, dc:created, dc:modified, dc:issued, prov:wasAttributedTo, ogc:hasGeometry)

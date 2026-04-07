@@ -1,0 +1,242 @@
+[
+  {
+    "timestamp": "20260407_090654_779",
+    "stage": "GENERATE",
+    "shapesProcessed": 5,
+    "durationMs": 174572,
+    "triplestoreSize": 84,
+    "triplestoreEmpty": false,
+    "currentViolations": 6,
+    "snapshotDirectory": "20260407_090654_779",
+    "tokens": {
+      "workers": {
+        "worker_1": 11382,
+        "worker_2": 14494,
+        "worker_3": 10911,
+        "worker_4": 13724,
+        "worker_0": 13569
+      },
+      "reviewer": 0,
+      "supervisor": 24990
+    }
+  },
+  {
+    "timestamp": "20260407_090955_134",
+    "stage": "GENERATE",
+    "shapesProcessed": 8,
+    "durationMs": 180322,
+    "triplestoreSize": 165,
+    "triplestoreEmpty": false,
+    "currentViolations": 2,
+    "snapshotDirectory": "20260407_090955_134",
+    "tokens": {
+      "workers": {
+        "worker_1": 19874,
+        "worker_2": 19412,
+        "worker_3": 18398,
+        "worker_4": 18315,
+        "worker_0": 21012
+      },
+      "reviewer": 0,
+      "supervisor": 35537
+    }
+  },
+  {
+    "timestamp": "20260407_091123_642",
+    "stage": "GENERATE",
+    "shapesProcessed": 6,
+    "durationMs": 88490,
+    "triplestoreSize": 167,
+    "triplestoreEmpty": false,
+    "currentViolations": 0,
+    "snapshotDirectory": "20260407_091123_642",
+    "tokens": {
+      "workers": {
+        "worker_1": 19874,
+        "worker_2": 19412,
+        "worker_3": 19927,
+        "worker_4": 21389,
+        "worker_0": 21012
+      },
+      "reviewer": 0,
+      "supervisor": 41060
+    }
+  },
+  {
+    "timestamp": "20260407_091253_283",
+    "stage": "GENERATE",
+    "shapesProcessed": 9,
+    "durationMs": 89630,
+    "triplestoreSize": 167,
+    "triplestoreEmpty": false,
+    "currentViolations": 0,
+    "snapshotDirectory": "20260407_091253_283",
+    "tokens": {
+      "workers": {
+        "worker_1": 21792,
+        "worker_2": 21883,
+        "worker_3": 19927,
+        "worker_4": 23753,
+        "worker_0": 21012
+      },
+      "reviewer": 0,
+      "supervisor": 46945
+    }
+  },
+  {
+    "timestamp": "20260407_091430_713",
+    "stage": "GENERATE",
+    "shapesProcessed": 12,
+    "durationMs": 97421,
+    "triplestoreSize": 215,
+    "triplestoreEmpty": false,
+    "currentViolations": 0,
+    "snapshotDirectory": "20260407_091430_713",
+    "tokens": {
+      "workers": {
+        "worker_1": 21792,
+        "worker_2": 25161,
+        "worker_3": 24125,
+        "worker_4": 27711,
+        "worker_0": 21012
+      },
+      "reviewer": 0,
+      "supervisor": 52112
+    }
+  },
+  {
+    "timestamp": "20260407_091645_110",
+    "stage": "GENERATE",
+    "shapesProcessed": 16,
+    "durationMs": 134387,
+    "triplestoreSize": 247,
+    "triplestoreEmpty": false,
+    "currentViolations": 0,
+    "snapshotDirectory": "20260407_091645_110",
+    "tokens": {
+      "workers": {
+        "worker_1": 21792,
+        "worker_2": 30530,
+        "worker_3": 27990,
+        "worker_4": 29834,
+        "worker_0": 26071
+      },
+      "reviewer": 0,
+      "supervisor": 58481
+    }
+  },
+  {
+    "timestamp": "20260407_091844_674",
+    "stage": "GENERATE",
+    "shapesProcessed": 21,
+    "durationMs": 119554,
+    "triplestoreSize": 280,
+    "triplestoreEmpty": false,
+    "currentViolations": 0,
+    "snapshotDirectory": "20260407_091844_674",
+    "tokens": {
+      "workers": {
+        "worker_1": 23613,
+        "worker_2": 32509,
+        "worker_3": 30424,
+        "worker_4": 31763,
+        "worker_0": 28731
+      },
+      "reviewer": 0,
+      "supervisor": 65157
+    }
+  },
+  {
+    "timestamp": "20260407_092001_989",
+    "stage": "GENERATE",
+    "shapesProcessed": 23,
+    "durationMs": 77297,
+    "triplestoreSize": 297,
+    "triplestoreEmpty": false,
+    "currentViolations": 0,
+    "snapshotDirectory": "20260407_092001_989",
+    "tokens": {
+      "workers": {
+        "worker_1": 25675,
+        "worker_2": 32509,
+        "worker_3": 30424,
+        "worker_4": 31763,
+        "worker_0": 33346
+      },
+      "reviewer": 0,
+      "supervisor": 68767
+    }
+  },
+  {
+    "timestamp": "20260407_092602_024",
+    "stage": "FINALIZING",
+    "shapesProcessed": 23,
+    "durationMs": 360021,
+    "triplestoreSize": 297,
+    "triplestoreEmpty": false,
+    "currentViolations": 0,
+    "snapshotDirectory": "20260407_092602_024",
+    "tokens": {
+      "workers": {
+        "worker_1": 25675,
+        "worker_2": 32509,
+        "worker_3": 30424,
+        "worker_4": 31763,
+        "worker_0": 33346
+      },
+      "reviewer": 0,
+      "supervisor": 91725
+    }
+  },
+  {
+    "timestamp": "20260407_093108_197",
+    "stage": "REVIEW_ITERATION_1",
+    "shapesProcessed": 23,
+    "durationMs": 306153,
+    "triplestoreSize": 297,
+    "triplestoreEmpty": false,
+    "currentViolations": 0,
+    "snapshotDirectory": "20260407_093108_197",
+    "tokens": {
+      "workers": {},
+      "reviewer": 17081,
+      "supervisor": 92946
+    }
+  },
+  {
+    "timestamp": "20260407_093815_636",
+    "stage": "REVIEW_ACCEPTED",
+    "shapesProcessed": 23,
+    "durationMs": 44284,
+    "triplestoreSize": 297,
+    "triplestoreEmpty": false,
+    "currentViolations": 0,
+    "snapshotDirectory": "20260407_093815_636",
+    "tokens": {
+      "workers": {},
+      "reviewer": 30778,
+      "supervisor": 102613
+    }
+  },
+  {
+    "timestamp": "20260407_093815_648",
+    "stage": "REVIEW_ACCEPTED",
+    "shapesProcessed": 23,
+    "durationMs": 733606,
+    "triplestoreSize": 297,
+    "triplestoreEmpty": false,
+    "currentViolations": 0,
+    "snapshotDirectory": "20260407_093815_648",
+    "tokens": {
+      "workers": {
+        "worker_1": 25675,
+        "worker_2": 32509,
+        "worker_3": 30424,
+        "worker_4": 31763,
+        "worker_0": 33346
+      },
+      "reviewer": 30778,
+      "supervisor": 102613
+    }
+  }
+]

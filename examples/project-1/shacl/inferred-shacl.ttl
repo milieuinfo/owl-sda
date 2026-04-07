@@ -1,0 +1,2656 @@
+@prefix :           <http://www.w3.org/ns/org#> .
+@prefix adms:       <http://www.w3.org/ns/adms#> .
+@prefix cc:         <http://creativecommons.org/ns#> .
+@prefix concept:    <https://example.org/id/concept/> .
+@prefix dbo:        <http://dbpedia.org/ontology/> .
+@prefix dc:         <http://purl.org/dc/elements/1.1/> .
+@prefix dcat:       <http://www.w3.org/ns/dcat#> .
+@prefix dct:        <http://purl.org/dc/terms/> .
+@prefix dcterms:    <http://purl.org/dc/terms/> .
+@prefix dtype:      <http://www.linkedmodel.org/schema/dtype#> .
+@prefix foaf:       <http://xmlns.com/foaf/0.1/> .
+@prefix geo:        <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix gr:         <http://purl.org/goodrelations/v1#> .
+@prefix grddl:      <http://www.w3.org/2003/g/data-view#> .
+@prefix gsp:        <http://www.opengis.net/ont/geosparql#> .
+@prefix hydra:      <http://www.w3.org/ns/hydra/core#> .
+@prefix locn:       <http://www.w3.org/ns/locn#> .
+@prefix nace:       <http://data.europa.eu/ux2/nace2.1/> .
+@prefix ogc:        <http://www.opengis.net/ont/geosparql#> .
+@prefix org:        <http://www.w3.org/ns/org#> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix owlTime:    <http://www.w3.org/2006/time#> .
+@prefix pplan:      <http://purl.org/net/p-plan#> .
+@prefix prov:       <http://www.w3.org/ns/prov#> .
+@prefix qudt:       <http://qudt.org/schema/qudt/> .
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rec:        <http://www.w3.org/2001/02pd/rec54#> .
+@prefix schema:     <http://schema.org/> .
+@prefix sf:         <http://www.opengis.net/ont/sf#> .
+@prefix sh:         <http://www.w3.org/ns/shacl#> .
+@prefix sioc:       <http://rdfs.org/sioc/ns#> .
+@prefix skos:       <http://www.w3.org/2004/02/skos/core#> .
+@prefix sosa:       <http://www.w3.org/ns/sosa/> .
+@prefix spec11:     <http://www.opengis.net/doc/IS/geosparql/1.1#> .
+@prefix ssn:        <http://www.w3.org/ns/ssn/> .
+@prefix ssn-system: <http://www.w3.org/ns/ssn/systems/> .
+@prefix terms:      <http://purl.org/dc/terms/> .
+@prefix time:       <http://www.w3.org/2006/time#> .
+@prefix vaem:       <http://www.linkedmodel.org/schema/vaem#> .
+@prefix vann:       <http://purl.org/vocab/vann/> .
+@prefix vcard:      <http://www.w3.org/2006/vcard/ns#> .
+@prefix voaf:       <http://purl.org/vocommons/voaf#> .
+@prefix voag:       <http://voag.linkedmodel.org/schema/voag#> .
+@prefix vs:         <http://www.w3.org/2003/06/sw-vocab-status/ns#> .
+@prefix wdrs:       <http://www.w3.org/2007/05/powder-s#> .
+@prefix wdsr:       <http://www.w3.org/2007/05/powder-s#> .
+@prefix wot:        <http://xmlns.com/wot/0.1/> .
+@prefix xhv:        <http://www.w3.org/1999/xhtml/vocab#> .
+@prefix xml:        <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+
+<https://example.org/ns/riepr#MeasurementPointShape>
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "A system must have a modification date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:modified
+                        ] ;
+        sh:property     [ sh:class        ssn:System ;
+                          sh:description  "A system can contain multiple objects."@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         ssn:hasSubSystem
+                        ] ;
+        sh:property     [ sh:class        adms:Identifier ;
+                          sh:description  "A system has external identifiers (optional)"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         adms:identifier
+                        ] ;
+        sh:property     [ sh:class        <https://example.org/ns/riepr#OperationLocation> ;
+                          sh:description  "A system must be part of a location"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         [ sh:inversePath  sosa:hosts ]
+                        ] ;
+        sh:property     [ sh:description  "A system can have a type via dct:type"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:type
+                        ] ;
+        sh:property     [ sh:description  "A system can have at most 1 geometry"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         ogc:hasGeometry
+                        ] ;
+        sh:property     [ sh:class     ssn:System ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn:hasSubSystem ]
+                        ] ;
+        sh:property     [ sh:description  "A system must have a label"@en ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         rdfs:label
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "A system must have a creation date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:created
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "A system must have a validity start"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:issued
+                        ] ;
+        sh:property     [ sh:class        <https://example.org/ns/riepr#Section> ;
+                          sh:description  "A measurement point can have multiple sections"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         <https://example.org/ns/riepr#section>
+                        ] ;
+        sh:property     [ sh:class        <https://example.org/ns/riepr#MeasurementInstrument> ;
+                          sh:description  "A measurement point can have measuring instruments"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         ssn:hasSubSystem
+                        ] ;
+        sh:property     [ sh:class     <https://example.org/ns/riepr#Operation> ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn:deployedSystem ]
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "A system can have a validity end"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:valid
+                        ] ;
+        sh:property     [ sh:class        ssn:System ;
+                          sh:description  "A system can be a revision of other systems (optional)"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         prov:wasRevisionOf
+                        ] ;
+        sh:property     [ sh:class        adms:Status ;
+                          sh:description  "A system must have a single status"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         adms:status
+                        ] ;
+        sh:targetClass  <https://example.org/ns/riepr#MeasurementPoint> .
+
+rdfs:ClassShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  rdfs:Class .
+
+prov:PersonShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  prov:Person .
+
+qudt:SystemOfQuantityKindsShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:hasQuantityKind
+                        ] ;
+        sh:property     [ sh:class  qudt:QuantityKind ;
+                          sh:path   qudt:hasQuantityKind
+                        ] ;
+        sh:property     [ sh:class  qudt:Enumeration ;
+                          sh:path   qudt:baseDimensionEnumeration
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:baseDimensionEnumeration
+                        ] ;
+        sh:property     [ sh:class  qudt:QuantityKind ;
+                          sh:path   qudt:systemDerivedQuantityKind
+                        ] ;
+        sh:property     [ sh:class  qudt:QuantityKind ;
+                          sh:path   qudt:hasBaseQuantityKind
+                        ] ;
+        sh:property     [ sh:class  qudt:SystemOfUnits ;
+                          sh:path   qudt:hasUnitSystem
+                        ] ;
+        sh:targetClass  qudt:SystemOfQuantityKinds .
+
+qudt:DecimalPrefixShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:DecimalPrefix .
+
+qudt:QuantityKindDimensionVector_CGSShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:QuantityKindDimensionVector_CGS .
+
+qudt:DataEncodingShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:encoding
+                        ] ;
+        sh:property     [ sh:class  qudt:EndianType ;
+                          sh:path   qudt:bitOrder
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:byteOrder
+                        ] ;
+        sh:property     [ sh:class  qudt:Encoding ;
+                          sh:path   qudt:encoding
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:bitOrder
+                        ] ;
+        sh:targetClass  qudt:DataEncoding .
+
+pplan:PlanShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  pplan:Plan .
+
+ssn:OutputShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:class  sosa:Procedure ;
+                          sh:path   [ sh:inversePath  ssn:hasOutput ]
+                        ] ;
+        sh:property     [ sh:minCount  "1"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn:hasOutput ]
+                        ] ;
+        sh:targetClass  ssn:Output .
+
+qudt:BinaryPrefixShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:BinaryPrefix .
+
+prov:DerivationShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  prov:Derivation .
+
+<https://example.org/ns/riepr#ProcessShape>
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class     <https://example.org/ns/riepr#Installation> ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn:implements ]
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "A process must have a creation date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:created
+                        ] ;
+        sh:property     [ sh:class        <https://example.org/ns/riepr#Process> ;
+                          sh:description  "A process can be part of one or more other processes"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         pplan:isStepOfPlan
+                        ] ;
+        sh:property     [ sh:class        pplan:Variable ;
+                          sh:description  "A process can have at least one input variable (substance)"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         pplan:hasInputVar
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "A process can have a validity end"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:valid
+                        ] ;
+        sh:property     [ sh:class        ssn:System ;
+                          sh:description  "A process can optionally use a variable that represents a system"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         [ sh:inversePath  ssn:implements ]
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "A process can have a validity start"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:issued
+                        ] ;
+        sh:property     [ sh:class        pplan:Variable ;
+                          sh:description  "A process can have at least one output variable (substance)"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         [ sh:inversePath  pplan:isOutputVarOf ]
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "A process must have a modification date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:modified
+                        ] ;
+        sh:property     [ sh:class        sosa:Procedure ;
+                          sh:description  "A process can be derived from a (generic) procedure (optional). Max 1 because a process can only be derived from 1 procedure and this procedure would need to be a collection of other procedures."@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:type
+                        ] ;
+        sh:property     [ sh:class        <https://example.org/ns/riepr#Section> ;
+                          sh:description  "A process can have multiple sections"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         <https://example.org/ns/riepr#section>
+                        ] ;
+        sh:property     [ sh:description  "A process must have a label"@en ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         rdfs:label
+                        ] ;
+        sh:property     [ sh:class        <https://example.org/ns/riepr#Process> ;
+                          sh:description  "A process can be a revision of another process (optional)"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         prov:wasRevisionOf
+                        ] ;
+        sh:property     [ sh:class        adms:Status ;
+                          sh:description  "A process must have a single status"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         adms:status
+                        ] ;
+        sh:targetClass  <https://example.org/ns/riepr#Process> .
+
+qudt:RuleShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:rationale
+                        ] ;
+        sh:property     [ sh:class  qudt:RuleType ;
+                          sh:path   qudt:ruleType
+                        ] ;
+        sh:targetClass  qudt:Rule .
+
+qudt:EnumeratedValueShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:altSymbol
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:symbol
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      dct:description
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:abbreviation
+                        ] ;
+        sh:targetClass  qudt:EnumeratedValue .
+
+voaf:VocabularyShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  voaf:Vocabulary .
+
+sosa:ObservablePropertyShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class  ssn:Stimulus ;
+                          sh:path   [ sh:inversePath  ssn:isProxyFor ]
+                        ] ;
+        sh:property     [ sh:class  sosa:Observation ;
+                          sh:path   [ sh:inversePath  sosa:observedProperty ]
+                        ] ;
+        sh:property     [ sh:class  sosa:Sensor ;
+                          sh:path   [ sh:inversePath  sosa:observes ]
+                        ] ;
+        sh:targetClass  sosa:ObservableProperty .
+
+qudt:BitEncodingTypeShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:BitEncodingType .
+
+prov:CommunicationShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  prov:Communication .
+
+<https://example.org/ns/riepr#ObservationResultShape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <https://example.org/ns/riepr#ObservationResult> .
+
+foaf:ImageShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  foaf:Image .
+
+org:OrganizationalCollaborationShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  org:OrganizationalCollaboration .
+
+org:ChangeEventShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  org:ChangeEvent .
+
+qudt:ByteEncodingTypeShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:ByteEncodingType .
+
+qudt:TransformTypeShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:TransformType .
+
+<https://example.org/ns/riepr#EmissionShape>
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class     sosa:Observation ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      [ sh:inversePath  sosa:hasResult ]
+                        ] ;
+        sh:targetClass  <https://example.org/ns/riepr#Emission> .
+
+qudt:CharEncodingTypeShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:CharEncodingType .
+
+prov:BundleShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  prov:Bundle .
+
+foaf:ProjectShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  foaf:Project .
+
+pplan:BundleShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  pplan:Bundle .
+
+qudt:PlaneAngleUnitShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:PlaneAngleUnit .
+
+prov:AssociationShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  prov:Association .
+
+qudt:QuantityTypeShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class  qudt:QuantityKind ;
+                          sh:path   dtype:value
+                        ] ;
+        sh:targetClass  qudt:QuantityType .
+
+ogc:FeatureShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  ogc:Feature .
+
+qudt:IntervalScaleShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:IntervalScale .
+
+foaf:AgentShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  foaf:Agent .
+
+org:PostShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  org:Post .
+
+sosa:SamplingShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:minCount  "1"^^xsd:int ;
+                          sh:path      [ sh:inversePath  sosa:isResultOf ]
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      [ sh:inversePath  sosa:isFeatureOfInterestOf ]
+                        ] ;
+        sh:property     [ sh:class  sosa:FeatureOfInterest ;
+                          sh:path   [ sh:inversePath  sosa:isFeatureOfInterestOf ]
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      sosa:resultTime
+                        ] ;
+        sh:property     [ sh:class  sosa:Sampler ;
+                          sh:path   [ sh:inversePath  sosa:madeSampling ]
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      [ sh:inversePath  sosa:madeSampling ]
+                        ] ;
+        sh:property     [ sh:class  sosa:Procedure ;
+                          sh:path   sosa:usedProcedure
+                        ] ;
+        sh:property     [ sh:class  sosa:Sample ;
+                          sh:path   [ sh:inversePath  sosa:isResultOf ]
+                        ] ;
+        sh:targetClass  sosa:Sampling .
+
+qudt:BooleanEncodingTypeShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:BooleanEncodingType .
+
+<https://example.org/ns/riepr#OperatorContactPersonShape>
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class     <https://example.org/ns/riepr#Operation> ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      [ sh:inversePath  org:hasMember ]
+                        ] ;
+        sh:property     [ sh:description  "An operator contact person must have a name"@en ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         foaf:name
+                        ] ;
+        sh:property     [ sh:description  "An operator contact person can have an email address"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         foaf:mbox
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "An operator contact person can have a modification date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:modified
+                        ] ;
+        sh:property     [ sh:description  "An operator contact person must have a label"@en ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         rdfs:label
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "An operator contact person can have a creation date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:created
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "An operator contact person can have a validity end"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:valid
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "An operator contact person can have a validity start"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:issued
+                        ] ;
+        sh:property     [ sh:description  "An operator contact person can have a phone number"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         foaf:phone
+                        ] ;
+        sh:property     [ sh:description  "An operator contact person can have a comment"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         rdfs:comment
+                        ] ;
+        sh:property     [ sh:description  "An operator contact person must have a role within the organization"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         org:hasRole
+                        ] ;
+        sh:targetClass  <https://example.org/ns/riepr#OperatorContactPerson> .
+
+qudt:DerivedUnitShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:DerivedUnit .
+
+ssn-system:SystemPropertyShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class  ssn-system:SystemCapability ;
+                          sh:path   [ sh:inversePath  ssn-system:hasSystemProperty ]
+                        ] ;
+        sh:property     [ sh:minCount  "1"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn-system:hasSystemProperty ]
+                        ] ;
+        sh:targetClass  ssn-system:SystemProperty .
+
+<https://example.org/ns/riepr#InstallationShape>
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:description  "A system must have a label"@en ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         rdfs:label
+                        ] ;
+        sh:property     [ sh:class        <https://example.org/ns/riepr#Section> ;
+                          sh:description  "An installation can have multiple sections"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         <https://example.org/ns/riepr#section>
+                        ] ;
+        sh:property     [ sh:description  "A system can have at most 1 geometry"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         ogc:hasGeometry
+                        ] ;
+        sh:property     [ sh:class        ssn:System ;
+                          sh:description  "A system can be a revision of other systems (optional)"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         prov:wasRevisionOf
+                        ] ;
+        sh:property     [ sh:class        <https://example.org/ns/riepr#InstallationProperty> ;
+                          sh:description  "An installation can have multiple installation properties"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         [ sh:inversePath  ssn:isPropertyOf ]
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "A system can have a validity end"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:valid
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "A system must have a validity start"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:issued
+                        ] ;
+        sh:property     [ sh:description  "A system can have a type via dct:type"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:type
+                        ] ;
+        sh:property     [ sh:class        adms:Status ;
+                          sh:description  "A system must have a single status"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         adms:status
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "A system must have a creation date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:created
+                        ] ;
+        sh:property     [ sh:class        adms:Identifier ;
+                          sh:description  "A system has external identifiers (optional)"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         adms:identifier
+                        ] ;
+        sh:property     [ sh:class     ssn:System ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn:hasSubSystem ]
+                        ] ;
+        sh:property     [ sh:class        ssn:System ;
+                          sh:description  "A system can contain multiple objects."@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         ssn:hasSubSystem
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "A system must have a modification date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:modified
+                        ] ;
+        sh:property     [ sh:class     <https://example.org/ns/riepr#Operation> ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn:deployedSystem ]
+                        ] ;
+        sh:property     [ sh:class        <https://example.org/ns/riepr#Process> ;
+                          sh:description  "An installation can also contain processes that this installation implements"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         [ sh:inversePath  ssn:implementedBy ]
+                        ] ;
+        sh:property     [ sh:class        <https://example.org/ns/riepr#OperationLocation> ;
+                          sh:description  "A system must be part of a location"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         [ sh:inversePath  sosa:hosts ]
+                        ] ;
+        sh:targetClass  <https://example.org/ns/riepr#Installation> .
+
+prov:StartShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  prov:Start .
+
+geo:SpatialThingShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  geo:SpatialThing .
+
+org:FormalOrganizationShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  org:FormalOrganization .
+
+qudt:QuantityKindDimensionVectorShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      qudt:dimensionExponentForLength
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      qudt:dimensionExponentForAmountOfSubstance
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      qudt:dimensionlessExponent
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      qudt:dimensionExponentForThermodynamicTemperature
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:latexDefinition
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      qudt:dimensionExponentForLuminousIntensity
+                        ] ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:latexSymbol
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      qudt:dimensionExponentForMass
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      qudt:dimensionExponentForElectricCurrent
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      qudt:dimensionExponentForTime
+                        ] ;
+        sh:property     [ sh:class  qudt:QuantityKind ;
+                          sh:path   qudt:hasReferenceQuantityKind
+                        ] ;
+        sh:targetClass  qudt:QuantityKindDimensionVector .
+
+qudt:PhysicalConstantShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:latexDefinition
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:mathMLdefinition
+                        ] ;
+        sh:property     [ sh:datatype  xsd:boolean ;
+                          sh:path      qudt:exactConstant
+                        ] ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:isoNormativeReference
+                        ] ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:altSymbol
+                        ] ;
+        sh:property     [ sh:class  qudt:PhysicalConstant ;
+                          sh:path   qudt:exactMatch
+                        ] ;
+        sh:property     [ sh:class  qudt:QuantityKindDimensionVector ;
+                          sh:path   qudt:hasDimensionVector
+                        ] ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:ucumCode
+                        ] ;
+        sh:property     [ sh:class  qudt:SystemOfUnits ;
+                          sh:path   qudt:applicableSystem
+                        ] ;
+        sh:property     [ sh:class  qudt:Unit ;
+                          sh:path   qudt:applicableUnit
+                        ] ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:normativeReference
+                        ] ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:latexSymbol
+                        ] ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:dbpediaMatch
+                        ] ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:symbol
+                        ] ;
+        sh:targetClass  qudt:PhysicalConstant .
+
+qudt:FloatingPointEncodingTypeShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:FloatingPointEncodingType .
+
+ssn-system:FrequencyShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  ssn-system:Frequency .
+
+prov:SoftwareAgentShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  prov:SoftwareAgent .
+
+<https://example.org/ns/riepr#EmissionpuntShape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <https://example.org/ns/riepr#Emissionpunt> .
+
+prov:LocationShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  prov:Location .
+
+qudt:CommentShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:rationale
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      dct:description
+                        ] ;
+        sh:targetClass  qudt:Comment .
+
+prov:ActivityInfluenceShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:maxCount  "0"^^xsd:int ;
+                          sh:path      prov:hadActivity
+                        ] ;
+        sh:targetClass  prov:ActivityInfluence .
+
+qudt:ContextualUnitShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class  qudt:Unit ;
+                          sh:path   [ sh:inversePath  skos:narrower ]
+                        ] ;
+        sh:targetClass  qudt:ContextualUnit .
+
+prov:PrimarySourceShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  prov:PrimarySource .
+
+prov:CollectionShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  prov:Collection .
+
+qudt:RatioScaleShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  qudt:RatioScale .
+
+sosa:ResultShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:minCount  "1"^^xsd:int ;
+                          sh:path      [ sh:inversePath  sosa:hasResult ]
+                        ] ;
+        sh:targetClass  sosa:Result .
+
+qudt:QuantityKindDimensionVector_CGS-EMUShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:QuantityKindDimensionVector_CGS-EMU .
+
+org:MembershipShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  org:Membership .
+
+ssn:PropertyShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:class  sosa:FeatureOfInterest ;
+                          sh:path   [ sh:inversePath  ssn:hasProperty ]
+                        ] ;
+        sh:targetClass  ssn:Property .
+
+ssn-system:SurvivalRangeShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class  ssn-system:Condition ;
+                          sh:path   ssn-system:inCondition
+                        ] ;
+        sh:property     [ sh:class  ssn:System ;
+                          sh:path   [ sh:inversePath  ssn-system:hasSurvivalRange ]
+                        ] ;
+        sh:property     [ sh:minCount  "1"^^xsd:int ;
+                          sh:path      ssn-system:inCondition
+                        ] ;
+        sh:property     [ sh:class  ssn-system:SurvivalProperty ;
+                          sh:path   ssn-system:hasSurvivalProperty
+                        ] ;
+        sh:targetClass  ssn-system:SurvivalRange .
+
+foaf:LabelPropertyShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  foaf:LabelProperty .
+
+qudt:NominalScaleShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:NominalScale .
+
+qudt:IntegerEncodingTypeShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:IntegerEncodingType .
+
+ssn-system:DetectionLimitShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class  []  ;
+                          sh:path   [ sh:inversePath  ssn-system:hasSystemProperty ]
+                        ] ;
+        sh:targetClass  ssn-system:DetectionLimit .
+
+ogc:SpatialObjectShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  ogc:SpatialObject .
+
+skos:ConceptShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  skos:Concept .
+
+foaf:GroupShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  foaf:Group .
+
+qudt:AngleUnitShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  qudt:AngleUnit .
+
+<https://example.org/ns/riepr#MeasurementProcedureShape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <https://example.org/ns/riepr#MeasurementProcedure> .
+
+qudt:MathsFunctionTypeShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:MathsFunctionType .
+
+ogc:FeatureCollectionShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class  ogc:Feature ;
+                          sh:path   rdfs:member
+                        ] ;
+        sh:targetClass  ogc:FeatureCollection .
+
+<https://example.org/ns/riepr#SectionShape>
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:description  "A section can have a type via dct:type"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:type
+                        ] ;
+        sh:property     [ sh:description  "A section can have a description"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         skos:definition
+                        ] ;
+        sh:property     [ sh:description  "A section must have a code"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         skos:notation
+                        ] ;
+        sh:targetClass  <https://example.org/ns/riepr#Section> .
+
+qudt:OrdinalScaleShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      qudt:order
+                        ] ;
+        sh:targetClass  qudt:OrdinalScale .
+
+qudt:QuantityKindDimensionVector_CGS-ESUShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:QuantityKindDimensionVector_CGS-ESU .
+
+org:OrganizationShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  org:Organization .
+
+foaf:DocumentShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  foaf:Document .
+
+qudt:EndianTypeShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  qudt:EndianType .
+
+ssn-system:LatencyShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  ssn-system:Latency .
+
+ssn-system:ResolutionShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  ssn-system:Resolution .
+
+org:RoleShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  org:Role .
+
+qudt:OrderedTypeShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      dtype:literal
+                        ] ;
+        sh:targetClass  qudt:OrderedType .
+
+qudt:EnumerationScaleShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:EnumerationScale .
+
+qudt:QuantityValueShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:hasUnit
+                        ] ;
+        sh:targetClass  qudt:QuantityValue .
+
+qudt:SolidAngleUnitShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:SolidAngleUnit .
+
+skos:OrderedCollectionShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  skos:OrderedCollection .
+
+qudt:BaseDimensionMagnitudeShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      qudt:hasBaseQuantityKind
+                        ] ;
+        sh:property     [ sh:datatype  xsd:float ;
+                          sh:path      qudt:vectorMagnitude
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      qudt:vectorMagnitude
+                        ] ;
+        sh:property     [ sh:class  qudt:QuantityKind ;
+                          sh:path   qudt:hasBaseQuantityKind
+                        ] ;
+        sh:targetClass  qudt:BaseDimensionMagnitude .
+
+ssn-system:SystemLifetimeShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  ssn-system:SystemLifetime .
+
+<https://example.org/ns/riepr#InstallationPropertyShape>
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class        <https://example.org/ns/riepr#Installation> ;
+                          sh:description  "An installation property must be linked to exactly one installation"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         [ sh:inversePath  ssn:hasProperty ]
+                        ] ;
+        sh:property     [ sh:description  "An installation property must have a unit"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         qudt:hasUnit
+                        ] ;
+        sh:property     [ sh:description  "An installation property must have a value"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         qudt:numericValue
+                        ] ;
+        sh:property     [ sh:description  "An installation property must have a type"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:type
+                        ] ;
+        sh:targetClass  <https://example.org/ns/riepr#InstallationProperty> .
+
+foaf:OnlineGamingAccountShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  foaf:OnlineGamingAccount .
+
+org:OrganizationalUnitShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  org:OrganizationalUnit .
+
+prov:RoleShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  prov:Role .
+
+<https://example.org/ns/riepr#AbstractEmissionPointShape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <https://example.org/ns/riepr#AbstractEmissionPoint> .
+
+pplan:MultiStepShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  pplan:MultiStep .
+
+qudt:SymbolShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  qudt:Symbol .
+
+prov:AgentShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  prov:Agent .
+
+qudt:SystemOfUnitsShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class  qudt:Unit ;
+                          sh:path   qudt:hasUnit
+                        ] ;
+        sh:property     [ sh:class  qudt:Prefix ;
+                          sh:path   qudt:prefix
+                        ] ;
+        sh:property     [ sh:class  qudt:Unit ;
+                          sh:path   qudt:hasDefinedUnit
+                        ] ;
+        sh:property     [ sh:class  qudt:Unit ;
+                          sh:path   [ sh:inversePath  qudt:derivedCoherentUnitOfSystem ]
+                        ] ;
+        sh:property     [ sh:class  qudt:Unit ;
+                          sh:path   qudt:hasAllowedUnit
+                        ] ;
+        sh:property     [ sh:class  qudt:Unit ;
+                          sh:path   qudt:hasCoherentUnit
+                        ] ;
+        sh:property     [ sh:class  qudt:PhysicalConstant ;
+                          sh:path   qudt:applicablePhysicalConstant
+                        ] ;
+        sh:property     [ sh:class  qudt:Unit ;
+                          sh:path   [ sh:inversePath  qudt:baseUnitOfSystem ]
+                        ] ;
+        sh:property     [ sh:class  qudt:Unit ;
+                          sh:path   [ sh:inversePath  qudt:derivedUnitOfSystem ]
+                        ] ;
+        sh:targetClass  qudt:SystemOfUnits .
+
+qudt:QuantityKindShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:datatype  xsd:string ;
+                          sh:path      qudt:iec61360Code
+                        ] ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:applicableSIUnit
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:dimensionVectorForSI
+                        ] ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:applicableImperialUnit
+                        ] ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:applicableCGSUnit
+                        ] ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:applicableUSCustomaryUnit
+                        ] ;
+        sh:property     [ sh:class  qudt:QuantityKindDimensionVector ;
+                          sh:path   qudt:hasDimensionVector
+                        ] ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:applicableUnit
+                        ] ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:applicableISOUnit
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:latexDefinition
+                        ] ;
+        sh:property     [ sh:path  qudt:qkdvNumerator ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:mathMLdefinition
+                        ] ;
+        sh:property     [ sh:class  qudt:QuantityKindDimensionVector_SI ;
+                          sh:path   qudt:dimensionVectorForSI
+                        ] ;
+        sh:property     [ sh:class  qudt:QuantityKind ;
+                          sh:path   qudt:exactMatch
+                        ] ;
+        sh:property     [ sh:path  qudt:qkdvDenominator ] ;
+        sh:targetClass  qudt:QuantityKind .
+
+foaf:OrganizationShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  foaf:Organization .
+
+prov:OrganizationShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  prov:Organization .
+
+ssn-system:OperatingPropertyShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class  ssn-system:OperatingRange ;
+                          sh:path   [ sh:inversePath  ssn-system:hasOperatingProperty ]
+                        ] ;
+        sh:property     [ sh:minCount  "1"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn-system:hasOperatingProperty ]
+                        ] ;
+        sh:targetClass  ssn-system:OperatingProperty .
+
+ssn-system:OperatingPowerRangeShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  ssn-system:OperatingPowerRange .
+
+qudt:UserQuantityKindShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      qudt:hasQuantityKind
+                        ] ;
+        sh:property     [ sh:class  qudt:QuantityKind ;
+                          sh:path   qudt:hasQuantityKind
+                        ] ;
+        sh:targetClass  qudt:UserQuantityKind .
+
+<https://example.org/ns/riepr#OperationLocationShape>
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "An operation location must have a creation date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:created
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "An operation location must have a modification date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:modified
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "An operation location can have a validity end"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:valid
+                        ] ;
+        sh:property     [ sh:description  "An operation location must have exactly 1 geometry"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         ogc:hasGeometry
+                        ] ;
+        sh:property     [ sh:class        adms:Identifier ;
+                          sh:description  "An operation location has external identifiers (optional)"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         adms:identifier
+                        ] ;
+        sh:property     [ sh:class     <https://example.org/ns/riepr#Operation> ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn:deployedOnPlatform ]
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "An operation location must have a validity start"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:issued
+                        ] ;
+        sh:property     [ sh:class        <https://example.org/ns/riepr#Operator> ;
+                          sh:description  "An operation location must be linked to exactly one operator"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         prov:wasAttributedTo
+                        ] ;
+        sh:property     [ sh:description  "An operation location must have a label"@en ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         rdfs:label
+                        ] ;
+        sh:property     [ sh:class        <https://example.org/ns/riepr#OperationLocation> ;
+                          sh:description  "An operation location can be a revision of another operation location (optional)"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         prov:wasRevisionOf
+                        ] ;
+        sh:property     [ sh:class        locn:Address ;
+                          sh:description  "An operation location can have an address"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         locn:address
+                        ] ;
+        sh:property     [ sh:description  "An operation location can optionally be influenced by an org:Site or another type"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         prov:wasInfluencedBy
+                        ] ;
+        sh:property     [ sh:class        org:Site ;
+                          sh:description  "An operation location can match one location (VKBO)"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         prov:hadPrimarySource
+                        ] ;
+        sh:targetClass  <https://example.org/ns/riepr#OperationLocation> .
+
+sosa:SamplerShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:class  sosa:Sampling ;
+                          sh:path   [ sh:inversePath  sosa:madeBySampler ]
+                        ] ;
+        sh:property     [ sh:minCount  "1"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn:implementedBy ]
+                        ] ;
+        sh:targetClass  sosa:Sampler .
+
+qudt:UnitShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:conversionOffset
+                        ] ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:altSymbol
+                        ] ;
+        sh:property     [ sh:class  qudt:QuantityKindDimensionVector ;
+                          sh:path   qudt:hasDimensionVector
+                        ] ;
+        sh:property     [ sh:class  owl:Class ;
+                          sh:path   qudt:hasFactorUnit
+                        ] ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:siUnitsExpression
+                        ] ;
+        sh:property     [ sh:datatype  xsd:string ;
+                          sh:path      qudt:iec61360Code
+                        ] ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:symbol
+                        ] ;
+        sh:property     [ sh:class  qudt:Unit ;
+                          sh:path   qudt:exactMatch
+                        ] ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:latexDefinition
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:conversionMultiplierSN
+                        ] ;
+        sh:property     [ sh:class  qudt:Prefix ;
+                          sh:path   qudt:prefix
+                        ] ;
+        sh:property     [ sh:class  qudt:QuantityKind ;
+                          sh:path   qudt:hasQuantityKind
+                        ] ;
+        sh:property     [ sh:class  qudt:SystemOfUnits ;
+                          sh:path   [ sh:inversePath  qudt:hasDerivedCoherentUnit ]
+                        ] ;
+        sh:property     [ sh:class  qudt:QuantityKindDimensionVector ;
+                          sh:path   qudt:qkdvDenominator
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:conversionMultiplier
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:qkdvNumerator
+                        ] ;
+        sh:property     [ sh:datatype  xsd:string ;
+                          sh:path      qudt:uneceCommonCode
+                        ] ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:latexSymbol
+                        ] ;
+        sh:property     [ sh:class  qudt:UCUMcs ;
+                          sh:path   qudt:ucumCode
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:hasDimensionVector
+                        ] ;
+        sh:property     [ sh:class  qudt:SystemOfUnits ;
+                          sh:path   [ sh:inversePath  qudt:hasDefinedUnit ]
+                        ] ;
+        sh:property     [ sh:datatype  xsd:string ;
+                          sh:path      qudt:udunitsCode
+                        ] ;
+        sh:property     [ sh:class  qudt:Unit ;
+                          sh:path   qudt:scalingOf
+                        ] ;
+        sh:property     [ sh:class  qudt:SystemOfUnits ;
+                          sh:path   [ sh:inversePath  qudt:hasDerivedUnit ]
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:conversionOffsetSN
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:factorUnitScalar
+                        ] ;
+        sh:property     [ sh:class  qudt:QuantityKindDimensionVector ;
+                          sh:path   qudt:qkdvNumerator
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:mathMLdefinition
+                        ] ;
+        sh:property     [ sh:class  qudt:SystemOfUnits ;
+                          sh:path   qudt:applicableSystem
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:qkdvDenominator
+                        ] ;
+        sh:targetClass  qudt:Unit .
+
+ssn:DeploymentShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:class  ssn:Property ;
+                          sh:path   ssn:forProperty
+                        ] ;
+        sh:property     [ sh:class  sosa:Platform ;
+                          sh:path   [ sh:inversePath  ssn:inDeployment ]
+                        ] ;
+        sh:property     [ sh:class  ssn:System ;
+                          sh:path   [ sh:inversePath  ssn:hasDeployment ]
+                        ] ;
+        sh:targetClass  ssn:Deployment .
+
+skos:ConceptSchemeShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  skos:ConceptScheme .
+
+ssn-system:BatteryLifetimeShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  ssn-system:BatteryLifetime .
+
+foaf:OnlineChatAccountShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  foaf:OnlineChatAccount .
+
+<https://example.org/ns/riepr#WithdrawalPointShape>
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "A system can have a validity end"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:valid
+                        ] ;
+        sh:property     [ sh:class     <https://example.org/ns/riepr#Operation> ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn:deployedSystem ]
+                        ] ;
+        sh:property     [ sh:class        ssn:System ;
+                          sh:description  "A system can be a revision of other systems (optional)"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         prov:wasRevisionOf
+                        ] ;
+        sh:property     [ sh:description  "A system must have a label"@en ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         rdfs:label
+                        ] ;
+        sh:property     [ sh:class        ssn:System ;
+                          sh:description  "A system can contain multiple objects."@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         ssn:hasSubSystem
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "A system must have a validity start"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:issued
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "A system must have a modification date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:modified
+                        ] ;
+        sh:property     [ sh:class        <https://example.org/ns/riepr#OperationLocation> ;
+                          sh:description  "A system must be part of a location"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         [ sh:inversePath  sosa:hosts ]
+                        ] ;
+        sh:property     [ sh:class        adms:Identifier ;
+                          sh:description  "A system has external identifiers (optional)"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         adms:identifier
+                        ] ;
+        sh:property     [ sh:description  "A withdrawal point can have a depth"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dbo:depth
+                        ] ;
+        sh:property     [ sh:description  "A system can have at most 1 geometry"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         ogc:hasGeometry
+                        ] ;
+        sh:property     [ sh:class        adms:Status ;
+                          sh:description  "A system must have a single status"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         adms:status
+                        ] ;
+        sh:property     [ sh:class        <https://example.org/ns/riepr#Filter> ;
+                          sh:description  "A withdrawal point can have filters"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         ssn:hasSubSystem
+                        ] ;
+        sh:property     [ sh:description  "A system can have a type via dct:type"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:type
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "A system must have a creation date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:created
+                        ] ;
+        sh:property     [ sh:class     ssn:System ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn:hasSubSystem ]
+                        ] ;
+        sh:targetClass  <https://example.org/ns/riepr#WithdrawalPoint> .
+
+foaf:PersonalProfileDocumentShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  foaf:PersonalProfileDocument .
+
+foaf:OnlineAccountShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  foaf:OnlineAccount .
+
+qudt:CurrencyUnitShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:currencyExponent
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:currencyCode
+                        ] ;
+        sh:targetClass  qudt:CurrencyUnit .
+
+qudt:QuantityKindDimensionVector_ISOShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:QuantityKindDimensionVector_ISO .
+
+qudt:QuantityKindDimensionVector_CGS-GAUSSShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:QuantityKindDimensionVector_CGS-GAUSS .
+
+ssn-system:MeasurementRangeShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class  []  ;
+                          sh:path   [ sh:inversePath  ssn-system:hasSystemProperty ]
+                        ] ;
+        sh:targetClass  ssn-system:MeasurementRange .
+
+<https://example.org/ns/riepr#EmissionProcedureShape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <https://example.org/ns/riepr#EmissionProcedure> .
+
+ssn-system:ResponseTimeShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  ssn-system:ResponseTime .
+
+foaf:PersonShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  foaf:Person .
+
+pplan:ActivityShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  pplan:Activity .
+
+qudt:RuleTypeShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  qudt:RuleType .
+
+<https://example.org/ns/riepr#FilterShape>
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:description  "A system can have a type via dct:type"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:type
+                        ] ;
+        sh:property     [ sh:class        ssn:System ;
+                          sh:description  "A system can contain multiple objects."@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         ssn:hasSubSystem
+                        ] ;
+        sh:property     [ sh:class        adms:Identifier ;
+                          sh:description  "A system has external identifiers (optional)"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         adms:identifier
+                        ] ;
+        sh:property     [ sh:class     <https://example.org/ns/riepr#Operation> ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn:deployedSystem ]
+                        ] ;
+        sh:property     [ sh:class        <https://example.org/ns/riepr#OperationLocation> ;
+                          sh:description  "A system must be part of a location"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         [ sh:inversePath  sosa:hosts ]
+                        ] ;
+        sh:property     [ sh:description  "A system can have at most 1 geometry"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         ogc:hasGeometry
+                        ] ;
+        sh:property     [ sh:class     ssn:System ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn:hasSubSystem ]
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "A system must have a validity start"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:issued
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "A system can have a validity end"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:valid
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "A system must have a creation date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:created
+                        ] ;
+        sh:property     [ sh:description  "A system must have a label"@en ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         rdfs:label
+                        ] ;
+        sh:property     [ sh:class        ssn:System ;
+                          sh:description  "A system can be a revision of other systems (optional)"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         prov:wasRevisionOf
+                        ] ;
+        sh:property     [ sh:class        adms:Status ;
+                          sh:description  "A system must have a single status"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         adms:status
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "A system must have a modification date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:modified
+                        ] ;
+        sh:targetClass  <https://example.org/ns/riepr#Filter> .
+
+ssn-system:SystemCapabilityShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class  ssn:System ;
+                          sh:path   [ sh:inversePath  ssn-system:hasSystemCapability ]
+                        ] ;
+        sh:property     [ sh:class  ssn:Property ;
+                          sh:path   ssn:forProperty
+                        ] ;
+        sh:property     [ sh:class  ssn-system:Condition ;
+                          sh:path   ssn-system:inCondition
+                        ] ;
+        sh:property     [ sh:class  ssn-system:SystemProperty ;
+                          sh:path   ssn-system:hasSystemProperty
+                        ] ;
+        sh:property     [ sh:minCount  "1"^^xsd:int ;
+                          sh:path      ssn-system:inCondition
+                        ] ;
+        sh:targetClass  ssn-system:SystemCapability .
+
+prov:RevisionShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  prov:Revision .
+
+<https://example.org/ns/riepr#OperationShape>
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class        <https://example.org/ns/riepr#Process> ;
+                          sh:description  "An operation implements a process"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         [ sh:inversePath  ssn:implementedBy ]
+                        ] ;
+        sh:property     [ sh:class        ssn:System ;
+                          sh:description  "An operation deploys systems"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         [ sh:inversePath  ssn:hasDeployment ]
+                        ] ;
+        sh:property     [ sh:class        <https://example.org/ns/riepr#OperationLocation> ;
+                          sh:description  "An operation is performed at a specific operation location"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         [ sh:inversePath  ssn:inDeployment ]
+                        ] ;
+        sh:property     [ sh:class        <https://example.org/ns/riepr#Contactpersoon> ;
+                          sh:description  "An operation can have multiple contact persons"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         [ sh:inversePath  org:memberOf ]
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "An operation can have a validity end"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:valid
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "An operation must have a modification date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:modified
+                        ] ;
+        sh:property     [ sh:class        adms:Identifier ;
+                          sh:description  "An operation can have external identifiers (optional)"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         adms:identifier
+                        ] ;
+        sh:property     [ sh:description  "An operation must have a label"@en ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         rdfs:label
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "An operation must have a creation date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:created
+                        ] ;
+        sh:property     [ sh:class        adms:Status ;
+                          sh:description  "An operation has a status"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         adms:status
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "An operation must have a validity start"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:issued
+                        ] ;
+        sh:targetClass  <https://example.org/ns/riepr#Operation> .
+
+prov:AgentInfluenceShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  prov:AgentInfluence .
+
+pplan:StepShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  pplan:Step .
+
+qudt:DataItemShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:datatype  xsd:string ;
+                          sh:path      qudt:value
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:value
+                        ] ;
+        sh:targetClass  qudt:DataItem .
+
+qudt:CitationShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:url
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      dct:description
+                        ] ;
+        sh:targetClass  qudt:Citation .
+
+ssn-system:SelectivityShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  ssn-system:Selectivity .
+
+qudt:QuantityKindDimensionVector_SIShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:QuantityKindDimensionVector_SI .
+
+prov:UsageShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  prov:Usage .
+
+sosa:ActuatorShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:class  sosa:Actuation ;
+                          sh:path   [ sh:inversePath  sosa:madeByActuator ]
+                        ] ;
+        sh:property     [ sh:class  sosa:ActuatableProperty ;
+                          sh:path   ssn:forProperty
+                        ] ;
+        sh:property     [ sh:minCount  "1"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn:implementedBy ]
+                        ] ;
+        sh:targetClass  sosa:Actuator .
+
+ssn:SystemShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:class  ssn-system:SurvivalRange ;
+                          sh:path   ssn-system:hasSurvivalRange
+                        ] ;
+        sh:property     [ sh:class  ssn-system:SystemCapability ;
+                          sh:path   ssn-system:hasSystemCapability
+                        ] ;
+        sh:property     [ sh:class  ssn-system:OperatingRange ;
+                          sh:path   ssn-system:hasOperatingRange
+                        ] ;
+        sh:property     [ sh:class  ssn:Deployment ;
+                          sh:path   [ sh:inversePath  ssn:deployedSystem ]
+                        ] ;
+        sh:property     [ sh:class  ssn:System ;
+                          sh:path   [ sh:inversePath  ssn:hasSubSystem ]
+                        ] ;
+        sh:property     [ sh:class  sosa:Procedure ;
+                          sh:path   [ sh:inversePath  ssn:implementedBy ]
+                        ] ;
+        sh:property     [ sh:class  ssn:System ;
+                          sh:path   ssn:hasSubSystem
+                        ] ;
+        sh:property     [ sh:class  sosa:Platform ;
+                          sh:path   [ sh:inversePath  sosa:hosts ]
+                        ] ;
+        sh:targetClass  ssn:System .
+
+prov:DelegationShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  prov:Delegation .
+
+owl:ThingShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  owl:Thing .
+
+<https://example.org/ns/riepr#ProcessingProcedureShape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <https://example.org/ns/riepr#ProcessingProcedure> .
+
+sosa:SensorShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:class  ssn:Stimulus ;
+                          sh:path   ssn:detects
+                        ] ;
+        sh:property     [ sh:class  sosa:Observation ;
+                          sh:path   [ sh:inversePath  sosa:madeBySensor ]
+                        ] ;
+        sh:property     [ sh:class  sosa:ObservableProperty ;
+                          sh:path   [ sh:inversePath  sosa:isObservedBy ]
+                        ] ;
+        sh:property     [ sh:minCount  "1"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn:implementedBy ]
+                        ] ;
+        sh:targetClass  sosa:Sensor .
+
+ssn:InputShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:class  sosa:Procedure ;
+                          sh:path   [ sh:inversePath  ssn:hasInput ]
+                        ] ;
+        sh:property     [ sh:minCount  "1"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn:hasInput ]
+                        ] ;
+        sh:targetClass  ssn:Input .
+
+qudt:NIST_SP811_CommentShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:NIST_SP811_Comment .
+
+<https://example.org/ns/riepr#MeasurementInstrumentShape>
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class     ssn:System ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn:hasSubSystem ]
+                        ] ;
+        sh:property     [ sh:class     <https://example.org/ns/riepr#Operation> ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn:deployedSystem ]
+                        ] ;
+        sh:property     [ sh:class        adms:Status ;
+                          sh:description  "A system must have a single status"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         adms:status
+                        ] ;
+        sh:property     [ sh:description  "A system can have a type via dct:type"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:type
+                        ] ;
+        sh:property     [ sh:description  "A system can have at most 1 geometry"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         ogc:hasGeometry
+                        ] ;
+        sh:property     [ sh:class        adms:Identifier ;
+                          sh:description  "A system has external identifiers (optional)"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         adms:identifier
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "A system must have a creation date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:created
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "A system must have a modification date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:modified
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "A system must have a validity start"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:issued
+                        ] ;
+        sh:property     [ sh:class        ssn:System ;
+                          sh:description  "A system can contain multiple objects."@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         ssn:hasSubSystem
+                        ] ;
+        sh:property     [ sh:class        <https://example.org/ns/riepr#OperationLocation> ;
+                          sh:description  "A system must be part of a location"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         [ sh:inversePath  sosa:hosts ]
+                        ] ;
+        sh:property     [ sh:description  "A system must have a label"@en ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         rdfs:label
+                        ] ;
+        sh:property     [ sh:class        ssn:System ;
+                          sh:description  "A system can be a revision of other systems (optional)"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         prov:wasRevisionOf
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "A system can have a validity end"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:valid
+                        ] ;
+        sh:targetClass  <https://example.org/ns/riepr#MeasurementInstrument> .
+
+ssn-system:DriftShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  ssn-system:Drift .
+
+qudt:LogarithmicUnitShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:LogarithmicUnit .
+
+prov:PlanShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  prov:Plan .
+
+prov:AttributionShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  prov:Attribution .
+
+qudt:QuantifiableShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class  qudt:DataEncoding ;
+                          sh:path   qudt:dataEncoding
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:hasUnit
+                        ] ;
+        sh:property     [ sh:datatype  xsd:decimal ;
+                          sh:path      qudt:standardUncertainty
+                        ] ;
+        sh:property     [ sh:datatype  xsd:double ;
+                          sh:path      qudt:relativeStandardUncertainty
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:dataEncoding
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:valueSN
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:datatype
+                        ] ;
+        sh:property     [ sh:class  qudt:Unit ;
+                          sh:path   qudt:hasUnit
+                        ] ;
+        sh:property     [ sh:class  qudt:Datatype ;
+                          sh:path   qudt:datatype
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:standardUncertainty
+                        ] ;
+        sh:property     [ sh:datatype  xsd:double ;
+                          sh:path      qudt:standardUncertaintySN
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:relativeStandardUncertainty
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:value
+                        ] ;
+        sh:targetClass  qudt:Quantifiable .
+
+qudt:CountingUnitShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:CountingUnit .
+
+sosa:ActuatablePropertyShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class  sosa:Actuation ;
+                          sh:path   [ sh:inversePath  sosa:actsOnProperty ]
+                        ] ;
+        sh:targetClass  sosa:ActuatableProperty .
+
+qudt:ScaleTypeShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:dataStructure
+                        ] ;
+        sh:property     [ sh:class  qudt:TransformType ;
+                          sh:path   qudt:permissibleTransformation
+                        ] ;
+        sh:property     [ sh:class  qudt:MathsFunctionType ;
+                          sh:path   qudt:permissibleMaths
+                        ] ;
+        sh:targetClass  qudt:ScaleType .
+
+<https://example.org/ns/riepr#OperatorShape>
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "An operator can have a validity start"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:issued
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "An operator can have a creation date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:created
+                        ] ;
+        sh:property     [ sh:class        locn:Address ;
+                          sh:description  "An operator must have an address"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         locn:address
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "An operator can have a validity end"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:valid
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "An operator can have a modification date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:modified
+                        ] ;
+        sh:property     [ sh:class        <https://example.org/ns/riepr#Contactpersoon> ;
+                          sh:description  "An operator can have multiple contact persons"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         [ sh:inversePath  org:memberOf ]
+                        ] ;
+        sh:property     [ sh:description  "An operator must have a label"@en ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         rdfs:label
+                        ] ;
+        sh:property     [ sh:description  "An operator must have a main activity"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         org:classification
+                        ] ;
+        sh:property     [ sh:description  "An operator must be either an organization or a person but not both at the same time"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:type
+                        ] ;
+        sh:targetClass  <https://example.org/ns/riepr#Operator> .
+
+qudt:QuantityKindDimensionVector_ImperialShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:QuantityKindDimensionVector_Imperial .
+
+sosa:PlatformShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:class  ssn:Deployment ;
+                          sh:path   [ sh:inversePath  ssn:deployedOnPlatform ]
+                        ] ;
+        sh:property     [ sh:class  ssn:System ;
+                          sh:path   [ sh:inversePath  sosa:isHostedBy ]
+                        ] ;
+        sh:targetClass  sosa:Platform .
+
+sosa:ActuationShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      [ sh:inversePath  sosa:madeActuation ]
+                        ] ;
+        sh:property     [ sh:minCount  "1"^^xsd:int ;
+                          sh:path      [ sh:inversePath  sosa:isActedOnBy ]
+                        ] ;
+        sh:property     [ sh:class  sosa:Actuator ;
+                          sh:path   [ sh:inversePath  sosa:madeActuation ]
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      [ sh:inversePath  sosa:isFeatureOfInterestOf ]
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      sosa:resultTime
+                        ] ;
+        sh:property     [ sh:class  sosa:Procedure ;
+                          sh:path   sosa:usedProcedure
+                        ] ;
+        sh:property     [ sh:class  sosa:Result ;
+                          sh:path   [ sh:inversePath  sosa:isResultOf ]
+                        ] ;
+        sh:property     [ sh:class  sosa:ActuatableProperty ;
+                          sh:path   [ sh:inversePath  sosa:isActedOnBy ]
+                        ] ;
+        sh:property     [ sh:class  sosa:FeatureOfInterest ;
+                          sh:path   [ sh:inversePath  sosa:isFeatureOfInterestOf ]
+                        ] ;
+        sh:property     [ sh:minCount  "1"^^xsd:int ;
+                          sh:path      [ sh:inversePath  sosa:isResultOf ]
+                        ] ;
+        sh:targetClass  sosa:Actuation .
+
+<https://example.org/ns/riepr#ProcessVariableShape>
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:description  "A process variable can have a type via dct:type"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:type
+                        ] ;
+        sh:property     [ sh:class     <https://example.org/ns/riepr#Process> ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      [ sh:inversePath  pplan:hasInputVar ]
+                        ] ;
+        sh:property     [ sh:description  "A process variable can have a value"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         qudt:numericValue
+                        ] ;
+        sh:property     [ sh:description  "A process variable can have a label"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         rdfs:label
+                        ] ;
+        sh:property     [ sh:description  "A process variable can have a unit"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         qudt:hasUnit
+                        ] ;
+        sh:property     [ sh:class     <https://example.org/ns/riepr#Process> ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      [ sh:inversePath  pplan:hasOutputVar ]
+                        ] ;
+        sh:targetClass  <https://example.org/ns/riepr#ProcessVariable> .
+
+qudt:EncodingShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:bytes
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:bits
+                        ] ;
+        sh:targetClass  qudt:Encoding .
+
+time:TemporalEntityShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  time:TemporalEntity .
+
+ogc:GeometryShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  ogc:Geometry .
+
+qudt:DimensionlessUnitShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:DimensionlessUnit .
+
+sosa:ProcedureShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:class  ssn:System ;
+                          sh:path   [ sh:inversePath  ssn:implements ]
+                        ] ;
+        sh:property     [ sh:class  ssn:Output ;
+                          sh:path   ssn:hasOutput
+                        ] ;
+        sh:property     [ sh:class  ssn:Input ;
+                          sh:path   ssn:hasInput
+                        ] ;
+        sh:targetClass  sosa:Procedure .
+
+<https://example.org/ns/riepr#TransportProcedureShape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <https://example.org/ns/riepr#TransportProcedure> .
+
+sosa:ObservationShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      sosa:phenomenonTime
+                        ] ;
+        sh:property     [ sh:class  sosa:ObservableProperty ;
+                          sh:path   sosa:observedProperty
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      ssn:wasOriginatedBy
+                        ] ;
+        sh:property     [ sh:class  ssn:Stimulus ;
+                          sh:path   ssn:wasOriginatedBy
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      [ sh:inversePath  sosa:isFeatureOfInterestOf ]
+                        ] ;
+        sh:property     [ sh:class  sosa:Result ;
+                          sh:path   [ sh:inversePath  sosa:isResultOf ]
+                        ] ;
+        sh:property     [ sh:class  sosa:FeatureOfInterest ;
+                          sh:path   [ sh:inversePath  sosa:isFeatureOfInterestOf ]
+                        ] ;
+        sh:property     [ sh:minCount  "1"^^xsd:int ;
+                          sh:path      [ sh:inversePath  sosa:isResultOf ]
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      sosa:resultTime
+                        ] ;
+        sh:property     [ sh:class  sosa:Sensor ;
+                          sh:path   [ sh:inversePath  sosa:madeObservation ]
+                        ] ;
+        sh:property     [ sh:class  sosa:Procedure ;
+                          sh:path   sosa:usedProcedure
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      sosa:observedProperty
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      [ sh:inversePath  sosa:madeObservation ]
+                        ] ;
+        sh:targetClass  sosa:Observation .
+
+qudt:PrefixShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:latexSymbol
+                        ] ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:symbol
+                        ] ;
+        sh:property     [ sh:class  qudt:UCUMcs-term ;
+                          sh:path   qudt:ucumCode
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:prefixMultiplier
+                        ] ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:altSymbol
+                        ] ;
+        sh:property     [ sh:class  qudt:Prefix ;
+                          sh:path   qudt:exactMatch
+                        ] ;
+        sh:targetClass  qudt:Prefix .
+
+prov:EndShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  prov:End .
+
+ssn-system:MaintenanceScheduleShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  ssn-system:MaintenanceSchedule .
+
+ssn-system:OperatingRangeShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:minCount  "1"^^xsd:int ;
+                          sh:path      ssn-system:inCondition
+                        ] ;
+        sh:property     [ sh:class  ssn-system:OperatingProperty ;
+                          sh:path   ssn-system:hasOperatingProperty
+                        ] ;
+        sh:property     [ sh:class  ssn:System ;
+                          sh:path   [ sh:inversePath  ssn-system:hasOperatingRange ]
+                        ] ;
+        sh:property     [ sh:class  ssn-system:Condition ;
+                          sh:path   ssn-system:inCondition
+                        ] ;
+        sh:targetClass  ssn-system:OperatingRange .
+
+owl:NothingShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  owl:Nothing .
+
+prov:InstantaneousEventShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  prov:InstantaneousEvent .
+
+org:SiteShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  org:Site .
+
+ssn-system:ActuationRangeShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class  []  ;
+                          sh:path   [ sh:inversePath  ssn-system:hasSystemProperty ]
+                        ] ;
+        sh:targetClass  ssn-system:ActuationRange .
+
+ssn-system:ConditionShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  ssn-system:Condition .
+
+qudt:CardinalityTypeShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      dtype:literal
+                        ] ;
+        sh:targetClass  qudt:CardinalityType .
+
+ogc:GeometryCollectionShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class  ogc:Geometry ;
+                          sh:path   rdfs:member
+                        ] ;
+        sh:targetClass  ogc:GeometryCollection .
+
+qudt:ConceptShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      dct:description
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:abbreviation
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:id
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:plainTextDescription
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      dct:isReplacedBy
+                        ] ;
+        sh:property     [ sh:class  qudt:Rule ;
+                          sh:path   qudt:hasRule
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:deprecated
+                        ] ;
+        sh:targetClass  qudt:Concept .
+
+ssn:StimulusShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:class  sosa:ObservableProperty ;
+                          sh:path   ssn:isProxyFor
+                        ] ;
+        sh:property     [ sh:class  sosa:Sensor ;
+                          sh:path   [ sh:inversePath  ssn:detects ]
+                        ] ;
+        sh:property     [ sh:class  sosa:Observation ;
+                          sh:path   [ sh:inversePath  ssn:wasOriginatedBy ]
+                        ] ;
+        sh:targetClass  ssn:Stimulus .
+
+<https://example.org/ns/riepr#ObservationShape>
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class        sosa:Result ;
+                          sh:description  "An observation must have a result."@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         [ sh:inversePath  sosa:isResultOf ]
+                        ] ;
+        sh:property     [ sh:class        <https://example.org/ns/riepr#Emission> ;
+                          sh:description  "An observation must be linked to exactly one measurement point or installation"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         [ sh:inversePath  sosa:isFeatureOfInterestOf ]
+                        ] ;
+        sh:targetClass  <https://example.org/ns/riepr#Observation> .
+
+pplan:VariableShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  pplan:Variable .
+
+qudt:QuantityKindDimensionVector_CGS-LHShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:QuantityKindDimensionVector_CGS-LH .
+
+prov:ActivityShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  prov:Activity .
+
+qudt:ConstantValueShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:exactConstant
+                        ] ;
+        sh:targetClass  qudt:ConstantValue .
+
+qudt:NumericUnionShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:NumericUnion .
+
+prov:EntityInfluenceShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  prov:EntityInfluence .
+
+prov:EntityShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  prov:Entity .
+
+pplan:EntityShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  pplan:Entity .
+
+qudt:EnumerationShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class  qudt:EnumeratedValue ;
+                          sh:path   qudt:element
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:abbreviation
+                        ] ;
+        sh:property     [ sh:class  qudt:EnumeratedValue ;
+                          sh:path   qudt:default
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:default
+                        ] ;
+        sh:property     [ sh:minCount  "1"^^xsd:int ;
+                          sh:path      qudt:element
+                        ] ;
+        sh:targetClass  qudt:Enumeration .
+
+qudt:OrganizationShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:url
+                        ] ;
+        sh:targetClass  qudt:Organization .
+
+qudt:QuantityShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:class  qudt:QuantityKind ;
+                          sh:path   qudt:hasQuantityKind
+                        ] ;
+        sh:property     [ sh:datatype  xsd:boolean ;
+                          sh:path      qudt:isDeltaQuantity
+                        ] ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:hasQuantityKind
+                        ] ;
+        sh:property     [ sh:class  qudt:QuantityValue ;
+                          sh:path   qudt:quantityValue
+                        ] ;
+        sh:targetClass  qudt:Quantity .
+
+sosa:SampleShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:class  sosa:Sampling ;
+                          sh:path   [ sh:inversePath  sosa:hasResult ]
+                        ] ;
+        sh:property     [ sh:minCount  "1"^^xsd:int ;
+                          sh:path      [ sh:inversePath  sosa:hasSample ]
+                        ] ;
+        sh:property     [ sh:class  sosa:FeatureOfInterest ;
+                          sh:path   [ sh:inversePath  sosa:hasSample ]
+                        ] ;
+        sh:property     [ sh:minCount  "1"^^xsd:int ;
+                          sh:path      [ sh:inversePath  sosa:hasResult ]
+                        ] ;
+        sh:targetClass  sosa:Sample .
+
+prov:QuotationShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  prov:Quotation .
+
+<https://example.org/ns/riepr#EmissionPointShape>
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "A system must have a modification date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:modified
+                        ] ;
+        sh:property     [ sh:description  "An emission point of type stack has a height"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dbo:height
+                        ] ;
+        sh:property     [ sh:class        <https://example.org/ns/riepr#OperationLocation> ;
+                          sh:description  "A system must be part of a location"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         [ sh:inversePath  sosa:hosts ]
+                        ] ;
+        sh:property     [ sh:class        ssn:System ;
+                          sh:description  "A system can contain multiple objects."@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         ssn:hasSubSystem
+                        ] ;
+        sh:property     [ sh:class        ssn:System ;
+                          sh:description  "A system can be a revision of other systems (optional)"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         prov:wasRevisionOf
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "A system must have a validity start"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:issued
+                        ] ;
+        sh:property     [ sh:description  "An emission point of type stack has a diameter"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dbo:diameter
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "A system must have a creation date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dct:created
+                        ] ;
+        sh:property     [ sh:class     ssn:System ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn:hasSubSystem ]
+                        ] ;
+        sh:property     [ sh:description  "A system can have a type via dct:type"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:type
+                        ] ;
+        sh:property     [ sh:class        adms:Identifier ;
+                          sh:description  "A system has external identifiers (optional)"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         adms:identifier
+                        ] ;
+        sh:property     [ sh:description  "A system must have a label"@en ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         rdfs:label
+                        ] ;
+        sh:property     [ sh:description  "An emission point of type discharge point can have a depth"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dbo:depth
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "A system can have a validity end"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dct:valid
+                        ] ;
+        sh:property     [ sh:description  "A system can have at most 1 geometry"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         ogc:hasGeometry
+                        ] ;
+        sh:property     [ sh:class        adms:Status ;
+                          sh:description  "A system must have a single status"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         adms:status
+                        ] ;
+        sh:property     [ sh:class     <https://example.org/ns/riepr#Operation> ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn:deployedSystem ]
+                        ] ;
+        sh:targetClass  <https://example.org/ns/riepr#EmissionPoint> .
+
+qudt:ScaleShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:dataStructure
+                        ] ;
+        sh:property     [ sh:class  qudt:TransformType ;
+                          sh:path   qudt:permissibleTransformation
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:scaleType
+                        ] ;
+        sh:property     [ sh:class  qudt:MathsFunctionType ;
+                          sh:path   qudt:permissibleMaths
+                        ] ;
+        sh:property     [ sh:class  qudt:ScaleType ;
+                          sh:path   qudt:scaleType
+                        ] ;
+        sh:targetClass  qudt:Scale .
+
+prov:InvalidationShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  prov:Invalidation .
+
+sosa:FeatureOfInterestShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class  sosa:Sample ;
+                          sh:path   [ sh:inversePath  sosa:isSampleOf ]
+                        ] ;
+        sh:property     [ sh:class  ssn:Property ;
+                          sh:path   [ sh:inversePath  ssn:isPropertyOf ]
+                        ] ;
+        sh:property     [ sh:minCount  "1"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn:isPropertyOf ]
+                        ] ;
+        sh:targetClass  sosa:FeatureOfInterest .
+
+foaf:OnlineEcommerceAccountShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  foaf:OnlineEcommerceAccount .
+
+ssn-system:SensitivityShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  ssn-system:Sensitivity .
+
+qudt:FigureShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:width
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:height
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:figureCaption
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:minCount  "1"^^xsd:int ;
+                          sh:path      qudt:imageLocation
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:figureLabel
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:landscape
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:image
+                        ] ;
+        sh:targetClass  qudt:Figure .
+
+prov:EmptyCollectionShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  prov:EmptyCollection .
+
+ssn-system:PrecisionShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  ssn-system:Precision .
+
+qudt:DateTimeStringEncodingTypeShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:minCount  "1"^^xsd:int ;
+                          sh:path      qudt:allowedPattern
+                        ] ;
+        sh:targetClass  qudt:DateTimeStringEncodingType .
+
+ssn-system:SurvivalPropertyShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class  ssn-system:SurvivalRange ;
+                          sh:path   [ sh:inversePath  ssn-system:hasSurvivalProperty ]
+                        ] ;
+        sh:property     [ sh:minCount  "1"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn-system:hasSurvivalProperty ]
+                        ] ;
+        sh:targetClass  ssn-system:SurvivalProperty .
+
+prov:InfluenceShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  prov:Influence .
+
+skos:CollectionShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  skos:Collection .
+
+qudt:ScalarDatatypeShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:rdfsDatatype
+                        ] ;
+        sh:property     [ sh:class  rdfs:Datatype ;
+                          sh:path   qudt:rdfsDatatype
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:maxExclusive
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:bytes
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:bits
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:minInclusive
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:minExclusive
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:maxInclusive
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:length
+                        ] ;
+        sh:targetClass  qudt:ScalarDatatype .
+
+qudt:AspectClassShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  qudt:AspectClass .
+
+qudt:AbstractQuantityKindShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:latexSymbol
+                        ] ;
+        sh:property     [ sh:minCount  "0"^^xsd:int ;
+                          sh:path      qudt:altSymbol
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:symbol
+                        ] ;
+        sh:property     [ sh:class  qudt:QuantityKind ;
+                          sh:path   [ sh:inversePath  skos:narrower ]
+                        ] ;
+        sh:targetClass  qudt:AbstractQuantityKind .
+
+prov:GenerationShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  prov:Generation .
+
+qudt:DatatypeShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:javaName
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:oracleSQLName
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:protocolBuffersName
+                        ] ;
+        sh:property     [ sh:class  qudt:OrderedType ;
+                          sh:path   qudt:orderedType
+                        ] ;
+        sh:property     [ sh:class  qudt:Datatype ;
+                          sh:path   qudt:basis
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:ansiSQLName
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:jsName
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:odbcName
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:id
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:pythonName
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:matlabName
+                        ] ;
+        sh:property     [ sh:class  qudt:CardinalityType ;
+                          sh:path   qudt:cardinality
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:cardinality
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:vbName
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:bounded
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:orderedType
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:cName
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:microsoftSQLServerName
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:basis
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:oleDBName
+                        ] ;
+        sh:property     [ sh:maxCount  "1"^^xsd:int ;
+                          sh:path      qudt:mySQLName
+                        ] ;
+        sh:targetClass  qudt:Datatype .
+
+ssn-system:AccuracyShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  ssn-system:Accuracy .
+
+qudt:DisciplineShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  qudt:Discipline .
+
+ogc:SpatialObjectCollectionShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class  ogc:SpatialObject ;
+                          sh:path   rdfs:member
+                        ] ;
+        sh:targetClass  ogc:SpatialObjectCollection .
+
+<https://example.org/ns/riepr#ConsumptionProcedureShape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <https://example.org/ns/riepr#ConsumptionProcedure> .

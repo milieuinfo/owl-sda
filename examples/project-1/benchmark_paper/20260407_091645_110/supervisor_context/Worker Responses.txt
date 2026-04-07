@@ -1,0 +1,39 @@
+POOL-0 [STRUCTURED_PROGRESS]:
+worker_id=POOL-0
+status=FIXED
+target_shape=ProcessShape
+target_class=pplan:Variable
+changed_triples_count=2
+created_or_updated_subjects=https://example.org/id/processvariable/sand, https://example.org/id/processvariable/naturalGas
+validation_result=CONFORMS
+remaining_issues=other unrelated sosa/observation result typing violations remain - OUT_OF_SCOPE
+
+POOL-2 [STRUCTURED_PROGRESS]:
+worker_id=POOL-2
+status=FIXED
+target_shape=ObservationShape
+target_class=:Observation
+changed_triples_count=6
+created_or_updated_subjects=https://example.org/id/observation/co2-stack1-2026,https://example.org/id/observation/nox-stack1-2026
+validation_result=CONFORMS
+remaining_issues=none
+
+POOL-3 [STRUCTURED_PROGRESS]:
+worker_id=POOL-3
+status=CREATED
+target_shape=EmissionShape
+target_class=:Emission
+changed_triples_count=6
+created_or_updated_subjects=https://example.org/id/emission/co2-stack1, https://example.org/id/emission/nox-stack1
+validation_result=NON_CONFORMS
+remaining_issues=Class-constraint violations on observation/observationresult resources referenced by the new emissions (observations/results not yet created)
+
+POOL-4 [STRUCTURED_PROGRESS]:
+worker_id=POOL-4
+status=CREATED
+target_shape=ObservationResultShape
+target_class=:ObservationResult
+changed_triples_count=10
+created_or_updated_subjects=https://example.org/id/observationresult/co2-stack1-2024,https://example.org/id/observationresult/nox-stack1-2024
+validation_result=CONFORMS
+remaining_issues=none

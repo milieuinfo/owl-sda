@@ -1,0 +1,83 @@
+## Task: FIX OperationLocationShape violations + Generate instances
+
+**Target Shape:** `:OperationLocationShape`
+**Target Class:** `:OperationLocation`
+**Goal:** FIX violations on existing `ex:location/myGlassFactory` AND create at least 1 `:Operator` instance (needed for `prov:wasAttributedTo`).
+
+### CRITICAL — Active Violations (must fix)
+Focus node: `<https://example.org/id/location/myGlassFactory>`
+
+| Property | Violation | Fix |
+|---|---|---|
+| `rdfs:label` | minCount 1 — missing | Add a label |
+| `dc:issued` | minCount 1 — missing | Add xsd:date validity start |
+| `dc:created` | minCount 1 — missing | Add xsd:dateTime creation date |
+| `dc:modified` | minCount 1 — missing | Add xsd:dateTime modification date |
+| `ogc:hasGeometry` | minCount 1 — missing | Add a geometry node |
+| `prov:wasAttributedTo` | minCount 1 — missing | Link to an `:Operator` instance |
+
+### Prefixes
+```turtle
+@prefix :       <https://example.org/ns/riepr#> .
+@prefix ex:     <https://example.org/id/> .
+@prefix concept: <https://example.org/id/concept/> .
+@prefix adms:   <http://www.w3.org/ns/adms#> .
+@prefix dc:     <http://purl.org/dc/terms/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ogc:    <http://www.opengis.net/ont/geosparql#> .
+@prefix prov:   <http://www.w3.org/ns/prov#> .
+@prefix locn:   <http://www.w3.org/ns/locn#> .
+@prefix ssn:    <http://www.w3.org/ns/ssn/> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix org:    <http://www.w3.org/ns/org#> .
+@prefix geo:    <http://www.opengis.net/ont/geosparql#> .
+@prefix sf:     <http://www.opengis.net/ont/sf#> .
+```
+
+### Step 1 — Fix `ex:location/myGlassFactory`
+Add all missing required triples to the existing node:
+```turtle
+ex:location/myGlassFactory
+    rdfs:label "MyGlassFactory Site"@en ;
+    dc:issued "2024-01-01"^^xsd:date ;
+    dc:created "2024-01-01T00:00:00"^^xsd:dateTime ;
+    dc:modified "2024-01-01T00:00:00"^^xsd:dateTime ;
+    ogc:hasGeometry ex:geometry/myGlassFactory ;
+    prov:wasAttributedTo ex:operator/myGlassFactory .
+```
+
+### Step 2 — Create Geometry Node
+```turtle
+ex:geometry/myGlassFactory a ogc:Geometry ;
+    ogc:asWKT "POINT(4.35 50.85)"^^ogc:wktLiteral .
+```
+
+### Step 3 — Create Operator (needed for prov:wasAttributedTo)
+Create a minimal `:Operator` instance. OperatorShape requires: `rdfs:label` (minCount 1), `locn:address` → `locn:Address` (minCount 1), `dc:type` (minCount 1, maxCount 1).
+```turtle
+ex:operator/myGlassFactory a :Operator ;
+    rdfs:label "MyGlassFactory NV"@en ;
+    dc:type concept:organization ;
+    locn:address ex:address/myGlassFactory .
+
+ex:address/myGlassFactory a locn:Address ;
+    locn:fullAddress "Industrial Zone, Belgium"@en .
+```
+
+### Optional Properties for OperationLocation
+- `prov:wasRevisionOf` → `:OperationLocation` (max 1)
+- `dc:valid` (xsd:date)
+- `prov:wasInfluencedBy` (max 1)
+- `ssn:inDeployment` → `:Operation`
+- `prov:hadPrimarySource` → `org:Site` (max 1)
+- `adms:identifier` → `adms:Identifier`
+- `locn:address` → `locn:Address` (max 1)
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: OperationLocationShape
+- `target_class`: :OperationLocation
+- `changed_triples_count`: number of triples added/modified
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

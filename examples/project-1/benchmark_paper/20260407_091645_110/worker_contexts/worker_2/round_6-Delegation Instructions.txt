@@ -1,0 +1,60 @@
+## Task: Generate instances for ObservationShape
+
+**Target Shape:** `:ObservationShape`
+**Target Class:** `:Observation`
+**Goal:** CREATE at least 2 instances of `:Observation` — none exist yet.
+
+### Context
+MyGlassFactory takes measurements on emissions at its measurement points. Observations are SOSA-style measurement events linking a measurement procedure to an emission result.
+
+Existing resources to reference:
+- Emission points: `ex:emissionpoint/stack1`, `ex:emissionpoint/discharge1`
+- Measurement points: `ex:measurementpoint/stack1`, `ex:measurementpoint/water-discharge`
+- Emissions will be created by POOL-3 as: `ex:emission/co2-stack1`, `ex:emission/nox-stack1`
+
+### Prefixes
+```turtle
+@prefix :       <https://example.org/ns/riepr#> .
+@prefix ex:     <https://example.org/id/> .
+@prefix sosa:   <http://www.w3.org/ns/sosa/> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+```
+
+### Shape Constraints
+| Property | Class | Cardinality | Notes |
+|---|---|---|---|
+| `sosa:hasFeatureOfInterest` | `:Emission` | exactly 1 (minCount 1, maxCount 1) | **REQUIRED** — link to the emission being measured |
+| `sosa:hasResult` | `sosa:Result` | 0..1 | Optional — link to observation result |
+
+### Example Instances
+```turtle
+ex:observation/co2-stack1-2024 a :Observation ;
+    sosa:hasFeatureOfInterest ex:emission/co2-stack1 ;
+    sosa:hasResult ex:observationresult/co2-stack1-2024 .
+
+ex:observation/nox-stack1-2024 a :Observation ;
+    sosa:hasFeatureOfInterest ex:emission/nox-stack1 ;
+    sosa:hasResult ex:observationresult/nox-stack1-2024 .
+```
+
+Also add back-references on emissions (POOL-3 creates these, but you can add the inverse link):
+```turtle
+ex:emission/co2-stack1 sosa:isResultOf ex:observation/co2-stack1-2024 .
+```
+
+### Instructions
+1. Add `a :Observation` to each instance.
+2. Use IRIs under `ex:observation/` namespace.
+3. Each observation MUST have exactly 1 `sosa:hasFeatureOfInterest` pointing to a `:Emission` node.
+4. Reference emissions `ex:emission/co2-stack1` and `ex:emission/nox-stack1` (being created this round by POOL-3).
+5. Optionally add `sosa:hasResult` pointing to observation results being created by POOL-4.
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: ObservationShape
+- `target_class`: :Observation
+- `changed_triples_count`: number of triples added
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

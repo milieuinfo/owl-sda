@@ -1,0 +1,52 @@
+## Task: Generate instances for MeasurementProcedureShape
+
+**Target Shape:** `:MeasurementProcedureShape`
+**Target Class:** `:MeasurementProcedure`
+**Goal:** CREATE at least 1 instance of `:MeasurementProcedure` — none exist yet.
+
+### Context
+MyGlassFactory uses standardised measurement procedures to describe how emissions or process variables are measured (e.g., continuous emission monitoring, annual stack test). A `:MeasurementProcedure` is a `sosa:Procedure` and can be referenced by processes via `dc:type`.
+
+This shape has **no additional property constraints** beyond the type. Add meaningful properties for data quality.
+
+### Prefixes
+```turtle
+@prefix :       <https://example.org/ns/riepr#> .
+@prefix ex:     <https://example.org/id/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dc:     <http://purl.org/dc/terms/> .
+@prefix sosa:   <http://www.w3.org/ns/sosa/> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix concept: <https://example.org/id/concept/> .
+```
+
+### Example Instances
+```turtle
+ex:measurementprocedure/continuousEmissionMonitoring a :MeasurementProcedure, sosa:Procedure ;
+    rdfs:label "Continuous Emission Monitoring (CEM)"@en ;
+    dc:type concept:continuousMonitoring .
+
+ex:measurementprocedure/annualStackTest a :MeasurementProcedure, sosa:Procedure ;
+    rdfs:label "Annual Stack Test"@en ;
+    dc:type concept:periodicMeasurement .
+```
+
+Optionally link a procedure to a process:
+```turtle
+ex:process/melting dc:type ex:measurementprocedure/continuousEmissionMonitoring .
+```
+
+### Instructions
+1. Add `a :MeasurementProcedure` (and `a sosa:Procedure`) to each instance.
+2. Use IRIs under `ex:measurementprocedure/` namespace.
+3. Create 1–2 instances with `rdfs:label` and optionally `dc:type`.
+4. Optionally link to existing processes via `dc:type` on the process node.
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: MeasurementProcedureShape
+- `target_class`: :MeasurementProcedure
+- `changed_triples_count`: number of triples added
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

@@ -1,0 +1,69 @@
+## Task: Generate instances for InstallationShape
+
+**Target Shape:** `:InstallationShape`
+**Target Class:** `:Installation`
+**Goal:** CREATE at least 1–2 instances of `:Installation` — none exist yet.
+
+### Scenario
+MyGlassFactory is a glass factory. Installations are physical systems (e.g., furnace, glass-forming machine) hosted at the factory location.
+
+### Prefixes
+```turtle
+@prefix :       <https://example.org/ns/riepr#> .
+@prefix ex:     <https://example.org/id/> .
+@prefix concept: <https://example.org/id/concept/> .
+@prefix adms:   <http://www.w3.org/ns/adms#> .
+@prefix dc:     <http://purl.org/dc/terms/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sosa:   <http://www.w3.org/ns/sosa/> .
+@prefix ssn:    <http://www.w3.org/ns/ssn/> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix ogc:    <http://www.opengis.net/ont/geosparql#> .
+@prefix prov:   <http://www.w3.org/ns/prov#> .
+```
+
+### Required Properties (minCount ≥ 1)
+- `rdfs:label` (at least 1, plain literal)
+- `dc:created` (xsd:dateTime, exactly 1)
+- `dc:modified` (xsd:dateTime, exactly 1)
+- `dc:issued` (xsd:date, exactly 1) — validity start
+- `adms:status` → `adms:Status` node (exactly 1) — use `concept:active` or create a status node
+- `sosa:isHostedBy` → `:OperationLocation` (exactly 1) — use `ex:location/myGlassFactory` (assume it exists)
+
+### Optional Properties
+- `dc:valid` (xsd:date) — validity end
+- `dc:type` (max 1)
+- `ogc:hasGeometry` (max 1)
+- `adms:identifier` → `adms:Identifier`
+- `ssn:hasSubSystem` → `ssn:System`
+- `prov:wasRevisionOf` → `ssn:System` (max 1)
+- `ssn:hasProperty` → `:InstallationProperty`
+- `ssn:implements` → `:Process`
+- `:section` → `:Section`
+- `ssn:hasDeployment` → `:Operation`
+
+### Example Instance
+```turtle
+ex:installation/furnace a :Installation ;
+    rdfs:label "Glass Furnace"@en ;
+    dc:created "2024-01-01T00:00:00"^^xsd:dateTime ;
+    dc:modified "2024-01-01T00:00:00"^^xsd:dateTime ;
+    dc:issued "2024-01-01"^^xsd:date ;
+    adms:status concept:active ;
+    sosa:isHostedBy ex:location/myGlassFactory .
+```
+
+### Instructions
+1. Add the type triple `a :Installation` to each instance.
+2. Use IRIs under `ex:installation/` namespace.
+3. Reference `ex:location/myGlassFactory` as the hosted location.
+4. Create 2 contextually meaningful installations (e.g., furnace, glass-forming machine).
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: InstallationShape
+- `target_class`: :Installation
+- `changed_triples_count`: number of triples added
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

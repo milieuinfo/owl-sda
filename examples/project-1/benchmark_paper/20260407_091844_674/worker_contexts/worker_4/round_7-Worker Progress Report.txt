@@ -1,0 +1,8 @@
+worker_id=POOL-4
+status=CREATED
+target_shape=TransportProcedureShape
+target_class=:TransportProcedure
+changed_triples_count=9
+created_or_updated_subjects=https://example.org/id/transportprocedure/conveyorTransport,https://example.org/id/transportprocedure/pipelineTransport,https://example.org/id/process/forming
+validation_result=CONFORMS
+remaining_issues=none

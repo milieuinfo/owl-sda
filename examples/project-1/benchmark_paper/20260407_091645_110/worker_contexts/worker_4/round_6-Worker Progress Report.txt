@@ -1,0 +1,8 @@
+worker_id=POOL-4
+status=CREATED
+target_shape=ObservationResultShape
+target_class=:ObservationResult
+changed_triples_count=10
+created_or_updated_subjects=https://example.org/id/observationresult/co2-stack1-2024,https://example.org/id/observationresult/nox-stack1-2024
+validation_result=CONFORMS
+remaining_issues=none

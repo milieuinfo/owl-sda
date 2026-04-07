@@ -1,0 +1,14 @@
+stage=REVIEW_ACCEPTED
+shapes_processed=23
+duration_ms=733606
+timestamp=20260407_093815_648
+triplestore_size=297
+triplestore_empty=false
+current_violations=0
+tokens.supervisor=102613
+tokens.reviewer=30778
+tokens.worker.worker_0=33346
+tokens.worker.worker_1=25675
+tokens.worker.worker_2=32509
+tokens.worker.worker_3=30424
+tokens.worker.worker_4=31763

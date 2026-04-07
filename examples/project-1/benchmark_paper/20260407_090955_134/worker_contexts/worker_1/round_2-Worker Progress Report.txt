@@ -1,0 +1,8 @@
+worker_id=POOL-1
+status=FIXED
+target_shape=FilterShape
+target_class=:Filter
+changed_triples_count=1
+created_or_updated_subjects=https://example.org/id/filter/waterFilter1, https://example.org/id/filter/dustFilter1
+validation_result=CONFORMS
+remaining_issues=Unrelated violations remain for measurement instruments/measurement points (not related to FilterShape)

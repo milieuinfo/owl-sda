@@ -1,0 +1,54 @@
+## Task: Generate instances for EmissionShape
+
+**Target Shape:** `:EmissionShape`
+**Target Class:** `:Emission`
+**Goal:** CREATE at least 2 instances of `:Emission` — none exist yet.
+
+### Context
+MyGlassFactory releases emissions from its stacks and discharge points. An emission represents a specific pollutant or substance released (e.g., CO₂, NOx) at an emission point. Emissions are the feature of interest for observations.
+
+Existing resources to reference:
+- Emission points: `ex:emissionpoint/stack1`, `ex:emissionpoint/discharge1`
+- Observations will be created by POOL-2 as: `ex:observation/co2-stack1-2024`, `ex:observation/nox-stack1-2024`
+
+### Prefixes
+```turtle
+@prefix :       <https://example.org/ns/riepr#> .
+@prefix ex:     <https://example.org/id/> .
+@prefix sosa:   <http://www.w3.org/ns/sosa/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+```
+
+### Shape Constraints
+| Property | Class | Cardinality | Notes |
+|---|---|---|---|
+| `sosa:isResultOf` | `sosa:Observation` | 0..* | Optional — link back to observation(s) |
+
+### Example Instances
+```turtle
+ex:emission/co2-stack1 a :Emission ;
+    rdfs:label "CO2 Emission Stack 1"@en ;
+    sosa:isResultOf ex:observation/co2-stack1-2024 .
+
+ex:emission/nox-stack1 a :Emission ;
+    rdfs:label "NOx Emission Stack 1"@en ;
+    sosa:isResultOf ex:observation/nox-stack1-2024 .
+```
+
+### Instructions
+1. Add `a :Emission` to each instance.
+2. Use IRIs under `ex:emission/` namespace.
+3. Create at least 2 emissions (e.g., CO₂ and NOx at `stack1`).
+4. Use these exact IRIs so POOL-2 (Observation) and POOL-4 (ObservationResult) can cross-reference: `ex:emission/co2-stack1`, `ex:emission/nox-stack1`.
+5. Optionally add `sosa:isResultOf` back-links to observations being created by POOL-2.
+6. Include a `rdfs:label` on each emission for readability.
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: EmissionShape
+- `target_class`: :Emission
+- `changed_triples_count`: number of triples added
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

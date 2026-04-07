@@ -1,0 +1,41 @@
+## Task: Fix pplan:Variable type consistency on ProcessVariable nodes
+
+**Target Shape:** `:ProcessShape` (cross-shape consistency fix)
+**Target Class:** `:ProcessVariable` / `pplan:Variable`
+**Goal:** FIX cross-shape class constraint violations — process variable nodes are missing `a pplan:Variable` type.
+
+### Issue
+`ProcessShape` has these constraints:
+```
+sh:property [ sh:class pplan:Variable ; sh:path pplan:hasInputVar ]
+sh:property [ sh:class pplan:Variable ; sh:path pplan:hasOutputVar ]
+```
+Any node linked via `pplan:hasInputVar` or `pplan:hasOutputVar` from a `:Process` must be typed as `pplan:Variable`. Currently, the process variable nodes are only typed as `:ProcessVariable` — NOT as `pplan:Variable`.
+
+### Fix — Add `a pplan:Variable` to all three process variable nodes
+```turtle
+<https://example.org/id/processvariable/sand> a <http://purl.org/net/p-plan#Variable> .
+<https://example.org/id/processvariable/naturalGas> a <http://purl.org/net/p-plan#Variable> .
+<https://example.org/id/processvariable/moltenGlass> a <http://purl.org/net/p-plan#Variable> .
+```
+
+### Scope
+- Only add `a pplan:Variable` to these 3 nodes
+- Do NOT modify any other properties
+- Do NOT create new instances
+- After inserting, validate the store to confirm ProcessShape violations are gone
+
+### Prefixes
+```turtle
+@prefix pplan: <http://purl.org/net/p-plan#> .
+@prefix ex:    <https://example.org/id/> .
+```
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: ProcessShape (consistency fix)
+- `target_class`: pplan:Variable
+- `changed_triples_count`: 3
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

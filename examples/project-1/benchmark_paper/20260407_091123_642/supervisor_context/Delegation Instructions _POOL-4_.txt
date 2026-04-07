@@ -1,0 +1,30 @@
+## Task: Verify MeasurementInstrumentShape violations resolved
+
+**Target Shape:** `:MeasurementInstrumentShape`
+**Target Class:** `:MeasurementInstrument`
+**Goal:** Verify that active violations on existing instances are now resolved after POOL-3 adds `a ssn:System` to measurement points. If violations persist, apply the fix yourself.
+
+### Previously Active Violations
+| Focus node | Violation | Cause | Expected fix |
+|---|---|---|---|
+| `ex:measurementinstrument/gasAnalyzer` | `[sh:inversePath ssn:hasSubSystem]` → `ex:measurementpoint/stack1` not `ssn:System` | Missing type | POOL-3 adds `a ssn:System` to `ex:measurementpoint/stack1` |
+| `ex:measurementinstrument/flowMeter` | `[sh:inversePath ssn:hasSubSystem]` → `ex:measurementpoint/water-discharge` not `ssn:System` | Missing type | POOL-3 adds `a ssn:System` to `ex:measurementpoint/water-discharge` |
+
+### Instructions
+1. Validate your triple store against the SHACL shapes.
+2. If `ex:measurementinstrument/gasAnalyzer` and `ex:measurementinstrument/flowMeter` now conform → report CONFORMS.
+3. If violations persist (POOL-3 fix not yet reflected), apply the fix yourself:
+   ```turtle
+   ex:measurementpoint/stack1 a ssn:System .
+   ex:measurementpoint/water-discharge a ssn:System .
+   ```
+4. Do NOT change any other triples. Do NOT create new instances.
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: MeasurementInstrumentShape
+- `target_class`: :MeasurementInstrument
+- `changed_triples_count`: triples added (0 if already fixed by POOL-3)
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

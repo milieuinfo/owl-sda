@@ -1,0 +1,14 @@
+stage=GENERATE
+shapes_processed=9
+duration_ms=89630
+timestamp=20260407_091253_283
+triplestore_size=167
+triplestore_empty=false
+current_violations=0
+tokens.supervisor=46945
+tokens.reviewer=0
+tokens.worker.worker_0=21012
+tokens.worker.worker_1=21792
+tokens.worker.worker_2=21883
+tokens.worker.worker_3=19927
+tokens.worker.worker_4=23753

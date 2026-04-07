@@ -1,0 +1,74 @@
+## Task: Generate instances for ProcessShape
+
+**Target Shape:** `:ProcessShape`
+**Target Class:** `:Process`
+**Goal:** CREATE at least 2 instances of `:Process` — none exist yet.
+
+### Scenario
+MyGlassFactory is a glass factory that implements a glass production process subdivided into sub-processes (e.g., raw material preparation, melting, forming, annealing, inspection). A process can be a step of another process.
+
+### Prefixes
+```turtle
+@prefix :       <https://example.org/ns/riepr#> .
+@prefix ex:     <https://example.org/id/> .
+@prefix concept: <https://example.org/id/concept/> .
+@prefix adms:   <http://www.w3.org/ns/adms#> .
+@prefix dc:     <http://purl.org/dc/terms/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ssn:    <http://www.w3.org/ns/ssn/> .
+@prefix pplan:  <http://purl.org/net/p-plan#> .
+@prefix prov:   <http://www.w3.org/ns/prov#> .
+@prefix sosa:   <http://www.w3.org/ns/sosa/> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+```
+
+### Required Properties (minCount ≥ 1)
+- `rdfs:label` (at least 1, plain literal)
+- `dc:created` (xsd:dateTime, exactly 1)
+- `dc:modified` (xsd:dateTime, exactly 1)
+- `adms:status` → `adms:Status` node (exactly 1) — use `concept:active`
+
+### Optional Properties
+- `dc:issued` (xsd:date, max 1) — validity start
+- `dc:valid` (xsd:date, max 1) — validity end
+- `dc:type` → `sosa:Procedure` (max 1)
+- `pplan:hasInputVar` → `pplan:Variable` — input substances
+- `pplan:hasOutputVar` → `pplan:Variable` — output substances
+- `pplan:isStepOfPlan` → `:Process` — parent process
+- `ssn:implementedBy` → `ssn:System` or `:Installation` (max 1)
+- `:section` → `:Section`
+- `prov:wasRevisionOf` → `:Process` (max 1)
+
+### Example Instances
+```turtle
+ex:process/glassProduction a :Process ;
+    rdfs:label "Glass Production Process"@en ;
+    dc:created "2024-01-01T00:00:00"^^xsd:dateTime ;
+    dc:modified "2024-01-01T00:00:00"^^xsd:dateTime ;
+    dc:issued "2024-01-01"^^xsd:date ;
+    adms:status concept:active .
+
+ex:process/melting a :Process ;
+    rdfs:label "Glass Melting"@en ;
+    dc:created "2024-01-01T00:00:00"^^xsd:dateTime ;
+    dc:modified "2024-01-01T00:00:00"^^xsd:dateTime ;
+    dc:issued "2024-01-01"^^xsd:date ;
+    adms:status concept:active ;
+    pplan:isStepOfPlan ex:process/glassProduction .
+```
+
+### Instructions
+1. Add `a :Process` to each instance.
+2. Use IRIs under `ex:process/` namespace.
+3. Create at least 1 top-level process (glass production) and 2 sub-processes (steps).
+4. Link sub-processes to the top-level process via `pplan:isStepOfPlan`.
+5. Sub-processes can optionally reference installations (POOL-0 creates `ex:installation/furnace` etc.) via `ssn:implementedBy`.
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: ProcessShape
+- `target_class`: :Process
+- `changed_triples_count`: number of triples added
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

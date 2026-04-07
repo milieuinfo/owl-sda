@@ -1,0 +1,8 @@
+worker_id=POOL-0
+status=CREATED
+target_shape=InstallationShape
+target_class=:Installation
+changed_triples_count=14
+created_or_updated_subjects=https://example.org/id/installation/furnace, https://example.org/id/installation/glass-former
+validation_result=CONFORMS
+remaining_issues=https://example.org/id/location/myGlassFactory missing required props (rdfs:label, dc:issued, dc:created, dc:modified, ogc:hasGeometry, prov:wasAttributedTo) - OUT_OF_SCOPE

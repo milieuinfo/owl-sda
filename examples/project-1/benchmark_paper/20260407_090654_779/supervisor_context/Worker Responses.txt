@@ -1,0 +1,49 @@
+POOL-0 [STRUCTURED_PROGRESS]:
+worker_id=POOL-0
+status=CREATED
+target_shape=InstallationShape
+target_class=:Installation
+changed_triples_count=14
+created_or_updated_subjects=https://example.org/id/installation/furnace, https://example.org/id/installation/glass-former
+validation_result=CONFORMS
+remaining_issues=https://example.org/id/location/myGlassFactory missing required props (rdfs:label, dc:issued, dc:created, dc:modified, ogc:hasGeometry, prov:wasAttributedTo) - OUT_OF_SCOPE
+
+POOL-1 [STRUCTURED_PROGRESS]:
+worker_id=POOL-1
+status=CREATED
+target_shape=EmissionPointShape
+target_class=:EmissionPoint
+changed_triples_count=18
+created_or_updated_subjects=https://example.org/id/emissionpoint/stack1, https://example.org/id/emissionpoint/discharge1
+validation_result=CONFORMS
+remaining_issues=Unrelated violations on <https://example.org/id/location/myGlassFactory> (missing rdfs:label, dc:created, dc:modified, dc:issued, prov:wasAttributedTo, ogc:hasGeometry)
+
+POOL-2 [STRUCTURED_PROGRESS]:
+worker_id=POOL-2
+status=CREATED
+target_shape=WithdrawalPointShape
+target_class=:WithdrawalPoint
+changed_triples_count=18
+created_or_updated_subjects=https://example.org/id/withdrawalpoint/waterIntake1,https://example.org/id/withdrawalpoint/sandExtraction1
+validation_result=CONFORMS
+remaining_issues=OperationLocation ex:location/myGlassFactory is missing required properties (out of scope)
+
+POOL-3 [STRUCTURED_PROGRESS]:
+worker_id=POOL-3
+status=CREATED
+target_shape=MeasurementPointShape
+target_class=:MeasurementPoint
+changed_triples_count=14
+created_or_updated_subjects=https://example.org/id/measurementpoint/stack1, https://example.org/id/measurementpoint/water-discharge
+validation_result=NON_CONFORMS
+remaining_issues=Remaining violations relate to ex:location/myGlassFactory missing required properties (rdfs:label, dc:created, dc:modified, dc:issued, prov:wasAttributedTo, ogc:hasGeometry)
+
+POOL-4 [STRUCTURED_PROGRESS]:
+worker_id=POOL-4
+status=CREATED
+target_shape=ProcessShape
+target_class=:Process
+changed_triples_count=20
+created_or_updated_subjects=https://example.org/id/process/glassProduction,https://example.org/id/process/melting,https://example.org/id/process/forming
+validation_result=CONFORMS
+remaining_issues=Unrelated violations on https://example.org/id/location/myGlassFactory

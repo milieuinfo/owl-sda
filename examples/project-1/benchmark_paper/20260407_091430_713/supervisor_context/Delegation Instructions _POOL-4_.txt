@@ -1,0 +1,77 @@
+## Task: Generate instances for SectionShape
+
+**Target Shape:** `:SectionShape`
+**Target Class:** `:Section`
+**Goal:** CREATE at least 2–3 instances of `:Section` — none exist yet.
+
+### Context
+MyGlassFactory uses sections to categorise/organise processes and installations (e.g., regulatory reporting sections, permit sections). A section has a code, a type, and optionally a description.
+
+Sections can be linked to:
+- Processes: `ex:process/glassProduction`, `ex:process/melting`, `ex:process/forming`
+- Installations: `ex:installation/furnace`, `ex:installation/glass-former`
+- Measurement points: `ex:measurementpoint/stack1`, `ex:measurementpoint/water-discharge`
+
+### Prefixes
+```turtle
+@prefix :       <https://example.org/ns/riepr#> .
+@prefix ex:     <https://example.org/id/> .
+@prefix concept: <https://example.org/id/concept/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dc:     <http://purl.org/dc/terms/> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+```
+
+### Required Constraints
+| Property | Type | Cardinality | Notes |
+|---|---|---|---|
+| `skos:notation` | literal | exactly 1 | A section code (e.g., "A1", "B2") |
+| `dc:type` | — | exactly 1 | Section type (e.g., concept:emissionSection, concept:processSection) |
+
+### Optional Constraints
+| Property | Type | Cardinality | Notes |
+|---|---|---|---|
+| `skos:definition` | literal | 0..1 | Human-readable description |
+
+### Example Instances
+```turtle
+ex:section/A1 a :Section ;
+    skos:notation "A1" ;
+    dc:type concept:combustionSection ;
+    skos:definition "Combustion and melting section for glass production"@en .
+
+ex:section/B1 a :Section ;
+    skos:notation "B1" ;
+    dc:type concept:emissionSection ;
+    skos:definition "Air emission reporting section"@en .
+
+ex:section/C1 a :Section ;
+    skos:notation "C1" ;
+    dc:type concept:processSection ;
+    skos:definition "Glass forming and annealing section"@en .
+```
+
+Then link sections to relevant nodes:
+```turtle
+ex:process/melting :section ex:section/A1 .
+ex:process/forming :section ex:section/C1 .
+ex:measurementpoint/stack1 :section ex:section/B1 .
+ex:installation/furnace :section ex:section/A1 .
+```
+
+### Instructions
+1. Add `a :Section` to each instance.
+2. Use IRIs under `ex:section/` namespace.
+3. Every instance MUST have `skos:notation` (exactly 1) and `dc:type` (exactly 1).
+4. Create 3 meaningful sections appropriate to a glass factory regulatory context.
+5. Add `:section` links from at least 2 existing nodes (processes, installations, measurement points).
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: SectionShape
+- `target_class`: :Section
+- `changed_triples_count`: number of triples added
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

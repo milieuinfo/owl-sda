@@ -1,0 +1,41 @@
+## Task: Fix MeasurementPointShape — persistent violations
+
+**Target Shape:** `:MeasurementPointShape`
+**Target Class:** `:MeasurementPoint`
+**Goal:** FIX persistent violations — previous fix was not reflected in global validation. Re-apply the fix now.
+
+### Active Violations (still present in global Validation Report)
+
+| Focus node (instrument) | Violation path | Offending parent node | Required fix |
+|---|---|---|---|
+| `ex:measurementinstrument/gasAnalyzer` | `[sh:inversePath ssn:hasSubSystem]` | `ex:measurementpoint/stack1` | Must have `a ssn:System` |
+| `ex:measurementinstrument/flowMeter` | `[sh:inversePath ssn:hasSubSystem]` | `ex:measurementpoint/water-discharge` | Must have `a ssn:System` |
+
+### Why this is happening
+The `MeasurementInstrumentShape` has this constraint:
+```
+sh:property [ sh:class ssn:System ; sh:path [ sh:inversePath ssn:hasSubSystem ] ]
+```
+This means: any node that is a parent (via `ssn:hasSubSystem`) of a `:MeasurementInstrument` must be typed as `ssn:System`. The measurement points are typed as `:MeasurementPoint` but NOT as `ssn:System`.
+
+### Fix to apply
+**Add these 2 triples to the shared triple store:**
+```turtle
+<https://example.org/id/measurementpoint/stack1> a <http://www.w3.org/ns/ssn/System> .
+<https://example.org/id/measurementpoint/water-discharge> a <http://www.w3.org/ns/ssn/System> .
+```
+
+### Strict scope
+- Only add the `a ssn:System` triples to these 2 nodes
+- Do NOT modify any other properties
+- Do NOT create new instances
+- After inserting, run `validate_store` and confirm the violations are gone
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: MeasurementPointShape
+- `target_class`: :MeasurementPoint
+- `changed_triples_count`: 2
+- `validation_result`: pass/fail (run fresh validation)
+- `remaining_issues`: list or "none"

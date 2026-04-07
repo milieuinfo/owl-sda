@@ -1,0 +1,37 @@
+## Task: Fix MeasurementPointShape violations
+
+**Target Shape:** `:MeasurementPointShape`
+**Target Class:** `:MeasurementPoint`
+**Goal:** FIX type violations on existing measurement point instances — both are missing `a ssn:System`.
+
+### Active Violations (must fix)
+
+Two measurement point nodes are referenced via `[sh:inversePath ssn:hasSubSystem]` from MeasurementInstrument instances. The inverse-path class constraint requires those parent nodes to be typed as `ssn:System`. Currently they are only typed as `:MeasurementPoint`.
+
+| Focus node (instrument) | Violation path | Offending parent | Fix |
+|---|---|---|---|
+| `ex:measurementinstrument/gasAnalyzer` | `[sh:inversePath ssn:hasSubSystem]` | `ex:measurementpoint/stack1` | Add `a ssn:System` |
+| `ex:measurementinstrument/flowMeter` | `[sh:inversePath ssn:hasSubSystem]` | `ex:measurementpoint/water-discharge` | Add `a ssn:System` |
+
+### Fix to apply
+Add the following triples to the triple store:
+```turtle
+ex:measurementpoint/stack1 a ssn:System .
+ex:measurementpoint/water-discharge a ssn:System .
+```
+
+These nodes already have `a :MeasurementPoint` — just add the additional `ssn:System` type without modifying any other existing triples.
+
+### Scope
+- Only modify `ex:measurementpoint/stack1` and `ex:measurementpoint/water-discharge`
+- Only add the `a ssn:System` triple — do NOT change any other properties
+- Do NOT create new instances
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: MeasurementPointShape
+- `target_class`: :MeasurementPoint
+- `changed_triples_count`: number of triples added (expected: 2)
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

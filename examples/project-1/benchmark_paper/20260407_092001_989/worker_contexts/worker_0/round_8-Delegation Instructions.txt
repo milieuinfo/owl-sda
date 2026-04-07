@@ -1,0 +1,51 @@
+## Task: Generate instances for ProcessingProcedureShape
+
+**Target Shape:** `:ProcessingProcedureShape`
+**Target Class:** `:ProcessingProcedure`
+**Goal:** CREATE at least 1–2 instances of `:ProcessingProcedure` — none exist yet.
+
+### Context
+MyGlassFactory uses processing procedures to describe how raw materials are processed (e.g., batch mixing of raw materials, glass refining, annealing). A `:ProcessingProcedure` is a `sosa:Procedure` and can be referenced by processes via `dc:type`.
+
+This shape has **no property constraints** beyond `sh:targetClass :ProcessingProcedure` — any typed instance conforms. Add `rdfs:label` and optional properties for data quality.
+
+### Prefixes
+```turtle
+@prefix :        <https://example.org/ns/riepr#> .
+@prefix ex:      <https://example.org/id/> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix sosa:    <http://www.w3.org/ns/sosa/> .
+@prefix concept: <https://example.org/id/concept/> .
+```
+
+### Example Instances
+```turtle
+ex:processingprocedure/batchMixing a :ProcessingProcedure, sosa:Procedure ;
+    rdfs:label "Batch Mixing of Raw Materials"@en ;
+    dc:type concept:mixingProcess .
+
+ex:processingprocedure/annealing a :ProcessingProcedure, sosa:Procedure ;
+    rdfs:label "Glass Annealing"@en ;
+    dc:type concept:thermalProcess .
+```
+
+Optionally link to an existing process:
+```turtle
+ex:process/forming dc:type ex:processingprocedure/annealing .
+```
+
+### Instructions
+1. Add `a :ProcessingProcedure` and `a sosa:Procedure` to each instance.
+2. Use IRIs under `ex:processingprocedure/` namespace.
+3. Create 1–2 meaningful instances with `rdfs:label` and optionally `dc:type`.
+4. Optionally link to existing processes (`ex:process/glassProduction`, `ex:process/forming`, `ex:process/melting`) via `dc:type` on the process node — check if any process still lacks a `dc:type` before adding to avoid maxCount violations (max 1).
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: ProcessingProcedureShape
+- `target_class`: :ProcessingProcedure
+- `changed_triples_count`: number of triples added
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

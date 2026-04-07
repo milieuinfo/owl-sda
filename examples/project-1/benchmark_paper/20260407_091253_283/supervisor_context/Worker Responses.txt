@@ -1,0 +1,29 @@
+POOL-1 [STRUCTURED_PROGRESS]:
+worker_id=POOL-1
+status=FIXED
+target_shape=MeasurementPointShape
+target_class=:MeasurementPoint
+changed_triples_count=0
+created_or_updated_subjects=https://example.org/id/measurementpoint/stack1, https://example.org/id/measurementpoint/water-discharge
+validation_result=CONFORMS
+remaining_issues=none
+
+POOL-2 [STRUCTURED_PROGRESS]:
+worker_id=POOL-2
+status=VERIFIED_NO_CHANGE
+target_shape=MeasurementInstrumentShape
+target_class=:MeasurementInstrument
+changed_triples_count=0
+created_or_updated_subjects=NONE
+validation_result=CONFORMS
+remaining_issues=none
+
+POOL-4 [STRUCTURED_PROGRESS]:
+worker_id=POOL-4
+status=VERIFIED_NO_CHANGE
+target_shape=OperatorShape
+target_class=:Operator
+changed_triples_count=0
+created_or_updated_subjects=NONE
+validation_result=CONFORMS
+remaining_issues=none

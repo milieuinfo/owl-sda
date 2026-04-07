@@ -1,0 +1,77 @@
+## Task: Generate instances for InstallationPropertyShape
+
+**Target Shape:** `:InstallationPropertyShape`
+**Target Class:** `:InstallationProperty`
+**Goal:** CREATE at least 2 instances of `:InstallationProperty` — none exist yet.
+
+### Context
+MyGlassFactory has installations with measurable properties (e.g., furnace capacity in tonnes/day, maximum operating temperature, installed power in MW).
+
+Existing installations to link to:
+- `ex:installation/furnace`
+- `ex:installation/glass-former`
+
+### Prefixes
+```turtle
+@prefix :       <https://example.org/ns/riepr#> .
+@prefix ex:     <https://example.org/id/> .
+@prefix concept: <https://example.org/id/concept/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dc:     <http://purl.org/dc/terms/> .
+@prefix qudt:   <http://qudt.org/schema/qudt/> .
+@prefix ssn:    <http://www.w3.org/ns/ssn/> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix unit:   <http://qudt.org/vocab/unit/> .
+```
+
+### Required Constraints (all minCount 1)
+| Property | Type/Class | Cardinality | Notes |
+|---|---|---|---|
+| `dc:type` | — | exactly 1 | Type/kind of property (e.g., concept:capacity, concept:temperature) |
+| `qudt:numericValue` | — | exactly 1 | The numeric value |
+| `qudt:hasUnit` | — | exactly 1 | Unit of the value |
+| `ssn:isPropertyOf` | `:Installation` | exactly 1 | Must link to exactly 1 installation |
+
+### Example Instances
+```turtle
+ex:installationproperty/furnace-capacity a :InstallationProperty ;
+    dc:type concept:nominalCapacity ;
+    qudt:numericValue "200.0"^^xsd:decimal ;
+    qudt:hasUnit unit:TON-PER-DAY ;
+    ssn:isPropertyOf ex:installation/furnace .
+
+ex:installationproperty/furnace-temperature a :InstallationProperty ;
+    dc:type concept:maxOperatingTemperature ;
+    qudt:numericValue "1600.0"^^xsd:decimal ;
+    qudt:hasUnit unit:DEG_C ;
+    ssn:isPropertyOf ex:installation/furnace .
+
+ex:installationproperty/glassformer-power a :InstallationProperty ;
+    dc:type concept:installedPower ;
+    qudt:numericValue "2.5"^^xsd:decimal ;
+    qudt:hasUnit unit:MegaW ;
+    ssn:isPropertyOf ex:installation/glass-former .
+```
+
+Also add back-references on the installations:
+```turtle
+ex:installation/furnace ssn:hasProperty ex:installationproperty/furnace-capacity .
+ex:installation/furnace ssn:hasProperty ex:installationproperty/furnace-temperature .
+ex:installation/glass-former ssn:hasProperty ex:installationproperty/glassformer-power .
+```
+
+### Instructions
+1. Add `a :InstallationProperty` to each instance.
+2. Use IRIs under `ex:installationproperty/` namespace.
+3. Every instance MUST have `dc:type`, `qudt:numericValue`, `qudt:hasUnit`, and `ssn:isPropertyOf`.
+4. Create at least 2 properties (ideally 3, spread across both installations).
+5. Add `ssn:hasProperty` back-references on the installation nodes.
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: InstallationPropertyShape
+- `target_class`: :InstallationProperty
+- `changed_triples_count`: number of triples added
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

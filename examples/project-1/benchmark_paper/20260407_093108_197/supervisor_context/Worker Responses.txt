@@ -1,0 +1,19 @@
+POOL-0 [STRUCTURED_PROGRESS]:
+worker_id=POOL-0
+status=CREATED
+target_shape=ProcessingProcedureShape
+target_class=:ProcessingProcedure
+changed_triples_count=9
+created_or_updated_subjects=https://example.org/id/processingprocedure/batchMixing, https://example.org/id/processingprocedure/annealing
+validation_result=CONFORMS
+remaining_issues=other unrelated sosa/observation violations remain - OUT_OF_SCOPE
+
+POOL-1 [STRUCTURED_PROGRESS]:
+worker_id=POOL-1
+status=CREATED
+target_shape=EmissionProcedureShape
+target_class=:EmissionProcedure
+changed_triples_count=9
+created_or_updated_subjects=https://example.org/id/emissionprocedure/emissionFactor, https://example.org/id/emissionprocedure/directMeasurement
+validation_result=CONFORMS
+remaining_issues=none

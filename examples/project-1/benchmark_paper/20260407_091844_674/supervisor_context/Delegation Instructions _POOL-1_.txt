@@ -1,0 +1,46 @@
+## Task: Generate instances for AbstractEmissionPointShape
+
+**Target Shape:** `:AbstractEmissionPointShape`
+**Target Class:** `:AbstractEmissionPoint`
+**Goal:** CREATE at least 1 instance of `:AbstractEmissionPoint` — none exist yet.
+
+### Context
+MyGlassFactory uses abstract emission points to represent conceptual or grouped emission release locations — distinct from concrete `:EmissionPoint` systems. An abstract emission point groups or represents emission points at a higher level (e.g., "all stack emissions", "all water discharges").
+
+This shape has **no additional property constraints** beyond the type — any typed node conforms. However, add meaningful properties for data quality.
+
+### Prefixes
+```turtle
+@prefix :       <https://example.org/ns/riepr#> .
+@prefix ex:     <https://example.org/id/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dc:     <http://purl.org/dc/terms/> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix concept: <https://example.org/id/concept/> .
+```
+
+### Example Instance
+```turtle
+ex:abstractemissionpoint/stack-group a :AbstractEmissionPoint ;
+    rdfs:label "Stack Emission Group"@en ;
+    dc:type concept:airEmission .
+
+ex:abstractemissionpoint/water-group a :AbstractEmissionPoint ;
+    rdfs:label "Water Discharge Group"@en ;
+    dc:type concept:waterEmission .
+```
+
+### Instructions
+1. Add `a :AbstractEmissionPoint` to each instance.
+2. Use IRIs under `ex:abstractemissionpoint/` namespace.
+3. Create 1–2 instances with `rdfs:label` and `dc:type`.
+4. Optionally link to existing concrete emission points if the ontology supports it.
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: AbstractEmissionPointShape
+- `target_class`: :AbstractEmissionPoint
+- `changed_triples_count`: number of triples added
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

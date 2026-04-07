@@ -1,0 +1,34 @@
+## Task: Verify MeasurementInstrumentShape after measurement point type fix
+
+**Target Shape:** `:MeasurementInstrumentShape`
+**Target Class:** `:MeasurementInstrument`
+**Goal:** Confirm that violations on instrument nodes are resolved once POOL-1 adds `a ssn:System` to measurement points. Apply the fix yourself if not yet present.
+
+### Active Violations (still present)
+| Focus node | Path | Value | Expected |
+|---|---|---|---|
+| `ex:measurementinstrument/gasAnalyzer` | `[sh:inversePath ssn:hasSubSystem]` | `ex:measurementpoint/stack1` | must be `ssn:System` |
+| `ex:measurementinstrument/flowMeter` | `[sh:inversePath ssn:hasSubSystem]` | `ex:measurementpoint/water-discharge` | must be `ssn:System` |
+
+### Instructions
+1. First check if `ex:measurementpoint/stack1` and `ex:measurementpoint/water-discharge` already carry `a ssn:System`.
+2. If **not** present, add them:
+   ```turtle
+   <https://example.org/id/measurementpoint/stack1> a <http://www.w3.org/ns/ssn/System> .
+   <https://example.org/id/measurementpoint/water-discharge> a <http://www.w3.org/ns/ssn/System> .
+   ```
+3. Run a fresh SHACL validation after the fix.
+4. Report CONFORMS or list any remaining instrument-specific violations.
+
+### Scope
+- Only touch the `a ssn:System` type on measurement point nodes
+- Do NOT modify instrument triples or create new instances
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: MeasurementInstrumentShape
+- `target_class`: :MeasurementInstrument
+- `changed_triples_count`: triples added (0 or 2)
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

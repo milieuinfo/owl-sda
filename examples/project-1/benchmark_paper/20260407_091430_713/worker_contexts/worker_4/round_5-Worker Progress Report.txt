@@ -1,0 +1,8 @@
+worker_id=POOL-4
+status=CREATED
+target_shape=SectionShape
+target_class=:Section
+changed_triples_count=15
+created_or_updated_subjects=https://example.org/id/section/A1,https://example.org/id/section/B1,https://example.org/id/section/C1,https://example.org/id/process/melting,https://example.org/id/process/forming,https://example.org/id/measurementpoint/stack1
+validation_result=CONFORMS
+remaining_issues=Unrelated pplan:Variable class violation on https://example.org/id/processvariable/moltenGlass

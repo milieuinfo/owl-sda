@@ -1,0 +1,8 @@
+worker_id=POOL-2
+status=CREATED
+target_shape=WithdrawalPointShape
+target_class=:WithdrawalPoint
+changed_triples_count=18
+created_or_updated_subjects=https://example.org/id/withdrawalpoint/waterIntake1,https://example.org/id/withdrawalpoint/sandExtraction1
+validation_result=CONFORMS
+remaining_issues=OperationLocation ex:location/myGlassFactory is missing required properties (out of scope)

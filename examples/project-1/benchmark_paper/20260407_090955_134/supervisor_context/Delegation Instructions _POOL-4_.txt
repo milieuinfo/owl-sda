@@ -1,0 +1,64 @@
+## Task: Generate instances for OperatorContactPersonShape
+
+**Target Shape:** `:OperatorContactPersonShape`
+**Target Class:** `:OperatorContactPerson`
+**Goal:** CREATE at least 1–2 instances of `:OperatorContactPerson` — none exist yet.
+
+### Context
+MyGlassFactory has contact persons who are responsible for regulatory reporting. These persons are members of an operation or operator organisation. Reference: `ex:operator/myGlassFactory` (being created this round by POOL-2).
+
+Note: The shape uses target class `:OperatorContactPerson`. The `:OperationShape` and `:OperatorShape` use `:Contactpersoon` in `org:hasMember`. These may refer to the same class — use `:OperatorContactPerson` as the `rdf:type` and also add `:Contactpersoon` as a second type if needed to satisfy both shapes.
+
+### Prefixes
+```turtle
+@prefix :       <https://example.org/ns/riepr#> .
+@prefix ex:     <https://example.org/id/> .
+@prefix foaf:   <http://xmlns.com/foaf/0.1/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dc:     <http://purl.org/dc/terms/> .
+@prefix org:    <http://www.w3.org/ns/org#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+```
+
+### Required Properties (minCount ≥ 1)
+- `foaf:name` (at least 1, plain literal)
+- `rdfs:label` (at least 1, plain literal)
+
+### Optional Properties
+- `org:hasRole` (max 1) — role within the organisation
+- `dc:valid` (xsd:date, max 1) — validity end
+- `foaf:mbox` (max 1) — email address
+- `dc:created` (xsd:dateTime, max 1)
+- `rdfs:comment` — comment
+- `org:memberOf` → `:Operation` — link to operation
+- `dc:modified` (xsd:dateTime, max 1)
+- `dc:issued` (xsd:date, max 1) — validity start
+- `foaf:phone` (max 1)
+
+### Example Instance
+```turtle
+ex:contactperson/janJansen a :OperatorContactPerson, :Contactpersoon ;
+    foaf:name "Jan Jansen" ;
+    rdfs:label "Jan Jansen"@en ;
+    foaf:mbox <mailto:jan.jansen@myglassfactory.be> ;
+    dc:created "2024-01-01T00:00:00"^^xsd:dateTime ;
+    dc:modified "2024-01-01T00:00:00"^^xsd:dateTime ;
+    dc:issued "2024-01-01"^^xsd:date ;
+    org:memberOf ex:operation/myGlassFactory-v1 .
+```
+
+### Instructions
+1. Add `a :OperatorContactPerson` (and optionally `a :Contactpersoon`) to each instance.
+2. Use IRIs under `ex:contactperson/` namespace.
+3. Create 2 contact persons with distinct names, roles, and email addresses.
+4. Link them to the operation `ex:operation/myGlassFactory-v1` via `org:memberOf`.
+5. Optionally add `org:hasMember` back-references on `ex:operator/myGlassFactory` or `ex:operation/myGlassFactory-v1`.
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: OperatorContactPersonShape
+- `target_class`: :OperatorContactPerson
+- `changed_triples_count`: number of triples added
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"

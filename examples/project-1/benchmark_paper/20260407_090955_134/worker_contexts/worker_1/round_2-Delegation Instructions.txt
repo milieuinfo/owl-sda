@@ -1,0 +1,56 @@
+## Task: Generate instances for FilterShape
+
+**Target Shape:** `:FilterShape`
+**Target Class:** `:Filter`
+**Goal:** CREATE at least 1–2 instances of `:Filter` — none exist yet.
+
+### Context
+MyGlassFactory is a glass factory. Filters are systems that filter materials (e.g., water filter on a withdrawal point, dust filter on an emission point). Existing withdrawal points: `ex:withdrawalpoint/waterIntake1`, `ex:withdrawalpoint/sandExtraction1`.
+
+### Prefixes
+```turtle
+@prefix :       <https://example.org/ns/riepr#> .
+@prefix ex:     <https://example.org/id/> .
+@prefix concept: <https://example.org/id/concept/> .
+@prefix adms:   <http://www.w3.org/ns/adms#> .
+@prefix dc:     <http://purl.org/dc/terms/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sosa:   <http://www.w3.org/ns/sosa/> .
+@prefix ssn:    <http://www.w3.org/ns/ssn/> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix ogc:    <http://www.opengis.net/ont/geosparql#> .
+@prefix prov:   <http://www.w3.org/ns/prov#> .
+```
+
+### Required Properties (minCount ≥ 1)
+- `rdfs:label` (at least 1, plain literal)
+- `dc:created` (xsd:dateTime, exactly 1)
+- `dc:modified` (xsd:dateTime, exactly 1)
+- `dc:issued` (xsd:date, exactly 1) — validity start
+- `adms:status` → `adms:Status` (exactly 1) — use `concept:active`
+- `sosa:isHostedBy` → `:OperationLocation` (exactly 1) — use `ex:location/myGlassFactory`
+
+### Optional Properties
+- `dc:type` (max 1)
+- `ogc:hasGeometry` (max 1)
+- `ssn:hasSubSystem` → `ssn:System`
+- `prov:wasRevisionOf` → `ssn:System` (max 1)
+- `ssn:hasDeployment` → `:Operation`
+- `adms:identifier` → `adms:Identifier`
+- `dc:valid` (xsd:date)
+
+### Instructions
+1. Add `a :Filter` to each instance.
+2. Use IRIs under `ex:filter/` namespace.
+3. Reference `ex:location/myGlassFactory` as `sosa:isHostedBy`.
+4. Create 2 filters appropriate to the factory context (e.g., water filter for intake, dust filter for furnace exhaust).
+5. Optionally link filters to withdrawal points: add `ssn:hasSubSystem ex:filter/waterFilter` on `ex:withdrawalpoint/waterIntake1`.
+
+### Mandatory Response
+Call `worker_progress` with:
+- `status`: done/error
+- `target_shape`: FilterShape
+- `target_class`: :Filter
+- `changed_triples_count`: number of triples added
+- `validation_result`: pass/fail
+- `remaining_issues`: list or "none"
