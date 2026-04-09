@@ -1,0 +1,8 @@
+worker_id=POOL-2
+status=CREATED
+target_shape=opencare:SiteOfCareShape, opencare:ImplantProcedureShape
+target_class=opencare:SiteOfCare, opencare:ImplantProcedure
+changed_triples_count=28
+created_or_updated_subjects=https://w3id.org/opencare#GreenValleyClinic, https://w3id.org/opencare#NorthsideMedicalCenter, https://w3id.org/opencare#HipImplantProcedure-001
+validation_result=CONFORMS
+remaining_issues=NONE

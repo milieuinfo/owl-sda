@@ -1,0 +1,8 @@
+worker_id=POOL-2
+status=CREATED
+target_shape=opencare:LicensedPracticalNurseShape
+target_class=opencare:LicensedPracticalNurse
+changed_triples_count=7
+created_or_updated_subjects=opencare:LPN_001,opencare:CareHome_Sunrise
+validation_result=CONFORMS
+remaining_issues=NONE

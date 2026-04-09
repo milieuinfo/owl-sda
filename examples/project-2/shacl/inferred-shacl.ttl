@@ -1,0 +1,805 @@
+@prefix :         <https://w3id.org/opencare#> .
+@prefix dc:       <http://purl.org/dc/elements/1.1/> .
+@prefix dct:      <http://purl.org/dc/terms/> .
+@prefix grddl:    <http://www.w3.org/2003/g/data-view#> .
+@prefix metadata: <http://data.bioontology.org/metadata/> .
+@prefix mod:      <https://w3id.org/mod#> .
+@prefix mod1:     <http://w3id.org/mod#> .
+@prefix opencare: <https://w3id.org/opencare#> .
+@prefix owl:      <http://www.w3.org/2002/07/owl#> .
+@prefix prov:     <http://www.w3.org/ns/prov#> .
+@prefix rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:       <http://www.w3.org/ns/shacl#> .
+@prefix skos:     <http://www.w3.org/2004/02/skos/core#> .
+@prefix terms:    <http://purl.org/dc/terms/> .
+@prefix xml:      <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+
+opencare:CityShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  opencare:City .
+
+opencare:MedicationShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Medication .
+
+opencare:DentalProcedureShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:DentalProcedure .
+
+opencare:RadiologistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Radiologist .
+
+<http://schema.org/DiagnosticProcedureShape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://schema.org/DiagnosticProcedure> .
+
+<http://purl.obolibrary.org/obo/OGMS_0000020Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.obolibrary.org/obo/OGMS_0000020> .
+
+opencare:OccupationalAllergyShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:OccupationalAllergy .
+
+opencare:RouteBySiteShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:RouteBySite .
+
+opencare:ClinicalProfessionalShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:ClinicalProfessional .
+
+opencare:ImplantProcedureShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:ImplantProcedure .
+
+opencare:BodySiteShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:BodySite .
+
+opencare:LaboratoryFindingShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:LaboratoryFinding .
+
+opencare:DrugAllergyShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:DrugAllergy .
+
+opencare:ClinicalFindingShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:ClinicalFinding .
+
+<http://purl.bioontology.org/ontology/SNOMEDCT/35209006Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/SNOMEDCT/35209006> .
+
+opencare:PersonalHistoryShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:PersonalHistory .
+
+<http://purl.bioontology.org/ontology/SNOMEDCT/43741000Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/SNOMEDCT/43741000> .
+
+opencare:CertifiedRegisteredNurseAnesthetistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:CertifiedRegisteredNurseAnesthetist .
+
+opencare:CardiothoracicSurgeonShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:CardiothoracicSurgeon .
+
+opencare:PhysicalExaminationShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:PhysicalExamination .
+
+opencare:FoodSensitivityShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:FoodSensitivity .
+
+<http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C39564Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C39564> .
+
+<http://purl.bioontology.org/ontology/STY/T022Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/STY/T022> .
+
+opencare:RetailPharmacistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:RetailPharmacist .
+
+opencare:SurgicalHistoryShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:SurgicalHistory .
+
+opencare:HematologistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Hematologist .
+
+opencare:DrugIntoleranceShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:DrugIntolerance .
+
+skos:OrderedCollectionShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  skos:OrderedCollection .
+
+opencare:GeneticTestShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:GeneticTest .
+
+<http://purl.bioontology.org/ontology/SNOMEDCT/370135005Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/SNOMEDCT/370135005> .
+
+<http://purl.obolibrary.org/obo/HP_0012393Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.obolibrary.org/obo/HP_0012393> .
+
+opencare:MedicalProceduresSensitivityShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:MedicalProceduresSensitivity .
+
+opencare:RheumatologistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Rheumatologist .
+
+opencare:NurseShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  opencare:Nurse .
+
+opencare:InfectiousDiseaseSpecialistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:InfectiousDiseaseSpecialist .
+
+<http://purl.bioontology.org/ontology/SNOMEDCT/394733009Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/SNOMEDCT/394733009> .
+
+opencare:OphthalmologistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Ophthalmologist .
+
+opencare:AlliedHealthProfessionalShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:AlliedHealthProfessional .
+
+opencare:FungusShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  opencare:Fungus .
+
+opencare:FindingShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Finding .
+
+opencare:EncounterTypeShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:EncounterType .
+
+opencare:SupplementShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Supplement .
+
+<http://purl.bioontology.org/ontology/LNC/MTHU014081Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/LNC/MTHU014081> .
+
+<http://purl.bioontology.org/ontology/LNC/LP63617-2Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/LNC/LP63617-2> .
+
+opencare:AllergicDispositionShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:AllergicDisposition .
+
+opencare:DiagnosisShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Diagnosis .
+
+opencare:ReviewOfSystemShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:ReviewOfSystem .
+
+opencare:SpeechTherapistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:SpeechTherapist .
+
+opencare:SurgeryShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Surgery .
+
+opencare:GeographycalRegionShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:GeographycalRegion .
+
+opencare:CertifiedNurseMidwifeShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:CertifiedNurseMidwife .
+
+<http://purl.obolibrary.org/obo/OGMS_0000031Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.obolibrary.org/obo/OGMS_0000031> .
+
+opencare:CardiologistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Cardiologist .
+
+opencare:ImagingProcedureShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:ImagingProcedure .
+
+opencare:PlasticSurgeonShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:PlasticSurgeon .
+
+opencare:DietitianShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Dietitian .
+
+opencare:OccupationalTherapistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:OccupationalTherapist .
+
+opencare:BodySystemShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:BodySystem .
+
+opencare:NeurologistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Neurologist .
+
+<http://sbmi.uth.tmc.edu/ontology/ochv#53152Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://sbmi.uth.tmc.edu/ontology/ochv#53152> .
+
+opencare:LicensedPracticalNurseShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:LicensedPracticalNurse .
+
+opencare:AnimalShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  opencare:Animal .
+
+opencare:EnvironmentalSensitivityShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:EnvironmentalSensitivity .
+
+<http://www.w3.org/ns/org#OrganizationalUnitShape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://www.w3.org/ns/org#OrganizationalUnit> .
+
+opencare:CountryShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Country .
+
+opencare:MedicationSensitivityShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:MedicationSensitivity .
+
+opencare:RegisteredNurseShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:RegisteredNurse .
+
+<http://purl.obolibrary.org/obo/OGMS_0000014Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.obolibrary.org/obo/OGMS_0000014> .
+
+opencare:DiseaseShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Disease .
+
+opencare:ManShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  opencare:Man .
+
+<http://purl.bioontology.org/ontology/SNOMEDCT/263495000Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/SNOMEDCT/263495000> .
+
+opencare:PharmacistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Pharmacist .
+
+<http://purl.bioontology.org/ontology/LNC/MTHU034880Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/LNC/MTHU034880> .
+
+opencare:BodyTemperatureShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:BodyTemperature .
+
+opencare:PediatricsHistoryShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:PediatricsHistory .
+
+opencare:AnatomicalRegionShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:AnatomicalRegion .
+
+opencare:LatexAllergyShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:LatexAllergy .
+
+opencare:AllergySensitivityShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:AllergySensitivity .
+
+<https://schema.org/PatientShape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <https://schema.org/Patient> .
+
+<http://purl.obolibrary.org/obo/XAO_0003186Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.obolibrary.org/obo/XAO_0003186> .
+
+opencare:SymptomShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Symptom .
+
+<http://purl.bioontology.org/ontology/STY/T167Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/STY/T167> .
+
+<http://purl.bioontology.org/ontology/LNC/LP64610-6Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/LNC/LP64610-6> .
+
+opencare:ConservativeTherapyShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:ConservativeTherapy .
+
+opencare:ImmunizationHistoryShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:ImmunizationHistory .
+
+opencare:MedicalTherapyShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:MedicalTherapy .
+
+opencare:ChemoTherapyShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:ChemoTherapy .
+
+<http://purl.bioontology.org/ontology/SNOMEDCT/362958002Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/SNOMEDCT/362958002> .
+
+opencare:SocialWorkerShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:SocialWorker .
+
+opencare:BacteriaShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Bacteria .
+
+<http://purl.bioontology.org/ontology/SNOMEDCT/246112005Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/SNOMEDCT/246112005> .
+
+<http://xmlns.com/foaf/0.1/PersonShape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://xmlns.com/foaf/0.1/Person> .
+
+<http://purl.bioontology.org/ontology/LNC/MTHU017829Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/LNC/MTHU017829> .
+
+<http://purl.bioontology.org/ontology/LNC/LA26428-5Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/LNC/LA26428-5> .
+
+<http://purl.bioontology.org/ontology/SNOMEDCT/248983002Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/SNOMEDCT/248983002> .
+
+opencare:OrthopedicSurgeonShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:OrthopedicSurgeon .
+
+<http://purl.jp/bio/4/id/200906061105411362Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.jp/bio/4/id/200906061105411362> .
+
+opencare:PsychiatristShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Psychiatrist .
+
+<http://purl.obolibrary.org/obo/NCIT_C25457Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.obolibrary.org/obo/NCIT_C25457> .
+
+<http://xmlns.com/foaf/0.1/AgentShape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://xmlns.com/foaf/0.1/Agent> .
+
+opencare:ClinicalExaminationShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:ClinicalExamination .
+
+opencare:AllergyHistoryShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:AllergyHistory .
+
+opencare:EndocrinologistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Endocrinologist .
+
+opencare:FoodAllergyShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:FoodAllergy .
+
+<http://purl.bioontology.org/ontology/LNC/LP120715-0Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/LNC/LP120715-0> .
+
+<http://purl.bioontology.org/ontology/SNOMEDCT/118246004Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/SNOMEDCT/118246004> .
+
+opencare:GeneticFindingShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:GeneticFinding .
+
+opencare:RiskFactorShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:RiskFactor .
+
+opencare:PhysicianShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Physician .
+
+<https://contsys.org/concept/health_recordShape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <https://contsys.org/concept/health_record> .
+
+opencare:ComorbidityShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Comorbidity .
+
+opencare:GastroenterologistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Gastroenterologist .
+
+<http://sbmi.uth.tmc.edu/ontology/ochv#C0332119Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://sbmi.uth.tmc.edu/ontology/ochv#C0332119> .
+
+opencare:GenderTypeShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:GenderType .
+
+opencare:RecreationalDrugShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:RecreationalDrug .
+
+opencare:EncounterShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Encounter .
+
+opencare:SensitivityShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Sensitivity .
+
+opencare:SeverityShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Severity .
+
+<http://purl.obolibrary.org/obo/OGMS_0000029Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.obolibrary.org/obo/OGMS_0000029> .
+
+opencare:RegionShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  opencare:Region .
+
+opencare:InsectStingAllergyShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:InsectStingAllergy .
+
+<http://purl.bioontology.org/ontology/SNOMEDCT/365636006Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/SNOMEDCT/365636006> .
+
+<http://schema.org/SubstanceShape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://schema.org/Substance> .
+
+opencare:NursePractitionerShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:NursePractitioner .
+
+opencare:PhysicalTherapistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:PhysicalTherapist .
+
+opencare:BodyPartShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:BodyPart .
+
+opencare:PlantShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  opencare:Plant .
+
+opencare:TreatmentProcedureShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:TreatmentProcedure .
+
+owl:NothingShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  owl:Nothing .
+
+<http://www.w3.org/ns/org#OrganizationShape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://www.w3.org/ns/org#Organization> .
+
+opencare:EnvironmentalAllergyShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:EnvironmentalAllergy .
+
+opencare:PharmaceuticalPreparationShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:PharmaceuticalPreparation .
+
+opencare:HistoryShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:History .
+
+opencare:HealthRecordShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:HealthRecord .
+
+skos:ConceptSchemeShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  skos:ConceptScheme .
+
+opencare:VascularSurgeonShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:VascularSurgeon .
+
+<http://purl.bioontology.org/ontology/SNOMEDCT/407586004Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/SNOMEDCT/407586004> .
+
+<http://purl.bioontology.org/ontology/SNOMEDCT/22232009Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/SNOMEDCT/22232009> .
+
+opencare:ImplantHistoryShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:ImplantHistory .
+
+<http://purl.bioontology.org/ontology/CMDO/CM0025Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/CMDO/CM0025> .
+
+opencare:HospitalPharmacistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:HospitalPharmacist .
+
+opencare:AnesthesiologistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Anesthesiologist .
+
+opencare:LaboratoryTestShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:LaboratoryTest .
+
+opencare:FoodShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  opencare:Food .
+
+opencare:TraumaSurgeonShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:TraumaSurgeon .
+
+opencare:PediatricianShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Pediatrician .
+
+<http://purl.obolibrary.org/obo/OGMS_0000073Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.obolibrary.org/obo/OGMS_0000073> .
+
+opencare:StatusShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  opencare:Status .
+
+opencare:SiteOfCareShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:SiteOfCare .
+
+opencare:PathologyFindingShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:PathologyFinding .
+
+<http://purl.bioontology.org/ontology/SNOMEDCT/257585005Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/SNOMEDCT/257585005> .
+
+<https://schema.org/VitalSignShape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <https://schema.org/VitalSign> .
+
+opencare:TownShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  opencare:Town .
+
+opencare:RespiratoryTherapistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:RespiratoryTherapist .
+
+opencare:BloodGroupShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:BloodGroup .
+
+<http://purl.bioontology.org/ontology/SNOMEDCT/105723007Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/SNOMEDCT/105723007> .
+
+opencare:OncologistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Oncologist .
+
+opencare:ObservationalFindingShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:ObservationalFinding .
+
+opencare:RadiationTherapyShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:RadiationTherapy .
+
+<http://purl.bioontology.org/ontology/STY/T096Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/STY/T096> .
+
+opencare:EukaryoteShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Eukaryote .
+
+opencare:OrganismShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Organism .
+
+<http://purl.obolibrary.org/obo/IDO_0000586Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.obolibrary.org/obo/IDO_0000586> .
+
+<http://sbmi.uth.tmc.edu/ontology/ochv#47686Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://sbmi.uth.tmc.edu/ontology/ochv#47686> .
+
+opencare:DiagnosticImagingResultShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:DiagnosticImagingResult .
+
+opencare:SocialHistoryShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:SocialHistory .
+
+opencare:SkinAllergyShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:SkinAllergy .
+
+opencare:DermatologistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Dermatologist .
+
+<http://purl.obolibrary.org/obo/GEO_000000372Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.obolibrary.org/obo/GEO_000000372> .
+
+<http://purl.obolibrary.org/obo/HP_0410323Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.obolibrary.org/obo/HP_0410323> .
+
+<http://sbmi.uth.tmc.edu/ontology/ochv#C0424945Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://sbmi.uth.tmc.edu/ontology/ochv#C0424945> .
+
+opencare:WomanShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  opencare:Woman .
+
+owl:ThingShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  owl:Thing .
+
+opencare:RadiologicTechnologistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:RadiologicTechnologist .
+
+opencare:DistrictShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:District .
+
+<http://purl.bioontology.org/ontology/SNOMEDCT/263490005Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/SNOMEDCT/263490005> .
+
+opencare:PresentHistoryShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:PresentHistory .
+
+opencare:PediatricSurgeonShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:PediatricSurgeon .
+
+opencare:ClinicalPharmacistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:ClinicalPharmacist .
+
+opencare:MenstrualHistoryShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:MenstrualHistory .
+
+skos:CollectionShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  skos:Collection .
+
+opencare:VirusShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  opencare:Virus .
+
+opencare:PlantSubstanceShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:PlantSubstance .
+
+opencare:ConditionShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Condition .
+
+opencare:SeasonalAllergyShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:SeasonalAllergy .
+
+opencare:ProkaryoteShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Prokaryote .
+
+opencare:NeurosurgeonShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Neurosurgeon .
+
+<http://purl.bioontology.org/ontology/SNOMEDCT/80943009Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/SNOMEDCT/80943009> .
+
+<http://purl.obolibrary.org/obo/BFO_0000015Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.obolibrary.org/obo/BFO_0000015> .
+
+opencare:MedicalSpecialityShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:MedicalSpeciality .
+
+<http://purl.bioontology.org/ontology/SNOMEDCT/410673009Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/SNOMEDCT/410673009> .
+
+skos:ConceptShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  skos:Concept .
+
+<http://sbmi.uth.tmc.edu/ontology/ochv#37278Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://sbmi.uth.tmc.edu/ontology/ochv#37278> .
+
+opencare:ClinicalLaboratoryScientistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:ClinicalLaboratoryScientist .
+
+opencare:SurgeonShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Surgeon .
+
+<http://purl.obolibrary.org/obo/HP_0500094Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.obolibrary.org/obo/HP_0500094> .
+
+opencare:DiagnosisTypeShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:DiagnosisType .
+
+opencare:PathologicProcessShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:PathologicProcess .
+
+opencare:InfectionShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Infection .
+
+opencare:FamilyHistoryShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:FamilyHistory .
+
+opencare:PastHistoryShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:PastHistory .

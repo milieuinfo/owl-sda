@@ -1,0 +1,52 @@
+@prefix :         <https://w3id.org/opencare#> .
+@prefix dc:       <http://purl.org/dc/elements/1.1/> .
+@prefix metadata: <http://data.bioontology.org/metadata/> .
+@prefix mod:      <https://w3id.org/mod#> .
+@prefix mod1:     <http://w3id.org/mod#> .
+@prefix opencare: <https://w3id.org/opencare#> .
+@prefix owl:      <http://www.w3.org/2002/07/owl#> .
+@prefix prov:     <http://www.w3.org/ns/prov#> .
+@prefix rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:       <http://www.w3.org/ns/shacl#> .
+@prefix skos:     <http://www.w3.org/2004/02/skos/core#> .
+@prefix terms:    <http://purl.org/dc/terms/> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+
+opencare:WomanShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  opencare:Woman .
+
+opencare:NeurologistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Neurologist .
+
+<http://purl.bioontology.org/ontology/LNC/LA26428-5Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/LNC/LA26428-5> .
+
+opencare:CardiologistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Cardiologist .
+
+opencare:RadiologicTechnologistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:RadiologicTechnologist .
+
+opencare:EncounterShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Encounter .
+
+<http://purl.bioontology.org/ontology/SNOMEDCT/394733009Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/SNOMEDCT/394733009> .
+
+opencare:ComorbidityShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Comorbidity .
+
+opencare:RespiratoryTherapistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:RespiratoryTherapist .
+
+opencare:TownShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  opencare:Town .

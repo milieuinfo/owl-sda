@@ -1,0 +1,8 @@
+worker_id=POOL-0
+status=CREATED
+target_shape=opencare:PharmaceuticalPreparationShape
+target_class=opencare:PharmaceuticalPreparation
+changed_triples_count=50
+created_or_updated_subjects=https://w3id.org/opencare#PharmaceuticalPreparation_PP001, https://w3id.org/opencare#PharmaceuticalPreparation_PP002, https://w3id.org/opencare#ActiveIngredient_PenicillinV, https://w3id.org/opencare#ActiveIngredient_Amoxicillin, https://w3id.org/opencare#RecreationalDrug_RD001, https://w3id.org/opencare#RecreationalDrug_RD002
+validation_result=CONFORMS
+remaining_issues=NONE

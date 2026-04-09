@@ -1,8 +1,8 @@
 package be.vlaanderen.omgeving.owlsda.agent.context;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.IOException;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -26,7 +26,8 @@ public class Context {
     this.type = context.getType();
     this.name = context.getName();
     this.filePath = context.getFilePath();
-    this.content = context.getContent();
+    // Preserve already loaded content only; do not force file/PDF reads while cloning contexts.
+    this.content = context.content;
     this.contentHash = context.getContentHash();
   }
 
@@ -52,23 +53,44 @@ public class Context {
   }
 
   /**
-   * Retrieves the content of the context by reading it from the file path if content is not set.
-   *
-   * @return The content as a String, or null if neither content nor filePath is set.
+   * Retrieves context content, lazily loading from disk only once.
    */
   public String getContent() {
-    if (content != null) {
-      return content;
+    String currentContent = content;
+    if (currentContent != null) {
+      return currentContent;
     }
     if (filePath == null) {
       return null;
     }
-    try {
-      return Files.readString(Path.of(filePath));
-    } catch (Exception e) {
-      logger.error("Failed to read content from file path: {}", filePath, e);
-      return null;
+
+    synchronized (this) {
+      if (content != null) {
+        return content;
+      }
+      try {
+        String loadedContent = ContextContentLoader.load(filePath, type);
+        setContent(loadedContent);
+        return loadedContent;
+      } catch (IOException e) {
+        logger.error("Failed to read content from file path: {}", filePath, e);
+        return null;
+      }
     }
+  }
+
+  public void setType(String type) {
+    if (!Objects.equals(this.type, type)) {
+      this.content = null;
+      this.contentHash = 0;
+    }
+    this.type = type;
+  }
+
+  public void setFilePath(String filePath) {
+    this.content = null;
+    this.contentHash = 0;
+    this.filePath = filePath;
   }
 
   /**
@@ -77,7 +99,7 @@ public class Context {
    * @param file The File object whose absolute path will be set as the filePath.
    */
   public void setFile(File file) {
-    this.filePath = file.getAbsolutePath();
+    setFilePath(file.getAbsolutePath());
   }
 
   @Override

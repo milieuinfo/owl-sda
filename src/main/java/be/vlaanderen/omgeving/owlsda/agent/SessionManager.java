@@ -60,6 +60,7 @@ public class SessionManager {
   private SessionPool workerSessionPool;
   private Session supervisorSession;
   private Session reviewerSession;
+  private final List<Context> sharedContexts = new ArrayList<>();
   private final WorkerTripleStore sharedTripleStore;
 
   private ShapeProcessingTracker shapeProcessingTracker;
@@ -84,8 +85,7 @@ public class SessionManager {
     try {
       initializeWorkerSessionPool();
       initializeSupervisorSession();
-      initializeReviewerSession();
-      logger.info("All sessions initialized successfully");
+      logger.info("Worker and supervisor sessions initialized successfully");
     } catch (Exception e) {
       logger.error("Failed to initialize sessions", e);
       throw new LanguageModelException("Failed to initialize sessions: " + e.getMessage());
@@ -284,7 +284,7 @@ public class SessionManager {
     }
   }
 
-  private void initializeReviewerSession() {
+  private Session initializeReviewerSession() {
     try {
       List<SessionHandler> handlers = new ArrayList<>();
       handlers.add(new ContextReaderHandler(
@@ -312,24 +312,60 @@ public class SessionManager {
           .handlers(handlers)
           .build();
 
-      reviewerSession = client.createSession(reviewerConfig);
+      Session createdReviewerSession = client.createSession(reviewerConfig);
       logger.info("Reviewer session created (model: {}, timeout: {}ms)",
           config.getClient().getReviewer().getModel(),
           config.getClient().getReviewer().getTimeoutMs());
+      return createdReviewerSession;
     } catch (Exception e) {
       logger.error("Failed to create reviewer session", e);
       throw new LanguageModelException("Failed to create reviewer session: " + e.getMessage());
     }
   }
 
+  public Session getReviewerSession() {
+    synchronized (sharedContexts) {
+      if (reviewerSession == null) {
+        reviewerSession = initializeReviewerSession();
+        replaySharedContextsToReviewer(reviewerSession);
+      }
+      return reviewerSession;
+    }
+  }
+
+  public Session getReviewerSessionIfInitialized() {
+    synchronized (sharedContexts) {
+      return reviewerSession;
+    }
+  }
+
+  private void replaySharedContextsToReviewer(Session reviewer) {
+    for (Context storedContext : sharedContexts) {
+      reviewer.addContextIfChanged(new Context(storedContext));
+    }
+  }
+
+  private void rememberSharedContext(Context context) {
+    synchronized (sharedContexts) {
+      Context snapshot = new Context(context);
+      sharedContexts.remove(snapshot);
+      sharedContexts.add(snapshot);
+    }
+  }
+
   public void addContextToAllSessions(Context context) {
+    rememberSharedContext(context);
+
     List<Session> allSessions = new ArrayList<>(workerSessionPool.getAllSessions());
     allSessions.add(supervisorSession);
-    allSessions.add(reviewerSession);
+    Session initializedReviewer = getReviewerSessionIfInitialized();
+    if (initializedReviewer != null) {
+      allSessions.add(initializedReviewer);
+    }
 
     for (Session session : allSessions) {
       if (session != null) {
-        session.addContext(context);
+        session.addContext(new Context(context));
       }
     }
 
@@ -337,13 +373,18 @@ public class SessionManager {
   }
 
   public void addContextToAllSessionsIfChanged(Context context) {
+    rememberSharedContext(context);
+
     List<Session> allSessions = new ArrayList<>(workerSessionPool.getAllSessions());
     allSessions.add(supervisorSession);
-    allSessions.add(reviewerSession);
+    Session initializedReviewer = getReviewerSessionIfInitialized();
+    if (initializedReviewer != null) {
+      allSessions.add(initializedReviewer);
+    }
 
     for (Session session : allSessions) {
       if (session != null) {
-        session.addContextIfChanged(context);
+        session.addContextIfChanged(new Context(context));
       }
     }
 
@@ -360,7 +401,7 @@ public class SessionManager {
       }
 
       safeCloseSession(supervisorSession, "supervisor");
-      safeCloseSession(reviewerSession, "reviewer");
+      safeCloseSession(getReviewerSessionIfInitialized(), "reviewer");
 
       if (client != null) {
         client.close();

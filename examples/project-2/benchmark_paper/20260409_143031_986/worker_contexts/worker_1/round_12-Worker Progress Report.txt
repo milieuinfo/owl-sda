@@ -1,0 +1,8 @@
+worker_id=POOL-1
+status=CREATED
+target_shape=opencare:EukaryoteShape
+target_class=opencare:Eukaryote
+changed_triples_count=38
+created_or_updated_subjects=https://w3id.org/opencare#Eukaryote_Homo_sapiens,https://w3id.org/opencare#Eukaryote_Arabidopsis_thaliana,https://w3id.org/opencare#Surgery_Appendectomy_2020_06_15,https://w3id.org/opencare#Surgery_Coronary_Bypass_2021_11_02
+validation_result=CONFORMS
+remaining_issues=NONE

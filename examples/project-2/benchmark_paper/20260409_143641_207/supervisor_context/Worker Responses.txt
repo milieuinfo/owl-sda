@@ -1,0 +1,49 @@
+POOL-0 [STRUCTURED_PROGRESS]:
+worker_id=POOL-0
+status=CREATED
+target_shape=opencare:MedicationSensitivityShape
+target_class=opencare:MedicationSensitivity
+changed_triples_count=14
+created_or_updated_subjects=https://w3id.org/opencare#MedicationSensitivity_aspirin,https://w3id.org/opencare#MedicationSensitivity_penicillin
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-1 [STRUCTURED_PROGRESS]:
+worker_id=POOL-1
+status=CREATED
+target_shape=http://purl.bioontology.org/ontology/STY/T022Shape
+target_class=http://purl.bioontology.org/ontology/STY/T022
+changed_triples_count=15
+created_or_updated_subjects=https://w3id.org/opencare#sty-T022-001,https://w3id.org/opencare#BodySystem_Cardiovascular,https://w3id.org/opencare#BodySystem_Respiratory
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-2 [STRUCTURED_PROGRESS]:
+worker_id=POOL-2
+status=CREATED
+target_shape=http://purl.bioontology.org/ontology/STY/T167Shape
+target_class=http://purl.bioontology.org/ontology/STY/T167
+changed_triples_count=8
+created_or_updated_subjects=https://w3id.org/opencare/instance/T167_1,https://w3id.org/opencare/instance/activity_20260409,https://w3id.org/opencare/instance/agent_opencare_tool
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-3 [STRUCTURED_PROGRESS]:
+worker_id=POOL-3
+status=CREATED
+target_shape=opencare:BodySiteShape, http://purl.obolibrary.org/obo/OGMS_0000020Shape
+target_class=https://w3id.org/opencare#BodySite, http://purl.obolibrary.org/obo/OGMS_0000020
+changed_triples_count=19
+created_or_updated_subjects=https://w3id.org/opencare/instances/BodySite-1, https://w3id.org/opencare/instances/BodySite-2, https://w3id.org/opencare/instances/OGMS-0000020-1
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-4 [STRUCTURED_PROGRESS]:
+worker_id=POOL-4
+status=CREATED
+target_shape=http://purl.bioontology.org/ontology/SNOMEDCT/246112005Shape
+target_class=http://purl.bioontology.org/ontology/SNOMEDCT/246112005
+changed_triples_count=6
+created_or_updated_subjects=https://w3id.org/opencare#SNOMED-246112005-1
+validation_result=CONFORMS
+remaining_issues=NONE

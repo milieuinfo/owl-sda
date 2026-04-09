@@ -1,0 +1,8 @@
+worker_id=POOL-4
+status=CREATED
+target_shape=http://purl.bioontology.org/ontology/SNOMEDCT/246112005Shape
+target_class=http://purl.bioontology.org/ontology/SNOMEDCT/246112005
+changed_triples_count=6
+created_or_updated_subjects=https://w3id.org/opencare#SNOMED-246112005-1
+validation_result=CONFORMS
+remaining_issues=NONE

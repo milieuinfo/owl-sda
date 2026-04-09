@@ -1,0 +1,8 @@
+worker_id=POOL-2
+status=CREATED
+target_shape=opencare:RegionShape
+target_class=https://w3id.org/opencare#Region
+changed_triples_count=22
+created_or_updated_subjects=https://w3id.org/opencare#Region-South-West,https://w3id.org/opencare#Region-North-Valley
+validation_result=CONFORMS
+remaining_issues=NONE

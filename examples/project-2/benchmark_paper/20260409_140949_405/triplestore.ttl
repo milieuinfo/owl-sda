@@ -1,0 +1,325 @@
+@prefix dct:      <http://purl.org/dc/terms/> .
+@prefix dcterms:  <http://purl.org/dc/terms/> .
+@prefix ex:       <https://w3id.org/opencare/data/> .
+@prefix foaf:     <http://xmlns.com/foaf/0.1/> .
+@prefix opencare: <https://w3id.org/opencare#> .
+@prefix prov:     <http://www.w3.org/ns/prov#> .
+@prefix rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema:   <http://schema.org/> .
+@prefix skos:     <http://www.w3.org/2004/02/skos/core#> .
+@prefix snomed:   <http://purl.bioontology.org/ontology/SNOMEDCT/> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+
+opencare:RespiratoryTherapist-001
+        rdf:type                 opencare:RespiratoryTherapist ;
+        rdfs:label               "Dr. Samuel Osei" ;
+        schema:medicalSpecialty  "Respiratory therapy" ;
+        prov:wasAttributedTo     <https://w3id.org/opencare/agent/data-generator> ;
+        foaf:name                "Samuel Osei" ;
+        opencare:identifier      "RT-100" ;
+        opencare:licenseNumber   "GH-RT-2020-045" ;
+        opencare:licensedIn      "Ghana" ;
+        opencare:worksAt         <https://w3id.org/opencare/hospital/AccraCentral> .
+
+<https://w3id.org/opencare/Town/1>
+        rdf:type                    opencare:Town ;
+        schema:name                 "Hilversum" ;
+        opencare:hasHealthFacility  <https://w3id.org/opencare/Clinic/1> ;
+        opencare:population         92300 ;
+        opencare:postalCode         "1211" .
+
+opencare:SNOMED_410673009_1
+        rdf:type             snomed:410673009 ;
+        rdfs:label           "Alcohol consumption (finding)"@en ;
+        dcterms:created      "2022-10-01T10:00:00Z"^^xsd:dateTime ;
+        prov:wasDerivedFrom  opencare:ClinicalNote_1 .
+
+opencare:PersonalHistory_1
+        rdf:type               opencare:PersonalHistory ;
+        rdfs:label             "Personal history: alcohol use"@en ;
+        dcterms:creator        opencare:Clinician_1 ;
+        prov:wasGeneratedBy    opencare:ClinicalNote_1 ;
+        opencare:hasFinding    opencare:SNOMED_410673009_1 ;
+        opencare:recordedDate  "2021-08-15"^^xsd:date .
+
+opencare:immunization-002
+        rdf:type                     opencare:ImmunizationHistory ;
+        opencare:administrationSite  "Right arm" ;
+        opencare:dateAdministered    "2023-06-20"^^xsd:date ;
+        opencare:doseNumber          1 ;
+        opencare:provider            "Downtown Medical Center" ;
+        opencare:recordCreated       "2023-06-20T14:45:00"^^xsd:dateTime ;
+        opencare:vaccineName         "Tetanus, Diphtheria, Pertussis (Tdap)" .
+
+<https://w3id.org/opencare/Cardiologist/1>
+        rdf:type                  opencare:Cardiologist ;
+        schema:email              "ana.devries@example.org" ;
+        schema:name               "Dr. Ana de Vries" ;
+        schema:telephone          "+31-20-555-0101" ;
+        prov:generatedAtTime      "2026-04-09T12:00:00Z"^^xsd:dateTime ;
+        opencare:licenseNumber    "CARD-2026-0423" ;
+        opencare:specialty        "Interventional Cardiology" ;
+        opencare:worksIn          <https://w3id.org/opencare/Town/1> ;
+        opencare:yearsExperience  12 .
+
+opencare:Clinician_2  rdf:type  opencare:HealthcareProvider ;
+        rdfs:label  "Nurse B. Sample"@en .
+
+opencare:CentralHospital
+        rdf:type        schema:Hospital ;
+        schema:address  "123 Main St, Metropolis" ;
+        schema:name     "Central General Hospital" .
+
+opencare:immunization-001
+        rdf:type                     opencare:ImmunizationHistory ;
+        opencare:administrationSite  "Left arm" ;
+        opencare:dateAdministered    "2024-10-15"^^xsd:date ;
+        opencare:doseNumber          1 ;
+        opencare:provider            "City Health Clinic" ;
+        opencare:recordCreated       "2024-10-15T09:30:00"^^xsd:dateTime ;
+        opencare:vaccineName         "Influenza (IIV)" .
+
+<https://w3id.org/opencare/ophthalmologist/oph-1001>
+        rdf:type                 opencare:Ophthalmologist ;
+        rdfs:label               "Dr. Anika Patel, MD, Ophthalmology" ;
+        opencare:licenseNumber   "OPH-482916" ;
+        opencare:qualifiedSince  "2012-06-01"^^xsd:date ;
+        opencare:specialty       "Retina" ;
+        opencare:worksAt         <https://w3id.org/opencare/organization/eye-centre-nyc> .
+
+opencare:Clinician_1  rdf:type  opencare:HealthcareProvider ;
+        rdfs:label  "Dr. A. Example"@en .
+
+opencare:Patient-002  rdf:type  opencare:Patient ;
+        schema:familyName  "Smith" ;
+        schema:givenName   "John" ;
+        schema:identifier  "P-1002" .
+
+opencare:supplement-002
+        rdf:type                   opencare:Supplement ;
+        opencare:activeIngredient  "EPA/DHA" ;
+        opencare:dateIssued        "2025-12-01"^^xsd:date ;
+        opencare:dosage            "1000 mg" ;
+        opencare:lotNumber         "O3-202602" ;
+        opencare:manufacturer      "OceanPure Pharma" ;
+        opencare:productName       "Omega-3 Fish Oil 1000mg" .
+
+<https://w3id.org/opencare/instances/Neurologist-001>
+        rdf:type                 opencare:Neurologist ;
+        opencare:affiliation     <https://orcid.org/0000-0002-1825-0097> ;
+        opencare:contactEmail    "ana.pereira@example.org" ;
+        opencare:fullName        "Dr. Ana Pereira" ;
+        opencare:licenseNumber   "NEU-789452" ;
+        opencare:profileCreated  "2026-04-09T12:00:00Z"^^xsd:dateTime ;
+        opencare:specialty       "Clinical Neurology" ;
+        opencare:worksAt         "St. Mary's Neurology Clinic" .
+
+<https://w3id.org/opencare/instances/ochv-47686-001>
+        rdf:type              <http://sbmi.uth.tmc.edu/ontology/ochv#47686> ;
+        rdfs:label            "Occupational health visit 47686 - initial assessment" ;
+        dcterms:created       "2026-04-09T12:09:04Z"^^xsd:dateTime ;
+        prov:wasGeneratedBy   opencare:Agent-Curator1 ;
+        opencare:location     opencare:CentralHospital ;
+        opencare:note         "Initial functional capacity assessment including ADL/IADL screening and workplace ergonomics review." ;
+        opencare:patient      opencare:Patient-001 ;
+        opencare:performedBy  <https://w3id.org/opencare/instances/OccupationalTherapist-001> .
+
+opencare:RadiologicTechnologist-1
+        rdf:type                opencare:RadiologicTechnologist ;
+        schema:email            "alex.nguyen@hospital.example.org" ;
+        schema:familyName       "Nguyen" ;
+        schema:givenName        "Alex" ;
+        schema:identifier       "RT-0001" ;
+        schema:telephone        "+1-555-0199" ;
+        opencare:licenseNumber  "RRT-2024-4512" ;
+        opencare:qualification  "Registered Radiologic Technologist (RRT)" ;
+        opencare:worksAt        opencare:CentralHospital .
+
+opencare:Encounter-2  rdf:type  opencare:Encounter ;
+        schema:dateCreated     "2026-04-09T12:07:31Z"^^xsd:dateTime ;
+        schema:description     "Abdominal ultrasound for right upper quadrant pain" ;
+        schema:endDate         "2026-04-08T14:25:00"^^xsd:dateTime ;
+        schema:identifier      "E-2026-0002" ;
+        schema:startDate       "2026-04-08T14:00:00"^^xsd:dateTime ;
+        opencare:encounterFor  opencare:Patient-002 ;
+        opencare:modality      "Ultrasound" ;
+        opencare:performedBy   opencare:RadiologicTechnologist-1 .
+
+ex:observational-finding-002
+        rdf:type                opencare:ObservationalFinding ;
+        rdfs:label              "Axillary temperature observation - 2026-04-09" ;
+        dcterms:created         "2026-04-09T09:50:00Z"^^xsd:dateTime ;
+        dcterms:creator         <https://w3id.org/opencare/agents/thermometer-02> ;
+        prov:wasGeneratedBy     <https://w3id.org/opencare/activities/measurement-temp-20260409-01> ;
+        opencare:observedUnit   "degC" ;
+        opencare:observedValue  37.2 .
+
+opencare:Patient-001  rdf:type  opencare:Patient ;
+        schema:familyName  "Gonzalez" ;
+        schema:givenName   "Maria" ;
+        schema:identifier  "P-1001" .
+
+opencare:supplement-001
+        rdf:type                   opencare:Supplement ;
+        opencare:activeIngredient  "Cholecalciferol" ;
+        opencare:dateIssued        "2025-11-10"^^xsd:date ;
+        opencare:dosage            "2000 IU" ;
+        opencare:lotNumber         "VD3-202601" ;
+        opencare:manufacturer      "SunHealth Labs" ;
+        opencare:productName       "Vitamin D3 2000 IU" .
+
+opencare:Woman-002  rdf:type       opencare:Woman ;
+        rdfs:label                 "Aisha Khan" ;
+        prov:wasGeneratedBy        <https://w3id.org/opencare/agent/data-generator> ;
+        foaf:name                  "Aisha Khan" ;
+        opencare:birthDate         "1992-11-03"^^xsd:date ;
+        opencare:country           "Pakistan" ;
+        opencare:hasMedicalRecord  <https://w3id.org/opencare/medicalRecord/W-0002> ;
+        opencare:identifier        "W-0002" .
+
+<https://w3id.org/opencare/review/ros-2002>
+        rdf:type              opencare:ReviewOfSystem ;
+        rdfs:label            "Review of systems — ocular pain and photophobia" ;
+        opencare:createdAt    "2026-04-09T12:05:00Z"^^xsd:dateTime ;
+        opencare:date         "2026-04-09"^^xsd:date ;
+        opencare:finding      "No pain; mild photophobia" ;
+        opencare:notes        "No foreign body sensation." ;
+        opencare:performedBy  <https://w3id.org/opencare/ophthalmologist/oph-1001> ;
+        opencare:systemName   "Ocular pain" .
+
+opencare:LA26428-5-1  rdf:type  <http://purl.bioontology.org/ontology/LNC/LA26428-5> ;
+        rdfs:label          "Serum creatinine [Mass/volume] in Blood" ;
+        dcterms:created     "2026-04-09T12:00:00Z"^^xsd:dateTime ;
+        dcterms:creator     opencare:Agent-Curator1 ;
+        dcterms:identifier  "LA26428-5" ;
+        skos:prefLabel      "Serum creatinine measurement (LOINC 26428-5)" ;
+        opencare:code       <http://purl.bioontology.org/ontology/LNC/LA26428-5> ;
+        opencare:method     "Automated enzymatic assay" ;
+        opencare:unit       "mg/dL" .
+
+<https://w3id.org/opencare/instances/Comorbidity-002>
+        rdf:type                opencare:Comorbidity ;
+        opencare:conditionName  "Primary Hypertension" ;
+        opencare:diagnosedBy    <https://w3id.org/opencare/instances/Neurologist-001> ;
+        opencare:onsetDate      "2010-09-01"^^xsd:date ;
+        opencare:patient        <https://w3id.org/opencare/instances/Patient-123> ;
+        opencare:severityLevel  "mild" .
+
+<https://w3id.org/opencare/organization/eye-centre-nyc>
+        rdf:type          opencare:Organization ;
+        rdfs:label        "Eye Centre NYC" ;
+        opencare:address  "123 Vision Way, New York, NY" .
+
+opencare:Encounter-1  rdf:type  opencare:Encounter ;
+        schema:dateCreated     "2026-04-09T12:07:31Z"^^xsd:dateTime ;
+        schema:description     "Chest X-ray for suspected pneumonia" ;
+        schema:endDate         "2026-04-07T09:30:00"^^xsd:dateTime ;
+        schema:identifier      "E-2026-0001" ;
+        schema:startDate       "2026-04-07T09:15:00"^^xsd:dateTime ;
+        opencare:encounterFor  opencare:Patient-001 ;
+        opencare:modality      "X-ray" ;
+        opencare:performedBy   opencare:RadiologicTechnologist-1 .
+
+<https://w3id.org/opencare/instances/OccupationalTherapist-001>
+        rdf:type                  opencare:OccupationalTherapist ;
+        rdfs:label                "Dr. Lina Morales" ;
+        dcterms:created           "2026-04-09T12:09:04Z"^^xsd:dateTime ;
+        schema:email              "lina.morales@central.example.org" ;
+        schema:telephone          "+1-555-0123" ;
+        prov:wasGeneratedBy       opencare:Agent-Curator1 ;
+        foaf:name                 "Lina Morales" ;
+        opencare:fullName         "Dr. Lina Morales, MSc, OT" ;
+        opencare:identifier       "OT-001" ;
+        opencare:licenseNumber    "OT-2026-00123" ;
+        opencare:specialty        "Geriatric occupational therapy" ;
+        opencare:worksAt          opencare:CentralHospital ;
+        opencare:yearsExperience  8 .
+
+<https://w3id.org/opencare/Clinic/2>
+        rdf:type        opencare:Clinic ;
+        schema:address  "Laan 2, 1181 BB Amstelveen" ;
+        schema:name     "Amstelveen Cardiac Care" .
+
+ex:observational-finding-001
+        rdf:type                opencare:ObservationalFinding ;
+        rdfs:label              "Resting heart rate observation - 2026-04-09" ;
+        dcterms:created         "2026-04-09T10:15:00Z"^^xsd:dateTime ;
+        dcterms:creator         <https://w3id.org/opencare/agents/device-hrm-01> ;
+        prov:wasGeneratedBy     <https://w3id.org/opencare/activities/measurement-hr-20260409-01> ;
+        opencare:observedUnit   "beats/min" ;
+        opencare:observedValue  62 .
+
+opencare:Woman-001  rdf:type       opencare:Woman ;
+        rdfs:label                 "Maria Garcia" ;
+        prov:wasGeneratedBy        <https://w3id.org/opencare/agent/data-generator> ;
+        foaf:name                  "Maria Garcia" ;
+        opencare:birthDate         "1988-04-12"^^xsd:date ;
+        opencare:country           "Spain" ;
+        opencare:hasMedicalRecord  <https://w3id.org/opencare/medicalRecord/W-0001> ;
+        opencare:identifier        "W-0001" .
+
+<https://w3id.org/opencare/review/ros-2001>
+        rdf:type              opencare:ReviewOfSystem ;
+        rdfs:label            "Review of systems — vision and ocular symptoms" ;
+        opencare:createdAt    "2026-04-09T12:00:00Z"^^xsd:dateTime ;
+        opencare:date         "2026-04-09"^^xsd:date ;
+        opencare:finding      "Blurry vision in left eye; floaters" ;
+        opencare:notes        "Onset over 2 weeks; no trauma reported." ;
+        opencare:performedBy  <https://w3id.org/opencare/ophthalmologist/oph-1001> ;
+        opencare:systemName   "Vision" .
+
+<https://w3id.org/opencare/instances/Comorbidity-001>
+        rdf:type                opencare:Comorbidity ;
+        opencare:conditionName  "Type 2 Diabetes Mellitus" ;
+        opencare:diagnosedBy    <https://w3id.org/opencare/instances/Neurologist-001> ;
+        opencare:onsetDate      "2012-06-15"^^xsd:date ;
+        opencare:patient        <https://w3id.org/opencare/instances/Patient-123> ;
+        opencare:severityLevel  "moderate" .
+
+opencare:SNOMEDCT-394733009-1
+        rdf:type                 snomed:394733009 ;
+        rdfs:label               "Stage 2 hypertension (disorder)" ;
+        dcterms:created          "2026-04-09T12:05:00Z"^^xsd:dateTime ;
+        dcterms:creator          opencare:Agent-Curator1 ;
+        dcterms:identifier       "394733009" ;
+        skos:prefLabel           "Stage 2 hypertension (SNOMED CT 394733009)" ;
+        opencare:clinicalStatus  "active" ;
+        opencare:code            snomed:394733009 .
+
+ex:hp-0012393-instance
+        rdf:type             <http://purl.obolibrary.org/obo/HP_0012393> ;
+        rdfs:label           "HP_0012393 - clinical phenotype instance" ;
+        dcterms:created      "2026-04-09T10:20:00Z"^^xsd:dateTime ;
+        dcterms:source       <http://purl.obolibrary.org/obo/HP_0012393> ;
+        prov:wasDerivedFrom  <https://orcid.org/0000-0002-1825-0097> .
+
+<https://w3id.org/opencare/Town/2>
+        rdf:type                    opencare:Town ;
+        schema:name                 "Amstelveen" ;
+        opencare:hasHealthFacility  <https://w3id.org/opencare/Clinic/2> ;
+        opencare:population         86000 ;
+        opencare:postalCode         "1181" .
+
+opencare:PersonalHistory_2
+        rdf:type               opencare:PersonalHistory ;
+        rdfs:label             "Personal history: family history of diabetes"@en ;
+        dcterms:creator        opencare:Clinician_2 ;
+        opencare:hasFinding    snomed:73211009 ;
+        opencare:recordedDate  "2019-05-20"^^xsd:date .
+
+opencare:Agent-Curator1
+        rdf:type           opencare:Agent ;
+        rdfs:label         "Curator A. Example" ;
+        dcterms:publisher  "OpenCare curators" .
+
+<https://w3id.org/opencare/Clinic/1>
+        rdf:type        opencare:Clinic ;
+        schema:address  "Straat 1, 1211 AB Hilversum" ;
+        schema:name     "Hilversum Heart Centre" .
+
+opencare:ClinicalNote_1
+        rdf:type         opencare:ClinicalNote ;
+        rdfs:label       "Encounter note (extraction)"@en ;
+        dcterms:creator  opencare:Clinician_1 ;
+        dcterms:issued   "2022-10-01T09:45:00Z"^^xsd:dateTime .

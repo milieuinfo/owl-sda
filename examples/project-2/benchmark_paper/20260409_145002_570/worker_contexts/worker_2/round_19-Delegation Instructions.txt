@@ -1,0 +1,16 @@
+CREATE instances for the following target classes. No existing instances — create new ones.
+
+1. Shape: `opencare:BacteriaShape`
+   Target class: `opencare:Bacteria`
+   → Create at least 2 instances.
+
+2. Shape: `opencare:EndocrinologistShape`
+   Target class: `opencare:Endocrinologist`
+   → Create at least 1 instance.
+
+NOTE: `opencare:ImplantProcedureShape` was already completed in the prior round — skip it.
+
+Use prefix: `@prefix opencare: <https://w3id.org/opencare#> .`
+Use the ontology to determine appropriate properties. Commit to triple store.
+
+Respond with: worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues)

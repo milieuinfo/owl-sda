@@ -1,0 +1,8 @@
+worker_id=POOL-1
+status=CREATED
+target_shape=opencare:PersonalHistoryShape
+target_class=https://w3id.org/opencare#PersonalHistory
+changed_triples_count=23
+created_or_updated_subjects=https://w3id.org/opencare#PersonalHistory_1,https://w3id.org/opencare#PersonalHistory_2
+validation_result=CONFORMS
+remaining_issues=NONE

@@ -3,15 +3,18 @@ package be.vlaanderen.omgeving.owlsda.generation;
 import be.vlaanderen.omgeving.owlsda.agent.RequestMessage;
 import be.vlaanderen.omgeving.owlsda.agent.ResponseMessage;
 import be.vlaanderen.omgeving.owlsda.agent.Session;
-import be.vlaanderen.omgeving.owlsda.agent.SessionMessageLogEntry;
 import be.vlaanderen.omgeving.owlsda.agent.SessionPool;
 import be.vlaanderen.omgeving.owlsda.agent.context.Context;
+import be.vlaanderen.omgeving.owlsda.config.Config;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class WorkerAgentDelegationPromptTest {
@@ -49,6 +52,62 @@ public class WorkerAgentDelegationPromptTest {
     assertTrue(session.lastPrompt.contains("LIVE DELEGATION SNAPSHOT"));
     assertTrue(session.lastPrompt.contains("Target shape(s): OperatorShape"));
     assertTrue(session.lastPrompt.contains("Target class: :Operator"));
+  }
+
+  @Test
+  public void buildWorkerInstructions_WithRichnessConfig_InjectsExpectedPolicy() throws Exception {
+    Config config = new Config();
+    config.getGeneration().setDataRichness("rich");
+
+    Supervisor supervisor = new Supervisor(
+        null,
+        null,
+        new ConcurrentWorkerBatch(config, null, null, null),
+        null,
+        null,
+        null
+    );
+
+    Method method = Supervisor.class.getDeclaredMethod("buildWorkerInstructions", boolean.class, boolean.class);
+    method.setAccessible(true);
+    String instructions = (String) method.invoke(supervisor, true, false);
+
+    assertTrue(instructions.contains("RICHNESS PROFILE: RICH"));
+    assertTrue(instructions.contains("invent new predicates"));
+  }
+
+  @Test
+  public void buildDelegationInstructions_DoesNotIncludeWorkerRichnessPolicy() throws Exception {
+    Config config = new Config();
+    config.getGeneration().setDataRichness("rich");
+
+    SessionPool sessionPool = new SessionPool(1);
+    sessionPool.addSession(new RecordingSession());
+
+    Supervisor supervisor = new Supervisor(
+        null,
+        null,
+        new ConcurrentWorkerBatch(config, sessionPool, null, null),
+        null,
+        null,
+        null
+    );
+
+    Method method = Supervisor.class.getDeclaredMethod("buildDelegationInstructions", int.class,
+        boolean.class, boolean.class);
+    method.setAccessible(true);
+    String instructions = (String) method.invoke(supervisor, 1, true, false);
+
+    assertTrue(instructions.contains("Coordinate worker delegation for this round."));
+    assertTrue(!instructions.contains("RICHNESS PROFILE:"));
+  }
+
+  @Test
+  public void dataRichness_UnknownValue_FallsBackToMinimal() {
+    Config config = new Config();
+    config.getGeneration().setDataRichness("experimental-mode");
+
+    assertEquals(Config.DataRichness.MINIMAL, config.getDataRichness());
   }
 
   private static final class RecordingSession implements Session {

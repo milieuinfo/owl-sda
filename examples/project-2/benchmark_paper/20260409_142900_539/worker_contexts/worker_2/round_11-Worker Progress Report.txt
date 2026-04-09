@@ -1,0 +1,8 @@
+worker_id=POOL-2
+status=CREATED
+target_shape=http://purl.bioontology.org/ontology/SNOMEDCT/248983002Shape
+target_class=http://purl.bioontology.org/ontology/SNOMEDCT/248983002
+changed_triples_count=28
+created_or_updated_subjects=https://w3id.org/opencare/condition/SNOMED248983002-1,https://w3id.org/opencare/assessment/food-sensitivity-1,https://w3id.org/opencare/assessment/food-sensitivity-2
+validation_result=CONFORMS
+remaining_issues=NONE

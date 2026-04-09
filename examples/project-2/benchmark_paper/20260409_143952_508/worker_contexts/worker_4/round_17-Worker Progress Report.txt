@@ -1,0 +1,8 @@
+worker_id=POOL-4
+status=CREATED
+target_shape=https://w3id.org/opencare#PhysicalTherapistShape
+target_class=https://w3id.org/opencare#PhysicalTherapist
+changed_triples_count=11
+created_or_updated_subjects=https://w3id.org/opencare/instances/physicalTherapist/PT-1001
+validation_result=CONFORMS
+remaining_issues=NONE

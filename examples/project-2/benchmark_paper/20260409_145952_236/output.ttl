@@ -1,0 +1,3500 @@
+@prefix :         <https://w3id.org/opencare/instances/> .
+@prefix contsys:  <https://contsys.org/concept/> .
+@prefix dc:       <http://purl.org/dc/terms/> .
+@prefix dct:      <http://purl.org/dc/terms/> .
+@prefix dcterms:  <http://purl.org/dc/terms/> .
+@prefix ex:       <https://w3id.org/opencare/instances/> .
+@prefix foaf:     <http://xmlns.com/foaf/0.1/> .
+@prefix geo:      <http://www.opengis.net/ont/geosparql#> .
+@prefix inst:     <https://w3id.org/opencare/instance/> .
+@prefix ln:       <http://purl.bioontology.org/ontology/LNC/> .
+@prefix lnc:      <http://purl.bioontology.org/ontology/LNC/> .
+@prefix lncl:     <http://purl.bioontology.org/ontology/LNC/> .
+@prefix obo:      <http://purl.obolibrary.org/obo/> .
+@prefix ochv:     <http://sbmi.uth.tmc.edu/ontology/ochv#> .
+@prefix ogms:     <http://purl.obolibrary.org/obo/> .
+@prefix opencare: <https://w3id.org/opencare#> .
+@prefix org:      <http://www.w3.org/ns/org#> .
+@prefix prov:     <http://www.w3.org/ns/prov#> .
+@prefix rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rec:      <https://contsys.org/records/> .
+@prefix schema:   <http://schema.org/> .
+@prefix skos:     <http://www.w3.org/2004/02/skos/core#> .
+@prefix snomed:   <http://purl.bioontology.org/ontology/SNOMEDCT/> .
+@prefix snomedct: <http://purl.bioontology.org/ontology/SNOMEDCT/> .
+@prefix vcard:    <http://www.w3.org/2006/vcard/ns#> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+
+opencare:Prokaryote_Staphylococcus_aureus
+        rdf:type                 opencare:Prokaryote ;
+        rdfs:label               "Staphylococcus aureus" ;
+        dc:created               "2026-04-09T12:00:00Z"^^xsd:dateTime ;
+        opencare:canCause        opencare:Symptom_Cough , opencare:Symptom_Fever ;
+        opencare:gramStain       "positive" ;
+        opencare:habitat         "skin and mucosa" ;
+        opencare:isPathogen      true ;
+        opencare:scientificName  "Staphylococcus aureus" .
+
+opencare:Patient_JaneR
+        rdf:type       opencare:Patient ;
+        rdfs:label     "Jane Roe" ;
+        dc:identifier  "JR-1992-11-23" .
+
+opencare:PersonalHistory_1
+        rdf:type               opencare:PersonalHistory ;
+        rdfs:label             "Personal history: alcohol use"@en ;
+        dc:creator             opencare:Clinician_1 ;
+        prov:wasGeneratedBy    opencare:ClinicalNote_1 ;
+        opencare:hasFinding    opencare:SNOMED_410673009_1 ;
+        opencare:recordedDate  "2021-08-15"^^xsd:date .
+
+opencare:GeneticFinding-001
+        rdf:type                       opencare:GeneticFinding ;
+        rdfs:label                     "Genetic finding: BRCA1 c.68_69delAG (p.Glu23Valfs)" ;
+        rdfs:seeAlso                   <https://www.ncbi.nlm.nih.gov/clinvar/> ;
+        dc:creator                     org:OpenCareGeneticsLab1 ;
+        prov:generatedAtTime           "2024-11-05T10:15:00Z"^^xsd:dateTime ;
+        prov:wasAttributedTo           org:OpenCareGeneticsLab1 ;
+        opencare:clinicalSignificance  "pathogenic" ;
+        opencare:geneSymbol            "BRCA1" ;
+        opencare:hasVariant            "c.68_69delAG" ;
+        opencare:labAccession          "OCG-2026-0001" ;
+        opencare:reportedInSample      "Blood" ;
+        opencare:zygosity              "heterozygous" .
+
+opencare:practitioner-ben
+        rdf:type   foaf:Person ;
+        foaf:mbox  <mailto:ben.lee@example.org> ;
+        foaf:name  "Dr. Ben K. Lee" .
+
+opencare:SkinAllergy_002
+        rdf:type             opencare:SkinAllergy ;
+        schema:name          "Atopic dermatitis exacerbated by soap" ;
+        opencare:allergen    "Sodium lauryl sulfate (soap)" ;
+        opencare:confirmed   false ;
+        opencare:onsetDate   "2018-11-03"^^xsd:date ;
+        opencare:reaction    "Dryness and excoriation with intense pruritus" ;
+        opencare:recordedBy  opencare:Clinician_101 ;
+        opencare:severity    "mild" .
+
+<https://w3id.org/opencare/MedicalSpeciality/cardiology>
+        rdf:type                 opencare:MedicalSpeciality ;
+        rdfs:label               "Cardiology" ;
+        dc:created               "2019-11-01T00:00:00Z"^^xsd:dateTime ;
+        opencare:description     "Medicine branch dealing with heart and circulatory system disorders." ;
+        opencare:specialityCode  "CAR" .
+
+<https://w3id.org/opencare/Gastroenterologist-1>
+        rdf:type               opencare:Gastroenterologist ;
+        rdfs:label             "Dr. Amina Patel, Consultant Gastroenterologist" ;
+        dc:created             "2026-04-09T12:48:38Z"^^xsd:dateTime ;
+        schema:email           "amina.patel@example.org" ;
+        schema:telephone       "+1-555-0100" ;
+        prov:wasDerivedFrom    lnc:MTHU017829 ;
+        foaf:name              "Dr. Amina Patel" ;
+        opencare:hasSpecialty  lnc:MTHU017829-2 ;
+        opencare:worksAt       <https://w3id.org/opencare/org/CityHospital-1> .
+
+<https://w3id.org/opencare/agents/clinician-alexander-smith>
+        rdf:type             foaf:Agent ;
+        rdfs:label           "Dr. Alexander Smith (Cardiologist)" ;
+        prov:wasGeneratedBy  <https://w3id.org/opencare/provenance/creation-2026-04-09> ;
+        foaf:familyName      "Smith" ;
+        foaf:givenName       "Alexander" ;
+        foaf:homepage        <https://clinicians.example.org/alexsmith> ;
+        foaf:mbox            <mailto:alex.smith@example.org> ;
+        foaf:name            "Dr. Alexander Smith" .
+
+<https://w3id.org/opencare/conditions/C0424945-1>
+        rdf:type              ochv:C0424945 ;
+        rdfs:comment          "Instance created to satisfy shape http://sbmi.uth.tmc.edu/ontology/ochv#C0424945Shape" ;
+        rdfs:label            "Glioblastoma multiforme" ;
+        ochv:code             "C0424945" ;
+        ochv:preferredTerm    "Glioblastoma multiforme" ;
+        prov:generatedAtTime  "2026-04-09T12:48:38Z"^^xsd:dateTime ;
+        prov:wasDerivedFrom   <https://www.ncbi.nlm.nih.gov/mesh> .
+
+opencare:Allergen_Latex
+        rdf:type       opencare:Allergen ;
+        rdfs:label     "Natural rubber latex" ;
+        dc:identifier  "ALLERGEN:LATEX" .
+
+opencare:patient-1001
+        rdf:type          opencare:Patient ;
+        rdfs:label        "Patient: Jamie Kline" ;
+        schema:birthDate  "2013-08-12"^^xsd:date ;
+        foaf:familyName   "Kline" ;
+        foaf:givenName    "Jamie" .
+
+opencare:Gene_BRCA1  rdf:type  opencare:Gene ;
+        rdfs:label           "BRCA1"@en ;
+        opencare:geneSymbol  "BRCA1" .
+
+opencare:Severity-Severe
+        rdf:type                opencare:Severity ;
+        rdfs:label              "Severe severity"@en ;
+        dc:created              "2026-04-09T12:10:00Z"^^xsd:dateTime ;
+        skos:prefLabel          "Severe"@en ;
+        prov:wasAttributedTo    <https://w3id.org/opencare/agents/clinician-2> ;
+        opencare:severityCode   "SEV" ;
+        opencare:severityScore  3 .
+
+opencare:SNOMED370135005_1
+        rdf:type             snomed:370135005 ;
+        rdfs:label           "Abdominal hernia (disorder)"@en ;
+        dc:created           "2026-04-09T12:32:47Z"^^xsd:dateTime ;
+        dc:identifier        "370135005" ;
+        prov:wasDerivedFrom  <https://snomed.info/id/370135005> .
+
+opencare:finding-567  rdf:type   opencare:ClinicalFinding ;
+        rdfs:label               "BMI 27.4 - Overweight"@en ;
+        opencare:recordedDuring  opencare:encounter-321 .
+
+opencare:Agent-Curator1
+        rdf:type      opencare:Agent ;
+        rdfs:label    "Curator A. Example" ;
+        dc:publisher  "OpenCare curators" .
+
+opencare:Surgery_Coronary_Bypass_2021_11_02
+        rdf:type                opencare:Surgery ;
+        rdfs:label              "Coronary artery bypass graft - 02 Nov 2021" ;
+        dc:created              "2021-11-02"^^xsd:date ;
+        prov:wasAssociatedWith  opencare:Surgeon_Dr_Jones ;
+        opencare:anesthesia     "general" ;
+        opencare:datePerformed  "2021-11-02"^^xsd:date ;
+        opencare:performedOn    opencare:Eukaryote_Homo_sapiens ;
+        opencare:surgeryType    "Coronary artery bypass graft (CABG)" .
+
+opencare:Neurosurgeon_001
+        rdf:type                     opencare:Neurosurgeon ;
+        prov:generatedAtTime         "2024-11-02T09:30:00Z"^^xsd:dateTime ;
+        prov:wasDerivedFrom          <https://hospital.example.org/credential/NS-2026-4781> ;
+        opencare:familyName          "Rashid" ;
+        opencare:givenName           "Amina" ;
+        opencare:registrationNumber  "NS-2026-4781" ;
+        opencare:specialty           "Neurosurgery" ;
+        opencare:worksAt             opencare:Hospital_StMary .
+
+opencare:ogms_0000014_inst1
+        rdf:type             obo:OGMS_0000014 ;
+        rdfs:label           "OGMS_0000014 instance 1"@en ;
+        dc:created           "2026-04-09T12:11:54Z"^^xsd:dateTime ;
+        dc:identifier        "ogms-0000014-1" ;
+        prov:wasGeneratedBy  opencare:AutoGenRun2026-04-09 ;
+        opencare:createdBy   opencare:AutomatedAgent .
+
+opencare:Condition-type2diabetes-2026
+        rdf:type                  opencare:Condition ;
+        rdfs:label                "Type 2 Diabetes Mellitus" ;
+        skos:definition           "A metabolic disorder characterized by hyperglycemia due to insulin resistance and relative insulin deficiency." ;
+        opencare:hasTypicalOnset  "2005-06-15"^^xsd:date .
+
+opencare:clinic-brighton
+        rdf:type          opencare:Clinic ;
+        rdfs:label        "Brighton Pediatrics Clinic" ;
+        opencare:address  "123 Brighton Ave, Brighton, Country" .
+
+opencare:AnatomicalRegion-1
+        rdf:type            opencare:AnatomicalRegion ;
+        rdfs:label          "Upper respiratory tract" ;
+        opencare:createdAt  "2026-04-09T11:50:00Z"^^xsd:dateTime ;
+        opencare:partOf     "Respiratory system" .
+
+opencare:PresentHistory-2
+        rdf:type               opencare:PresentHistory ;
+        opencare:hasCondition  opencare:Condition-diabetes ;
+        opencare:note          "Type 2 diabetes managed with metformin; HbA1c trending at 7.1%." ;
+        opencare:onsetDate     "2022-06-15"^^xsd:date ;
+        opencare:recordedBy    opencare:Practitioner-1 ;
+        opencare:status        "stable" .
+
+opencare:pf-001  rdf:type     opencare:PathologyFinding ;
+        rdfs:label            "Acute appendicitis (resection specimen)" ;
+        dc:created            "2026-04-09T12:01:00Z"^^xsd:dateTime ;
+        dc:creator            opencare:data-generator ;
+        dc:description        "Acute transmural inflammation with neutrophilic infiltration consistent with acute appendicitis." ;
+        opencare:bodySite     "Appendix" ;
+        opencare:findingType  "Histopathology" ;
+        opencare:observedBy   opencare:practitioner-anna ;
+        opencare:observedOn   "2023-11-11T16:00:00Z"^^xsd:dateTime ;
+        opencare:relatedCode  "K35.2" ;
+        opencare:severity     "Severe" .
+
+opencare:Intravenous  rdf:type  opencare:AdministrationRoute ;
+        rdfs:label  "Intravenous" .
+
+<https://w3id.org/opencare/disease/influenza>
+        rdf:type                 opencare:Disease ;
+        rdfs:label               "Influenza"@en ;
+        dc:created               "2023-11-10"^^xsd:date ;
+        dc:creator               <https://w3id.org/opencare/agents/who> ;
+        dc:description           "An acute viral respiratory infection caused by influenza viruses, typically presenting with fever, cough, myalgia and malaise."@en ;
+        opencare:commonSymptoms  "fever, cough, sore throat, myalgia" ;
+        opencare:icd10Code       "J10" ;
+        opencare:typicalOnset    "acute" .
+
+opencare:Eukaryote_Homo_sapiens
+        rdf:type                 opencare:Eukaryote ;
+        rdfs:label               "Homo sapiens (Human)" ;
+        dc:created               "2026-04-09"^^xsd:date ;
+        prov:wasAttributedTo     opencare:DataContributor_OpenCareTeam ;
+        opencare:commonName      "Human" ;
+        opencare:domain          "Eukarya" ;
+        opencare:scientificName  "Homo sapiens" ;
+        opencare:taxonomicRank   "species" .
+
+ex:Practitioner1  rdf:type  foaf:Person ;
+        foaf:name      "Dr. Alice Smith"@en ;
+        opencare:role  "General Practitioner"@en .
+
+opencare:PhysicalExamination_2026-04-09_02
+        rdf:type              opencare:PhysicalExamination ;
+        rdfs:label            "Physical examination - Respiratory follow-up (2026-04-09)" ;
+        dc:created            "2026-04-09T10:15:00Z"^^xsd:dateTime ;
+        prov:wasGeneratedBy   opencare:Encounter_2026-04-09_02 ;
+        opencare:examDate     "2026-04-09"^^xsd:date ;
+        opencare:hasFinding   opencare:Finding_PE2 ;
+        opencare:performedBy  opencare:Practitioner_DrBobLee ;
+        opencare:performedOn  opencare:Patient_JaneR .
+
+ex:RadiationTherapy-1
+        rdf:type                   opencare:RadiationTherapy ;
+        rdfs:label                 "External beam radiation therapy for left breast" ;
+        dc:creator                 <https://w3id.org/opencare/roles/oncologist-1> ;
+        dc:identifier              "RT-001" ;
+        prov:endedAtTime           "2025-10-15"^^xsd:date ;
+        prov:startedAtTime         "2025-09-10"^^xsd:date ;
+        opencare:doseUnit          "Gy" ;
+        opencare:hasDose           "50.0"^^xsd:double ;
+        opencare:hasFractionCount  25 ;
+        opencare:treatmentTarget   "Left breast" .
+
+inst:T167_1  rdf:type         <http://purl.bioontology.org/ontology/STY/T167> ;
+        rdfs:label            "T167 instance (style) - example"@en ;
+        dc:created            "2026-04-09T12:35:31Z"^^xsd:dateTime ;
+        prov:wasAttributedTo  inst:agent_opencare_tool ;
+        opencare:recordedIn   inst:activity_20260409 .
+
+opencare:GeneticTest_HereditaryCancerPanel_1
+        rdf:type               opencare:GeneticTest ;
+        rdfs:label             "Hereditary Cancer Panel (40 genes)"@en ;
+        dc:created             "2026-04-09T12:32:47Z"^^xsd:dateTime ;
+        dc:creator             opencare:Lab_Genomics_01 ;
+        prov:wasGeneratedBy    opencare:Process_HCPanel_1 ;
+        opencare:includesGene  opencare:Gene_BRCA1 , opencare:Gene_BRCA2 ;
+        opencare:method        "Targeted panel sequencing"@en ;
+        opencare:panelSize     40 .
+
+opencare:PathologicProcess_pp2
+        rdf:type                    opencare:PathologicProcess ;
+        rdfs:label                  "Acute Appendicitis"@en ;
+        prov:generatedAtTime        "2025-02-02T14:20:00Z"^^xsd:dateTime ;
+        opencare:associatedWithDiagnosis
+                opencare:Diagnosis_67890 ;
+        opencare:clinicalSeverity   "Medium" ;
+        opencare:hasAnatomicalSite  opencare:AnatomicalSite_Appendix ;
+        opencare:hasMorphology      "Acute inflammation" .
+
+<https://w3id.org/opencare/data/Virus/virus-001>
+        rdf:type                   opencare:Virus ;
+        rdfs:label                 "SARS-CoV-2" ;
+        dc:created                 "2019-12-01"^^xsd:date ;
+        dc:creator                 <https://w3id.org/opencare/agents/copilot> ;
+        dc:description             "Severe acute respiratory syndrome coronavirus 2, cause of COVID-19." ;
+        opencare:hasStrain         "B.1.1.7" ;
+        opencare:transmissionMode  "respiratory droplets" .
+
+<https://w3id.org/opencare/data/envAllergy-002>
+        rdf:type                   opencare:EnvironmentalAllergy ;
+        rdfs:label                 "Environmental allergy to cat dander" ;
+        schema:dateCreated         "2021-11-02"^^xsd:date ;
+        prov:wasDerivedFrom        <https://doi.org/10.1000/example-study-2> ;
+        opencare:allergen          "Cat dander" ;
+        opencare:exposureLocation  "Home" ;
+        opencare:severity          "mild" .
+
+<https://w3id.org/opencare/data/rad-2>
+        rdf:type                     opencare:Neuroradiologist ;
+        foaf:name                    "Dr. Samuel Osei, MD" ;
+        opencare:registrationNumber  "RAD-20245" .
+
+opencare:dietitian-1  rdf:type     opencare:Dietitian ;
+        rdfs:label                 "Dr. Ana Gómez"@en ;
+        dc:created                 "2026-04-09T11:00:00Z"^^xsd:dateTime ;
+        opencare:contactPoint      opencare:contact-diet-1 ;
+        opencare:hasQualification  "MSc in Human Nutrition" ;
+        opencare:licenseNumber     "RD-12345" ;
+        opencare:worksAt           opencare:clinic-123 .
+
+opencare:region-001  rdf:type       opencare:GeographycalRegion ;
+        rdfs:label                  "Coastal District A" ;
+        dc:created                  "2025-11-01"^^xsd:date ;
+        prov:wasDerivedFrom         <https://data.example.org/sources/census-2025> ;
+        opencare:centroidLatitude   34.0522 ;
+        opencare:centroidLongitude  -118.2437 ;
+        opencare:hasArea            350.5 ;
+        opencare:hasPopulation      125000 .
+
+opencare:BodySystem_Cardiovascular
+        rdf:type                  opencare:BodySystem ;
+        rdfs:label                "Cardiovascular system" ;
+        dc:created                "2026-01-15T09:00:00Z"^^xsd:dateTime ;
+        skos:definition           "Organ system that circulates blood and lymph through the body, including the heart and blood vessels." ;
+        opencare:hasSemanticType  opencare:sty-T022-001 .
+
+opencare:practitioner-anna
+        rdf:type   foaf:Person ;
+        foaf:mbox  <mailto:anna.smith@example.org> ;
+        foaf:name  "Dr. Anna Smith" .
+
+opencare:LPN_001  rdf:type      opencare:LicensedPracticalNurse ;
+        dc:created              "2020-05-12"^^xsd:date ;
+        foaf:name               "Samantha Riley" ;
+        opencare:licenseNumber  "LPN-48291" ;
+        opencare:worksAt        opencare:CareHome_Sunrise .
+
+<https://w3id.org/opencare/data/clinician/cl-john>
+        rdf:type   foaf:Person ;
+        foaf:name  "John Patel, MD" .
+
+opencare:finding-001  rdf:type  opencare:Finding ;
+        dc:identifier         "F-001" ;
+        prov:wasGeneratedBy   opencare:observation-001 ;
+        opencare:description  "Palpable abdominal mass in the right lower quadrant; no fever at time of exam." ;
+        opencare:observedAt   "2026-04-08T09:30:00Z"^^xsd:dateTime ;
+        opencare:severity     "moderate" .
+
+ex:OGMS_0000029_1  rdf:type      obo:OGMS_0000029 ;
+        rdfs:label               "Example: clinical finding instance for OGMS_0000029" ;
+        dc:created               "2025-01-20T14:22:00Z"^^xsd:dateTime ;
+        opencare:relatedFinding  ex:Finding789 .
+
+ex:diag-type-htn  rdf:type          opencare:DiagnosisType ;
+        rdfs:label                  "Essential (primary) hypertension" ;
+        dc:created                  "2019-06-01"^^xsd:date ;
+        opencare:diagnosisCategory  "cardiovascular" ;
+        opencare:icdCode            "I10" ;
+        opencare:severity           "chronic" .
+
+ex:SocialHistory-1  rdf:type  opencare:SocialHistory ;
+        rdfs:comment          "Patient smoked ~10 cigarettes/day for ~5 years before quitting." ;
+        rdfs:label            "Smoking history (former)" ;
+        prov:generatedAtTime  "2021-03-15T10:00:00Z"^^xsd:dateTime ;
+        opencare:patient      ex:Patient-1 ;
+        opencare:quantity     "10 cigarettes/day" ;
+        opencare:startedOn    "2008-01-01"^^xsd:date ;
+        opencare:status       "former" ;
+        opencare:stoppedOn    "2012-12-31"^^xsd:date .
+
+<https://w3id.org/opencare/ImagingProcedure/IP-0002>
+        rdf:type                  opencare:ImagingProcedure ;
+        rdfs:label                "CT Chest - IP-0002" ;
+        prov:wasGeneratedBy       <https://w3id.org/opencare/ImagingDevice/DEV-02> ;
+        opencare:bodySite         "Chest" ;
+        opencare:imagingModality  "CT" ;
+        opencare:imagingReport    <https://w3id.org/opencare/ImagingReport/IR-0002> ;
+        opencare:performedBy      <https://w3id.org/opencare/Practitioner/PR-101> ;
+        opencare:performedOn      "2025-02-20T14:45:00Z"^^xsd:dateTime ;
+        opencare:procedureId      "IP-0002" .
+
+opencare:FoodAllergy-1
+        rdf:type                     opencare:FoodAllergy , opencare:AllergySensitivity ;
+        rdfs:label                   "Shellfish allergy (confirmed)" ;
+        dc:created                   "2010-07-22"^^xsd:date ;
+        prov:wasGeneratedBy          opencare:AllergyRecordEntry-1 ;
+        opencare:hasAllergen         "Shellfish (shrimp, crab)" ;
+        opencare:hasReaction         "Hives; throat tightness" ;
+        opencare:onset               "2010-07-21"^^xsd:date ;
+        opencare:recordedBy          opencare:Practitioner-1 ;
+        opencare:relatedToPatient    opencare:Patient-1 ;
+        opencare:severity            "severe" ;
+        opencare:verificationStatus  "confirmed" .
+
+inst:Clinic-001  rdf:type  opencare:Clinic ;
+        rdfs:label      "Central City Medical Centre" ;
+        schema:address  "123 Main St, Central City" .
+
+opencare:seasonalAllergy-001
+        rdf:type              opencare:SeasonalAllergy ;
+        rdfs:label            "Hay fever (pollen) - case 001" ;
+        dc:creator            "Clinic A" ;
+        prov:wasDerivedFrom   <https://example.org/record/12345> ;
+        opencare:hasAllergen  opencare:Pollen ;
+        opencare:onset        "2024-04-10"^^xsd:date ;
+        opencare:severity     "moderate" .
+
+opencare:AlliedHealthProfessional_001
+        rdf:type                     opencare:AlliedHealthProfessional ;
+        rdfs:label                   "Alex Morgan, Allied Health Professional" ;
+        dc:created                   "2026-04-09T12:00:00Z"^^xsd:dateTime ;
+        schema:affiliation           "Community Health Clinic" ;
+        foaf:name                    "Alex Morgan" ;
+        opencare:professionalTitle   "Physiotherapist" ;
+        opencare:registrationNumber  "AHP-2026-001" .
+
+<https://w3id.org/opencare/patient/pt-1002>
+        rdf:type                        <https://schema.org/Patient> ;
+        <https://schema.org/address>    [ rdf:type  <https://schema.org/PostalAddress> ;
+                                          <https://schema.org/addressLocality>
+                                                  "Bogotá" ;
+                                          <https://schema.org/postalCode>
+                                                  "110111" ;
+                                          <https://schema.org/streetAddress>
+                                                  "45 Calle Luna"
+                                        ] ;
+        <https://schema.org/birthDate>  "1990-11-03"^^xsd:date ;
+        <https://schema.org/creator>    "opencare:ingest-batch-2026-04" ;
+        <https://schema.org/dateCreated>
+                "2026-04-09T12:02:00Z"^^xsd:dateTime ;
+        <https://schema.org/gender>     "Male" ;
+        <https://schema.org/identifier>
+                [ rdf:type                    <https://schema.org/PropertyValue> ;
+                  <https://schema.org/propertyID>
+                          "MRN" ;
+                  <https://schema.org/value>  "MRN-1002"
+                ] ;
+        <https://schema.org/medicalRecordNumber>
+                "MRN-1002" ;
+        <https://schema.org/name>       "Mateo Alvarez" .
+
+opencare:CareHome_Sunrise
+        rdf:type   opencare:CareHome ;
+        foaf:name  "Sunrise Care Home" .
+
+ex:CF2  rdf:type              obo:OGMS_0000031 ;
+        rdfs:label            "Tachycardia (heart rate 110 bpm)"@en ;
+        dc:description        "Resting heart rate measured at 110 beats per minute."@en ;
+        opencare:hasSeverity  "mild" .
+
+opencare:Man-1  rdf:type       opencare:Man ;
+        rdfs:label             "John Doe" ;
+        dc:created             "2026-04-09T12:00:00Z"^^xsd:dateTime ;
+        schema:birthDate       "1985-07-14"^^xsd:date ;
+        schema:gender          "Male" ;
+        foaf:name              "John Doe" ;
+        opencare:hasDiagnosis  lnc:MTHU017829-1 ;
+        opencare:registeredAt  opencare:Clinic-1 .
+
+opencare:Woman-002  rdf:type       opencare:Woman ;
+        rdfs:label                 "Aisha Khan" ;
+        prov:wasGeneratedBy        <https://w3id.org/opencare/agent/data-generator> ;
+        foaf:name                  "Aisha Khan" ;
+        opencare:birthDate         "1992-11-03"^^xsd:date ;
+        opencare:country           "Pakistan" ;
+        opencare:hasMedicalRecord  <https://w3id.org/opencare/medicalRecord/W-0002> ;
+        opencare:identifier        "W-0002" .
+
+opencare:Clinician_789
+        rdf:type           opencare:Clinician ;
+        opencare:fullName  "Dr. Jane Doe" ;
+        opencare:role      "Allergy Specialist" .
+
+ex:Comorbidity-002  rdf:type    opencare:Comorbidity ;
+        opencare:conditionName  "Primary Hypertension" ;
+        opencare:diagnosedBy    ex:Neurologist-001 ;
+        opencare:onsetDate      "2010-09-01"^^xsd:date ;
+        opencare:patient        ex:Patient-123 ;
+        opencare:severityLevel  "mild" .
+
+opencare:community-health-center-001
+        rdf:type        opencare:HealthcareOrganization ;
+        rdfs:label      "Eastside Community Health Center" ;
+        dc:identifier   "ORG-CHC-001" ;
+        schema:address  "123 Elm St, Springfield" .
+
+opencare:SNOMED_257585005_1
+        rdf:type                  snomed:257585005 ;
+        rdfs:label                "Clinical concept 257585005"@en ;
+        dc:created                "2026-04-09T12:38:52Z"^^xsd:dateTime ;
+        skos:definition           "Auto-generated instance for SHACL validation (SNOMED CT concept)."@en ;
+        skos:prefLabel            "SNOMED CT 257585005"@en ;
+        prov:wasGeneratedBy       opencare:AutoGenerator_v1 ;
+        opencare:code             "257585005" ;
+        opencare:inVocabulary     <http://purl.bioontology.org/ontology/SNOMEDCT> ;
+        opencare:prefExternalURI  <http://snomed.info/id/257585005> ;
+        opencare:source           <https://snomed.org/> .
+
+opencare:Eukaryote_Arabidopsis_thaliana
+        rdf:type                 opencare:Eukaryote ;
+        rdfs:label               "Arabidopsis thaliana (Thale cress)" ;
+        dc:created               "2026-04-09"^^xsd:date ;
+        prov:wasAttributedTo     opencare:DataContributor_OpenCareTeam ;
+        opencare:commonName      "Thale cress" ;
+        opencare:domain          "Eukarya" ;
+        opencare:scientificName  "Arabidopsis thaliana" ;
+        opencare:taxonomicRank   "species" .
+
+opencare:ActiveIngredient_PenicillinV
+        rdf:type                  opencare:ActiveIngredient ;
+        rdfs:label                "Phenoxymethylpenicillin (Penicillin V)" ;
+        opencare:casNumber        "87-08-1" ;
+        opencare:chemicalFormula  "C16H18N2O4S" .
+
+opencare:MetroRheumatologyClinic
+        rdf:type          schema:MedicalOrganization ;
+        schema:address    "45 Health Ave, Cityville" ;
+        schema:name       "Metro Rheumatology Clinic" ;
+        schema:telephone  "+1-555-0200" .
+
+<https://w3id.org/opencare/condition/SNOMED248983002-1>
+        rdf:type                 snomed:248983002 ;
+        rdfs:label               "Vitamin D deficiency - example instance"@en ;
+        dc:created               "2026-04-09T12:00:00Z"^^xsd:dateTime ;
+        prov:wasDerivedFrom      <https://w3id.org/opencare/source/clinical-note-789> ;
+        opencare:clinicalStatus  "active" ;
+        opencare:severity        "moderate" .
+
+<https://w3id.org/opencare/data/image-ct-123>
+        rdf:type             opencare:Image ;
+        opencare:accessURL   <https://w3id.org/opencare/data/images/ct123.dcm> ;
+        opencare:fileFormat  "DICOM" .
+
+opencare:Fungus-002  rdf:type    opencare:Fungus ;
+        rdfs:label               "Aspergillus fumigatus isolate AF-2026-09" ;
+        dc:created               "2026-04-09T12:10:00Z"^^xsd:dateTime ;
+        opencare:collectionDate  "2026-04-05"^^xsd:date ;
+        opencare:cultureResult   "mold growth; conidiophores observed" ;
+        opencare:isolatedFrom    opencare:Patient-002 ;
+        opencare:notes           "Likely environmental contamination; correlate clinically." ;
+        opencare:sampleType      "sputum" ;
+        opencare:scientificName  "Aspergillus fumigatus" ;
+        opencare:strain          "AF-2026-09" .
+
+<https://w3id.org/opencare/City/LON>
+        rdf:type                    opencare:City ;
+        rdfs:label                  "London" ;
+        schema:geo                  [ schema:latitude   51.5074 ;
+                                      schema:longitude  -0.1278
+                                    ] ;
+        opencare:country            "United Kingdom" ;
+        opencare:hasHealthFacility  <https://w3id.org/opencare/Facility/FAC-LON-001> ;
+        opencare:population         8982000 .
+
+opencare:GreenValleyClinic
+        rdf:type                  opencare:SiteOfCare ;
+        dc:created                "2020-05-12"^^xsd:date ;
+        schema:address            "12 Oak Street, Green Valley, CA, USA" ;
+        schema:name               "Green Valley Clinic" ;
+        schema:telephone          "+1-555-0102" ;
+        opencare:capacity         48 ;
+        opencare:providesService  opencare:OutpatientCare .
+
+opencare:Psychiatrist_001
+        rdf:type                        opencare:Psychiatrist ;
+        rdfs:label                      "Dr. Anna Müller"@en ;
+        prov:wasGeneratedBy             opencare:ProfileCreation_2024-11-02 ;
+        foaf:name                       "Anna Müller" ;
+        opencare:affiliatedInstitution  opencare:StMaryHospital ;
+        opencare:email                  "anna.mueller@example.org" ;
+        opencare:medicalLicenseNumber   "PSY-2021-0456" ;
+        opencare:specialty              "Adult Psychiatry" ;
+        opencare:telephone              "+1-555-0101" .
+
+opencare:Substance-Aspirin
+        rdf:type                 schema:Substance ;
+        schema:activeIngredient  "acetylsalicylic acid" ;
+        schema:alternateName     "Acetylsalicylic acid" ;
+        schema:chemicalFormula   "C9H8O4" ;
+        schema:dateCreated       "1899-08-10"^^xsd:date ;
+        schema:description       "A common analgesic and antipyretic medication used to reduce pain, fever, or inflammation." ;
+        schema:identifier        "CAS:50-78-2" ;
+        schema:molecularWeight   180.16 ;
+        schema:name              "Aspirin" ;
+        schema:sameAs            <https://en.wikipedia.org/wiki/Aspirin> .
+
+<https://w3id.org/opencare/encounter-type/emergency-visit>
+        rdf:type                   opencare:EncounterType ;
+        rdfs:label                 "Emergency Visit"@en ;
+        dc:created                 "2024-02-01"^^xsd:date ;
+        dc:creator                 <https://w3id.org/opencare/agents/hospital-emer-1> ;
+        dc:description             "Unscheduled encounter in an emergency department for acute, potentially life-threatening conditions requiring immediate attention."@en ;
+        opencare:encounterSetting  "emergency" ;
+        opencare:triageLevel       "urgent" ;
+        opencare:typicalDuration   "PT2H"^^xsd:duration .
+
+opencare:Patient_456  rdf:type  opencare:Patient ;
+        opencare:fullName  "Bengt O. Svensson" .
+
+inst:SNOMEDCT_263495000_1
+        rdf:type             snomed:263495000 ;
+        rdfs:label           "SNOMEDCT concept 263495000" ;
+        dc:created           "2026-04-09T12:29:32Z"^^xsd:dateTime ;
+        dc:source            <http://purl.bioontology.org/ontology/SNOMEDCT> ;
+        prov:wasDerivedFrom  snomed:263495000 ;
+        opencare:identifier  "263495000" .
+
+opencare:RecreationalDrug_RD002
+        rdf:type                 opencare:RecreationalDrug ;
+        rdfs:label               "MDMA tablet (ecstasy) - RD002" ;
+        dc:description           "Ecstasy tablet sample submitted for purity and adulterant testing." ;
+        dc:source                "Harm-reduction testing service submission" ;
+        opencare:commonName      "MDMA" ;
+        opencare:legalStatus     "Controlled substance; illegal distribution in most jurisdictions" ;
+        opencare:purity          ">=90% MDMA (analysed)" ;
+        opencare:typicalEffects  "Euphoria; empathogenic effects; increased energy" .
+
+<https://w3id.org/opencare/data/GlobalHealthClinic>
+        rdf:type        opencare:HealthcareOrganization ;
+        schema:address  "12 Wellness Way, Cape Town, South Africa" ;
+        foaf:name       "Global Health Clinic" .
+
+opencare:implant-0001
+        rdf:type                      opencare:ImplantHistory ;
+        rdfs:label                    "Right hip total hip replacement implant - 2018-06-15" ;
+        dc:created                    "2018-06-16"^^xsd:date ;
+        dc:creator                    opencare:surgeon-1 ;
+        opencare:implantDate          "2018-06-15"^^xsd:date ;
+        opencare:implantId            "IMPL-2018-0001" ;
+        opencare:implantManufacturer  "OrthoTech GmbH" ;
+        opencare:implantSite          "Right Hip" ;
+        opencare:implantType          "Total Hip Arthroplasty (Ceramic-on-Poly)" ;
+        opencare:implantedBy          opencare:surgeon-1 ;
+        opencare:procedureCode        "ICD-9-CM: 81.51" .
+
+<https://w3id.org/opencare/patient/0002>
+        rdf:type    opencare:Patient ;
+        rdfs:label  "Patient 0002"@en .
+
+<https://w3id.org/opencare/Organization/OC-001>
+        rdf:type              schema:Organization ;
+        rdfs:label            "Riverside Community Health Centre" ;
+        schema:location       "Riverside, City" ;
+        schema:telephone      "+44-20-5555-0100" ;
+        prov:wasAttributedTo  <https://w3id.org/opencare/Organization/OC-001> .
+
+opencare:Substance-Ibuprofen
+        rdf:type                 schema:Substance ;
+        schema:activeIngredient  "ibuprofen" ;
+        schema:alternateName     "2-(4-(2-methylpropyl)phenyl)propanoic acid" ;
+        schema:chemicalFormula   "C13H18O2" ;
+        schema:dateCreated       "1961-01-01"^^xsd:date ;
+        schema:description       "A nonsteroidal anti-inflammatory drug (NSAID) commonly used for relief of pain, fever, and inflammation." ;
+        schema:identifier        "CAS:15687-27-1" ;
+        schema:molecularWeight   206.29 ;
+        schema:name              "Ibuprofen" ;
+        schema:sameAs            <https://en.wikipedia.org/wiki/Ibuprofen> .
+
+opencare:Vincristine  rdf:type  opencare:Drug ;
+        rdfs:label  "Vincristine" .
+
+opencare:hematologist-1
+        rdf:type               opencare:Hematologist ;
+        rdfs:label             "Dr. Amina K. Patel (Hematologist)" ;
+        schema:familyName      "Patel" ;
+        schema:givenName       "Amina" ;
+        schema:identifier      "HEM-0001" ;
+        prov:wasAttributedTo   <https://example.org/practitioners/amina-patel> ;
+        opencare:hasSpecialty  opencare:Hematology ;
+        opencare:worksAt       opencare:StMarysHospital .
+
+opencare:person-anna  rdf:type  foaf:Person ;
+        foaf:familyName     "Müller" ;
+        foaf:givenName      "Anna" ;
+        foaf:homepage       <https://example.org/anna> ;
+        foaf:knows          opencare:person-john ;
+        foaf:mbox           <mailto:anna.mueller@example.org> ;
+        foaf:name           "Anna Müller" ;
+        opencare:birthDate  "1985-06-21"^^xsd:date .
+
+<https://w3id.org/opencare/data/plant/Chamomile_FlowerExtract>
+        rdf:type                    opencare:PlantSubstance ;
+        rdfs:label                  "Chamomile flower extract"@en ;
+        dc:created                  "2026-04-09"^^xsd:date ;
+        prov:wasDerivedFrom         <https://doi.org/10.1000/example.chamomile.study> ;
+        opencare:commonName         "Chamomile"@en ;
+        opencare:hasTherapeuticUse  "Mild anxiolytic; anti-inflammatory; digestive aid"@en ;
+        opencare:latinName          "Matricaria chamomilla"@en ;
+        opencare:partUsed           "Flowers"@en .
+
+ex:pedi-0001-growth1  rdf:type    opencare:GrowthRecord ;
+        opencare:height           "105"^^xsd:decimal ;
+        opencare:heightUnit       "cm" ;
+        opencare:measurementDate  "2024-09-15"^^xsd:date ;
+        opencare:weight           18.5 .
+
+opencare:observation-001
+        rdf:type    prov:Activity ;
+        dc:creator  "Nurse A. Lopez" ;
+        dc:date     "2026-04-08T09:30:00Z"^^xsd:dateTime .
+
+ex:Pharmacist1  rdf:type        opencare:Pharmacist ;
+        rdfs:label              "Dr. Maria Gomez (Pharmacist)" ;
+        dc:created              "2026-04-09T10:00:00Z"^^xsd:dateTime ;
+        prov:wasAttributedTo    <https://w3id.org/opencare/agents/RegistrationAuthority_01> ;
+        opencare:licenseNumber  "PHARM-2026-4521" ;
+        opencare:worksAt        ex:Org_Pharmacy_001 .
+
+ex:History_H-0001  rdf:type    opencare:History ;
+        dc:created             "2021-11-10T09:30:00Z"^^xsd:dateTime ;
+        prov:wasAttributedTo   ex:ClinicalProfessional_CP-0001 ;
+        opencare:dateRecorded  "2021-11-10T09:30:00Z"^^xsd:dateTime ;
+        opencare:historyType   "Past Medical History" ;
+        opencare:note          "Type 2 diabetes mellitus diagnosed 2018; well controlled on metformin." ;
+        opencare:recordedBy    ex:ClinicalProfessional_CP-0001 ;
+        opencare:subject       ex:Patient_PT-1001 .
+
+ex:RouteBySite-2  rdf:type             opencare:RouteBySite ;
+        rdfs:comment                   "Topical site used for dermatology treatment." ;
+        rdfs:label                     "Topical - right forearm" ;
+        opencare:administrationMethod  "cream application" ;
+        opencare:effectiveFrom         "2019-05-01"^^xsd:date ;
+        opencare:effectiveTo           "2021-05-01"^^xsd:date ;
+        opencare:isPreferred           false ;
+        opencare:route                 "topical" ;
+        opencare:site                  "right forearm" .
+
+ex:pedi-0001  rdf:type               opencare:PediatricsHistory ;
+        opencare:allergies           "None" ;
+        opencare:birthWeight         3.4 ;
+        opencare:dateOfBirth         "2018-06-12"^^xsd:date ;
+        opencare:gestationalAge      39 ;
+        opencare:hasGrowthRecord     ex:pedi-0001-growth1 ;
+        opencare:immunizationStatus  "up-to-date" ;
+        opencare:patientName         "Alice Gomez" .
+
+opencare:ActiveIngredient_Amoxicillin
+        rdf:type                  opencare:ActiveIngredient ;
+        rdfs:label                "Amoxicillin" ;
+        opencare:casNumber        "26787-78-0" ;
+        opencare:chemicalFormula  "C16H19N3O5S" .
+
+opencare:CommunityHealthClinic_12
+        rdf:type     opencare:HealthcareOrganization ;
+        schema:name  "Baytown Community Health Clinic" .
+
+opencare:PersonalHistory_2
+        rdf:type               opencare:PersonalHistory ;
+        rdfs:label             "Personal history: family history of diabetes"@en ;
+        dc:creator             opencare:Clinician_2 ;
+        opencare:hasFinding    snomed:73211009 ;
+        opencare:recordedDate  "2019-05-20"^^xsd:date .
+
+opencare:AutoGenRun2026-04-09
+        rdf:type            prov:Activity ;
+        prov:startedAtTime  "2026-04-09T12:11:54Z"^^xsd:dateTime .
+
+opencare:GeneticFinding-002
+        rdf:type                       opencare:GeneticFinding ;
+        rdfs:label                     "Genetic finding: CFTR c.1521_1523delCTT (p.Phe508del)" ;
+        rdfs:seeAlso                   <https://www.ncbi.nlm.nih.gov/clinvar/> ;
+        dc:creator                     org:OpenCareGeneticsLab1 ;
+        prov:generatedAtTime           "2025-01-20T14:30:00Z"^^xsd:dateTime ;
+        prov:wasAttributedTo           org:OpenCareGeneticsLab1 ;
+        opencare:clinicalSignificance  "pathogenic" ;
+        opencare:geneSymbol            "CFTR" ;
+        opencare:hasVariant            "c.1521_1523delCTT" ;
+        opencare:labAccession          "OCG-2026-0002" ;
+        opencare:reportedInSample      "Buccal swab" ;
+        opencare:zygosity              "compound heterozygous" .
+
+<https://w3id.org/opencare/ImagingReport/IR-0001>
+        rdf:type             opencare:ImagingReport ;
+        rdfs:label           "Report for IP-0001" ;
+        opencare:reportText  "Findings: No acute intracranial haemorrhage. Small chronic microvascular changes in the white matter." ;
+        opencare:reportedOn  "2025-03-15T11:00:00Z"^^xsd:dateTime .
+
+opencare:familyhistory-1
+        rdf:type                   opencare:FamilyHistory ;
+        rdfs:label                 "Family history - maternal Type 2 diabetes" ;
+        prov:generatedAtTime       "2025-11-03T10:23:00Z"^^xsd:dateTime ;
+        opencare:ageAtOnset        52 ;
+        opencare:certainty         "confirmed" ;
+        opencare:condition         "Type 2 diabetes mellitus" ;
+        opencare:proband           opencare:patient-1001 ;
+        opencare:recordedBy        opencare:pediatrician-anna-kline ;
+        opencare:relativeRelation  "mother" .
+
+<https://w3id.org/opencare/data/snomed-362958002-1>
+        rdf:type             snomed:362958002 ;
+        rdfs:label           "Allergic rhinitis due to pollen (disorder)" ;
+        schema:dateCreated   "2020-03-15"^^xsd:date ;
+        prov:wasDerivedFrom  <https://www.snomed.org> ;
+        opencare:relatedTo   <https://w3id.org/opencare/data/envAllergy-001> .
+
+opencare:Surgeon_Dr_Jones
+        rdf:type    opencare:Practitioner ;
+        rdfs:label  "Dr. Robert Jones" .
+
+opencare:Patient-001  rdf:type  opencare:Patient ;
+        schema:familyName  "Gonzalez" ;
+        schema:givenName   "Maria" ;
+        schema:identifier  "P-1001" .
+
+opencare:Device_HVX2000
+        rdf:type               opencare:MedicalDevice ;
+        dc:created             "2023-06-01"^^xsd:date ;
+        schema:model           "HVX-2000" ;
+        opencare:manufacturer  "MedDevices Inc." .
+
+opencare:Gene_BRCA2  rdf:type  opencare:Gene ;
+        rdfs:label           "BRCA2"@en ;
+        opencare:geneSymbol  "BRCA2" .
+
+ex:C0332119_1  rdf:type  ochv:C0332119 ;
+        rdfs:label  "Concept C0332119" ;
+        dc:created  "2026-04-09T12:48:38Z"^^xsd:dateTime ;
+        dc:creator  "OpenCare Data Generator" .
+
+opencare:Hospital_01  rdf:type  opencare:Hospital ;
+        schema:address  "100 Main St, Boston, MA 02115" ;
+        schema:name     "St. Mary's Cardiac Center" .
+
+opencare:AnatomicalRegion-2
+        rdf:type            opencare:AnatomicalRegion ;
+        rdfs:label          "Skin (hands and forearms)" ;
+        opencare:createdAt  "2026-04-09T11:55:00Z"^^xsd:dateTime ;
+        opencare:partOf     "Integumentary system" .
+
+opencare:pf-002  rdf:type     opencare:PathologyFinding ;
+        rdfs:label            "Invasive ductal carcinoma of breast (core biopsy)" ;
+        dc:created            "2026-04-09T12:03:00Z"^^xsd:dateTime ;
+        dc:creator            opencare:data-generator ;
+        dc:description        "Invasive ductal carcinoma, Nottingham grade II, ER+/PR+, HER2- on core needle biopsy." ;
+        opencare:bodySite     "Left breast" ;
+        opencare:findingType  "Biopsy - Histopathology" ;
+        opencare:histoGrade   "Grade II" ;
+        opencare:observedBy   opencare:practitioner-ben ;
+        opencare:observedOn   "2024-01-20T11:15:00Z"^^xsd:dateTime ;
+        opencare:relatedCode  "C50.9" ;
+        opencare:severity     "Moderate" ;
+        opencare:tumorSize    "1.8 cm" .
+
+opencare:DataContributor_OpenCareTeam
+        rdf:type    opencare:Organization ;
+        rdfs:label  "OpenCare Data Team" .
+
+ex:RadiationTherapy-2
+        rdf:type                   opencare:RadiationTherapy ;
+        rdfs:label                 "Stereotactic body radiotherapy for lung lesion" ;
+        dc:creator                 <https://w3id.org/opencare/roles/rt-physicist-1> ;
+        dc:identifier              "RT-002" ;
+        prov:endedAtTime           "2026-01-08"^^xsd:date ;
+        prov:startedAtTime         "2026-01-05"^^xsd:date ;
+        opencare:doseUnit          "Gy" ;
+        opencare:hasDose           "54.0"^^xsd:double ;
+        opencare:hasFractionCount  3 ;
+        opencare:treatmentTarget   "Right upper lobe, solitary metastasis" .
+
+<https://w3id.org/opencare/data/Virus/virus-002>
+        rdf:type                   opencare:Virus ;
+        rdfs:label                 "Influenza A (H1N1)" ;
+        dc:created                 "2009-04-15"^^xsd:date ;
+        dc:creator                 <https://w3id.org/opencare/agents/copilot> ;
+        dc:description             "Influenza A virus subtype H1N1." ;
+        opencare:hasStrain         "H1N1" ;
+        opencare:transmissionMode  "respiratory droplets" .
+
+<https://w3id.org/opencare/data/EnvironmentalSensitivity/ES-001>
+        rdf:type                      opencare:EnvironmentalSensitivity ;
+        <https://schema.org/dateCreated>
+                "2024-04-01"^^xsd:date ;
+        <https://schema.org/description>
+                "Allergic sensitivity to airborne pollen causing seasonal rhinitis and conjunctivitis." ;
+        <https://schema.org/identifier>
+                "ES-001" ;
+        <https://schema.org/name>     "Pollen allergy" ;
+        opencare:hasSensitivityLevel  "moderate" ;
+        opencare:triggers             "tree pollen, grass pollen" .
+
+opencare:Surgery_Appendectomy_2020_06_15
+        rdf:type                opencare:Surgery ;
+        rdfs:label              "Appendectomy - 15 Jun 2020" ;
+        dc:created              "2020-06-15"^^xsd:date ;
+        prov:wasAssociatedWith  opencare:Surgeon_Dr_Smith ;
+        opencare:anesthesia     "general" ;
+        opencare:datePerformed  "2020-06-15"^^xsd:date ;
+        opencare:performedOn    opencare:Eukaryote_Homo_sapiens ;
+        opencare:surgeryType    "Appendectomy" .
+
+opencare:Diagnosis_67890
+        rdf:type                opencare:Diagnosis ;
+        rdfs:label              "Acute appendicitis, surgically confirmed"@en ;
+        opencare:diagnosisCode  "K35.80" .
+
+opencare:menstrualhistory-001
+        rdf:type                   opencare:MenstrualHistory ;
+        rdfs:label                 "Menstrual history MH-001"@en ;
+        dc:creator                 <https://example.org/clinician/clin-1234> ;
+        dc:description             "Recorded menstrual history including menarche age, cycle length and regularity."@en ;
+        prov:generatedAtTime       "2024-06-01T10:30:00Z"^^xsd:dateTime ;
+        opencare:associatedGender  opencare:gender-female ;
+        opencare:cycleLengthDays   28 ;
+        opencare:cycleRegularity   "regular"@en ;
+        opencare:menarcheAge       13 .
+
+<https://w3id.org/opencare/persons/orthopedic-surgeon-1>
+        rdf:type                 opencare:OrthopedicSurgeon ;
+        rdfs:label               "Orthopedic surgeon Dr. James K. Barton" ;
+        dc:created               "2026-04-09T12:26:32Z"^^xsd:dateTime ;
+        schema:medicalSpecialty  "Orthopedic Surgery" ;
+        prov:wasAttributedTo     <https://w3id.org/opencare/agents/data-generator-5> ;
+        foaf:name                "Dr. James K. Barton" ;
+        opencare:licenseNumber   "OS-2026-0789" ;
+        opencare:qualification   "MD, MSc (Orthopedics)" ;
+        opencare:worksAt         <https://w3id.org/opencare/orgs/central-clinic-2> .
+
+opencare:GeneralHospital-1
+        rdf:type    opencare:HealthcareOrganization ;
+        rdfs:label  "General Hospital, Metropolis"@en ;
+        dc:created  "2026-01-15"^^xsd:date .
+
+opencare:region-002  rdf:type       opencare:GeographycalRegion ;
+        rdfs:label                  "Inland County B" ;
+        dc:created                  "2026-01-15"^^xsd:date ;
+        prov:wasDerivedFrom         <https://data.example.org/sources/administrative-2026> ;
+        opencare:centroidLatitude   36.7783 ;
+        opencare:centroidLongitude  -119.4179 ;
+        opencare:hasArea            412.0 ;
+        opencare:hasPopulation      58000 .
+
+inst:BFO_0000015_1  rdf:type  obo:BFO_0000015 ;
+        rdfs:label            "BFO:0000015 instance - continuant example"@en ;
+        dc:created            "2026-04-09T12:35:31Z"^^xsd:dateTime ;
+        prov:wasAttributedTo  inst:agent_opencare_tool ;
+        opencare:relatedTo    inst:T167_1 .
+
+ex:Organization_HealthCentre-21
+        rdf:type       opencare:Organization ;
+        opencare:name  "Health Centre 21" .
+
+opencare:owner-001  rdf:type  foaf:Person ;
+        foaf:name  "Alice Harris" .
+
+opencare:ogms-0000073-1
+        rdf:type             obo:OGMS_0000073 ;
+        rdfs:comment         "Clinical finding observed during primary care visit on 2026-04-09." ;
+        rdfs:label           "Acute bronchitis (example clinical finding)" ;
+        opencare:assertedOn  "2026-04-09T10:30:00Z"^^xsd:dateTime ;
+        opencare:hasSubject  opencare:person-anna ;
+        opencare:recordedBy  opencare:person-john ;
+        opencare:severity    "mild" .
+
+opencare:NonHodgkinLymphoma
+        rdf:type    opencare:Disease ;
+        rdfs:label  "Non-Hodgkin lymphoma" .
+
+<https://w3id.org/opencare/agents/community-nurse-maya>
+        rdf:type             foaf:Agent ;
+        rdfs:label           "Maya Santos (Community Nurse)" ;
+        prov:wasGeneratedBy  <https://w3id.org/opencare/provenance/creation-2026-04-09> ;
+        foaf:familyName      "Santos" ;
+        foaf:givenName       "Maya" ;
+        foaf:mbox            <mailto:maya.santos@example.org> ;
+        foaf:name            "Maya Santos" .
+
+opencare:gender-female
+        rdf:type             opencare:GenderType ;
+        rdfs:label           "Female"@en ;
+        dc:description       "Gender identity commonly associated with people who may experience menstruation; used for linking menstrual histories."@en ;
+        skos:prefLabel       "female"@en ;
+        prov:wasGeneratedBy  opencare:generator-2026-04-09 ;
+        opencare:code        "F" .
+
+ex:CE1  rdf:type              opencare:ClinicalExamination ;
+        rdfs:label            "Clinical examination of John Doe"@en ;
+        dc:description        "General physical examination including vitals, auscultation and abdominal palpation."@en ;
+        prov:wasGeneratedBy   ex:Encounter1 ;
+        opencare:forPatient   ex:Patient1 ;
+        opencare:hasFinding   ex:CF1 ;
+        opencare:onDate       "2026-04-09"^^xsd:date ;
+        opencare:performedBy  ex:Practitioner1 .
+
+opencare:finding-002  rdf:type  opencare:Finding ;
+        dc:identifier         "F-002" ;
+        prov:wasGeneratedBy   opencare:observation-002 ;
+        opencare:description  "Post-operative surgical site erythema with minimal serous drainage." ;
+        opencare:observedAt   "2026-04-09T11:00:00Z"^^xsd:dateTime ;
+        opencare:severity     "mild" .
+
+rec:patient-0001  rdf:type  foaf:Person ;
+        foaf:age     8 ;
+        foaf:gender  "female" ;
+        foaf:name    "Alice Gomez" .
+
+<https://w3id.org/opencare/data/RiskFactor/rf-0001>
+        rdf:type               opencare:RiskFactor ;
+        rdfs:label             "Smoking (current)" ;
+        dc:description         "Current tobacco smoking, ~10 cigarettes/day; patient-reported during intake." ;
+        prov:wasAttributedTo   <https://w3id.org/opencare/data/Agent/clinician-789> ;
+        opencare:hasCode       "RF-TOB-0001" ;
+        opencare:hasSeverity   "moderate" ;
+        opencare:reportedDate  "2026-03-15T09:30:00Z"^^xsd:dateTime .
+
+opencare:MedicationSensitivity_aspirin
+        rdf:type             opencare:MedicationSensitivity ;
+        prov:wasDerivedFrom  <https://ehr.example.org/record/medsens/1001> ;
+        opencare:reaction    "Urticaria and angioedema" ;
+        opencare:recordedBy  opencare:Neurosurgeon_001 ;
+        opencare:recordedOn  "2025-03-15T14:20:00Z"^^xsd:dateTime ;
+        opencare:severity    "moderate" ;
+        opencare:substance   "Aspirin" .
+
+ex:SocialHistory-2  rdf:type  opencare:SocialHistory ;
+        rdfs:comment          "Drinks socially, within recommended limits." ;
+        rdfs:label            "Alcohol use (current, moderate)" ;
+        prov:generatedAtTime  "2022-07-05T09:30:00Z"^^xsd:dateTime ;
+        opencare:patient      ex:Patient-2 ;
+        opencare:pattern      "moderate" ;
+        opencare:quantity     "6 units/week" ;
+        opencare:status       "current" .
+
+opencare:FoodAllergy-2
+        rdf:type                     opencare:FoodAllergy , opencare:AllergySensitivity ;
+        rdfs:label                   "Cow's milk protein allergy (infant onset)" ;
+        dc:created                   "2018-01-16"^^xsd:date ;
+        prov:wasGeneratedBy          opencare:AllergyRecordEntry-2 ;
+        opencare:hasAllergen         "Cow's milk protein" ;
+        opencare:hasReaction         "Colic-like symptoms; eczema" ;
+        opencare:onset               "2018-01-15"^^xsd:date ;
+        opencare:recordedBy          opencare:Practitioner-2 ;
+        opencare:relatedToPatient    opencare:Patient-1 ;
+        opencare:severity            "mild" ;
+        opencare:verificationStatus  "confirmed" .
+
+inst:BC-0001  rdf:type                 opencare:Bacteria ;
+        rdfs:label                     "Escherichia coli O157:H7 isolate 2026-04-01" ;
+        dc:created                     "2026-04-02T09:15:00Z"^^xsd:dateTime ;
+        dc:creator                     <https://w3id.org/opencare/agent/lab-99> ;
+        dc:identifier                  "BC-0001" ;
+        prov:wasDerivedFrom            <https://w3id.org/opencare/sample/SAMP-1001> ;
+        opencare:antibioticResistance  "ampicillin, tetracycline" ;
+        opencare:genomeSize            "5.5e6"^^xsd:decimal ;
+        opencare:isolatedFrom          "stool; adult patient" ;
+        opencare:isolationDate         "2026-04-01"^^xsd:date ;
+        opencare:pathogenicity         "High (enterohaemorrhagic)" ;
+        opencare:species               "Escherichia coli" ;
+        opencare:strain                "O157:H7" .
+
+opencare:seasonalAllergy-002
+        rdf:type              opencare:SeasonalAllergy ;
+        rdfs:label            "Grass pollen seasonal allergy - case 002" ;
+        opencare:hasAllergen  opencare:GrassPollen ;
+        opencare:hasSymptom   opencare:Symptom-Sneezing , opencare:Symptom-ItchyEyes ;
+        opencare:onset        "2023-05-02"^^xsd:date ;
+        opencare:severity     "mild" .
+
+ex:lab-centrallab  rdf:type  opencare:Laboratory ;
+        rdfs:label     "Central Diagnostic Laboratory" ;
+        dc:identifier  "CDL-001" .
+
+<https://w3id.org/opencare/Facility/FAC-LON-001>
+        rdf:type               opencare:HealthFacility ;
+        rdfs:label             "Royal London Hospital - Radiology" ;
+        opencare:facilityType  "Hospital" ;
+        opencare:servesCity    <https://w3id.org/opencare/City/LON> .
+
+opencare:Doxorubicin  rdf:type  opencare:Drug ;
+        rdfs:label  "Doxorubicin" .
+
+lnc:MTHU017829-1  rdf:type  lnc:MTHU017829 ;
+        rdfs:label      "Sample clinical concept MTHU017829" ;
+        dc:source       "BioPortal" ;
+        skos:prefLabel  "MTHU017829" .
+
+opencare:Man-2  rdf:type       opencare:Man ;
+        rdfs:label             "Carlos Smith" ;
+        dc:created             "2026-04-09T12:05:00Z"^^xsd:dateTime ;
+        schema:birthDate       "1978-03-22"^^xsd:date ;
+        schema:gender          "Male" ;
+        foaf:name              "Carlos Smith" ;
+        opencare:registeredAt  opencare:Clinic-1 .
+
+obo:GEO_000000372_AtlanticCoast
+        rdf:type             obo:GEO_000000372 ;
+        rdfs:label           "Atlantic Coastal Region"@en ;
+        dc:created           "2022-09-30"^^xsd:date ;
+        geo:hasGeometry      [ rdf:type   geo:Geometry ;
+                               geo:asWKT  "POLYGON((18.0 -34.0, 19.0 -34.0, 19.0 -33.5, 18.0 -33.5, 18.0 -34.0))"^^geo:wktLiteral
+                             ] ;
+        prov:wasDerivedFrom  <https://example.org/datasets/geo/atlantic-coast-2022> .
+
+opencare:PharmaceuticalPreparation_PP001
+        rdf:type                      opencare:PharmaceuticalPreparation ;
+        rdfs:label                    "Penicillin V Oral Suspension 250 mg/5 mL (PP001)" ;
+        dc:description                "Oral antibiotic suspension indicated for paediatric streptococcal infections." ;
+        opencare:batchNumber          "BATCH-2025-0001" ;
+        opencare:dosageForm           "oral suspension" ;
+        opencare:expiryDate           "2026-12-31"^^xsd:date ;
+        opencare:hasActiveIngredient  opencare:ActiveIngredient_PenicillinV ;
+        opencare:manufactureDate      "2024-12-01"^^xsd:date ;
+        opencare:manufacturer         "GoodHealth Pharma Ltd." ;
+        opencare:storageConditions    "Store below 25 °C" ;
+        opencare:strength             "250 mg/5 mL" .
+
+opencare:clinic-001  rdf:type  foaf:Organization ;
+        foaf:name  "Greenfield Veterinary Clinic" .
+
+opencare:BodyTemperature_BT1
+        rdf:type                    opencare:BodyTemperature ;
+        opencare:hasValue           37.2 ;
+        opencare:measuredAt         "2026-04-09T08:30:00Z"^^xsd:dateTime ;
+        opencare:measuredBy         opencare:LPN_001 ;
+        opencare:measurementMethod  "oral" ;
+        opencare:unit               "degC" .
+
+ex:Sensitivity1  rdf:type          opencare:Sensitivity ;
+        rdfs:label                 "Penicillin sensitivity" ;
+        dc:created                 "2024-11-01T10:00:00Z"^^xsd:dateTime ;
+        opencare:hasAgent          ex:Patient123 ;
+        opencare:sensitivityLevel  "high" .
+
+opencare:StateBoardHealth_CA
+        rdf:type     opencare:RegulatoryBody ;
+        schema:name  "California State Board of Nursing" .
+
+opencare:implant-0002
+        rdf:type                      opencare:ImplantHistory ;
+        rdfs:label                    "Left knee partial arthroplasty implant - 2020-11-03" ;
+        dc:created                    "2020-11-04"^^xsd:date ;
+        dc:creator                    opencare:surgeon-1 ;
+        opencare:implantDate          "2020-11-03"^^xsd:date ;
+        opencare:implantId            "IMPL-2020-0456" ;
+        opencare:implantManufacturer  "BioKnee Inc." ;
+        opencare:implantSite          "Left Knee" ;
+        opencare:implantType          "Partial Knee Replacement (Uni-compartmental)" ;
+        opencare:implantedBy          opencare:surgeon-1 ;
+        opencare:procedureCode        "ICD-10-PCS: 0SRB0JZ" ;
+        opencare:revisionFlag         false .
+
+opencare:gender-male  rdf:type  opencare:GenderType ;
+        rdfs:label           "Male"@en ;
+        dc:description       "Gender identity commonly associated with people who typically do not experience menstruation."@en ;
+        skos:prefLabel       "male"@en ;
+        prov:wasGeneratedBy  opencare:generator-2026-04-09 ;
+        opencare:code        "M" .
+
+opencare:AllergyRecordEntry-1
+        rdf:type                opencare:AllergyRecordEntry ;
+        dc:created              "2022-05-14"^^xsd:date ;
+        prov:wasAssociatedWith  opencare:Practitioner-1 .
+
+<https://w3id.org/opencare/persons/vascular-surgeon-1>
+        rdf:type                 opencare:VascularSurgeon ;
+        rdfs:label               "Vascular surgeon Dr. Maria S. Alvarez" ;
+        dc:created               "2026-04-09T12:26:32Z"^^xsd:dateTime ;
+        schema:medicalSpecialty  "Vascular Surgery" ;
+        prov:wasAttributedTo     <https://w3id.org/opencare/agents/data-generator-5> ;
+        foaf:name                "Dr. Maria S. Alvarez" ;
+        opencare:licenseNumber   "VS-2026-0451" ;
+        opencare:qualification   "MD, PhD (Vascular Surgery)" ;
+        opencare:worksAt         <https://w3id.org/opencare/orgs/university-hospital-1> .
+
+opencare:HipImplantProcedure-001
+        rdf:type                  opencare:ImplantProcedure ;
+        dc:created                "2024-09-15"^^xsd:date ;
+        schema:medicalSpecialty   "Orthopedics" ;
+        schema:name               "Total Hip Replacement (ceramic-on-polyethylene)" ;
+        schema:procedureType      "Orthopedic implant surgery" ;
+        opencare:implantMaterial  "Titanium alloy" ;
+        opencare:implantType      "Total hip prosthesis - ceramic head, polyethylene cup" ;
+        opencare:performedAt      opencare:NorthsideMedicalCenter ;
+        opencare:surgeon          "Dr. Ana Lopez" ;
+        opencare:usesDevice       opencare:Device_HVX2000 .
+
+opencare:GrassPollen  rdf:type  opencare:Allergen ;
+        rdfs:label  "Grass pollen" .
+
+opencare:observation-002
+        rdf:type    prov:Activity ;
+        dc:creator  "Dr. J. Patel" ;
+        dc:date     "2026-04-09T11:00:00Z"^^xsd:dateTime .
+
+opencare:Condition-diabetes
+        rdf:type    opencare:Condition ;
+        rdfs:label  "Type 2 diabetes mellitus" .
+
+inst:activity_20260409
+        rdf:type        prov:Activity ;
+        dc:created      "2026-04-09T12:35:31Z"^^xsd:dateTime ;
+        dc:description  "Creation activity for STY/T167 instance (delegation pass)"@en .
+
+ex:History_H-0002  rdf:type    opencare:History ;
+        dc:created             "2022-02-20T14:15:00Z"^^xsd:dateTime ;
+        prov:wasAttributedTo   ex:ClinicalProfessional_CP-0001 ;
+        opencare:dateRecorded  "2022-02-20T14:15:00Z"^^xsd:dateTime ;
+        opencare:historyType   "Allergy History" ;
+        opencare:note          "Documented allergy: penicillin (rash). No anaphylaxis recorded." ;
+        opencare:recordedBy    ex:ClinicalProfessional_CP-0001 ;
+        opencare:subject       ex:Patient_PT-1001 .
+
+ex:pedi-0002  rdf:type               opencare:PediatricsHistory ;
+        opencare:allergies           "Peanut" ;
+        opencare:birthWeight         3.0 ;
+        opencare:dateOfBirth         "2016-11-03"^^xsd:date ;
+        opencare:gestationalAge      38 ;
+        opencare:hasGrowthRecord     ex:pedi-0002-growth1 ;
+        opencare:immunizationStatus  "partial" ;
+        opencare:patientName         "Mohamed Ali" .
+
+opencare:PastHistory-1
+        rdf:type               opencare:PastHistory ;
+        opencare:hasCondition  opencare:Condition-appendicitis ;
+        opencare:onsetDate     "2015-03-12"^^xsd:date ;
+        opencare:outcome       "surgically treated; recovered" ;
+        opencare:recordedBy    opencare:Practitioner-1 ;
+        opencare:resolvedDate  "2015-03-15"^^xsd:date .
+
+<https://w3id.org/opencare/data/infection/inf-001>
+        rdf:type              opencare:Infection ;
+        rdfs:label            "Influenza A infection - case 001" ;
+        dc:created            "2026-02-15T09:30:00Z"^^xsd:dateTime ;
+        prov:wasGeneratedBy   <https://w3id.org/opencare/data/encounter/enc-100> ;
+        opencare:diagnosedBy  <https://w3id.org/opencare/data/clinician/cl-amy> ;
+        opencare:hasAgent     <https://w3id.org/opencare/data/lnc/mthu034880/inst1> ;
+        opencare:onset        "2026-02-13"^^xsd:date ;
+        opencare:severity     "moderate" .
+
+<https://w3id.org/opencare/record/hr-1>
+        rdf:type             opencare:HealthRecord ;
+        rdfs:label           "Health Record for Patient P-0001" ;
+        dc:created           "2025-03-10T09:20:00Z"^^xsd:dateTime ;
+        dc:creator           <https://w3id.org/opencare/agents/clinician-1> ;
+        opencare:hasEntry    inst:snomed-43741000-1 ;
+        opencare:hasPatient  <https://w3id.org/opencare/patient/p-1> .
+
+opencare:Cyclophosphamide
+        rdf:type    opencare:Drug ;
+        rdfs:label  "Cyclophosphamide" .
+
+opencare:XAO_0003186_001
+        rdf:type           obo:XAO_0003186 ;
+        rdfs:label         "Representative XAO region sample" ;
+        dc:created         "2026-04-09T12:05:00Z"^^xsd:dateTime ;
+        dc:creator         opencare:AlliedHealthProfessional_001 ;
+        schema:identifier  "XAO-0003186-EX1" ;
+        skos:definition    "Representative anatomical region corresponding to XAO_0003186, created for dataset completeness and testing." .
+
+ex:Patient-1  rdf:type       <https://schema.org/Person> ;
+        rdfs:label           "Maria Rodriguez" ;
+        opencare:identifier  "MR-001" .
+
+<https://w3id.org/opencare/instances/ClinicalLaboratoryScientist/cls-001>
+        rdf:type                opencare:ClinicalLaboratoryScientist ;
+        dc:created              "2026-04-09T12:27:55Z"^^xsd:dateTime ;
+        schema:email            "alex.morgan@citylab.example" ;
+        schema:familyName       "Morgan" ;
+        schema:givenName        "Alex" ;
+        schema:jobTitle         "Clinical Laboratory Scientist" ;
+        schema:name             "Alex Morgan" ;
+        schema:telephone        "+1-555-0102" ;
+        opencare:licenseNumber  "CLS-2026-0042" ;
+        opencare:qualification  "MSc Clinical Laboratory Science" ;
+        opencare:specialty      "Clinical Chemistry" ;
+        opencare:worksAt        <https://w3id.org/opencare/instances/Organization/CityLab> .
+
+<https://w3id.org/opencare/cnm/cnm-2001>
+        rdf:type                      opencare:CertifiedNurseMidwife ;
+        <https://schema.org/affiliation>
+                <https://w3id.org/opencare/organization/oc-3001> ;
+        <https://schema.org/contactPoint>
+                [ rdf:type                        <https://schema.org/ContactPoint> ;
+                  <https://schema.org/contactType>
+                          "phone" ;
+                  <https://schema.org/telephone>  "+256-700-555-121"
+                ] ;
+        <https://schema.org/creator>  "opencare:ingest-batch-2026-04" ;
+        <https://schema.org/dateCreated>
+                "2026-04-09T12:05:00Z"^^xsd:dateTime ;
+        <https://schema.org/name>     "Lydia K. Mensah, CNM" ;
+        opencare:certificationDate    "2018-06-15"^^xsd:date ;
+        opencare:licenseNumber        "CNM-54219" ;
+        opencare:providesCareTo       <https://w3id.org/opencare/patient/pt-1002> , <https://w3id.org/opencare/patient/pt-1001> .
+
+<https://w3id.org/opencare/ImagingReport/IR-0002>
+        rdf:type             opencare:ImagingReport ;
+        rdfs:label           "Report for IP-0002" ;
+        opencare:reportText  "Findings: No focal consolidation. Mild cardiomegaly. No pleural effusion." ;
+        opencare:reportedOn  "2025-02-20T15:30:00Z"^^xsd:dateTime .
+
+opencare:encounter-321
+        rdf:type    opencare:Encounter ;
+        dc:created  "2026-04-09T10:30:00Z"^^xsd:dateTime .
+
+opencare:familyhistory-2
+        rdf:type                   opencare:FamilyHistory ;
+        rdfs:label                 "Family history - paternal early myocardial infarction" ;
+        prov:generatedAtTime       "2025-11-03T10:25:00Z"^^xsd:dateTime ;
+        opencare:ageAtOnset        48 ;
+        opencare:certainty         "reported" ;
+        opencare:condition         "Myocardial infarction" ;
+        opencare:proband           opencare:patient-1001 ;
+        opencare:recordedBy        opencare:pediatrician-anna-kline ;
+        opencare:relativeRelation  "father" .
+
+opencare:Patient-002  rdf:type  opencare:Patient ;
+        schema:familyName  "Smith" ;
+        schema:givenName   "John" ;
+        schema:identifier  "P-1002" .
+
+opencare:HealthcareOrg_UMC
+        rdf:type                opencare:HealthcareOrganization ;
+        rdfs:label              "UMC Example Hospital"@en ;
+        opencare:orgIdentifier  "UMC-001" .
+
+ex:OGMS-0000020-1  rdf:type  obo:OGMS_0000020 ;
+        rdfs:comment         "Representative OGMS concept instance created to satisfy OGMS_0000020Shape for testing. Linked to clinical context." ;
+        rdfs:label           "Disease-like occurrence (example instance)" ;
+        dc:created           "2026-04-09T12:32:00Z"^^xsd:dateTime ;
+        prov:wasDerivedFrom  <https://w3id.org/opencare/source/clinical-guideline-2026> .
+
+opencare:Prednisone  rdf:type  opencare:Drug ;
+        rdfs:label  "Prednisone" .
+
+<https://w3id.org/opencare/City/AMS>
+        rdf:type                    opencare:City ;
+        rdfs:label                  "Amsterdam" ;
+        schema:geo                  [ schema:latitude   52.3702 ;
+                                      schema:longitude  4.8952
+                                    ] ;
+        opencare:country            "Netherlands" ;
+        opencare:hasHealthFacility  <https://w3id.org/opencare/Facility/FAC-AMS-001> ;
+        opencare:population         872680 .
+
+opencare:CardiothoracicSurgeon_001
+        rdf:type                     opencare:CardiothoracicSurgeon ;
+        schema:familyName            "Khan" ;
+        schema:givenName             "Aisha" ;
+        schema:name                  "Aisha Khan, MD" ;
+        schema:telephone             "+1-617-555-0100" ;
+        opencare:registrationNumber  "CTS-2021-0042" ;
+        opencare:specialty           "Cardiothoracic surgery" ;
+        opencare:worksAt             opencare:Hospital_01 .
+
+opencare:OccupationalAllergy-1
+        rdf:type                  opencare:OccupationalAllergy ;
+        rdfs:label                "Occupational latex allergy" ;
+        dc:creator                "Dr. A. Clinician" ;
+        opencare:affectsRegion    opencare:AnatomicalRegion-2 ;
+        opencare:createdAt        "2026-04-09T12:10:00Z"^^xsd:dateTime ;
+        opencare:exposureContext  "Healthcare glove use" ;
+        opencare:hasAllergen      "Natural rubber latex" ;
+        opencare:onsetDate        "2024-06-15"^^xsd:date ;
+        opencare:severity         "moderate" .
+
+opencare:therapy-001  rdf:type    opencare:MedicalTherapy ;
+        rdfs:label                "Post-operative Physical Therapy - Knee Reconstruction" ;
+        opencare:createdBy        "OpenCare Data Generator" ;
+        opencare:createdOn        "2026-04-09"^^xsd:date ;
+        opencare:expectedOutcome  "Restore range of motion and strength" ;
+        opencare:hasDuration      "12 weeks" ;
+        opencare:indication       "ACL reconstruction rehabilitation" ;
+        opencare:performedBy      opencare:surgeon-001 ;
+        opencare:startDate        "2025-01-15"^^xsd:date ;
+        opencare:successRate      0.85 .
+
+inst:HP_0500094_1  rdf:type  obo:HP_0500094 ;
+        rdfs:label           "HPO term HP:0500094" ;
+        dc:created           "2026-04-09T12:29:32Z"^^xsd:dateTime ;
+        dc:source            obo:HP_0500094 ;
+        prov:wasDerivedFrom  obo:HP_0500094 ;
+        opencare:identifier  "HP:0500094" .
+
+inst:clinicalfinding-2026-1
+        rdf:type             opencare:ClinicalFinding ;
+        rdfs:label           "Chronic knee pain, medial compartment" ;
+        dc:creator           <https://w3id.org/opencare/agents/clinician-2> ;
+        opencare:bodySite    "right knee" ;
+        opencare:hasCode     "SCTID:123456" ;
+        opencare:recordedAt  "2026-02-14T09:00:00Z"^^xsd:dateTime ;
+        opencare:severity    "moderate" .
+
+ex:OccupationalTherapist-001
+        rdf:type                  opencare:OccupationalTherapist ;
+        rdfs:label                "Dr. Lina Morales" ;
+        dc:created                "2026-04-09T12:09:04Z"^^xsd:dateTime ;
+        schema:email              "lina.morales@central.example.org" ;
+        schema:telephone          "+1-555-0123" ;
+        prov:wasGeneratedBy       opencare:Agent-Curator1 ;
+        foaf:name                 "Lina Morales" ;
+        opencare:fullName         "Dr. Lina Morales, MSc, OT" ;
+        opencare:identifier       "OT-001" ;
+        opencare:licenseNumber    "OT-2026-00123" ;
+        opencare:specialty        "Geriatric occupational therapy" ;
+        opencare:worksAt          opencare:CentralHospital ;
+        opencare:yearsExperience  8 .
+
+inst:conservative-therapy-pt-1
+        rdf:type                 opencare:ConservativeTherapy ;
+        rdfs:label               "Physiotherapy course for knee pain" ;
+        dc:creator               <https://w3id.org/opencare/agents/clinician-2> ;
+        opencare:administeredBy  <https://w3id.org/opencare/agents/physio-1> ;
+        opencare:endDate         "2026-04-12"^^xsd:date ;
+        opencare:frequency       "Twice weekly" ;
+        opencare:hasOutcome      "Improved range of motion"@en ;
+        opencare:intendedFor     opencare:finding-567 ;
+        opencare:recordedAt      "2026-03-01T10:00:00Z"^^xsd:dateTime ;
+        opencare:startDate       "2026-03-01"^^xsd:date ;
+        opencare:therapyName     "Physiotherapy" .
+
+<https://w3id.org/opencare/MedicalSpeciality/general-practice>
+        rdf:type                 opencare:MedicalSpeciality ;
+        rdfs:label               "General Practice" ;
+        dc:created               "2018-03-12T00:00:00Z"^^xsd:dateTime ;
+        opencare:description     "Primary care speciality for general health concerns." ;
+        opencare:specialityCode  "GP" .
+
+inst:organism-001  rdf:type      opencare:Organism ;
+        rdfs:label               "Maxim's Canine Model" ;
+        prov:wasDerivedFrom      <https://example.org/source/dataset-A> ;
+        opencare:birthDate       "2019-06-12"^^xsd:date ;
+        opencare:hasIdentifier   "ORG-0001" ;
+        opencare:scientificName  "Canis lupus familiaris" ;
+        opencare:sex             "Male" ;
+        opencare:taxonomyID      "9615" .
+
+<https://w3id.org/opencare/data/EnvironmentalSensitivity/ES-002>
+        rdf:type                      opencare:EnvironmentalSensitivity ;
+        <https://schema.org/dateCreated>
+                "2025-11-15"^^xsd:date ;
+        <https://schema.org/description>
+                "Immediate hypersensitivity reaction to cold temperatures causing hives and swelling." ;
+        <https://schema.org/identifier>
+                "ES-002" ;
+        <https://schema.org/name>     "Cold urticaria" ;
+        opencare:hasSensitivityLevel  "severe" ;
+        opencare:triggers             "cold air, cold water" .
+
+<https://w3id.org/opencare/lt/LT-0001>
+        rdf:type                 opencare:LaboratoryTest ;
+        rdfs:label               "Complete Blood Count - Hemoglobin"@en ;
+        dc:issued                "2026-04-08T09:30:00Z"^^xsd:dateTime ;
+        opencare:analyte         "Hemoglobin"@en ;
+        opencare:referenceRange  "13.0-17.0 g/dL" ;
+        opencare:resultValue     13.5 ;
+        opencare:specimenType    "Blood"@en ;
+        opencare:unit            "g/dL" .
+
+<https://w3id.org/opencare/Medication/med-aspirin-100>
+        rdf:type                      opencare:Medication ;
+        rdfs:label                    "Aspirin 100mg" ;
+        dc:created                    "2020-01-15T09:30:00Z"^^xsd:dateTime ;
+        dc:identifier                 "ASP-100" ;
+        opencare:dosage               "100"^^xsd:decimal ;
+        opencare:dosageUnit           "mg" ;
+        opencare:hasActiveIngredient  "Acetylsalicylic acid" ;
+        opencare:manufacturer         "Acme Pharmaceuticals" .
+
+opencare:Plant_001  rdf:type       opencare:Plant ;
+        rdfs:label                 "Fiddle-leaf fig" ;
+        prov:generatedAtTime       "2026-04-09T12:23:34Z"^^xsd:dateTime ;
+        opencare:botanicalName     "Ficus lyrata" ;
+        opencare:careInstructions  "Bright, indirect light; water when top 2 cm of soil is dry; maintain humidity ~60%" ;
+        opencare:commonName        "Fiddle-leaf fig" ;
+        opencare:datePlanted       "2023-05-10"^^xsd:date ;
+        opencare:healthStatus      "Good" ;
+        opencare:location          "Conservatory A1" ;
+        opencare:waterFrequency    "P7D"^^xsd:duration .
+
+<https://w3id.org/opencare/data/VitalSign/VS-001>
+        rdf:type                       <https://schema.org/VitalSign> ;
+        <https://schema.org/dateObserved>
+                "2026-04-09T08:30:00Z"^^xsd:dateTime ;
+        <https://schema.org/identifier>
+                "VS-001" ;
+        <https://schema.org/measurementTechnique>
+                "Automated oscillometric cuff" ;
+        <https://schema.org/name>      "Blood Pressure" ;
+        <https://schema.org/unitText>  "mmHg" ;
+        <https://schema.org/value>     "120/80" .
+
+opencare:menstrualhistory-002
+        rdf:type                   opencare:MenstrualHistory ;
+        rdfs:label                 "Menstrual history MH-002"@en ;
+        dc:creator                 <https://example.org/clinician/clin-5678> ;
+        dc:description             "Alternate menstrual history with longer cycle length and irregular pattern."@en ;
+        prov:generatedAtTime       "2025-02-14T09:00:00Z"^^xsd:dateTime ;
+        opencare:associatedGender  opencare:gender-female ;
+        opencare:cycleLengthDays   35 ;
+        opencare:cycleRegularity   "irregular"@en ;
+        opencare:menarcheAge       15 .
+
+<https://w3id.org/opencare/data/clinician/cl-amy>
+        rdf:type   foaf:Person ;
+        foaf:name  "Amy Taylor, MD" .
+
+opencare:owner-002  rdf:type  foaf:Person ;
+        foaf:name  "Ravi Kumar" .
+
+<https://w3id.org/opencare/organization/oc-3001>
+        rdf:type                      <https://schema.org/MedicalOrganization> ;
+        <https://schema.org/address>  [ rdf:type  <https://schema.org/PostalAddress> ;
+                                        <https://schema.org/addressLocality>
+                                                "Accra" ;
+                                        <https://schema.org/postalCode>
+                                                "GA-001" ;
+                                        <https://schema.org/streetAddress>
+                                                "8 Health Ave"
+                                      ] ;
+        <https://schema.org/name>     "Hope Women & Child Health Clinic" .
+
+opencare:immunization-001
+        rdf:type                     opencare:ImmunizationHistory ;
+        opencare:administrationSite  "Left arm" ;
+        opencare:dateAdministered    "2024-10-15"^^xsd:date ;
+        opencare:doseNumber          1 ;
+        opencare:provider            "City Health Clinic" ;
+        opencare:recordCreated       "2024-10-15T09:30:00"^^xsd:dateTime ;
+        opencare:vaccineName         "Influenza (IIV)" .
+
+opencare:Condition-htn
+        rdf:type    opencare:Condition ;
+        rdfs:label  "Hypertension" .
+
+opencare:ogms-0000073-2
+        rdf:type                     obo:OGMS_0000073 ;
+        rdfs:label                   "Nutritional status assessment"@en ;
+        dc:created                   "2026-04-09T10:45:00Z"^^xsd:dateTime ;
+        prov:wasAttributedTo         opencare:dietitian-1 ;
+        opencare:hasClinicalFinding  opencare:finding-567 .
+
+inst:END-0001  rdf:type          opencare:Endocrinologist ;
+        dc:created               "2024-09-10T08:00:00Z"^^xsd:dateTime ;
+        dc:identifier            "END-0001" ;
+        schema:medicalSpecialty  "Endocrinology" ;
+        foaf:name                "Dr. Maria López" ;
+        opencare:worksAt         inst:Clinic-001 .
+
+opencare:Hospital_NY  rdf:type  schema:Hospital ;
+        rdfs:label        "St. Mary's Medical Center" ;
+        vcard:hasAddress  [ rdf:type            vcard:Address ;
+                            vcard:country-name  "USA" ;
+                            vcard:locality      "New York"
+                          ] .
+
+opencare:Symptom-ItchyEyes
+        rdf:type    opencare:Symptom ;
+        rdfs:label  "Itchy eyes" .
+
+ex:CE2  rdf:type              opencare:ClinicalExamination ;
+        rdfs:label            "Clinical examination of Mary Lee"@en ;
+        dc:description        "Focused cardiovascular and respiratory examination."@en ;
+        prov:wasGeneratedBy   ex:Encounter2 ;
+        opencare:forPatient   ex:Patient2 ;
+        opencare:hasFinding   ex:CF2 ;
+        opencare:onDate       "2026-04-08"^^xsd:date ;
+        opencare:performedBy  ex:Practitioner1 .
+
+opencare:Condition-hypertension-2026
+        rdf:type                  opencare:Condition ;
+        rdfs:label                "Hypertension" ;
+        skos:definition           "A chronic condition characterized by persistently elevated blood pressure, increasing risk of cardiovascular disease." ;
+        opencare:hasTypicalOnset  "1950-01-01"^^xsd:date .
+
+<https://w3id.org/opencare/data/RiskFactor/rf-0002>
+        rdf:type                        opencare:RiskFactor ;
+        rdfs:label                      "Elevated HbA1c (consistent with prediabetes)" ;
+        dc:description                  "Laboratory-supported elevated glycated hemoglobin indicating increased risk for diabetes." ;
+        prov:wasAttributedTo            <https://w3id.org/opencare/data/Agent/clinician-789> ;
+        opencare:hasCode                "RF-MET-0002" ;
+        opencare:hasRelatedObservation  <https://w3id.org/opencare/data/LNC/LP64610-6/obs-001> ;
+        opencare:hasSeverity            "high" ;
+        opencare:reportedDate           "2026-03-11T11:20:00Z"^^xsd:dateTime .
+
+opencare:dataset-creation-20260409
+        rdf:type        prov:Activity ;
+        dc:created      "2026-04-09T12:26:32Z"^^xsd:dateTime ;
+        prov:generated  opencare:socialworker-001 ;
+        prov:used       opencare:ncit-C39564-001 .
+
+inst:BC-0002  rdf:type                 opencare:Bacteria ;
+        rdfs:label                     "Staphylococcus aureus MRSA isolate 2026-03-18" ;
+        dc:created                     "2026-03-19T11:40:00Z"^^xsd:dateTime ;
+        dc:creator                     <https://w3id.org/opencare/agent/lab-21> ;
+        dc:identifier                  "BC-0002" ;
+        prov:wasDerivedFrom            <https://w3id.org/opencare/sample/SAMP-1002> ;
+        opencare:antibioticResistance  "methicillin, clindamycin" ;
+        opencare:genomeSize            "2.8e6"^^xsd:decimal ;
+        opencare:isolatedFrom          "wound swab; adult patient" ;
+        opencare:isolationDate         "2026-03-18"^^xsd:date ;
+        opencare:pathogenicity         "Moderate-High (skin/soft tissue infections, invasive potential)" ;
+        opencare:species               "Staphylococcus aureus" ;
+        opencare:strain                "MRSA" .
+
+<https://w3id.org/opencare/instances/physicalTherapist/PT-1001>
+        rdf:type                opencare:PhysicalTherapist ;
+        dc:created              "2022-09-01T08:00:00Z"^^xsd:dateTime ;
+        prov:wasAttributedTo    <https://w3id.org/opencare/organization/StMarys-Rehab> ;
+        opencare:contactEmail   "maya.lopez@example.org" ;
+        opencare:fullName       "Maya Lopez, PT, DPT" ;
+        opencare:licenseNumber  "PT-73920" ;
+        opencare:specialty      "Orthopedic and post-operative rehabilitation" ;
+        opencare:worksAt        "St. Marys Outpatient Rehab Clinic" .
+
+<https://w3id.org/opencare/agents/data-generator-5>
+        rdf:type    opencare:DataGenerator ;
+        rdfs:label  "Automated data generator (worker-5)" .
+
+<https://w3id.org/opencare/data/DentalProcedure-001>
+        rdf:type                opencare:DentalProcedure ;
+        rdfs:label              "Composite filling - left upper molar" ;
+        dc:created              "2026-03-15T11:00:00Z"^^xsd:dateTime ;
+        dc:creator              <https://w3id.org/opencare/data/Practitioner-DrJaneDoe> ;
+        opencare:cost           120.00 ;
+        opencare:performedBy    <https://w3id.org/opencare/data/Practitioner-DrJaneDoe> ;
+        opencare:procedureCode  "D2391" ;
+        opencare:serviceDate    "2026-03-15T10:30:00Z"^^xsd:dateTime .
+
+<https://w3id.org/opencare/data/finding-1>
+        rdf:type                     opencare:ImagingFinding ;
+        opencare:findingCode         "R91.8" ;
+        opencare:findingDescription  "Mild bibasilar subsegmental atelectasis." .
+
+lnc:MTHU017829-2  rdf:type  lnc:MTHU017829 ;
+        rdfs:label      "Gastroenterology (sample concept instance)" ;
+        skos:prefLabel  "Gastroenterology" .
+
+opencare:HospitalPharmacist-001
+        rdf:type                  opencare:HospitalPharmacist ;
+        rdfs:label                "Dr. Emily Carter, PharmD" ;
+        dc:created                "2026-04-09T12:10:00Z"^^xsd:dateTime ;
+        prov:wasAttributedTo      <https://w3id.org/opencare/agent/data-generator> ;
+        foaf:name                 "Emily Carter" ;
+        opencare:identifier       "HPH-0001" ;
+        opencare:licenseNumber    "PH-2021-778" ;
+        opencare:qualification    "PharmD" ;
+        opencare:worksAt          opencare:CentralHospital ;
+        opencare:yearsExperience  9 .
+
+opencare:surgeon-anne-smith
+        rdf:type                opencare:PediatricSurgeon ;
+        dc:created              "2026-04-01"^^xsd:date ;
+        prov:wasAttributedTo    opencare:org-001 ;
+        foaf:name               "Anne Smith" ;
+        opencare:licenseNumber  "PS-2026-045" ;
+        opencare:worksAt        "Children's General Hospital" .
+
+opencare:DiagnosticProcedure-0001
+        rdf:type              schema:DiagnosticProcedure ;
+        schema:code           [ rdf:type           schema:PropertyValue ;
+                                schema:propertyID  "LOINC" ;
+                                schema:value       "567-8"
+                              ] ;
+        schema:datePublished  "2024-11-15"^^xsd:date ;
+        schema:description    "Blood test to detect rheumatoid factor (RF) antibodies used in the evaluation of rheumatoid arthritis." ;
+        schema:name           "Rheumatoid factor blood test" ;
+        schema:performer      opencare:Lab-Pathology-001 ;
+        schema:procedureType  "LaboratoryTest" .
+
+<https://w3id.org/opencare/org/unit/CentralLab>
+        rdf:type               org:OrganizationalUnit ;
+        rdfs:comment           "Provides testing services for in-patient and out-patient settings."@en ;
+        rdfs:label             "Central Clinical Laboratory"@en ;
+        dc:identifier          "CL-01" ;
+        org:classification     "Clinical Laboratory"@en ;
+        opencare:performsTest  <https://w3id.org/opencare/lt/LT-0001> , <https://w3id.org/opencare/lt/LT-0002> .
+
+opencare:supplement-001
+        rdf:type                   opencare:Supplement ;
+        opencare:activeIngredient  "Cholecalciferol" ;
+        opencare:dateIssued        "2025-11-10"^^xsd:date ;
+        opencare:dosage            "2000 IU" ;
+        opencare:lotNumber         "VD3-202601" ;
+        opencare:manufacturer      "SunHealth Labs" ;
+        opencare:productName       "Vitamin D3 2000 IU" .
+
+opencare:MTHU014081-1
+        rdf:type                   lnc:MTHU014081 ;
+        rdfs:label                 "Heart murmur (unspecified)"@en ;
+        dc:created                 "2026-04-09T12:13:18Z"^^xsd:dateTime ;
+        opencare:sourceCode        "MTHU014081" ;
+        opencare:sourceVocabulary  lnc:MTHU014081 .
+
+opencare:BodySystem_Respiratory
+        rdf:type                  opencare:BodySystem ;
+        rdfs:label                "Respiratory system" ;
+        dc:created                "2026-02-10T10:30:00Z"^^xsd:dateTime ;
+        skos:definition           "Organ system involved in breathing and gas exchange, including the lungs, trachea, and bronchi." ;
+        opencare:hasSemanticType  opencare:sty-T022-001 .
+
+opencare:surgeon-001  rdf:type       opencare:PlasticSurgeon ;
+        rdfs:label                   "Dr. Alessandra Rossi" ;
+        opencare:affiliatedHospital  "St. Mary's Medical Center" ;
+        opencare:createdBy           "OpenCare Data Generator" ;
+        opencare:createdOn           "2026-04-09"^^xsd:date ;
+        opencare:licenseNumber       "PLS-349201" ;
+        opencare:specializesIn       "Reconstructive and aesthetic breast surgery" ;
+        opencare:yearsExperience     12 .
+
+opencare:Patient-1  rdf:type  opencare:Patient ;
+        rdfs:label  "John Doe" .
+
+opencare:PharmaceuticalPreparation_PP002
+        rdf:type                      opencare:PharmaceuticalPreparation ;
+        rdfs:label                    "Amoxicillin 500 mg capsules (PP002)" ;
+        dc:description                "Oral antibiotic capsules for adult dosing of common bacterial infections." ;
+        opencare:batchNumber          "BATCH-2025-0100" ;
+        opencare:dosageForm           "capsule" ;
+        opencare:expiryDate           "2027-01-14"^^xsd:date ;
+        opencare:hasActiveIngredient  opencare:ActiveIngredient_Amoxicillin ;
+        opencare:manufactureDate      "2025-01-15"^^xsd:date ;
+        opencare:manufacturer         "WellCure Pharmaceuticals" ;
+        opencare:storageConditions    "Keep in original packaging, protect from moisture" ;
+        opencare:strength             "500 mg" .
+
+opencare:District-Ankara
+        rdf:type                  opencare:District ;
+        rdfs:label                "Ankara Central District"@en ;
+        dc:created                "2024-06-01"^^xsd:date ;
+        prov:wasDerivedFrom       <https://administrative.example.org/turkey/ankara> ;
+        opencare:areaSqKm         250.5 ;
+        opencare:hasPopulation    1500000 ;
+        opencare:officialWebsite  <https://ankara.example.gov.tr/> .
+
+opencare:country-nl  rdf:type  opencare:Country ;
+        rdfs:label           "Netherlands"@en ;
+        opencare:isoCode     "NL" ;
+        opencare:population  17441139 .
+
+opencare:surgeon-1  rdf:type        opencare:Surgeon ;
+        rdfs:label                  "Dr. Maria van Dijk" ;
+        foaf:mbox                   <mailto:m.vandijk@stmarys.example> ;
+        opencare:licenseNumber      "NL-ORTH-4521" ;
+        opencare:specialty          "Orthopedic Surgery" ;
+        opencare:surgeonId          "SURG-0001" ;
+        opencare:worksAt            "St. Mary's Hospital" ;
+        opencare:yearsOfExperience  15 .
+
+opencare:Region-South-West
+        rdf:type             opencare:Region ;
+        schema:dateCreated   "2010-04-01"^^xsd:date ;
+        schema:description   "Administrative health region covering the south-western districts, focused on primary care coordination." ;
+        schema:geo           [ rdf:type          schema:GeoCoordinates ;
+                               schema:latitude   51.2500 ;
+                               schema:longitude  -2.5833
+                             ] ;
+        schema:name          "South West Health Region" ;
+        opencare:areaKm2     4320.5 ;
+        opencare:population  725000 ;
+        opencare:regionCode  "SW-01" .
+
+opencare:LatexAllergy_1
+        rdf:type               opencare:LatexAllergy ;
+        rdfs:label             "Latex allergy — immediate hypersensitivity (Patient A)" ;
+        dc:created             "2024-08-15T09:30:00Z"^^xsd:dateTime ;
+        prov:wasDerivedFrom    <https://hospital.example.org/encounter/enc-20240815-A> ;
+        opencare:clinicalNote  "Confirmed by positive specific IgE and clinical history of immediate reaction during surgery glove exposure." ;
+        opencare:hasAllergen   opencare:Allergen_Latex ;
+        opencare:onsetDate     "2024-08-15"^^xsd:date ;
+        opencare:reaction      "anaphylaxis with urticaria and hypotension" ;
+        opencare:severity      "severe" .
+
+opencare:BodyTemperature_BT2
+        rdf:type                    opencare:BodyTemperature ;
+        opencare:hasValue           39.1 ;
+        opencare:measuredAt         "2026-04-09T13:15:00Z"^^xsd:dateTime ;
+        opencare:measuredBy         opencare:LPN_001 ;
+        opencare:measurementMethod  "tympanic" ;
+        opencare:unit               "degC" .
+
+opencare:HodgkinLymphoma
+        rdf:type    opencare:Disease ;
+        rdfs:label  "Hodgkin lymphoma" .
+
+opencare:Hospital_StMary
+        rdf:type          opencare:Hospital ;
+        opencare:address  "123 Medical Lane, Metropolis" ;
+        opencare:name     "St Mary Neuroscience Center" .
+
+ex:Sensitivity2  rdf:type          opencare:Sensitivity ;
+        rdfs:label                 "Peanut sensitivity" ;
+        dc:created                 "2025-03-15T09:30:00Z"^^xsd:dateTime ;
+        opencare:hasAgent          ex:Patient456 ;
+        opencare:sensitivityLevel  "moderate" .
+
+opencare:person-john  rdf:type  foaf:Person ;
+        foaf:familyName     "Smith" ;
+        foaf:givenName      "John" ;
+        foaf:homepage       <https://example.org/john> ;
+        foaf:knows          opencare:person-anna ;
+        foaf:mbox           <mailto:john.smith@example.org> ;
+        foaf:name           "John Smith" ;
+        opencare:birthDate  "1979-11-03"^^xsd:date .
+
+opencare:socialworker-001
+        rdf:type              opencare:SocialWorker ;
+        rdfs:label            "Maya Santos" ;
+        dc:created            "2026-04-09T12:26:32Z"^^xsd:dateTime ;
+        dc:identifier         "SW-0001" ;
+        schema:email          "maya.santos@example.org" ;
+        schema:telephone      "+1-555-212-3344" ;
+        prov:wasAttributedTo  <https://orcid.org/0000-0002-1825-0097> ;
+        foaf:name             "Maya Santos" ;
+        opencare:worksAt      opencare:community-health-center-001 .
+
+inst:traumasurgeon-001
+        rdf:type                opencare:TraumaSurgeon ;
+        rdfs:label              "Dr. A. Rivera" ;
+        schema:email            "a.rivera@opencare.example" ;
+        prov:wasAssociatedWith  <https://example.org/shift/2026-04-09-morning> ;
+        opencare:licenseNumber  "TS-98421" ;
+        opencare:memberOf       "Trauma Department" ;
+        opencare:qualification  "MD, FACS" ;
+        opencare:treats         inst:organism-002 ;
+        opencare:worksAt        <https://example.org/hospital/central> .
+
+opencare:Severity-Moderate
+        rdf:type                opencare:Severity ;
+        rdfs:label              "Moderate severity"@en ;
+        dc:created              "2026-04-09T12:00:00Z"^^xsd:dateTime ;
+        skos:prefLabel          "Moderate"@en ;
+        prov:wasAttributedTo    <https://w3id.org/opencare/agents/clinician-1> ;
+        opencare:severityCode   "MOD" ;
+        opencare:severityScore  2 .
+
+<https://w3id.org/opencare/data/RetailPharmacy-ElmStreet>
+        rdf:type        opencare:RetailPharmacy ;
+        rdfs:label      "Elm Street Pharmacy" ;
+        schema:address  "123 Elm St, Springfield" .
+
+<https://w3id.org/opencare/data/Practitioner-DrJaneDoe>
+        rdf:type                opencare:DentalPractitioner ;
+        rdfs:label              "Dr. Jane Doe, DDS" ;
+        opencare:licenseNumber  "D-123456" .
+
+opencare:AllergyRecordEntry-2
+        rdf:type                opencare:AllergyRecordEntry ;
+        dc:created              "2015-03-11"^^xsd:date ;
+        prov:wasAssociatedWith  opencare:Practitioner-2 .
+
+inst:snomed-43741000-1
+        rdf:type             snomed:43741000 , opencare:ClinicalFinding ;
+        rdfs:label           "Acute cough (example instance)" ;
+        dc:creator           <https://w3id.org/opencare/agents/clinician-1> ;
+        opencare:hasCode     "43741000" ;
+        opencare:recordedAt  "2025-03-10T09:15:00Z"^^xsd:dateTime .
+
+opencare:ClinicalNote_1
+        rdf:type    opencare:ClinicalNote ;
+        rdfs:label  "Encounter note (extraction)"@en ;
+        dc:creator  opencare:Clinician_1 ;
+        dc:issued   "2022-10-01T09:45:00Z"^^xsd:dateTime .
+
+opencare:District-CapeTown
+        rdf:type                  opencare:District ;
+        rdfs:label                "Cape Town Central District"@en ;
+        dc:created                "2023-11-15"^^xsd:date ;
+        prov:wasDerivedFrom       <https://data.gov.za/dataset/capetown-districts> ;
+        opencare:areaSqKm         400.6 ;
+        opencare:hasPopulation    433688 ;
+        opencare:officialWebsite  <https://www.capetown.gov.za/> .
+
+opencare:animal-001  rdf:type  opencare:Animal ;
+        rdfs:label            "Bella" ;
+        prov:wasAttributedTo  opencare:clinic-001 ;
+        opencare:birthDate    "2019-06-12"^^xsd:date ;
+        opencare:breed        "Labrador Retriever" ;
+        opencare:gender       "female" ;
+        opencare:owner        opencare:owner-001 ;
+        opencare:species      "Canis lupus familiaris" .
+
+opencare:Status-Suspected
+        rdf:type              opencare:Status ;
+        dc:created            "2023-07-22"^^xsd:date ;
+        prov:wasDerivedFrom   <https://example.org/record/rec-2002> ;
+        opencare:statusCode   "SUSP" ;
+        opencare:statusLabel  "suspected" .
+
+<https://w3id.org/opencare/data/idspec-1>
+        rdf:type                     opencare:InfectiousDiseaseSpecialist ;
+        foaf:name                    "Dr. Aisha Khan, MD" ;
+        opencare:boardCertification  "ABIM Infectious Disease" ;
+        opencare:contactEmail        "a.khan@ghclinic.org" ;
+        opencare:qualifiedAt         "University of Cape Town, 2010" ;
+        opencare:specialty           "Infectious Diseases" ;
+        opencare:worksAt             <https://w3id.org/opencare/data/GlobalHealthClinic> .
+
+ex:Dermatologist_1  rdf:type            opencare:Dermatologist ;
+        dc:created                      "2026-04-09T12:48:38Z"^^xsd:dateTime ;
+        schema:address                  "7000 Fannin St, Houston, TX" ;
+        schema:medicalSpecialty         "Dermatology" ;
+        foaf:name                       "Dr. Ana Martinez" ;
+        foaf:phone                      "+1-713-555-0123" ;
+        opencare:associatedOchvConcept  ex:C0332119_1 .
+
+opencare:Pollen  rdf:type  opencare:Allergen ;
+        rdfs:label  "Pollen" .
+
+<https://w3id.org/opencare/Practitioner/PR-100>
+        rdf:type            opencare:Practitioner ;
+        rdfs:label          "Dr. Eva van Dijk" ;
+        opencare:specialty  "Radiology" .
+
+<https://w3id.org/opencare/Facility/FAC-AMS-001>
+        rdf:type               opencare:HealthFacility ;
+        rdfs:label             "Amsterdam University Medical Center - Radiology Dept" ;
+        opencare:facilityType  "Hospital" ;
+        opencare:servesCity    <https://w3id.org/opencare/City/AMS> .
+
+opencare:Practitioner_DrAliceSmith
+        rdf:type                   opencare:HealthcareProfessional ;
+        rdfs:label                 "Dr Alice Smith" ;
+        dc:identifier              "DR-A-SMITH-001" ;
+        opencare:professionalRole  "General Practitioner" .
+
+<https://w3id.org/opencare/data/lnc/mthu034880/inst1>
+        rdf:type    lnc:MTHU034880 ;
+        rdfs:label  "Acute respiratory infection (MTHU034880)" ;
+        dc:created  "2024-11-01T10:00:00Z"^^xsd:dateTime .
+
+opencare:AllergySensitivity-1
+        rdf:type                     opencare:AllergySensitivity ;
+        rdfs:label                   "Peanut allergy (confirmed)" ;
+        dc:created                   "2022-05-14"^^xsd:date ;
+        prov:wasGeneratedBy          opencare:AllergyRecordEntry-1 ;
+        opencare:hasAllergen         "Peanuts" ;
+        opencare:hasReaction         "Anaphylaxis; hives; difficulty breathing" ;
+        opencare:onset               "2003-08-01"^^xsd:date ;
+        opencare:recordedBy          opencare:Practitioner-1 ;
+        opencare:relatedToPatient    opencare:Patient-1 ;
+        opencare:severity            "severe" ;
+        opencare:verificationStatus  "confirmed" .
+
+opencare:PastHistory-2
+        rdf:type               opencare:PastHistory ;
+        opencare:hasCondition  opencare:Condition-fracture ;
+        opencare:onsetDate     "2019-08-01"^^xsd:date ;
+        opencare:outcome       "healed with physiotherapy" ;
+        opencare:recordedBy    opencare:Practitioner-1 ;
+        opencare:resolvedDate  "2019-10-01"^^xsd:date .
+
+<https://w3id.org/opencare/record/hr-2>
+        rdf:type             opencare:HealthRecord ;
+        rdfs:label           "Health Record for Patient P-0002" ;
+        dc:created           "2025-04-01T14:05:00Z"^^xsd:dateTime ;
+        dc:creator           <https://w3id.org/opencare/agents/clinician-1> ;
+        opencare:hasPatient  <https://w3id.org/opencare/patient/p-2> .
+
+<https://w3id.org/opencare/data/infection/inf-002>
+        rdf:type              opencare:Infection ;
+        rdfs:label            "Influenza A infection - case 002" ;
+        dc:created            "2026-03-01T14:20:00Z"^^xsd:dateTime ;
+        prov:wasGeneratedBy   <https://w3id.org/opencare/data/encounter/enc-101> ;
+        opencare:diagnosedBy  <https://w3id.org/opencare/data/clinician/cl-john> ;
+        opencare:hasAgent     <https://w3id.org/opencare/data/lnc/mthu034880/inst1> ;
+        opencare:onset        "2026-02-28"^^xsd:date ;
+        opencare:severity     "mild" .
+
+<https://w3id.org/opencare/ImagingDevice/DEV-01>
+        rdf:type               opencare:ImagingDevice ;
+        rdfs:label             "Siemens Magnetom Skyra 3T" ;
+        opencare:manufacturer  "Siemens Healthineers" ;
+        opencare:model         "Magnetom Skyra" .
+
+opencare:Practitioner-1
+        rdf:type    opencare:HealthcareProvider , opencare:Practitioner ;
+        rdfs:label  "Dr. Mei Chen" , "Dr. A. Rivera" .
+
+ex:Patient-2  rdf:type       <https://schema.org/Person> ;
+        rdfs:label           "John Smith" ;
+        opencare:identifier  "JS-017" .
+
+opencare:SNOMEDCT-394733009-1
+        rdf:type                 snomed:394733009 ;
+        rdfs:label               "Stage 2 hypertension (disorder)" ;
+        dc:created               "2026-04-09T12:05:00Z"^^xsd:dateTime ;
+        dc:creator               opencare:Agent-Curator1 ;
+        dc:identifier            "394733009" ;
+        skos:prefLabel           "Stage 2 hypertension (SNOMED CT 394733009)" ;
+        opencare:clinicalStatus  "active" ;
+        opencare:code            snomed:394733009 .
+
+org:OpenCareGeneticsLab1
+        rdf:type     org:Organization ;
+        rdfs:label   "OpenCare Genetics Laboratory 1" ;
+        dc:created   "2018-06-01"^^xsd:date ;
+        org:hasSite  <https://opencare.example.org/labs/ocg1> ;
+        org:hasUnit  "Molecular Diagnostics" ;
+        foaf:mbox    "mailto:contact@opencare.example.org" .
+
+opencare:RadiologicTechnologist-1
+        rdf:type                opencare:RadiologicTechnologist ;
+        schema:email            "alex.nguyen@hospital.example.org" ;
+        schema:familyName       "Nguyen" ;
+        schema:givenName        "Alex" ;
+        schema:identifier       "RT-0001" ;
+        schema:telephone        "+1-555-0199" ;
+        opencare:licenseNumber  "RRT-2024-4512" ;
+        opencare:qualification  "Registered Radiologic Technologist (RRT)" ;
+        opencare:worksAt        opencare:CentralHospital .
+
+opencare:country-de  rdf:type  opencare:Country ;
+        rdfs:label           "Germany"@en ;
+        opencare:isoCode     "DE" ;
+        opencare:population  83190556 .
+
+<https://w3id.org/opencare/data/diagImgRes-1>
+        rdf:type                  opencare:DiagnosticImagingResult ;
+        opencare:bodySite         "Chest" ;
+        opencare:hasFinding       <https://w3id.org/opencare/data/finding-1> ;
+        opencare:hasImage         <https://w3id.org/opencare/data/image-ct-123> ;
+        opencare:imagingModality  "CT" ;
+        opencare:performedBy      <https://w3id.org/opencare/data/rad-1> ;
+        opencare:reportText       "No acute cardiopulmonary disease identified. Mild bibasilar subsegmental atelectasis." ;
+        opencare:studyDate        "2026-03-20T09:15:00Z"^^xsd:dateTime .
+
+opencare:ncit-C39564-001
+        rdf:type            <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C39564> ;
+        rdfs:label          "Care Coordination (NCIt C39564)" ;
+        dc:created          "2026-04-09T12:26:32Z"^^xsd:dateTime ;
+        dc:identifier       "NCIt-C39564-001" ;
+        skos:prefLabel      "Care Coordination" ;
+        opencare:relatedTo  opencare:socialworker-001 .
+
+opencare:clinic-123  rdf:type  opencare:Clinic ;
+        rdfs:label      "Greenfield Community Clinic"@en ;
+        schema:address  "12 High St, London, UK" .
+
+opencare:Clinician_1  rdf:type  opencare:HealthcareProvider ;
+        rdfs:label  "Dr. A. Example"@en .
+
+<https://w3id.org/opencare/Cardiologist/1>
+        rdf:type                  opencare:Cardiologist ;
+        schema:email              "ana.devries@example.org" ;
+        schema:name               "Dr. Ana de Vries" ;
+        schema:telephone          "+31-20-555-0101" ;
+        prov:generatedAtTime      "2026-04-09T12:00:00Z"^^xsd:dateTime ;
+        opencare:licenseNumber    "CARD-2026-0423" ;
+        opencare:specialty        "Interventional Cardiology" ;
+        opencare:worksIn          <https://w3id.org/opencare/Town/1> ;
+        opencare:yearsExperience  12 .
+
+opencare:OccupationalAllergy-2
+        rdf:type                  opencare:OccupationalAllergy ;
+        rdfs:label                "Occupational flour dust allergy" ;
+        dc:creator                "Occupational Health Service" ;
+        opencare:affectsRegion    opencare:AnatomicalRegion-1 ;
+        opencare:createdAt        "2026-04-09T12:12:00Z"^^xsd:dateTime ;
+        opencare:exposureContext  "Baker, long-term inhalation" ;
+        opencare:hasAllergen      "Wheat flour (Triticum aestivum)" ;
+        opencare:onsetDate        "2021-01-05"^^xsd:date ;
+        opencare:severity         "severe" .
+
+ex:labfinding-1001  rdf:type     opencare:LaboratoryFinding ;
+        rdfs:label               "Complete Blood Count - Hemoglobin" ;
+        dc:issued                "2024-11-15T09:23:00Z"^^xsd:dateTime ;
+        opencare:hasTestName     "Hemoglobin (Hb)" ;
+        opencare:performedBy     ex:lab-centrallab ;
+        opencare:referenceRange  "13.0-17.0 g/dL" ;
+        opencare:resultUnit      "g/dL" ;
+        opencare:resultValue     13.4 ;
+        opencare:specimenType    "Whole blood" .
+
+<https://w3id.org/opencare/agents/RegistrationAuthority_01>
+        rdf:type    opencare:RegulatoryAuthority ;
+        rdfs:label  "State Pharmacy Board" ;
+        dc:issued   "2020-01-15"^^xsd:date .
+
+opencare:therapy-002  rdf:type  opencare:MedicalTherapy ;
+        rdfs:label            "Chemotherapy Regimen - FOLFOX" ;
+        opencare:createdBy    "OpenCare Data Generator" ;
+        opencare:createdOn    "2026-04-09"^^xsd:date ;
+        opencare:drug         "FOLFOX regimen" ;
+        opencare:hasDuration  "6 months" ;
+        opencare:indication   "Stage II colorectal carcinoma" ;
+        opencare:performedBy  "Oncology Unit, St. Mary's Hospital" ;
+        opencare:startDate    "2024-09-01"^^xsd:date ;
+        opencare:successRate  0.65 .
+
+<https://w3id.org/opencare/Medication/med-paracetamol-500>
+        rdf:type                      opencare:Medication ;
+        rdfs:label                    "Paracetamol 500mg" ;
+        dc:created                    "2021-05-20T10:00:00Z"^^xsd:dateTime ;
+        dc:identifier                 "PAR-500" ;
+        opencare:dosage               "500"^^xsd:decimal ;
+        opencare:dosageUnit           "mg" ;
+        opencare:hasActiveIngredient  "Paracetamol" ;
+        opencare:manufacturer         "HealthCorp Ltd" .
+
+inst:clinicalfinding-2026-2
+        rdf:type              opencare:ClinicalFinding ;
+        rdfs:label            "Reduced grip strength left hand" ;
+        dc:creator            <https://w3id.org/opencare/agents/clinician-3> ;
+        opencare:bodySite     "left hand" ;
+        opencare:measurement  "Grip strength 18 kg (Jamar dynamometer)" ;
+        opencare:recordedAt   "2026-03-05T14:20:00Z"^^xsd:dateTime .
+
+<https://w3id.org/opencare/ClinicalPharmacist/CP-001>
+        rdf:type                     opencare:ClinicalPharmacist ;
+        rdfs:label                   "Dr. Amina Hussein" ;
+        schema:birthDate             "1983-07-14"^^xsd:date ;
+        schema:worksFor              <https://w3id.org/opencare/Organization/OC-001> ;
+        prov:wasAttributedTo         <https://w3id.org/opencare/Organization/OC-001> ;
+        foaf:familyName              "Hussein" ;
+        foaf:givenName               "Amina" ;
+        opencare:licenseIssueDate    "2010-06-01"^^xsd:date ;
+        opencare:licensedBy          "General Pharmaceutical Council (GPhC)" ;
+        opencare:registrationNumber  "CP-2026-0001" .
+
+opencare:BloodGroup_O_negative
+        rdf:type             opencare:BloodGroup ;
+        rdfs:label           "O-" ;
+        dc:created           "2026-04-09T12:31:10Z"^^xsd:dateTime ;
+        prov:wasDerivedFrom  <https://example.org/source/WHO-blood-groups> ;
+        opencare:abo         "O" ;
+        opencare:rh          "negative" .
+
+inst:agent_opencare_tool
+        rdf:type    prov:Agent ;
+        rdfs:label  "OpenCare Data Generator (worker3)"@en .
+
+opencare:Nurse1  rdf:type       opencare:Nurse ;
+        rdfs:label              "Aisha Mbatha, RN" ;
+        schema:birthDate        "1989-07-12"^^xsd:date ;
+        schema:familyName       "Mbatha" ;
+        schema:givenName        "Aisha" ;
+        prov:generatedAtTime    "2024-11-01T09:00:00Z"^^xsd:dateTime ;
+        prov:wasAttributedTo    <https://orcid.org/0000-0002-1825-0097> ;
+        opencare:licenseNumber  "RN-ZA-2024-0456" ;
+        opencare:qualification  "Bachelor of Nursing (BScN)" ;
+        opencare:worksAt        opencare:Hosp_CapeTown .
+
+<https://w3id.org/opencare/assessment/food-sensitivity-1>
+        rdf:type                   opencare:FoodSensitivity ;
+        rdfs:label                 "Peanut sensitivity"@en ;
+        dc:created                 "2026-04-01T09:30:00Z"^^xsd:dateTime ;
+        prov:wasDerivedFrom        <https://w3id.org/opencare/source/allergy-clinic-123> ;
+        opencare:onsetDate         "2010-06-15"^^xsd:date ;
+        opencare:reaction          "Anaphylaxis" ;
+        opencare:relatedToPatient  <https://w3id.org/opencare/patient/0001> ;
+        opencare:severity          "severe" ;
+        opencare:substance         "Peanut" .
+
+<https://w3id.org/opencare/Clinic/1>
+        rdf:type        opencare:Clinic ;
+        schema:address  "Straat 1, 1211 AB Hilversum" ;
+        schema:name     "Hilversum Heart Centre" .
+
+opencare:contact-diet-1
+        vcard:hasEmail      "ana.gomez@example.org" ;
+        vcard:hasTelephone  "+44-20-7946-0123" .
+
+<https://w3id.org/opencare/Town/1>
+        rdf:type                    opencare:Town ;
+        schema:name                 "Hilversum" ;
+        opencare:hasHealthFacility  <https://w3id.org/opencare/Clinic/1> ;
+        opencare:population         92300 ;
+        opencare:postalCode         "1211" .
+
+opencare:Lab-Pathology-001
+        rdf:type        schema:MedicalOrganization ;
+        schema:address  "123 Lab Street, Cityville" ;
+        schema:name     "Central Pathology Lab" .
+
+inst:conservative-therapy-ot-1
+        rdf:type                 opencare:ConservativeTherapy ;
+        rdfs:label               "Occupational therapy assessment and home exercise plan" ;
+        dc:creator               <https://w3id.org/opencare/agents/clinician-3> ;
+        opencare:administeredBy  <https://w3id.org/opencare/agents/ot-1> ;
+        opencare:frequency       "Home exercises daily" ;
+        opencare:intendedFor     opencare:Finding_PE1 ;
+        opencare:recordedAt      "2026-02-15T11:30:00Z"^^xsd:dateTime ;
+        opencare:startDate       "2026-02-15"^^xsd:date ;
+        opencare:therapyName     "Occupational therapy" .
+
+<https://w3id.org/opencare/people/Dr-Jane-Smith>
+        rdf:type                foaf:Person , opencare:Surgeon ;
+        foaf:name               "Dr. Jane Smith" ;
+        opencare:licenseNumber  "MD-45231" ;
+        opencare:worksAt        "St. Marys General Hospital" .
+
+opencare:sty-T022-001
+        rdf:type             <http://purl.bioontology.org/ontology/STY/T022> ;
+        rdfs:label           "Semantic type: T022 (Body System)" ;
+        dc:created           "2026-04-09T12:35:31Z"^^xsd:dateTime ;
+        skos:definition      "UMLS semantic type representing a body system or organ system." ;
+        prov:wasDerivedFrom  <https://identifiers.org/umls/STY:T022> .
+
+opencare:Surgeon_Dr_Smith
+        rdf:type    opencare:Practitioner ;
+        rdfs:label  "Dr. Alice Smith" .
+
+<https://w3id.org/opencare/org/CityHospital-1>
+        rdf:type          opencare:HealthcareOrganization ;
+        rdfs:label        "City General Hospital" ;
+        schema:address    "123 Main St, Metropolis" ;
+        schema:telephone  "+1-555-0001" .
+
+inst:organism-002  rdf:type      opencare:Organism ;
+        rdfs:label               "Patient 42 - Human" ;
+        prov:wasAttributedTo     <https://example.org/clinic/clinic-1> ;
+        opencare:birthDate       "1984-11-03"^^xsd:date ;
+        opencare:hasIdentifier   "ORG-0002" ;
+        opencare:scientificName  "Homo sapiens" ;
+        opencare:sex             "Female" ;
+        opencare:taxonomyID      "9606" .
+
+opencare:ochv_53152_inst1
+        rdf:type             ochv:53152 ;
+        rdfs:label           "ochv#53152 instance 1"@en ;
+        dc:created           "2026-04-09T12:11:54Z"^^xsd:dateTime ;
+        dc:identifier        "ochv-53152-1" ;
+        prov:wasGeneratedBy  opencare:AutoGenRun2026-04-09 ;
+        opencare:createdBy   opencare:AutomatedAgent .
+
+opencare:Process_HCPanel_1
+        rdf:type    opencare:LaboratoryProcess ;
+        rdfs:label  "Hereditary Cancer Panel run #1"@en ;
+        dc:created  "2026-04-08T09:30:00Z"^^xsd:dateTime .
+
+opencare:Plant_002  rdf:type       opencare:Plant ;
+        rdfs:label                 "Snake plant" ;
+        prov:generatedAtTime       "2026-04-09T12:23:34Z"^^xsd:dateTime ;
+        opencare:botanicalName     "Dracaena trifasciata" ;
+        opencare:careInstructions  "Low light tolerant; water sparingly (P21D recommended); well-draining soil" ;
+        opencare:commonName        "Snake plant (Mother-in-law's tongue)" ;
+        opencare:datePlanted       "2024-03-15"^^xsd:date ;
+        opencare:healthStatus      "Healthy" ;
+        opencare:location          "Office Greenwall B3" ;
+        opencare:waterFrequency    "P21D"^^xsd:duration .
+
+<https://w3id.org/opencare/lt/LT-0002>
+        rdf:type                 opencare:LaboratoryTest ;
+        rdfs:label               "Serum Creatinine"@en ;
+        dc:issued                "2026-04-07T14:20:00Z"^^xsd:dateTime ;
+        opencare:analyte         "Creatinine"@en ;
+        opencare:referenceRange  "0.6-1.2 mg/dL" ;
+        opencare:resultValue     0.95 ;
+        opencare:specimenType    "Serum"@en ;
+        opencare:unit            "mg/dL" .
+
+<https://w3id.org/opencare/data/VitalSign/VS-002>
+        rdf:type                       <https://schema.org/VitalSign> ;
+        <https://schema.org/dateObserved>
+                "2026-04-09T08:35:00Z"^^xsd:dateTime ;
+        <https://schema.org/identifier>
+                "VS-002" ;
+        <https://schema.org/measurementTechnique>
+                "Electrocardiogram (ECG)" ;
+        <https://schema.org/name>      "Heart Rate" ;
+        <https://schema.org/unitText>  "beats/min" ;
+        <https://schema.org/value>     72 .
+
+opencare:generator-2026-04-09
+        rdf:type                prov:Activity ;
+        rdfs:label              "Data generation activity 2026-04-09"@en ;
+        prov:wasAssociatedWith  <https://example.org/system/owllm> .
+
+opencare:Radiologist_001
+        rdf:type                   opencare:Radiologist ;
+        rdfs:label                 "Dr. Anna Müller"@en ;
+        schema:telephone           "+31-20-555-0123" ;
+        vcard:hasEmail             "mailto:anna.mueller@example.org" ;
+        prov:generatedAtTime       "2024-11-05T09:30:00Z"^^xsd:dateTime ;
+        foaf:name                  "Anna Müller" ;
+        opencare:hasQualification  "MD, Radiology" ;
+        opencare:licenseNumber     "RAD-45891" ;
+        opencare:worksAt           opencare:HealthcareOrg_UMC .
+
+<https://w3id.org/opencare/data/image-mr-987>
+        rdf:type             opencare:Image ;
+        opencare:accessURL   <https://w3id.org/opencare/data/images/mr987.dcm> ;
+        opencare:fileFormat  "DICOM" .
+
+rec:hr-0001  rdf:type         contsys:health_record ;
+        prov:generatedAtTime  "2026-04-08T10:00:00Z"^^xsd:dateTime ;
+        prov:wasAttributedTo  ex:clinician-77 ;
+        contsys:hasComponent  ex:pedi-0001 ;
+        contsys:patient       rec:patient-0001 ;
+        contsys:recordDate    "2026-04-08T09:30:00Z"^^xsd:dateTime .
+
+opencare:tp-001  rdf:type       opencare:TreatmentProcedure ;
+        rdfs:label              "Appendectomy - Laparoscopic" ;
+        dc:created              "2026-04-09T12:00:00Z"^^xsd:dateTime ;
+        dc:creator              opencare:data-generator ;
+        dc:description          "Laparoscopic appendectomy performed to remove an acutely inflamed appendix." ;
+        opencare:hasIndication  opencare:pf-001 ;
+        opencare:hasOutcome     "Recovered without complications" ;
+        opencare:performedBy    opencare:practitioner-anna ;
+        opencare:performedOn    "2023-11-12T09:30:00Z"^^xsd:dateTime ;
+        opencare:procedureCode  "0DTJ0ZZ" .
+
+opencare:Diagnosis_w2_001
+        rdf:type                opencare:Diagnosis ;
+        rdfs:comment            "Chronic condition characterized by insulin resistance." ;
+        dc:created              "2024-11-20T10:30:00Z"^^xsd:dateTime ;
+        dc:creator              "Clinic A" ;
+        opencare:diagnosisCode  "E11" ;
+        opencare:diagnosisDate  "2024-11-20"^^xsd:date ;
+        opencare:diagnosisName  "Type 2 Diabetes Mellitus" ;
+        opencare:severity       "moderate" .
+
+opencare:immunization-002
+        rdf:type                     opencare:ImmunizationHistory ;
+        opencare:administrationSite  "Right arm" ;
+        opencare:dateAdministered    "2023-06-20"^^xsd:date ;
+        opencare:doseNumber          1 ;
+        opencare:provider            "Downtown Medical Center" ;
+        opencare:recordCreated       "2023-06-20T14:45:00"^^xsd:dateTime ;
+        opencare:vaccineName         "Tetanus, Diphtheria, Pertussis (Tdap)" .
+
+<https://w3id.org/opencare/orgs/central-clinic-2>
+        rdf:type    opencare:HealthcareOrganization ;
+        rdfs:label  "Central Clinic Two" .
+
+<https://w3id.org/opencare/RegisteredNurse/RN-001>
+        rdf:type                     opencare:RegisteredNurse ;
+        rdfs:label                   "Nurse Juan Martinez" ;
+        schema:birthDate             "1990-03-22"^^xsd:date ;
+        schema:worksFor              <https://w3id.org/opencare/Organization/OC-001> ;
+        foaf:familyName              "Martinez" ;
+        foaf:givenName               "Juan" ;
+        opencare:licenseIssueDate    "2014-09-15"^^xsd:date ;
+        opencare:licensedBy          "Nursing and Midwifery Council (NMC)" ;
+        opencare:registrationNumber  "RN-2026-0056" .
+
+opencare:Finding_PE1  rdf:type  opencare:ClinicalFinding ;
+        rdfs:label            "Blood pressure and heart rate recorded" ;
+        opencare:bodySite     "left arm" ;
+        opencare:measurement  "BP 128/82 mmHg; HR 72 bpm" .
+
+obo:IDO_0000586_1  rdf:type       obo:IDO_0000586 ;
+        rdfs:label                "IDO_0000586 instance for clinical study 2026-04-09" ;
+        dc:created                "2026-04-09T12:53:12Z"^^xsd:dateTime ;
+        prov:wasGeneratedBy       opencare:ImportActivity_20260409 ;
+        opencare:clinicalContext  "Generated as representative instance for IDO_0000586 shape" .
+
+ex:Org_Pharmacy_001  rdf:type  opencare:Organization ;
+        rdfs:label        "Eastside Community Pharmacy" ;
+        opencare:address  "123 Main St, Anytown" ;
+        opencare:phone    "+1-555-0102" .
+
+<https://w3id.org/opencare/data/DentalProcedure-002>
+        rdf:type                opencare:DentalProcedure ;
+        rdfs:label              "Routine dental cleaning" ;
+        dc:created              "2026-02-20T09:45:00Z"^^xsd:dateTime ;
+        dc:creator              <https://w3id.org/opencare/data/Practitioner-DrJohnSmith> ;
+        opencare:cost           85.00 ;
+        opencare:performedBy    <https://w3id.org/opencare/data/Practitioner-DrJohnSmith> ;
+        opencare:procedureCode  "D1110" ;
+        opencare:serviceDate    "2026-02-20T09:00:00Z"^^xsd:dateTime .
+
+<https://w3id.org/opencare/disease/type-2-diabetes>
+        rdf:type             opencare:Disease ;
+        rdfs:label           "Type 2 diabetes mellitus"@en ;
+        dc:created           "2022-06-30"^^xsd:date ;
+        dc:creator           <https://w3id.org/opencare/agents/epidemiology-dept> ;
+        dc:description       "A chronic metabolic disorder characterized by insulin resistance and relative insulin deficiency leading to hyperglycaemia."@en ;
+        opencare:chronicity  "chronic" ;
+        opencare:icd10Code   "E11" ;
+        opencare:prevalence  8.5 .
+
+<https://w3id.org/opencare/data/finding-2>
+        rdf:type                     opencare:ImagingFinding ;
+        opencare:findingCode         "I67.89" ;
+        opencare:findingDescription  "Chronic microvascular ischemic change." .
+
+opencare:AnatomicalSite_Breast_Left
+        rdf:type    opencare:AnatomicalSite ;
+        rdfs:label  "Left breast"@en .
+
+opencare:CRNA1  rdf:type            opencare:CertifiedRegisteredNurseAnesthetist ;
+        rdfs:label                  "Dr. Maria Gonzalez, CRNA" ;
+        schema:birthDate            "1982-02-20"^^xsd:date ;
+        schema:familyName           "Gonzalez" ;
+        schema:givenName            "Maria" ;
+        prov:generatedAtTime        "2026-02-01T08:00:00Z"^^xsd:dateTime ;
+        prov:wasAttributedTo        <https://orcid.org/0000-0001-2345-6789> ;
+        opencare:licenseNumber      "CRNA-US-2010-7789" ;
+        opencare:qualification      "Certified Registered Nurse Anesthetist (CRNA)" ;
+        opencare:worksAt            opencare:Hospital_NY ;
+        opencare:yearsOfExperience  12 .
+
+opencare:Rheumatologist-1
+        rdf:type                 opencare:Rheumatologist , schema:Person ;
+        schema:affiliation       opencare:MetroRheumatologyClinic ;
+        schema:email             "a.karim@example.org" ;
+        schema:identifier        [ rdf:type           schema:PropertyValue ;
+                                   schema:propertyID  "NPI" ;
+                                   schema:value       "9998887777"
+                                 ] ;
+        schema:medicalSpecialty  "Rheumatology" ;
+        schema:name              "Dr. Aisha Karim" ;
+        schema:telephone         "+1-555-0100" .
+
+opencare:DiagnosticProcedure-0002
+        rdf:type              schema:DiagnosticProcedure ;
+        schema:code           [ rdf:type           schema:PropertyValue ;
+                                schema:propertyID  "SNOMED-CT" ;
+                                schema:value       "241478009"
+                              ] ;
+        schema:datePublished  "2025-01-20"^^xsd:date ;
+        schema:description    "Ultrasound imaging of wrist to assess synovitis and erosions in inflammatory arthritis." ;
+        schema:name           "Musculoskeletal ultrasound, wrist" ;
+        schema:performer      opencare:Rheumatologist-1 ;
+        schema:procedureType  "ImagingProcedure" .
+
+opencare:supplement-002
+        rdf:type                   opencare:Supplement ;
+        opencare:activeIngredient  "EPA/DHA" ;
+        opencare:dateIssued        "2025-12-01"^^xsd:date ;
+        opencare:dosage            "1000 mg" ;
+        opencare:lotNumber         "O3-202602" ;
+        opencare:manufacturer      "OceanPure Pharma" ;
+        opencare:productName       "Omega-3 Fish Oil 1000mg" .
+
+opencare:AllergyHistory_1
+        rdf:type               opencare:AllergyHistory ;
+        opencare:hasAllergy    opencare:DrugAllergy_1 ;
+        opencare:note          "Patient reports penicillin allergy since childhood." ;
+        opencare:patient       opencare:Patient_123 ;
+        opencare:recordedDate  "2024-05-15"^^xsd:date .
+
+opencare:LatexAllergy_2
+        rdf:type               opencare:LatexAllergy ;
+        rdfs:label             "Latex allergy — contact dermatitis (Patient B)" ;
+        dc:created             "2022-05-02T14:20:00Z"^^xsd:dateTime ;
+        prov:wasDerivedFrom    <https://clinic.example.org/visit/visit-20220502-B> ;
+        opencare:clinicalNote  "Patch testing positive; symptoms resolve with avoidance and emollients." ;
+        opencare:hasAllergen   opencare:Allergen_Latex ;
+        opencare:onsetDate     "2020-11-01"^^xsd:date ;
+        opencare:reaction      "delayed contact dermatitis localized to hands" ;
+        opencare:severity      "mild" .
+
+opencare:NursePractitioner_001
+        rdf:type                     opencare:NursePractitioner ;
+        rdfs:seeAlso                 opencare:LP120715_1 ;
+        dc:created                   "2024-09-15"^^xsd:date ;
+        schema:gender                "female" ;
+        schema:identifier            [ rdf:type           schema:PropertyValue ;
+                                       schema:propertyID  "license" ;
+                                       schema:value       "NP-2026-0001"
+                                     ] ;
+        schema:medicalSpecialty      "Family Medicine" ;
+        schema:name                  "Alex Morgan" ;
+        opencare:employedAt          opencare:CommunityHealthClinic_12 ;
+        opencare:licensedBy          opencare:StateBoardHealth_CA ;
+        opencare:registrationNumber  "NP-2026-0001" .
+
+<https://w3id.org/opencare/data/plant/AloeVera_Gel>
+        rdf:type                    opencare:PlantSubstance ;
+        rdfs:label                  "Aloe vera gel"@en ;
+        dc:created                  "2026-04-09"^^xsd:date ;
+        opencare:commonName         "Aloe vera"@en ;
+        opencare:hasSNOMEDMapping   <https://w3id.org/opencare/data/snomed/263490005-1> ;
+        opencare:hasTherapeuticUse  "Topical wound healing; anti-inflammatory"@en ;
+        opencare:latinName          "Aloe vera (L.) Burm.f."@en ;
+        opencare:partUsed           "Leaf gel"@en ;
+        opencare:preparationMethod  "Fresh gel expressed; dried aqueous extract"@en .
+
+opencare:Oncologist_001
+        rdf:type                 opencare:Oncologist ;
+        rdfs:label               "Dr. Amina K. Rahman" ;
+        schema:email             "amina.rahman@example.org" ;
+        schema:familyName        "Rahman" ;
+        schema:givenName         "Amina" ;
+        schema:medicalSpecialty  "Medical Oncology" ;
+        schema:telephone         "+1-555-234-9876" ;
+        prov:generatedAtTime     "2026-04-09T11:50:00Z"^^xsd:dateTime ;
+        opencare:licenseNumber   "ONC-2021-4589" ;
+        opencare:worksAt         "Central Oncology Clinic" .
+
+opencare:Practitioner_DrBobLee
+        rdf:type                   opencare:HealthcareProfessional ;
+        rdfs:label                 "Dr Robert Lee" ;
+        dc:identifier              "DR-R-LEE-002" ;
+        opencare:professionalRole  "Respiratory Specialist" .
+
+ex:diag-type-t2dm  rdf:type         opencare:DiagnosisType ;
+        rdfs:label                  "Type 2 diabetes mellitus" ;
+        dc:created                  "2020-03-12"^^xsd:date ;
+        opencare:diagnosisCategory  "endocrine, nutritional and metabolic" ;
+        opencare:icdCode            "E11" ;
+        opencare:severity           "chronic" .
+
+opencare:Food_w2_001  rdf:type  opencare:Food ;
+        dc:created            "2025-03-01T08:00:00Z"^^xsd:dateTime ;
+        dc:creator            "Nutritionist B" ;
+        opencare:allergens    "Milk" ;
+        opencare:calories     150 ;
+        opencare:category     "Dairy" ;
+        opencare:foodName     "Low-fat Yogurt" ;
+        opencare:ingredients  "Milk; Live cultures; Fruit" .
+
+opencare:Encounter_2026-04-09_01
+        rdf:type                opencare:ClinicalEncounter ;
+        rdfs:label              "Encounter for annual check (2026-04-09)" ;
+        dc:date                 "2026-04-09"^^xsd:date ;
+        prov:wasAssociatedWith  opencare:Practitioner_DrAliceSmith .
+
+opencare:animal-002  rdf:type  opencare:Animal ;
+        rdfs:label            "Milo" ;
+        prov:wasAttributedTo  opencare:clinic-001 ;
+        opencare:birthDate    "2021-11-03"^^xsd:date ;
+        opencare:breed        "Domestic Shorthair" ;
+        opencare:gender       "male" ;
+        opencare:owner        opencare:owner-002 ;
+        opencare:species      "Felis catus" .
+
+<https://w3id.org/opencare/people/Dr-Alex-Khan>
+        rdf:type                foaf:Person , opencare:Surgeon ;
+        foaf:name               "Dr. Alex Khan" ;
+        opencare:licenseNumber  "MD-99812" ;
+        opencare:worksAt        "Green Valley Medical Center" .
+
+<https://w3id.org/opencare/patient/p-1>
+        rdf:type            opencare:Patient ;
+        rdfs:label          "Patient A. Example" ;
+        opencare:patientID  "P-0001" .
+
+ex:Patient1  rdf:type  foaf:Person ;
+        dc:identifier  "patient-001" ;
+        foaf:name      "John Doe"@en .
+
+opencare:ImportActivity_20260409
+        rdf:type    prov:Activity ;
+        rdfs:label  "Bulk import activity for delegation round 3" ;
+        dc:created  "2026-04-09T12:53:12Z"^^xsd:dateTime .
+
+opencare:AnatomicalSite_Appendix
+        rdf:type    opencare:AnatomicalSite ;
+        rdfs:label  "Appendix"@en .
+
+opencare:Status-Confirmed
+        rdf:type              opencare:Status ;
+        dc:created            "2021-03-15"^^xsd:date ;
+        prov:wasDerivedFrom   <https://example.org/record/rec-1001> ;
+        opencare:statusCode   "CONF" ;
+        opencare:statusLabel  "confirmed" .
+
+opencare:DrugIntolerance-1
+        rdf:type             opencare:DrugIntolerance ;
+        dc:created           "2018-06-13"^^xsd:date ;
+        prov:wasDerivedFrom  <https://example.org/encounter/enc-54321> ;
+        opencare:hasStatus   opencare:Status-Confirmed ;
+        opencare:onset       "2018-06-12"^^xsd:date ;
+        opencare:reaction    "Urticaria (hives), facial swelling" ;
+        opencare:severity    "moderate" ;
+        opencare:substance   "Penicillin" .
+
+opencare:Clinician_100
+        rdf:type                opencare:Clinician ;
+        schema:familyName       "Davies" ;
+        schema:givenName        "Mark" ;
+        schema:jobTitle         "Allergy Specialist Nurse" ;
+        opencare:licenseNumber  "RN-94827" .
+
+opencare:Region-North-Valley
+        rdf:type             opencare:Region ;
+        schema:dateCreated   "2012-09-15"^^xsd:date ;
+        schema:description   "Rural health region in the North Valley, includes several community clinics and one regional hospital." ;
+        schema:geo           [ rdf:type          schema:GeoCoordinates ;
+                               schema:latitude   54.1000 ;
+                               schema:longitude  -1.6000
+                             ] ;
+        schema:name          "North Valley Health Region" ;
+        opencare:areaKm2     9825.0 ;
+        opencare:population  248400 ;
+        opencare:regionCode  "NV-02" .
+
+<https://w3id.org/opencare/data/hp-0012393-instance>
+        rdf:type             obo:HP_0012393 ;
+        rdfs:label           "HP_0012393 - clinical phenotype instance" ;
+        dc:created           "2026-04-09T10:20:00Z"^^xsd:dateTime ;
+        dc:source            obo:HP_0012393 ;
+        prov:wasDerivedFrom  <https://orcid.org/0000-0002-1825-0097> .
+
+<https://w3id.org/opencare/Practitioner/PR-101>
+        rdf:type            opencare:Practitioner ;
+        rdfs:label          "Dr. James Carter" ;
+        opencare:specialty  "Thoracic Radiology" .
+
+opencare:Anesthesiologist-1
+        rdf:type             opencare:Anesthesiologist ;
+        rdfs:label           "Dr. Anne Carter, MD"@en ;
+        dc:created           "2026-04-09"^^xsd:date ;
+        dc:creator           "automated-generator"@en ;
+        prov:wasDerivedFrom  opencare:GeneralHospital-1 ;
+        foaf:name            "Anne Carter" ;
+        opencare:professionalRegistrationNumber
+                "ANES-2026-0042" ;
+        opencare:specialty   "Cardiothoracic Anesthesia" ;
+        opencare:worksAt     opencare:GeneralHospital-1 .
+
+<https://w3id.org/opencare/data/RetailPharmacist-001>
+        rdf:type                opencare:RetailPharmacist ;
+        rdfs:label              "Alex Martinez" ;
+        dc:created              "2026-01-05T08:00:00Z"^^xsd:dateTime ;
+        opencare:licenseNumber  "RP-209843" ;
+        opencare:worksAt        <https://w3id.org/opencare/data/RetailPharmacy-ElmStreet> .
+
+opencare:AllergySensitivity-2
+        rdf:type                     opencare:AllergySensitivity ;
+        rdfs:label                   "Penicillin hypersensitivity (history of rash)" ;
+        dc:created                   "2015-03-11"^^xsd:date ;
+        prov:wasGeneratedBy          opencare:AllergyRecordEntry-2 ;
+        opencare:hasAllergen         "Penicillin" ;
+        opencare:hasReaction         "Morbiliform rash" ;
+        opencare:onset               "2015-03-10"^^xsd:date ;
+        opencare:recordedBy          opencare:Practitioner-2 ;
+        opencare:relatedToPatient    opencare:Patient-1 ;
+        opencare:severity            "moderate" ;
+        opencare:verificationStatus  "suspected" .
+
+<http://sbmi.uth.tmc.edu/ontology/instances/37278-1>
+        rdf:type        ochv:37278 ;
+        rdfs:label      "Clinical concept 37278" ;
+        dc:created      "2026-04-09T12:31:10Z"^^xsd:dateTime ;
+        dc:description  "Synthetic instance created to satisfy shape ochv#37278" .
+
+<https://w3id.org/opencare/ImagingDevice/DEV-02>
+        rdf:type               opencare:ImagingDevice ;
+        rdfs:label             "GE Revolution CT" ;
+        opencare:manufacturer  "GE Healthcare" ;
+        opencare:model         "Revolution" .
+
+opencare:Practitioner-2
+        rdf:type    opencare:HealthcareProvider ;
+        rdfs:label  "Dr. Rafael Gomez" .
+
+opencare:Condition-appendicitis
+        rdf:type    opencare:Condition ;
+        rdfs:label  "Appendicitis (2015)" .
+
+<https://w3id.org/opencare/data/diagImgRes-2>
+        rdf:type                  opencare:DiagnosticImagingResult ;
+        opencare:bodySite         "Brain" ;
+        opencare:hasFinding       <https://w3id.org/opencare/data/finding-2> ;
+        opencare:hasImage         <https://w3id.org/opencare/data/image-mr-987> ;
+        opencare:imagingModality  "MRI" ;
+        opencare:performedBy      <https://w3id.org/opencare/data/rad-2> ;
+        opencare:reportText       "Chronic microvascular ischemic change greater than expected for age. No acute intracranial hemorrhage or mass effect." ;
+        opencare:studyDate        "2026-02-11T14:30:00Z"^^xsd:dateTime .
+
+ex:BodySite-1  rdf:type               opencare:BodySite ;
+        rdfs:comment                  "A region on the anterior-lateral surface of the left forearm, used frequently for skin assessments." ;
+        rdfs:label                    "Left ventral forearm" ;
+        dc:created                    "2026-04-09T12:30:00Z"^^xsd:dateTime ;
+        prov:wasGeneratedBy           <https://w3id.org/opencare/tools/instance-generator/1> ;
+        opencare:anatomicalStructure  obo:UBERON_0002107 ;
+        opencare:laterality           "left" .
+
+opencare:Symptom-Sneezing
+        rdf:type    opencare:Symptom ;
+        rdfs:label  "Sneezing" .
+
+opencare:Clinician_2  rdf:type  opencare:HealthcareProvider ;
+        rdfs:label  "Nurse B. Sample"@en .
+
+opencare:Process_BRC1_Seq_1
+        rdf:type    opencare:LaboratoryProcess ;
+        rdfs:label  "BRCA1 sequencing run #1"@en ;
+        dc:created  "2026-04-09T12:00:00Z"^^xsd:dateTime .
+
+opencare:Prokaryote_Escherichia_coli
+        rdf:type                 opencare:Prokaryote ;
+        rdfs:label               "Escherichia coli" ;
+        dc:created               "2026-04-09T12:00:00Z"^^xsd:dateTime ;
+        opencare:canCause        opencare:Symptom_Fever ;
+        opencare:gramStain       "negative" ;
+        opencare:habitat         "human gut microbiome" ;
+        opencare:isPathogen      true ;
+        opencare:scientificName  "Escherichia coli" .
+
+opencare:physician-1  rdf:type       opencare:Physician ;
+        rdfs:label                   "Dr. Anna Müller"@en ;
+        dc:created                   "2024-10-01"^^xsd:date ;
+        opencare:registrationNumber  "MD-123456" ;
+        opencare:speciality          "General Practitioner"@en ;
+        opencare:worksIn             opencare:country-nl .
+
+opencare:SNOMED_410673009_1
+        rdf:type             snomed:410673009 ;
+        rdfs:label           "Alcohol consumption (finding)"@en ;
+        dc:created           "2022-10-01T10:00:00Z"^^xsd:dateTime ;
+        prov:wasDerivedFrom  opencare:ClinicalNote_1 .
+
+ex:labfinding-1002  rdf:type     opencare:LaboratoryFinding ;
+        rdfs:label               "Basic Metabolic Panel - Serum Sodium" ;
+        dc:issued                "2025-01-07T14:45:00Z"^^xsd:dateTime ;
+        opencare:hasTestName     "Sodium [Na+]" ;
+        opencare:performedBy     ex:lab-centrallab ;
+        opencare:referenceRange  "135-145 mmol/L" ;
+        opencare:resultUnit      "mmol/L" ;
+        opencare:resultValue     138 ;
+        opencare:specimenType    "Serum" .
+
+opencare:BloodGroup_A_positive
+        rdf:type             opencare:BloodGroup ;
+        rdfs:label           "A+" ;
+        dc:created           "2026-04-09T12:31:10Z"^^xsd:dateTime ;
+        prov:wasDerivedFrom  <https://example.org/source/WHO-blood-groups> ;
+        opencare:abo         "A" ;
+        opencare:rh          "positive" .
+
+opencare:Symptom_Cough
+        rdf:type           opencare:Symptom ;
+        rdfs:label         "Cough" ;
+        dc:created         "2026-04-09T12:00:00Z"^^xsd:dateTime ;
+        dc:description     "Reflex to clear the airways; can be dry or productive." ;
+        opencare:onset     "subacute" ;
+        opencare:severity  "mild" .
+
+<https://w3id.org/opencare/instances/surgicalHistory/SH-0001>
+        rdf:type                      opencare:SurgicalHistory ;
+        dc:created                    "2018-06-12T09:30:00Z"^^xsd:dateTime ;
+        prov:wasAttributedTo          <https://w3id.org/opencare/people/Dr-Jane-Smith> ;
+        opencare:anesthesia           "General" ;
+        opencare:hospital             "St. Marys General Hospital" ;
+        opencare:outcome              "Routine recovery; minor stiffness resolved with physiotherapy" ;
+        opencare:performedOnBodyPart  "Right knee" ;
+        opencare:procedureDate        "2018-06-12"^^xsd:date ;
+        opencare:procedureName        "Right knee arthroscopy with meniscectomy" ;
+        opencare:surgeon              <https://w3id.org/opencare/people/Dr-Jane-Smith> .
+
+opencare:Nurse2  rdf:type       opencare:Nurse ;
+        rdfs:label              "Liam O'Connor, RN" ;
+        schema:birthDate        "1991-03-02"^^xsd:date ;
+        schema:familyName       "O'Connor" ;
+        schema:givenName        "Liam" ;
+        prov:generatedAtTime    "2025-01-15T11:30:00Z"^^xsd:dateTime ;
+        prov:wasAttributedTo    <https://orcid.org/0000-0003-1415-9262> ;
+        opencare:licenseNumber  "RN-IE-2018-1123" ;
+        opencare:qualification  "Diploma in Nursing" ;
+        opencare:worksAt        opencare:Clinic_Dublin .
+
+opencare:chemo-1  rdf:type            opencare:ChemoTherapy ;
+        rdfs:label                    "ABVD regimen — cycle 1" ;
+        schema:endDate                "2026-03-15"^^xsd:date ;
+        schema:startDate              "2026-03-01"^^xsd:date ;
+        opencare:administeredBy       opencare:hematologist-1 ;
+        opencare:administrationRoute  opencare:Intravenous ;
+        opencare:indication           opencare:HodgkinLymphoma ;
+        opencare:usesDrug             opencare:Doxorubicin , opencare:Bleomycin .
+
+<https://w3id.org/opencare/Clinic/2>
+        rdf:type        opencare:Clinic ;
+        schema:address  "Laan 2, 1181 BB Amstelveen" ;
+        schema:name     "Amstelveen Cardiac Care" .
+
+<https://w3id.org/opencare/Town/2>
+        rdf:type                    opencare:Town ;
+        schema:name                 "Amstelveen" ;
+        opencare:hasHealthFacility  <https://w3id.org/opencare/Clinic/2> ;
+        opencare:population         86000 ;
+        opencare:postalCode         "1181" .
+
+<https://w3id.org/opencare/assessment/food-sensitivity-2>
+        rdf:type                   opencare:FoodSensitivity ;
+        rdfs:label                 "Lactose intolerance"@en ;
+        dc:created                 "2026-03-20T14:45:00Z"^^xsd:dateTime ;
+        prov:wasDerivedFrom        <https://w3id.org/opencare/source/patient-report-456> ;
+        opencare:onsetDate         "2018-08-01"^^xsd:date ;
+        opencare:reaction          "Diarrhea and bloating" ;
+        opencare:relatedToPatient  <https://w3id.org/opencare/patient/0002> ;
+        opencare:severity          "mild" ;
+        opencare:substance         "Lactose" .
+
+opencare:AutomatedAgent
+        rdf:type    prov:SoftwareAgent ;
+        rdfs:label  "Automated instance generator (Copilot)"@en .
+
+<https://w3id.org/opencare/data/observational-finding-001>
+        rdf:type                opencare:ObservationalFinding ;
+        rdfs:label              "Resting heart rate observation - 2026-04-09" ;
+        dc:created              "2026-04-09T10:15:00Z"^^xsd:dateTime ;
+        dc:creator              <https://w3id.org/opencare/agents/device-hrm-01> ;
+        prov:wasGeneratedBy     <https://w3id.org/opencare/activities/measurement-hr-20260409-01> ;
+        opencare:observedUnit   "beats/min" ;
+        opencare:observedValue  62 .
+
+<https://w3id.org/opencare/review/ros-2001>
+        rdf:type              opencare:ReviewOfSystem ;
+        rdfs:label            "Review of systems — vision and ocular symptoms" ;
+        opencare:createdAt    "2026-04-09T12:00:00Z"^^xsd:dateTime ;
+        opencare:date         "2026-04-09"^^xsd:date ;
+        opencare:finding      "Blurry vision in left eye; floaters" ;
+        opencare:notes        "Onset over 2 weeks; no trauma reported." ;
+        opencare:performedBy  <https://w3id.org/opencare/ophthalmologist/oph-1001> ;
+        opencare:systemName   "Vision" .
+
+ex:Neurologist-001  rdf:type     opencare:Neurologist ;
+        opencare:affiliation     <https://orcid.org/0000-0002-1825-0097> ;
+        opencare:contactEmail    "ana.pereira@example.org" ;
+        opencare:fullName        "Dr. Ana Pereira" ;
+        opencare:licenseNumber   "NEU-789452" ;
+        opencare:profileCreated  "2026-04-09T12:00:00Z"^^xsd:dateTime ;
+        opencare:specialty       "Clinical Neurology" ;
+        opencare:worksAt         "St. Mary's Neurology Clinic" .
+
+opencare:MedicationSensitivity_penicillin
+        rdf:type             opencare:MedicationSensitivity ;
+        prov:wasDerivedFrom  <https://ehr.example.org/record/medsens/1002> ;
+        opencare:reaction    "Anaphylaxis" ;
+        opencare:recordedBy  opencare:Neurosurgeon_001 ;
+        opencare:recordedOn  "2023-07-01T10:05:00Z"^^xsd:dateTime ;
+        opencare:severity    "severe" ;
+        opencare:substance   "Penicillin" .
+
+opencare:LP120715_1  rdf:type  lnc:LP120715-0 ;
+        rdfs:label          "LP120715 instance: Primary Care Visit" ;
+        dc:created          "2026-04-09"^^xsd:date ;
+        schema:description  "Classification instance for code LP120715-0 representing primary care nursing activity." ;
+        opencare:source     "LNC" .
+
+opencare:RespiratoryTherapist-001
+        rdf:type                 opencare:RespiratoryTherapist ;
+        rdfs:label               "Dr. Samuel Osei" ;
+        schema:medicalSpecialty  "Respiratory therapy" ;
+        prov:wasAttributedTo     <https://w3id.org/opencare/agent/data-generator> ;
+        foaf:name                "Samuel Osei" ;
+        opencare:identifier      "RT-100" ;
+        opencare:licenseNumber   "GH-RT-2020-045" ;
+        opencare:licensedIn      "Ghana" ;
+        opencare:worksAt         <https://w3id.org/opencare/hospital/AccraCentral> .
+
+ex:ochv-47686-001  rdf:type   ochv:47686 ;
+        rdfs:label            "Occupational health visit 47686 - initial assessment" ;
+        dc:created            "2026-04-09T12:09:04Z"^^xsd:dateTime ;
+        prov:wasGeneratedBy   opencare:Agent-Curator1 ;
+        opencare:location     opencare:CentralHospital ;
+        opencare:note         "Initial functional capacity assessment including ADL/IADL screening and workplace ergonomics review." ;
+        opencare:patient      opencare:Patient-001 ;
+        opencare:performedBy  ex:OccupationalTherapist-001 .
+
+opencare:GeneticTest_BRCA1_Seq_1
+        rdf:type             opencare:GeneticTest ;
+        rdfs:label           "BRCA1 sequencing (germline) test"@en ;
+        dc:created           "2026-04-09T12:32:47Z"^^xsd:dateTime ;
+        dc:creator           opencare:Lab_Genomics_01 ;
+        prov:wasGeneratedBy  opencare:Process_BRC1_Seq_1 ;
+        opencare:method      "Next-generation sequencing"@en ;
+        opencare:testsGene   opencare:Gene_BRCA1 .
+
+opencare:DrugAllergy_1
+        rdf:type             opencare:DrugAllergy ;
+        opencare:confirmed   true ;
+        opencare:onset       "1998-01-01"^^xsd:date ;
+        opencare:reaction    "Hives and facial swelling" ;
+        opencare:recordedBy  opencare:Clinician_789 ;
+        opencare:severity    "moderate" ;
+        opencare:substance   "Penicillin" .
+
+ex:Encounter1  rdf:type  opencare:Encounter ;
+        dc:date       "2026-04-09T09:30:00Z"^^xsd:dateTime ;
+        dc:publisher  ex:Practitioner1 .
+
+opencare:allergicDisposition-001
+        rdf:type                    opencare:AllergicDisposition ;
+        rdfs:label                  "Disposition to pollen allergens - disp001" ;
+        dc:created                  "2024-04-15"^^xsd:date ;
+        opencare:associatedAllergy  opencare:seasonalAllergy-001 ;
+        opencare:confirmedBy        "skin prick test" ;
+        opencare:onsetAge           12 .
+
+opencare:tp-002  rdf:type       opencare:TreatmentProcedure ;
+        rdfs:label              "Systemic chemotherapy - Cycle 1" ;
+        dc:created              "2026-04-09T12:02:00Z"^^xsd:dateTime ;
+        dc:creator              opencare:data-generator ;
+        dc:description          "First cycle of systemic chemotherapy for breast carcinoma." ;
+        opencare:hasIndication  opencare:pf-002 ;
+        opencare:hasOutcome     "Partial response" ;
+        opencare:medication     "Doxorubicin 60 mg/m2" ;
+        opencare:performedBy    opencare:practitioner-ben ;
+        opencare:performedOn    "2024-02-01T08:00:00Z"^^xsd:dateTime ;
+        opencare:procedureCode  "CHEMO-C1" .
+
+opencare:Diagnosis_w2_002
+        rdf:type                opencare:Diagnosis ;
+        rdfs:comment            "Persistent high blood pressure without identifiable secondary cause." ;
+        dc:created              "2025-02-05T09:15:00Z"^^xsd:dateTime ;
+        dc:creator              "Clinic B" ;
+        opencare:diagnosisCode  "I10" ;
+        opencare:diagnosisDate  "2025-02-05"^^xsd:date ;
+        opencare:diagnosisName  "Essential (primary) hypertension" ;
+        opencare:severity       "mild" .
+
+opencare:InsectStingAllergy_001
+        rdf:type                opencare:InsectStingAllergy ;
+        rdfs:label              "Honeybee sting allergy (confirmed)"@en ;
+        prov:generatedAtTime    "2023-06-15T09:30:00Z"^^xsd:dateTime ;
+        opencare:allergen       "Honeybee (Apis mellifera)" ;
+        opencare:confirmedBy    opencare:Psychiatrist_001 ;
+        opencare:dateDiagnosed  "2023-06-15"^^xsd:date ;
+        opencare:reaction       "Anaphylaxis, hives, throat tightness" ;
+        opencare:severity       "severe" ;
+        opencare:treatment      "Epinephrine auto-injector prescribed; allergy action plan provided." .
+
+opencare:pediatrician-anna-kline
+        rdf:type                       opencare:Pediatrician ;
+        rdfs:label                     "Dr. Anna Kline" ;
+        foaf:familyName                "Kline" ;
+        foaf:givenName                 "Anna" ;
+        opencare:contactEmail          "anna.kline@brightonpeds.example" ;
+        opencare:medicalLicenseNumber  "MD-PA-48291" ;
+        opencare:registrationDate      "2014-06-15"^^xsd:date ;
+        opencare:specialty             "Pediatrics" ;
+        opencare:worksAt               opencare:clinic-brighton .
+
+opencare:Encounter-1  rdf:type  opencare:Encounter ;
+        schema:dateCreated     "2026-04-09T12:07:31Z"^^xsd:dateTime ;
+        schema:description     "Chest X-ray for suspected pneumonia" ;
+        schema:endDate         "2026-04-07T09:30:00"^^xsd:dateTime ;
+        schema:identifier      "E-2026-0001" ;
+        schema:startDate       "2026-04-07T09:15:00"^^xsd:dateTime ;
+        opencare:encounterFor  opencare:Patient-001 ;
+        opencare:modality      "X-ray" ;
+        opencare:performedBy   opencare:RadiologicTechnologist-1 .
+
+opencare:Finding_PE2  rdf:type  opencare:ClinicalFinding ;
+        rdfs:label            "Lung auscultation: mild wheeze" ;
+        opencare:bodySite     "thorax" ;
+        opencare:measurement  "Wheeze noted on expiration; no crackles" .
+
+opencare:SkinAllergy_001
+        rdf:type             opencare:SkinAllergy ;
+        schema:name          "Contact dermatitis to nickel" ;
+        opencare:allergen    "Nickel" ;
+        opencare:confirmed   true ;
+        opencare:onsetDate   "2020-06-15"^^xsd:date ;
+        opencare:reaction    "Erythema, pruritus and occasional vesiculation" ;
+        opencare:recordedBy  opencare:Clinician_100 ;
+        opencare:severity    "moderate" .
+
+<https://w3id.org/opencare/orgs/university-hospital-1>
+        rdf:type    opencare:HealthcareOrganization ;
+        rdfs:label  "University Hospital One" .
+
+opencare:Diagnosis_12345
+        rdf:type                opencare:Diagnosis ;
+        rdfs:label              "Breast carcinoma, confirmed by biopsy"@en ;
+        opencare:diagnosisCode  "C50.9" .
+
+opencare:AllergyHistory_2
+        rdf:type               opencare:AllergyHistory ;
+        opencare:hasAllergy    opencare:DrugAllergy_2 ;
+        opencare:note          "Multiple drug intolerances documented; details in linked allergy instances." ;
+        opencare:patient       opencare:Patient_456 ;
+        opencare:recordedDate  "2023-11-20"^^xsd:date .
+
+<https://w3id.org/opencare/ophthalmologist/oph-1001>
+        rdf:type                 opencare:Ophthalmologist ;
+        rdfs:label               "Dr. Anika Patel, MD, Ophthalmology" ;
+        opencare:licenseNumber   "OPH-482916" ;
+        opencare:qualifiedSince  "2012-06-01"^^xsd:date ;
+        opencare:specialty       "Retina" ;
+        opencare:worksAt         <https://w3id.org/opencare/organization/eye-centre-nyc> .
+
+<https://w3id.org/opencare/data/Agent/clinician-789>
+        rdf:type    prov:Agent ;
+        rdfs:label  "Dr. Ana Gomez" .
+
+opencare:NorthsideMedicalCenter
+        rdf:type                  opencare:SiteOfCare ;
+        dc:created                "1998-11-03"^^xsd:date ;
+        schema:address            "200 North Ave, Northside, CA, USA" ;
+        schema:name               "Northside Medical Center" ;
+        schema:telephone          "+1-555-0199" ;
+        opencare:capacity         250 ;
+        opencare:providesService  opencare:SurgicalCare .
+
+obo:HP_0410323_instance_01
+        rdf:type             obo:HP_0410323 ;
+        rdfs:label           "HP:0410323 - Example Phenotypic Abnormality" ;
+        dc:created           "2026-03-10"^^xsd:date ;
+        dc:description       "Clinical observation consistent with HP_0410323 recorded in patient note 12345." ;
+        prov:wasDerivedFrom  <https://clinical.example.org/record/12345> .
+
+opencare:BodyPart-pancreas-001
+        rdf:type               opencare:BodyPart ;
+        rdfs:label             "Pancreas" ;
+        skos:definition        "An abdominal organ involved in digestion and endocrine regulation of blood glucose via insulin and glucagon." ;
+        opencare:partOfSystem  "Digestive and endocrine systems" .
+
+opencare:PresentHistory-1
+        rdf:type               opencare:PresentHistory ;
+        opencare:hasCondition  opencare:Condition-htn ;
+        opencare:note          "Patient reports daily headaches and elevated BP readings." ;
+        opencare:onsetDate     "2024-11-01"^^xsd:date ;
+        opencare:recordedBy    opencare:Practitioner-1 ;
+        opencare:status        "ongoing" .
+
+opencare:BodyPart-heart-001
+        rdf:type               opencare:BodyPart ;
+        rdfs:label             "Heart" ;
+        skos:definition        "A muscular organ that pumps blood through the circulatory system." ;
+        opencare:partOfSystem  "Circulatory system" .
+
+opencare:PhysicalExamination_2026-04-09_01
+        rdf:type              opencare:PhysicalExamination ;
+        rdfs:label            "Physical examination - Annual check (2026-04-09)" ;
+        dc:created            "2026-04-09T09:30:00Z"^^xsd:dateTime ;
+        prov:wasGeneratedBy   opencare:Encounter_2026-04-09_01 ;
+        opencare:examDate     "2026-04-09"^^xsd:date ;
+        opencare:hasFinding   opencare:Finding_PE1 ;
+        opencare:performedBy  opencare:Practitioner_DrAliceSmith ;
+        opencare:performedOn  opencare:Patient_JDoe .
+
+ex:pedi-0002-growth1  rdf:type    opencare:GrowthRecord ;
+        opencare:height           "130"^^xsd:decimal ;
+        opencare:heightUnit       "cm" ;
+        opencare:measurementDate  "2025-03-02"^^xsd:date ;
+        opencare:weight           32.0 .
+
+opencare:Patient_123  rdf:type  opencare:Patient ;
+        opencare:fullName  "Alice M. Garcia" .
+
+opencare:PathologicProcess_pp1
+        rdf:type                    opencare:PathologicProcess ;
+        rdfs:label                  "Invasive Ductal Carcinoma - Left Breast"@en ;
+        prov:generatedAtTime        "2025-01-15T10:00:00Z"^^xsd:dateTime ;
+        opencare:associatedWithDiagnosis
+                opencare:Diagnosis_12345 ;
+        opencare:clinicalSeverity   "High" ;
+        opencare:hasAnatomicalSite  opencare:AnatomicalSite_Breast_Left ;
+        opencare:hasMorphology      "Invasive ductal carcinoma" .
+
+<https://w3id.org/opencare/data/snomed/263490005-1>
+        rdf:type             snomed:263490005 ;
+        rdfs:label           "Aloe vera extract (substance)"@en ;
+        dc:issued            "2020-01-01"^^xsd:date ;
+        dc:source            <https://www.snomed.org/> ;
+        skos:definition      "An extract prepared from the leaf of Aloe vera used for topical applications."@en ;
+        prov:wasDerivedFrom  <https://pubmed.ncbi.nlm.nih.gov/12345678> .
+
+<https://w3id.org/opencare/data/MedicalProceduresSensitivity/mps-001>
+        rdf:type                      opencare:MedicalProceduresSensitivity ;
+        rdfs:label                    "Sensitivity to respiratory procedures" ;
+        dc:created                    "2021-01-05"^^xsd:date ;
+        dc:creator                    <https://w3id.org/opencare/agents/copilot> ;
+        dc:description                "Indicates sensitivity concerns for medical procedures involving respiratory pathogens." ;
+        opencare:appliesTo            <https://w3id.org/opencare/data/Virus/virus-001> ;
+        opencare:hasSensitivityLevel  "high" .
+
+<https://w3id.org/opencare/data/envAllergy-001>
+        rdf:type                   opencare:EnvironmentalAllergy ;
+        rdfs:label                 "Environmental allergy to grass pollen" ;
+        schema:dateCreated         "2023-05-10"^^xsd:date ;
+        prov:wasDerivedFrom        <https://doi.org/10.1000/example-study-1> ;
+        opencare:allergen          "Grass pollen" ;
+        opencare:exposureLocation  "Outdoors" ;
+        opencare:severity          "moderate" .
+
+ex:ClinicalProfessional_CP-0001
+        rdf:type                opencare:ClinicalProfessional ;
+        dc:created              "2023-08-01T10:00:00Z"^^xsd:dateTime ;
+        opencare:email          "aisha.okafor@example.org" ;
+        opencare:familyName     "Okafor" ;
+        opencare:givenName      "Aisha" ;
+        opencare:identifier     "cp-0001" ;
+        opencare:licenseNumber  "MD-45231" ;
+        opencare:phone          "+44-20-7946-0958" ;
+        opencare:qualifiedAt    "2010-06-15"^^xsd:date ;
+        opencare:specialty      "General Practitioner" ;
+        opencare:worksAt        ex:Organization_HealthCentre-21 .
+
+<https://w3id.org/opencare/data/rad-1>
+        rdf:type                     opencare:Radiologist ;
+        foaf:name                    "Dr. Elena Mora, MD" ;
+        opencare:registrationNumber  "RAD-20234" .
+
+opencare:Food_w2_002  rdf:type  opencare:Food ;
+        dc:created            "2025-03-10T07:30:00Z"^^xsd:dateTime ;
+        dc:creator            "Bakery C" ;
+        opencare:allergens    "Gluten" ;
+        opencare:calories     120 ;
+        opencare:category     "Bakery" ;
+        opencare:foodName     "Whole Grain Bread" ;
+        opencare:ingredients  "Whole wheat flour; Water; Yeast; Salt" .
+
+<https://w3id.org/opencare/instances/Organization/CityLab>
+        rdf:type          schema:Organization ;
+        schema:address    "123 Health Ave, Metropolis" ;
+        schema:name       "CityLab Diagnostic Services" ;
+        schema:telephone  "+1-555-0100" .
+
+opencare:SNOMED-246112005-1
+        rdf:type              snomed:246112005 ;
+        rdfs:label            "Example SNOMED concept 246112005"@en ;
+        dc:created            "2026-04-09T12:20:00Z"^^xsd:dateTime ;
+        dc:source             <http://purl.bioontology.org/ontology/SNOMEDCT> ;
+        skos:prefLabel        "SNOMED-246112005-instance"@en ;
+        opencare:hasSeverity  opencare:Severity-Severe .
+
+opencare:Encounter_2026-04-09_02
+        rdf:type                opencare:ClinicalEncounter ;
+        rdfs:label              "Respiratory follow-up encounter (2026-04-09)" ;
+        dc:date                 "2026-04-09"^^xsd:date ;
+        prov:wasAssociatedWith  opencare:Practitioner_DrBobLee .
+
+<https://w3id.org/opencare/agents/clinician-1>
+        rdf:type    opencare:Clinician ;
+        rdfs:label  "Dr. Anne Example" .
+
+<https://w3id.org/opencare/encounter-type/primary-care-visit>
+        rdf:type                   opencare:EncounterType ;
+        rdfs:label                 "Primary Care Visit"@en ;
+        dc:created                 "2024-01-15"^^xsd:date ;
+        dc:creator                 <https://w3id.org/opencare/agents/clinic-123> ;
+        dc:description             "A scheduled appointment with a primary care clinician for diagnosis, treatment, or follow-up. Typical for routine assessments and chronic disease management."@en ;
+        opencare:encounterSetting  "ambulatory" ;
+        opencare:typicalDuration   "PT20M"^^xsd:duration .
+
+<https://w3id.org/opencare/patient/p-2>
+        rdf:type            opencare:Patient ;
+        rdfs:label          "Patient B. Sample" ;
+        opencare:patientID  "P-0002" .
+
+ex:Patient2  rdf:type  foaf:Person ;
+        dc:identifier  "patient-002" ;
+        foaf:name      "Mary Lee"@en .
+
+opencare:data-generator
+        rdf:type    foaf:Organization ;
+        rdfs:label  "OpenCare Data Generator" .
+
+<https://w3id.org/opencare/data/Practitioner-DrJohnSmith>
+        rdf:type                opencare:DentalPractitioner ;
+        rdfs:label              "Dr. John Smith, DDS" ;
+        opencare:licenseNumber  "D-654321" .
+
+opencare:DrugIntolerance-2
+        rdf:type             opencare:DrugIntolerance ;
+        dc:created           "2022-11-06"^^xsd:date ;
+        prov:wasDerivedFrom  <https://example.org/encounter/enc-98765> ;
+        opencare:hasStatus   opencare:Status-Suspected ;
+        opencare:onset       "2022-11-05"^^xsd:date ;
+        opencare:reaction    "Bronchospasm and rash" ;
+        opencare:severity    "severe" ;
+        opencare:substance   "Aspirin" .
+
+ex:Patient_PT-1001  rdf:type  opencare:Patient ;
+        opencare:dateOfBirth  "1980-04-12"^^xsd:date ;
+        opencare:familyName   "Ibrahim" ;
+        opencare:givenName    "Samuel" .
+
+opencare:Clinician_101
+        rdf:type                opencare:Clinician ;
+        schema:familyName       "Gonzalez" ;
+        schema:givenName        "Eva" ;
+        schema:jobTitle         "Primary Care Nurse" ;
+        opencare:fullName       "Dr. Omar Khan" ;
+        opencare:licenseNumber  "RN-77610" ;
+        opencare:role           "General Practitioner" .
+
+opencare:CentralHospital
+        rdf:type        schema:Hospital ;
+        schema:address  "123 Main St, Metropolis" ;
+        schema:name     "Central General Hospital" .
+
+opencare:Condition-osteoporosis-2026
+        rdf:type                  opencare:Condition ;
+        rdfs:label                "Osteoporosis" ;
+        skos:definition           "A skeletal disorder characterized by compromised bone strength predisposing to increased risk of fracture." ;
+        opencare:hasTypicalOnset  "2010-09-01"^^xsd:date .
+
+<https://w3id.org/opencare/ImagingProcedure/IP-0001>
+        rdf:type                  opencare:ImagingProcedure ;
+        rdfs:label                "MRI Brain - IP-0001" ;
+        prov:wasGeneratedBy       <https://w3id.org/opencare/ImagingDevice/DEV-01> ;
+        opencare:bodySite         "Brain" ;
+        opencare:imagingModality  "MRI" ;
+        opencare:imagingReport    <https://w3id.org/opencare/ImagingReport/IR-0001> ;
+        opencare:performedBy      <https://w3id.org/opencare/Practitioner/PR-100> ;
+        opencare:performedOn      "2025-03-15T09:30:00Z"^^xsd:dateTime ;
+        opencare:procedureId      "IP-0001" .
+
+opencare:NCIT_C25457_1
+        rdf:type               obo:NCIT_C25457 ;
+        rdfs:label             "NCIT concept C25457"@en ;
+        dc:created             "2026-04-09T12:38:52Z"^^xsd:dateTime ;
+        skos:definition        "Auto-generated instance for SHACL validation (NCIT concept)."@en ;
+        skos:prefLabel         "NCIT C25457"@en ;
+        prov:wasGeneratedBy    opencare:AutoGenerator_v1 ;
+        opencare:code          "C25457" ;
+        opencare:exactMatch    opencare:SNOMED_257585005_1 ;
+        opencare:inVocabulary  obo:NCIT .
+
+opencare:Hosp_CapeTown
+        rdf:type          schema:Hospital ;
+        rdfs:label        "Groote Schuur Hospital" ;
+        vcard:hasAddress  [ rdf:type            vcard:Address ;
+                            vcard:country-name  "South Africa" ;
+                            vcard:locality      "Cape Town"
+                          ] .
+
+<https://w3id.org/opencare/patient/pt-1001>
+        rdf:type                        <https://schema.org/Patient> ;
+        <https://schema.org/address>    [ rdf:type  <https://schema.org/PostalAddress> ;
+                                          <https://schema.org/addressLocality>
+                                                  "Nairobi" ;
+                                          <https://schema.org/postalCode>
+                                                  "00100" ;
+                                          <https://schema.org/streetAddress>
+                                                  "12 Market St"
+                                        ] ;
+        <https://schema.org/birthDate>  "1985-07-12"^^xsd:date ;
+        <https://schema.org/creator>    "opencare:ingest-batch-2026-04" ;
+        <https://schema.org/dateCreated>
+                "2026-04-09T12:00:00Z"^^xsd:dateTime ;
+        <https://schema.org/gender>     "Female" ;
+        <https://schema.org/identifier>
+                [ rdf:type                    <https://schema.org/PropertyValue> ;
+                  <https://schema.org/propertyID>
+                          "MRN" ;
+                  <https://schema.org/value>  "MRN-1001"
+                ] ;
+        <https://schema.org/medicalRecordNumber>
+                "MRN-1001" ;
+        <https://schema.org/name>       "Amina Yusuf" .
+
+ex:CF1  rdf:type              obo:OGMS_0000031 ;
+        rdfs:label            "Elevated blood pressure (systolic 150 mmHg)"@en ;
+        dc:description        "Measured systolic blood pressure of 150 mmHg during clinic visit."@en ;
+        opencare:hasSeverity  "moderate" .
+
+opencare:Woman-001  rdf:type       opencare:Woman ;
+        rdfs:label                 "Maria Garcia" ;
+        prov:wasGeneratedBy        <https://w3id.org/opencare/agent/data-generator> ;
+        foaf:name                  "Maria Garcia" ;
+        opencare:birthDate         "1988-04-12"^^xsd:date ;
+        opencare:country           "Spain" ;
+        opencare:hasMedicalRecord  <https://w3id.org/opencare/medicalRecord/W-0001> ;
+        opencare:identifier        "W-0001" .
+
+ex:BodySite-2  rdf:type               opencare:BodySite ;
+        rdfs:comment                  "Lateral aspect of the right ankle region." ;
+        rdfs:label                    "Right lateral ankle" ;
+        dc:created                    "2026-04-09T12:31:00Z"^^xsd:dateTime ;
+        prov:wasGeneratedBy           <https://w3id.org/opencare/tools/instance-generator/1> ;
+        opencare:anatomicalStructure  obo:UBERON_0003101 ;
+        opencare:laterality           "right" .
+
+ex:Comorbidity-001  rdf:type    opencare:Comorbidity ;
+        opencare:conditionName  "Type 2 Diabetes Mellitus" ;
+        opencare:diagnosedBy    ex:Neurologist-001 ;
+        opencare:onsetDate      "2012-06-15"^^xsd:date ;
+        opencare:patient        ex:Patient-123 ;
+        opencare:severityLevel  "moderate" .
+
+<https://w3id.org/opencare/instances/SpeechTherapist/st-001>
+        rdf:type                opencare:SpeechTherapist ;
+        dc:created              "2026-04-09T12:27:55Z"^^xsd:dateTime ;
+        schema:email            "jamie.taylor@citylab.example" ;
+        schema:familyName       "Taylor" ;
+        schema:givenName        "Jamie" ;
+        schema:jobTitle         "Speech Therapist" ;
+        schema:name             "Jamie Taylor" ;
+        schema:telephone        "+1-555-0110" ;
+        opencare:licenseNumber  "ST-2025-112" ;
+        opencare:qualification  "MSc Speech-Language Pathology" ;
+        opencare:specialty      "Pediatric Speech Therapy" ;
+        opencare:worksAt        <https://w3id.org/opencare/instances/Organization/CityLab> .
+
+<https://w3id.org/opencare/data/LNC/LP64610-6/obs-001>
+        rdf:type              lnc:LP64610-6 ;
+        rdfs:label            "Hemoglobin A1c" ;
+        dc:date               "2026-03-10"^^xsd:date ;
+        skos:notation         "LP64610-6" ;
+        prov:wasAttributedTo  <https://w3id.org/opencare/data/Agent/clinician-789> ;
+        opencare:resultUnit   "%" ;
+        opencare:resultValue  7.8 .
+
+opencare:Condition-fracture
+        rdf:type    opencare:Condition ;
+        rdfs:label  "Right tibial fracture (2019)" .
+
+opencare:LP63617-2-1  rdf:type     lnc:LP63617-2 ;
+        rdfs:label                 "Blood pressure panel - systolic and diastolic"@en ;
+        dc:created                 "2026-04-09T12:13:18Z"^^xsd:dateTime ;
+        opencare:sourceCode        "LP63617-2" ;
+        opencare:sourceVocabulary  lnc:LP63617-2 .
+
+opencare:StMarysHospital
+        rdf:type               opencare:SiteOfCare ;
+        rdfs:label             "St. Marys General Hospital" ;
+        opencare:siteLocation  "Cambridge, UK" .
+
+opencare:org-001  rdf:type  foaf:Organization ;
+        foaf:name  "Children's General Hospital" .
+
+opencare:Fungus-001  rdf:type    opencare:Fungus ;
+        rdfs:label               "Candida albicans isolate CA-2026-01" ;
+        dc:created               "2026-04-09T12:10:00Z"^^xsd:dateTime ;
+        opencare:collectionDate  "2026-04-07"^^xsd:date ;
+        opencare:cultureResult   "growth" ;
+        opencare:isolatedFrom    opencare:Patient-001 ;
+        opencare:sampleType      "blood culture" ;
+        opencare:scientificName  "Candida albicans" ;
+        opencare:strain          "CA-2026-01" ;
+        opencare:susceptibility  "fluconazole: 2 µg/mL" .
+
+opencare:RecreationalDrug_RD001
+        rdf:type                 opencare:RecreationalDrug ;
+        rdfs:label               "Hashish (Cannabis resin) - RD001" ;
+        dc:description           "Cannabis resin sample collected for harm-reduction analysis." ;
+        dc:source                "Seized sample - community harm-reduction collection" ;
+        prov:wasGeneratedBy      [ rdf:type          prov:Activity ;
+                                   rdfs:label        "Sample collection" ;
+                                   prov:endedAtTime  "2025-06-10T10:00:00Z"^^xsd:dateTime
+                                 ] ;
+        opencare:commonName      "Hashish" ;
+        opencare:legalStatus     "Controlled substance in many jurisdictions" ;
+        opencare:purity          "~15% THC" ;
+        opencare:typicalEffects  "Relaxation; altered perception; increased appetite" .
+
+opencare:StMaryHospital
+        rdf:type          opencare:HealthcareFacility ;
+        rdfs:label        "St. Mary General Hospital"@en ;
+        opencare:address  "123 Healing Way, Springfield" .
+
+<https://w3id.org/opencare/patient/0001>
+        rdf:type    opencare:Patient ;
+        rdfs:label  "Patient 0001"@en .
+
+ex:clinician-77  rdf:type  foaf:Person ;
+        foaf:mbox  <mailto:sara.lee@example.org> ;
+        foaf:name  "Dr. Sara Lee" .
+
+opencare:chemo-2  rdf:type            opencare:ChemoTherapy ;
+        rdfs:label                    "CHOP regimen — cycle 1" ;
+        schema:endDate                "2026-04-19"^^xsd:date ;
+        schema:startDate              "2026-04-05"^^xsd:date ;
+        opencare:administeredBy       opencare:hematologist-1 ;
+        opencare:administrationRoute  opencare:Intravenous ;
+        opencare:indication           opencare:NonHodgkinLymphoma ;
+        opencare:usesDrug             opencare:Prednisone , opencare:Vincristine , opencare:Cyclophosphamide , opencare:Doxorubicin .
+
+opencare:LA26428-5-1  rdf:type  lnc:LA26428-5 ;
+        rdfs:label       "Serum creatinine [Mass/volume] in Blood" ;
+        dc:created       "2026-04-09T12:00:00Z"^^xsd:dateTime ;
+        dc:creator       opencare:Agent-Curator1 ;
+        dc:identifier    "LA26428-5" ;
+        skos:prefLabel   "Serum creatinine measurement (LOINC 26428-5)" ;
+        opencare:code    lnc:LA26428-5 ;
+        opencare:method  "Automated enzymatic assay" ;
+        opencare:unit    "mg/dL" .
+
+<https://w3id.org/opencare/instances/surgicalHistory/SH-0002>
+        rdf:type                      opencare:SurgicalHistory ;
+        dc:created                    "2021-02-03T14:15:00Z"^^xsd:dateTime ;
+        prov:wasAttributedTo          <https://w3id.org/opencare/people/Dr-Alex-Khan> ;
+        opencare:anesthesia           "General" ;
+        opencare:hospital             "Green Valley Medical Center" ;
+        opencare:outcome              "No complications; discharged after 48 hours" ;
+        opencare:performedOnBodyPart  "Appendix" ;
+        opencare:procedureDate        "2021-02-03"^^xsd:date ;
+        opencare:procedureName        "Appendectomy (laparoscopic)" ;
+        opencare:surgeon              <https://w3id.org/opencare/people/Dr-Alex-Khan> .
+
+opencare:Bleomycin  rdf:type  opencare:Drug ;
+        rdfs:label  "Bleomycin" .
+
+<https://w3id.org/opencare/organization/eye-centre-nyc>
+        rdf:type          opencare:Organization ;
+        rdfs:label        "Eye Centre NYC" ;
+        opencare:address  "123 Vision Way, New York, NY" .
+
+<https://w3id.org/opencare/data/observational-finding-002>
+        rdf:type                opencare:ObservationalFinding ;
+        rdfs:label              "Axillary temperature observation - 2026-04-09" ;
+        dc:created              "2026-04-09T09:50:00Z"^^xsd:dateTime ;
+        dc:creator              <https://w3id.org/opencare/agents/thermometer-02> ;
+        prov:wasGeneratedBy     <https://w3id.org/opencare/activities/measurement-temp-20260409-01> ;
+        opencare:observedUnit   "degC" ;
+        opencare:observedValue  37.2 .
+
+<https://w3id.org/opencare/review/ros-2002>
+        rdf:type              opencare:ReviewOfSystem ;
+        rdfs:label            "Review of systems — ocular pain and photophobia" ;
+        opencare:createdAt    "2026-04-09T12:05:00Z"^^xsd:dateTime ;
+        opencare:date         "2026-04-09"^^xsd:date ;
+        opencare:finding      "No pain; mild photophobia" ;
+        opencare:notes        "No foreign body sensation." ;
+        opencare:performedBy  <https://w3id.org/opencare/ophthalmologist/oph-1001> ;
+        opencare:systemName   "Ocular pain" .
+
+opencare:Clinic_Dublin
+        rdf:type          schema:MedicalClinic ;
+        rdfs:label        "Dublin Community Clinic" ;
+        vcard:hasAddress  [ rdf:type            vcard:Address ;
+                            vcard:country-name  "Ireland" ;
+                            vcard:locality      "Dublin"
+                          ] .
+
+opencare:sty-T096-001
+        rdf:type             <http://purl.bioontology.org/ontology/STY/T096> ;
+        rdfs:comment         "Representative instance of STY:T096 linked to an animal record for testing." ;
+        rdfs:label           "Example semantic type: T096 (Diseases)" ;
+        prov:wasGeneratedBy  opencare:clinic-001 ;
+        opencare:relatedTo   opencare:animal-002 .
+
+opencare:Symptom_Fever
+        rdf:type           opencare:Symptom ;
+        rdfs:label         "Fever" ;
+        dc:created         "2026-04-09T12:00:00Z"^^xsd:dateTime ;
+        dc:description     "Elevated body temperature typically above 38°C, often associated with infection." ;
+        opencare:onset     "acute" ;
+        opencare:severity  "moderate" .
+
+opencare:Lab_Genomics_01
+        rdf:type       opencare:Organization ;
+        rdfs:label     "Genomics Lab 01"@en ;
+        dc:identifier  "LAB-GEN-01" .
+
+ex:CM0025-001  rdf:type       <http://purl.bioontology.org/ontology/CMDO/CM0025> ;
+        rdfs:label            "Intravenous chemotherapy administration record" ;
+        dc:description        "Record describing an instance of IV systemic anti-cancer therapy administration including regimen, route and immediate reaction notes." ;
+        dc:identifier         "CM0025-001" ;
+        prov:generatedAtTime  "2025-09-10T08:30:00Z"^^xsd:dateTime ;
+        prov:wasAttributedTo  <https://w3id.org/opencare/roles/chemo-nurse-1> .
+
+ex:Encounter2  rdf:type  opencare:Encounter ;
+        dc:date       "2026-04-08T11:15:00Z"^^xsd:dateTime ;
+        dc:publisher  ex:Practitioner1 .
+
+opencare:allergicDisposition-002
+        rdf:type                    opencare:AllergicDisposition ;
+        rdfs:label                  "Multiple seasonal allergen disposition - disp002" ;
+        opencare:associatedAllergy  opencare:seasonalAllergy-002 , opencare:seasonalAllergy-001 ;
+        opencare:onsetAge           8 ;
+        opencare:severity           "severe" .
+
+opencare:DrugAllergy_2
+        rdf:type             opencare:DrugAllergy ;
+        opencare:confirmed   false ;
+        opencare:onset       "2022-07-10"^^xsd:date ;
+        opencare:reaction    "Maculopapular rash" ;
+        opencare:recordedBy  opencare:Clinician_101 ;
+        opencare:severity    "mild" ;
+        opencare:substance   "Sulfonamide antibiotics" .
+
+opencare:InsectStingAllergy_002
+        rdf:type               opencare:InsectStingAllergy ;
+        rdfs:label             "Wasp sting allergy (probable)"@en ;
+        prov:generatedAtTime   "2022-08-03T14:20:00Z"^^xsd:dateTime ;
+        prov:wasAttributedTo   "Clinic visit note ID 2022-08-05" ;
+        opencare:allergen      "Yellow jacket (Vespula spp.)" ;
+        opencare:dateObserved  "2022-08-03"^^xsd:date ;
+        opencare:reaction      "Local swelling, dizziness" ;
+        opencare:severity      "moderate" ;
+        opencare:treatment     "Oral antihistamine advised; carry epipen if worsening." .
+
+opencare:Patient_JDoe
+        rdf:type       opencare:Patient ;
+        rdfs:label     "John Doe" ;
+        dc:identifier  "JD-1980-04-10" .
+
+<https://w3id.org/opencare/organization/StMarys-Rehab>
+        rdf:type        schema:MedicalOrganization ;
+        schema:address  "12 Health Way, Cityville" ;
+        schema:name     "St. Marys Outpatient Rehab Clinic" .
+
+ex:RouteBySite-1  rdf:type             opencare:RouteBySite ;
+        rdfs:comment                   "Used for seasonal influenza vaccination." ;
+        rdfs:label                     "Intramuscular - left deltoid" ;
+        opencare:administrationMethod  "injection" ;
+        opencare:effectiveFrom         "2020-01-01"^^xsd:date ;
+        opencare:isPreferred           true ;
+        opencare:route                 "intramuscular" ;
+        opencare:site                  "left deltoid" .
+
+opencare:Encounter-2  rdf:type  opencare:Encounter ;
+        schema:dateCreated     "2026-04-09T12:07:31Z"^^xsd:dateTime ;
+        schema:description     "Abdominal ultrasound for right upper quadrant pain" ;
+        schema:endDate         "2026-04-08T14:25:00"^^xsd:dateTime ;
+        schema:identifier      "E-2026-0002" ;
+        schema:startDate       "2026-04-08T14:00:00"^^xsd:dateTime ;
+        opencare:encounterFor  opencare:Patient-002 ;
+        opencare:modality      "Ultrasound" ;
+        opencare:performedBy   opencare:RadiologicTechnologist-1 .

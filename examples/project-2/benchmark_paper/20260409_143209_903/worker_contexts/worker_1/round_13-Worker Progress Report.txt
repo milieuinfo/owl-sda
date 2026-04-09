@@ -1,0 +1,8 @@
+worker_id=POOL-1
+status=CREATED
+target_shape=opencare:AllergyHistoryShape,opencare:DrugAllergyShape
+target_class=opencare:AllergyHistory,opencare:DrugAllergy
+changed_triples_count=34
+created_or_updated_subjects=https://w3id.org/opencare#AllergyHistory_1,https://w3id.org/opencare#AllergyHistory_2,https://w3id.org/opencare#DrugAllergy_1,https://w3id.org/opencare#DrugAllergy_2,https://w3id.org/opencare#Patient_123,https://w3id.org/opencare#Patient_456,https://w3id.org/opencare#Clinician_789,https://w3id.org/opencare#Clinician_101
+validation_result=CONFORMS
+remaining_issues=NONE

@@ -11,9 +11,23 @@ OWL-SDA is configured through a YAML file. All keys use **kebab-case** and map t
 | `user-input` | string | — | Natural-language description of the data to generate. **Required.** |
 | `user-context` | list | `[]` | Additional context files provided to all agents. See [User Context](#user-context). |
 | `program-timeout-ms` | long | `0` | Hard wall-clock timeout for the entire run in milliseconds. `0` disables it. |
+| `generation.data-richness` | string | `minimal` | Generation richness profile: `minimal`, `balanced`, or `rich`. Controls how much optional/invented data workers may add while staying SHACL-conformant. |
 | `log-level` | string | `INFO` | SLF4J log level: `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`. |
 | `log-to-file` | boolean | `false` | Write logs to a file in addition to stdout. |
 | `log-file-path` | string | `logs/owlsda.log` | Log file path (only used when `log-to-file: true`). |
+
+## `generation`
+
+Controls how aggressively workers enrich generated RDF beyond strict SHACL minimum requirements.
+
+```yaml
+generation:
+  data-richness: "minimal"
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `data-richness` | string | `minimal` | `minimal`: only required SHACL triples plus minimal coherence data. `balanced`: required triples + modest realistic optional enrichment. `rich`: strong optional enrichment and allows carefully invented predicates when ontology predicates are insufficient. |
 
 ## `client`
 
@@ -126,6 +140,9 @@ user-context:
     path: "ontology/examples.ttl"
 
 log-level: "INFO"
+
+generation:
+  data-richness: "balanced"
 
 client:
   worker:

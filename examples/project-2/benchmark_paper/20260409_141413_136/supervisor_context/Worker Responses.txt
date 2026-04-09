@@ -1,0 +1,49 @@
+POOL-0 [STRUCTURED_PROGRESS]:
+worker_id=POOL-0
+status=CREATED
+target_shape=http://purl.bioontology.org/ontology/LNC/LP63617-2Shape
+target_class=http://purl.bioontology.org/ontology/LNC/LP63617-2
+changed_triples_count=5
+created_or_updated_subjects=https://w3id.org/opencare#LP63617-2-1
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-1 [STRUCTURED_PROGRESS]:
+worker_id=POOL-1
+status=CREATED
+target_shape=opencare:ImagingProcedureShape
+target_class=https://w3id.org/opencare#ImagingProcedure
+changed_triples_count=64
+created_or_updated_subjects=https://w3id.org/opencare/ImagingProcedure/IP-0001,https://w3id.org/opencare/ImagingProcedure/IP-0002
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-2 [STRUCTURED_PROGRESS]:
+worker_id=POOL-2
+status=CREATED
+target_shape=opencare:MedicalSpecialityShape
+target_class=opencare:MedicalSpeciality
+changed_triples_count=10
+created_or_updated_subjects=https://w3id.org/opencare/MedicalSpeciality/cardiology,https://w3id.org/opencare/MedicalSpeciality/general-practice
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-3 [STRUCTURED_PROGRESS]:
+worker_id=POOL-3
+status=CREATED
+target_shape=opencare:PathologicProcessShape
+target_class=opencare:PathologicProcess
+changed_triples_count=36
+created_or_updated_subjects=https://w3id.org/opencare#PathologicProcess_pp1,https://w3id.org/opencare#PathologicProcess_pp2,https://w3id.org/opencare#Radiologist_001
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-4 [STRUCTURED_PROGRESS]:
+worker_id=POOL-4
+status=CREATED
+target_shape=opencare:RetailPharmacistShape
+target_class=opencare:RetailPharmacist
+changed_triples_count=30
+created_or_updated_subjects=https://w3id.org/opencare/data/RetailPharmacist-001
+validation_result=CONFORMS
+remaining_issues=NONE

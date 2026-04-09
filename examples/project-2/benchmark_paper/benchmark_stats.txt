@@ -1,0 +1,25 @@
+Benchmark statistics
+====================
+num_iterations: 22
+total_time_sec: 3286.785
+mean_time_sec: 149.3993181818182
+median_time_sec: 97.956
+min_time_sec: 77.826
+max_time_sec: 387.726
+total_shapes: 2476
+avg_shapes: 112.54545454545455
+min_shapes: 10
+max_shapes: 195
+total_triples: 35420
+final_triples: 2698
+max_triples: 2698
+shapes_per_sec_overall: 0.753319733417306
+total_workers_tokens: 1211497
+total_reviewer_tokens: 22248
+total_supervisor_tokens: 1491328
+total_workers_input_tokens: 0
+total_workers_output_tokens: 0
+total_reviewer_input_tokens: 0
+total_reviewer_output_tokens: 0
+total_supervisor_input_tokens: 0
+total_supervisor_output_tokens: 0

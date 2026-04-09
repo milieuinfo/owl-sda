@@ -1,0 +1,8 @@
+worker_id=POOL-0
+status=CREATED
+target_shape=opencare:MedicalTherapyShape
+target_class=opencare:MedicalTherapy
+changed_triples_count=28
+created_or_updated_subjects=https://w3id.org/opencare#therapy-001,https://w3id.org/opencare#therapy-002,https://w3id.org/opencare#surgeon-001
+validation_result=CONFORMS
+remaining_issues=NONE

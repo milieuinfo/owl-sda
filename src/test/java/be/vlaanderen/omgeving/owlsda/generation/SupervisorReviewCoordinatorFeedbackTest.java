@@ -9,6 +9,8 @@ import be.vlaanderen.omgeving.owlsda.validation.OutputValidator;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -99,6 +101,53 @@ public class SupervisorReviewCoordinatorFeedbackTest {
     assertTrue(reviewerSession.getLastPromptMessage().contains("ACCEPTED or REJECTED"));
   }
 
+  @Test
+  public void review_CreatesReviewerSessionOnlyWhenReviewStarts() {
+    AtomicInteger supplierCalls = new AtomicInteger(0);
+    CountingSession reviewerSession = new CountingSession("Please revise");
+    StubOutputValidator validator = new StubOutputValidator();
+
+    SupervisorReviewCoordinator coordinator = new SupervisorReviewCoordinator(
+        () -> {
+          supplierCalls.incrementAndGet();
+          return reviewerSession;
+        },
+        null,
+        validator,
+        null,
+        null,
+        2
+    );
+
+    assertEquals(0, supplierCalls.get());
+    assertEquals(null, coordinator.getReviewerSessionIfInitialized());
+
+    coordinator.review();
+
+    assertEquals(1, supplierCalls.get());
+    assertEquals(2, reviewerSession.getPromptCount());
+  }
+
+  @Test
+  public void review_RetriesOnceAfterSessionNotFoundByResettingSession() {
+    FlakySession reviewerSession = new FlakySession("Please revise");
+    StubOutputValidator validator = new StubOutputValidator();
+
+    SupervisorReviewCoordinator coordinator = new SupervisorReviewCoordinator(
+        reviewerSession,
+        null,
+        validator,
+        null,
+        null,
+        2
+    );
+
+    coordinator.review();
+
+    assertEquals(2, reviewerSession.getPromptCount());
+    assertEquals(1, reviewerSession.getResetCount());
+  }
+
   private static final class CountingSession implements Session {
     private final ResponseMessage responseMessage;
     private int promptCount;
@@ -152,6 +201,36 @@ public class SupervisorReviewCoordinatorFeedbackTest {
     @Override
     public void close() {
       // no-op for test
+    }
+  }
+
+  private static final class FlakySession extends CountingSession {
+    private int resetCount;
+    private boolean failFirstPrompt = true;
+
+    private FlakySession(String message) {
+      super(message);
+    }
+
+    int getResetCount() {
+      return resetCount;
+    }
+
+    @Override
+    public CompletableFuture<ResponseMessage> prompt(RequestMessage input) {
+      if (failFirstPrompt) {
+        failFirstPrompt = false;
+        CompletableFuture<ResponseMessage> failed = new CompletableFuture<>();
+        failed.completeExceptionally(new ExecutionException(
+            new RuntimeException("Session not found: stale-session")));
+        return failed;
+      }
+      return super.prompt(input);
+    }
+
+    @Override
+    public void reset() {
+      resetCount++;
     }
   }
 

@@ -10,6 +10,7 @@ import be.vlaanderen.omgeving.owlsda.benchmark.DefaultBenchmarkSnapshotData;
 import be.vlaanderen.omgeving.owlsda.ontology.Shacl;
 import be.vlaanderen.omgeving.owlsda.validation.OutputValidator;
 import java.util.List;
+import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -23,7 +24,8 @@ public class SupervisorReviewCoordinator {
   private static final Logger logger = LoggerFactory.getLogger(SupervisorReviewCoordinator.class);
   private static final int DEFAULT_MAX_REVIEW_ITERATIONS = 3;
 
-  private final Session reviewerSession;
+  private final Supplier<Session> reviewerSessionSupplier;
+  private volatile Session reviewerSession;
   private final Supervisor supervisor;
   private final OutputValidator validator;
   private final BenchmarkService benchmarkService;
@@ -39,13 +41,20 @@ public class SupervisorReviewCoordinator {
 
   public SupervisorReviewCoordinator(Session reviewerSession, Supervisor supervisor, OutputValidator validator,
       BenchmarkService benchmarkService, WorkerTripleStore sharedTripleStore) {
-    this(reviewerSession, supervisor, validator, benchmarkService, sharedTripleStore,
+    this(() -> reviewerSession, supervisor, validator, benchmarkService, sharedTripleStore,
         DEFAULT_MAX_REVIEW_ITERATIONS);
   }
 
   public SupervisorReviewCoordinator(Session reviewerSession, Supervisor supervisor, OutputValidator validator,
       BenchmarkService benchmarkService, WorkerTripleStore sharedTripleStore, int maxReviewIterations) {
-    this.reviewerSession = reviewerSession;
+    this(() -> reviewerSession, supervisor, validator, benchmarkService, sharedTripleStore,
+        maxReviewIterations);
+  }
+
+  public SupervisorReviewCoordinator(Supplier<Session> reviewerSessionSupplier, Supervisor supervisor,
+      OutputValidator validator, BenchmarkService benchmarkService, WorkerTripleStore sharedTripleStore,
+      int maxReviewIterations) {
+    this.reviewerSessionSupplier = reviewerSessionSupplier == null ? () -> null : reviewerSessionSupplier;
     this.supervisor = supervisor;
     this.validator = validator;
     this.benchmarkService = benchmarkService;
@@ -53,11 +62,22 @@ public class SupervisorReviewCoordinator {
     this.maxReviewIterations = Math.max(1, maxReviewIterations);
   }
 
+  public Session getReviewerSessionIfInitialized() {
+    return reviewerSession;
+  }
+
   public void review() {
     ready = false;
     error = false;
     reviewerFeedbackText = "";
     reviewerDecisionReceived = false;
+
+    Session activeReviewerSession = getOrCreateReviewerSession();
+    if (activeReviewerSession == null) {
+      error = true;
+      logger.error("Reviewer session is unavailable; cannot run final review");
+      return;
+    }
 
     for (int iteration = 1; iteration <= maxReviewIterations && !ready && !error; iteration++) {
       long iterationStart = System.currentTimeMillis();
@@ -118,6 +138,20 @@ public class SupervisorReviewCoordinator {
     }
   }
 
+  private Session getOrCreateReviewerSession() {
+    Session current = reviewerSession;
+    if (current != null) {
+      return current;
+    }
+
+    synchronized (this) {
+      if (reviewerSession == null) {
+        reviewerSession = reviewerSessionSupplier.get();
+      }
+      return reviewerSession;
+    }
+  }
+
   private void captureBenchmarkSnapshot(int iteration, long iterationStart, String stage) {
     if (benchmarkService == null || !benchmarkService.isEnabled()) {
       return;
@@ -174,9 +208,14 @@ public class SupervisorReviewCoordinator {
   }
 
   private ResponseMessage requestReviewerDecision(int iteration, boolean finalAttempt) throws Exception {
+    Session activeReviewerSession = getOrCreateReviewerSession();
+    if (activeReviewerSession == null) {
+      throw new IllegalStateException("Reviewer session is unavailable");
+    }
+
     String outputData = validator.getOutputDataAsString();
     OutputContext outputContext = new OutputContext(outputData);
-    boolean changed = reviewerSession.addContextIfChanged(outputContext);
+    boolean changed = activeReviewerSession.addContextIfChanged(outputContext);
 
     String contextInfo = "";
     if (changed) {
@@ -198,7 +237,7 @@ public class SupervisorReviewCoordinator {
             + maxReviewIterations
             + ".";
 
-    return reviewerSession.prompt(new RequestMessage(
+    RequestMessage requestMessage = new RequestMessage(
         "Review the generated output against user instructions and ontology."
             + " Be pragmatic: request revisions only for blocking/high-impact issues;"
             + " accept if only minor non-blocking polish remains."
@@ -209,7 +248,31 @@ public class SupervisorReviewCoordinator {
             + finalAttemptInstruction
             + contextInfo,
         "reviewer-review"
-    )).get();
+    );
+
+    try {
+      return activeReviewerSession.prompt(requestMessage).get();
+    } catch (Exception firstFailure) {
+      if (!isSessionNotFoundError(firstFailure)) {
+        throw firstFailure;
+      }
+
+      logger.warn("Reviewer session became stale; resetting and retrying review prompt once");
+      activeReviewerSession.reset();
+      return activeReviewerSession.prompt(requestMessage).get();
+    }
+  }
+
+  private boolean isSessionNotFoundError(Throwable error) {
+    Throwable current = error;
+    while (current != null) {
+      String message = current.getMessage();
+      if (message != null && message.contains("Session not found")) {
+        return true;
+      }
+      current = current.getCause();
+    }
+    return false;
   }
 
   public void markReviewerDecisionReceived() {

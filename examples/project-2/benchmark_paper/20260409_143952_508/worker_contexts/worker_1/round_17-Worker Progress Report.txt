@@ -1,0 +1,8 @@
+worker_id=POOL-1
+status=CREATED
+target_shape=opencare:SkinAllergyShape,opencare:CardiothoracicSurgeonShape
+target_class=https://w3id.org/opencare#SkinAllergy,https://w3id.org/opencare#CardiothoracicSurgeon
+changed_triples_count=36
+created_or_updated_subjects=https://w3id.org/opencare#SkinAllergy_001,https://w3id.org/opencare#SkinAllergy_002,https://w3id.org/opencare#CardiothoracicSurgeon_001
+validation_result=CONFORMS
+remaining_issues=NONE

@@ -1,0 +1,8 @@
+worker_id=POOL-0
+status=CREATED
+target_shape=opencare:MedicationSensitivityShape
+target_class=opencare:MedicationSensitivity
+changed_triples_count=14
+created_or_updated_subjects=https://w3id.org/opencare#MedicationSensitivity_aspirin,https://w3id.org/opencare#MedicationSensitivity_penicillin
+validation_result=CONFORMS
+remaining_issues=NONE

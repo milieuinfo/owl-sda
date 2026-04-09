@@ -1,0 +1,8 @@
+worker_id=POOL-3
+status=CREATED
+target_shape=opencare:PathologicProcessShape
+target_class=opencare:PathologicProcess
+changed_triples_count=36
+created_or_updated_subjects=https://w3id.org/opencare#PathologicProcess_pp1,https://w3id.org/opencare#PathologicProcess_pp2,https://w3id.org/opencare#Radiologist_001
+validation_result=CONFORMS
+remaining_issues=NONE

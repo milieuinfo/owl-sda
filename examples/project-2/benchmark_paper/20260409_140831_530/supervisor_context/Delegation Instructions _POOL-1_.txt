@@ -1,0 +1,15 @@
+CREATE instances for the following target classes. No existing instances — create new ones.
+
+1. Shape: `opencare:WomanShape`
+   Target class: `opencare:Woman`
+   → Create at least 2 instances of `opencare:Woman`.
+
+2. Shape: `opencare:RespiratoryTherapistShape`
+   Target class: `opencare:RespiratoryTherapist`
+   → Create at least 1 instance of `opencare:RespiratoryTherapist`.
+
+Use prefix: `@prefix opencare: <https://w3id.org/opencare#> .`
+Use the ontology to determine appropriate properties for each instance.
+Commit results to the triple store.
+
+Respond with: worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues)

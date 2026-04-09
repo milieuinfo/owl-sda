@@ -1,0 +1,8 @@
+worker_id=POOL-1
+status=CREATED
+target_shape=http://purl.bioontology.org/ontology/CMDO/CM0025Shape
+target_class=http://purl.bioontology.org/ontology/CMDO/CM0025
+changed_triples_count=6
+created_or_updated_subjects=https://w3id.org/opencare/instances/CM0025-001
+validation_result=CONFORMS
+remaining_issues=NONE

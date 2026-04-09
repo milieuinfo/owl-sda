@@ -1,0 +1,8 @@
+worker_id=POOL-2
+status=CREATED
+target_shape=opencare:EnvironmentalSensitivityShape, https://schema.org/VitalSignShape
+target_class=opencare:EnvironmentalSensitivity, https://schema.org/VitalSign
+changed_triples_count=28
+created_or_updated_subjects=https://w3id.org/opencare/data/EnvironmentalSensitivity/ES-001,https://w3id.org/opencare/data/EnvironmentalSensitivity/ES-002,https://w3id.org/opencare/data/VitalSign/VS-001,https://w3id.org/opencare/data/VitalSign/VS-002
+validation_result=CONFORMS
+remaining_issues=NONE

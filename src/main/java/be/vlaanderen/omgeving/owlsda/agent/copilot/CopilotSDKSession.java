@@ -1,6 +1,5 @@
 package be.vlaanderen.omgeving.owlsda.agent.copilot;
 
-import be.vlaanderen.omgeving.owlsda.agent.SessionConfig;
 import be.vlaanderen.omgeving.owlsda.agent.context.Context;
 import be.vlaanderen.omgeving.owlsda.agent.RequestMessage;
 import be.vlaanderen.omgeving.owlsda.agent.ResponseMessage;
@@ -13,38 +12,63 @@ import com.github.copilot.sdk.events.SessionIdleEvent;
 import com.github.copilot.sdk.events.SessionUsageInfoEvent;
 import com.github.copilot.sdk.events.SessionUsageInfoEvent.SessionUsageInfoData;
 import com.github.copilot.sdk.json.MessageOptions;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CopilotSDKSession implements Session {
   private static final Logger logger = LoggerFactory.getLogger(CopilotSDKSession.class);
 
+  /**
+   * Factory that creates a fresh underlying {@link CopilotSession} with the same configuration.
+   * Used by {@link #reset()} to clear the server-side message history between delegation rounds.
+   */
+  @FunctionalInterface
+  public interface SessionFactory {
+    CopilotSession create() throws ExecutionException, InterruptedException;
+  }
+
   private final Set<CopilotSDKContext> contexts = ConcurrentHashMap.newKeySet();
-  private final CopilotSession session;
-  private final SessionConfig config;
+  /** Mutable reference so reset() can swap in a freshly created CopilotSession. */
+  private final AtomicReference<CopilotSession> sessionRef;
+  private final be.vlaanderen.omgeving.owlsda.agent.SessionConfig config;
+  /** Allows creating a replacement Copilot session on reset; null means reset is not supported. */
+  private final SessionFactory sessionFactory;
 
   private final List<SessionMessageLogEntry> messageLog = new CopyOnWriteArrayList<>();
   private final AtomicLong totalTokensUsed = new AtomicLong(0L);
+  private final AtomicLong inputTokensUsed = new AtomicLong(0L);
+  private final AtomicLong outputTokensUsed = new AtomicLong(0L);
   private final AtomicLong lastAssistantActivityMs = new AtomicLong(System.currentTimeMillis());
   private final ScheduledThreadPoolExecutor inactivityMonitorExecutor;
 
-  protected CopilotSDKSession(SessionConfig config, CopilotSession session) {
-    this.session = session;
+  protected CopilotSDKSession(be.vlaanderen.omgeving.owlsda.agent.SessionConfig config,
+      CopilotSession session) {
+    this(config, session, null);
+  }
+
+  protected CopilotSDKSession(be.vlaanderen.omgeving.owlsda.agent.SessionConfig config,
+      CopilotSession session, SessionFactory sessionFactory) {
+    this.sessionRef = new AtomicReference<>(session);
     this.config = config;
+    this.sessionFactory = sessionFactory;
     this.inactivityMonitorExecutor = createInactivityMonitorExecutor();
-    registerSessionEvents();
+    registerSessionEvents(session);
   }
 
   private ScheduledThreadPoolExecutor createInactivityMonitorExecutor() {
@@ -70,8 +94,8 @@ public class CopilotSDKSession implements Session {
     return Math.min(candidate, 1000L);
   }
 
-  private void registerSessionEvents() {
-    session.on(AssistantMessageEvent.class, message -> {
+  private void registerSessionEvents(CopilotSession s) {
+    s.on(AssistantMessageEvent.class, message -> {
       markAssistantActivity();
       String content = message.getData().content();
       String reasoning = message.getData().reasoningText();
@@ -95,19 +119,79 @@ public class CopilotSDKSession implements Session {
         }
       }
     });
-    session.on(SessionUsageInfoEvent.class, usage -> {
+    s.on(SessionUsageInfoEvent.class, usage -> {
       markAssistantActivity();
       SessionUsageInfoData data = usage.getData();
       long currentTokens = Math.round(data.currentTokens());
+      long inputTokens = readUsageTokenValue(data,
+          "inputTokens", "promptTokens", "input_tokens", "prompt_tokens");
+      long outputTokens = readUsageTokenValue(data,
+          "outputTokens", "completionTokens", "output_tokens", "completion_tokens");
+
       totalTokensUsed.accumulateAndGet(currentTokens, Math::max);
-      logger.debug("Session usage info - Tokens used: {}", currentTokens);
+      inputTokensUsed.accumulateAndGet(inputTokens, Math::max);
+      outputTokensUsed.accumulateAndGet(outputTokens, Math::max);
+
+      logger.debug(
+          "Session usage info - Tokens used total={}, input={}, output={}",
+          currentTokens,
+          inputTokens,
+          outputTokens
+      );
     });
-    session.on(SessionIdleEvent.class, ignored -> {
+    s.on(SessionIdleEvent.class, ignored -> {
       markAssistantActivity();
       logger.debug("Session is now idle");
     });
-    session.setEventErrorHandler(
+    s.setEventErrorHandler(
         (_, e) -> logger.error("Error occurred while processing event", e));
+  }
+
+  private static long readUsageTokenValue(Object data, String... candidateMethodNames) {
+    for (String methodName : candidateMethodNames) {
+      Long tokenValue = invokeTokenMethod(data, methodName);
+      if (tokenValue != null) {
+        return tokenValue;
+      }
+    }
+    return 0L;
+  }
+
+  private static Long invokeTokenMethod(Object data, String methodName) {
+    try {
+      Method method = data.getClass().getMethod(methodName);
+      Object value = method.invoke(data);
+      Long parsed = parseTokenValue(value);
+      if (parsed != null) {
+        return parsed;
+      }
+      logger.debug("Usage token method '{}' returned non-numeric value type: {}",
+          methodName,
+          value == null ? "null" : value.getClass().getName());
+    } catch (NoSuchMethodException ignored) {
+      // Try next known method name.
+    } catch (IllegalAccessException | InvocationTargetException e) {
+      logger.debug("Unable to read usage token field '{}'", methodName, e);
+    }
+    return null;
+  }
+
+  static Long parseTokenValue(Object value) {
+    if (value instanceof Number numberValue) {
+      return Math.round(numberValue.doubleValue());
+    }
+    if (value instanceof String stringValue) {
+      String trimmed = stringValue.trim();
+      if (trimmed.isEmpty()) {
+        return null;
+      }
+      try {
+        return Math.round(Double.parseDouble(trimmed));
+      } catch (NumberFormatException ignored) {
+        return null;
+      }
+    }
+    return null;
   }
 
   @Override
@@ -209,7 +293,7 @@ public class CopilotSDKSession implements Session {
       logger.info("Sending prompt to Copilot SDK Session: {}", input.getMessage());
     }
 
-    session.sendAndWait(options, config.getTimeoutMs()).thenApply(response -> {
+    sessionRef.get().sendAndWait(options, config.getTimeoutMs()).thenApply(response -> {
       if (future.isDone()) {
         return null;
       }
@@ -261,14 +345,50 @@ public class CopilotSDKSession implements Session {
   }
 
   @Override
+  public void reset() {
+    if (sessionFactory == null) {
+      logger.debug("Session reset requested but no SessionFactory is configured; skipping");
+      return;
+    }
+    try {
+      logger.info("Resetting session to clear server-side message history");
+      CopilotSession old = sessionRef.get();
+      CopilotSession fresh = sessionFactory.create();
+      sessionRef.set(fresh);
+      registerSessionEvents(fresh);
+      // Safely close the old session after the swap so in-flight calls are not disrupted.
+      try {
+        old.close();
+      } catch (Exception closeEx) {
+        logger.warn("Error closing old session during reset: {}", closeEx.getMessage());
+      }
+      markAssistantActivity();
+      logger.info("Session reset complete — message history cleared, contexts preserved");
+    } catch (Exception e) {
+      logger.error("Session reset failed: {}", e.getMessage(), e);
+    }
+  }
+
+  @Override
   public void close() {
     inactivityMonitorExecutor.shutdownNow();
-    session.close();
+    sessionRef.get().close();
   }
 
   @Override
   public long getTotalTokensUsed() {
-    return totalTokensUsed.get();
+    long directionalTotal = inputTokensUsed.get() + outputTokensUsed.get();
+    return Math.max(totalTokensUsed.get(), directionalTotal);
+  }
+
+  @Override
+  public long getInputTokensUsed() {
+    return inputTokensUsed.get();
+  }
+
+  @Override
+  public long getOutputTokensUsed() {
+    return outputTokensUsed.get();
   }
 
   /**

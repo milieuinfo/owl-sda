@@ -1,0 +1,8 @@
+worker_id=POOL-1
+status=CREATED
+target_shape=http://purl.bioontology.org/ontology/LNC/MTHU017829Shape
+target_class=http://purl.bioontology.org/ontology/LNC/MTHU017829
+changed_triples_count=19
+created_or_updated_subjects=http://purl.bioontology.org/ontology/LNC/MTHU017829-1
+validation_result=CONFORMS
+remaining_issues=NONE

@@ -29,6 +29,11 @@ public class Config {
   private String logFilePath = "logs/owlsda.log";
 
   private BenchmarkProperties benchmark = new BenchmarkProperties();
+  private GenerationProperties generation = new GenerationProperties();
+
+  public DataRichness getDataRichness() {
+    return DataRichness.from(generation != null ? generation.getDataRichness() : null);
+  }
 
   /**
    * Convenience method to access batch size from worker properties.
@@ -195,6 +200,33 @@ public class Config {
   @YamlConfig
   public static class ShaclProperties {
     private String outputDir = "";
+  }
+
+  public enum DataRichness {
+    MINIMAL,
+    BALANCED,
+    RICH;
+
+    public static DataRichness from(String value) {
+      if (value == null || value.isBlank()) {
+        return MINIMAL;
+      }
+
+      String normalized = value.trim().replace('-', '_').toUpperCase();
+      try {
+        return DataRichness.valueOf(normalized);
+      } catch (IllegalArgumentException ignored) {
+        return MINIMAL;
+      }
+    }
+  }
+
+  @Getter
+  @Setter
+  @YamlConfig
+  public static class GenerationProperties {
+    // Supported values: minimal, balanced, rich
+    private String dataRichness = "minimal";
   }
 
   @Getter

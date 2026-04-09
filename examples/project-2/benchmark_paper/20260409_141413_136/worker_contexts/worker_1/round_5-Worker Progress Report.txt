@@ -1,0 +1,8 @@
+worker_id=POOL-1
+status=CREATED
+target_shape=opencare:ImagingProcedureShape
+target_class=https://w3id.org/opencare#ImagingProcedure
+changed_triples_count=64
+created_or_updated_subjects=https://w3id.org/opencare/ImagingProcedure/IP-0001,https://w3id.org/opencare/ImagingProcedure/IP-0002
+validation_result=CONFORMS
+remaining_issues=NONE

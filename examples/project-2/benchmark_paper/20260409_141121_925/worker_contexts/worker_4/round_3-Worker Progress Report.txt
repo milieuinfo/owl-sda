@@ -1,0 +1,8 @@
+worker_id=POOL-4
+status=CREATED
+target_shape=opencare:SymptomShape
+target_class=opencare:Symptom
+changed_triples_count=12
+created_or_updated_subjects=https://w3id.org/opencare#Symptom_Fever,https://w3id.org/opencare#Symptom_Cough
+validation_result=CONFORMS
+remaining_issues=NONE

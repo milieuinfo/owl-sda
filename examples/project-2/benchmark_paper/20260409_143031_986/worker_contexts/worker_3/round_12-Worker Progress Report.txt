@@ -1,0 +1,8 @@
+worker_id=POOL-3
+status=CREATED
+target_shape=opencare:InfectionShape
+target_class=https://w3id.org/opencare#Infection
+changed_triples_count=23
+created_or_updated_subjects=https://w3id.org/opencare/data/infection/inf-001,https://w3id.org/opencare/data/infection/inf-002,https://w3id.org/opencare/data/lnc/mthu034880/inst1
+validation_result=CONFORMS
+remaining_issues=NONE

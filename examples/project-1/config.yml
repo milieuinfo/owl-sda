@@ -8,6 +8,9 @@ user-context:
     path: 'examples/project-1/input-example.txt'
 log-level: "INFO"
 
+generation:
+  data-richness: "minimal"
+
 client:
   worker:
     model: "gpt-5-mini"

@@ -1,0 +1,49 @@
+POOL-0 [STRUCTURED_PROGRESS]:
+worker_id=POOL-0
+status=CREATED
+target_shape=opencare:SocialHistoryShape
+target_class=opencare:SocialHistory
+changed_triples_count=40
+created_or_updated_subjects=https://w3id.org/opencare/instances/SocialHistory-1,https://w3id.org/opencare/instances/SocialHistory-2,https://w3id.org/opencare/instances/RouteBySite-1,https://w3id.org/opencare/instances/RouteBySite-2
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-1 [STRUCTURED_PROGRESS]:
+worker_id=POOL-1
+status=CREATED
+target_shape=opencare:AllergyHistoryShape,opencare:DrugAllergyShape
+target_class=opencare:AllergyHistory,opencare:DrugAllergy
+changed_triples_count=34
+created_or_updated_subjects=https://w3id.org/opencare#AllergyHistory_1,https://w3id.org/opencare#AllergyHistory_2,https://w3id.org/opencare#DrugAllergy_1,https://w3id.org/opencare#DrugAllergy_2,https://w3id.org/opencare#Patient_123,https://w3id.org/opencare#Patient_456,https://w3id.org/opencare#Clinician_789,https://w3id.org/opencare#Clinician_101
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-2 [STRUCTURED_PROGRESS]:
+worker_id=POOL-2
+status=CREATED
+target_shape=opencare:EnvironmentalSensitivityShape, https://schema.org/VitalSignShape
+target_class=opencare:EnvironmentalSensitivity, https://schema.org/VitalSign
+changed_triples_count=28
+created_or_updated_subjects=https://w3id.org/opencare/data/EnvironmentalSensitivity/ES-001,https://w3id.org/opencare/data/EnvironmentalSensitivity/ES-002,https://w3id.org/opencare/data/VitalSign/VS-001,https://w3id.org/opencare/data/VitalSign/VS-002
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-3 [STRUCTURED_PROGRESS]:
+worker_id=POOL-3
+status=CREATED
+target_shape=http://sbmi.uth.tmc.edu/ontology/ochv#37278Shape
+target_class=http://sbmi.uth.tmc.edu/ontology/ochv#37278
+changed_triples_count=16
+created_or_updated_subjects=http://sbmi.uth.tmc.edu/ontology/instances/37278-1
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-4 [STRUCTURED_PROGRESS]:
+worker_id=POOL-4
+status=VERIFIED_NO_CHANGE
+target_shape=http://purl.obolibrary.org/obo/OGMS_0000031Shape
+target_class=http://purl.obolibrary.org/obo/OGMS_0000031
+changed_triples_count=0
+created_or_updated_subjects=https://w3id.org/opencare/instances/CF1,https://w3id.org/opencare/instances/CF2
+validation_result=CONFORMS
+remaining_issues=NONE

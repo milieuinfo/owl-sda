@@ -1,0 +1,8 @@
+worker_id=POOL-4
+status=CREATED
+target_shape=opencare:SupplementShape
+target_class=opencare:Supplement
+changed_triples_count=14
+created_or_updated_subjects=https://w3id.org/opencare#supplement-001,https://w3id.org/opencare#supplement-002
+validation_result=CONFORMS
+remaining_issues=NONE

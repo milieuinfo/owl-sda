@@ -1,0 +1,8 @@
+worker_id=POOL-0
+status=CREATED
+target_shape=opencare:FungusShape
+target_class=opencare:Fungus
+changed_triples_count=20
+created_or_updated_subjects=https://w3id.org/opencare#Fungus-001,https://w3id.org/opencare#Fungus-002
+validation_result=CONFORMS
+remaining_issues=NONE

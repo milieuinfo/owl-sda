@@ -1,0 +1,8 @@
+worker_id=POOL-3
+status=CREATED
+target_shape=https://w3id.org/opencare#GeneticTestShape
+target_class=https://w3id.org/opencare#GeneticTest
+changed_triples_count=31
+created_or_updated_subjects=https://w3id.org/opencare#GeneticTest_BRCA1_Seq_1, https://w3id.org/opencare#GeneticTest_HereditaryCancerPanel_1, https://w3id.org/opencare#Gene_BRCA1, https://w3id.org/opencare#Gene_BRCA2, https://w3id.org/opencare#Lab_Genomics_01, https://w3id.org/opencare#Process_BRC1_Seq_1, https://w3id.org/opencare#Process_HCPanel_1
+validation_result=CONFORMS
+remaining_issues=NONE

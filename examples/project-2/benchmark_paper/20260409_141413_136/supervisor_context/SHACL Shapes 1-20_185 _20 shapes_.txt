@@ -1,0 +1,93 @@
+@prefix :         <https://w3id.org/opencare#> .
+@prefix dc:       <http://purl.org/dc/elements/1.1/> .
+@prefix metadata: <http://data.bioontology.org/metadata/> .
+@prefix mod:      <https://w3id.org/mod#> .
+@prefix mod1:     <http://w3id.org/mod#> .
+@prefix opencare: <https://w3id.org/opencare#> .
+@prefix owl:      <http://www.w3.org/2002/07/owl#> .
+@prefix prov:     <http://www.w3.org/ns/prov#> .
+@prefix rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:       <http://www.w3.org/ns/shacl#> .
+@prefix skos:     <http://www.w3.org/2004/02/skos/core#> .
+@prefix terms:    <http://purl.org/dc/terms/> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+
+<http://purl.obolibrary.org/obo/HP_0012393Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.obolibrary.org/obo/HP_0012393> .
+
+opencare:SupplementShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Supplement .
+
+opencare:ProkaryoteShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Prokaryote .
+
+opencare:ImmunizationHistoryShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:ImmunizationHistory .
+
+opencare:OccupationalTherapistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:OccupationalTherapist .
+
+opencare:ReviewOfSystemShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:ReviewOfSystem .
+
+opencare:PediatricSurgeonShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:PediatricSurgeon .
+
+<http://sbmi.uth.tmc.edu/ontology/ochv#47686Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://sbmi.uth.tmc.edu/ontology/ochv#47686> .
+
+<http://purl.bioontology.org/ontology/LNC/LP64610-6Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/LNC/LP64610-6> .
+
+opencare:HospitalPharmacistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:HospitalPharmacist .
+
+opencare:FindingShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Finding .
+
+opencare:ObservationalFindingShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:ObservationalFinding .
+
+opencare:SymptomShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Symptom .
+
+opencare:DiseaseShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Disease .
+
+opencare:FungusShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  opencare:Fungus .
+
+opencare:RiskFactorShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:RiskFactor .
+
+opencare:EncounterTypeShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:EncounterType .
+
+opencare:PersonalHistoryShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:PersonalHistory .
+
+opencare:OphthalmologistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Ophthalmologist .
+
+<http://purl.bioontology.org/ontology/SNOMEDCT/410673009Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/SNOMEDCT/410673009> .

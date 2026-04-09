@@ -59,7 +59,9 @@ public class CopilotSDKClient implements Client {
     sessionConfig.setAvailableTools(tools.stream().map(ToolDefinition::name).toList());
 
     CopilotSession session = client.createSession(sessionConfig).get();
-    CopilotSDKSession copilotSDKSession = new CopilotSDKSession(config, session);
+    // Capture sessionConfig as effectively final for the factory lambda.
+    CopilotSDKSession.SessionFactory factory = () -> client.createSession(sessionConfig).get();
+    CopilotSDKSession copilotSDKSession = new CopilotSDKSession(config, session, factory);
     sessions.add(copilotSDKSession);
     logger.info("Created new session successfully");
     return copilotSDKSession;

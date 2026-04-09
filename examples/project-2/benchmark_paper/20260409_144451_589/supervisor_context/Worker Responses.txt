@@ -1,0 +1,49 @@
+POOL-0 [STRUCTURED_PROGRESS]:
+worker_id=POOL-0
+status=CREATED
+target_shape=opencare:OrganismShape
+target_class=opencare:Organism
+changed_triples_count=25
+created_or_updated_subjects=https://w3id.org/opencare/instance/organism-001,https://w3id.org/opencare/instance/organism-002,https://w3id.org/opencare/instance/traumasurgeon-001
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-1 [STRUCTURED_PROGRESS]:
+worker_id=POOL-1
+status=CREATED
+target_shape=opencare:GeographycalRegionShape
+target_class=https://w3id.org/opencare#GeographycalRegion
+changed_triples_count=21
+created_or_updated_subjects=https://w3id.org/opencare#region-001,https://w3id.org/opencare#region-002, http://purl.obolibrary.org/obo/HP_0410323_instance_01
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-2 [STRUCTURED_PROGRESS]:
+worker_id=POOL-2
+status=CREATED
+target_shape=opencare:SiteOfCareShape, opencare:ImplantProcedureShape
+target_class=opencare:SiteOfCare, opencare:ImplantProcedure
+changed_triples_count=28
+created_or_updated_subjects=https://w3id.org/opencare#GreenValleyClinic, https://w3id.org/opencare#NorthsideMedicalCenter, https://w3id.org/opencare#HipImplantProcedure-001
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-3 [STRUCTURED_PROGRESS]:
+worker_id=POOL-3
+status=CREATED
+target_shape=http://purl.obolibrary.org/obo/OGMS_0000029Shape
+target_class=http://purl.obolibrary.org/obo/OGMS_0000029
+changed_triples_count=4
+created_or_updated_subjects=https://w3id.org/opencare/instances/OGMS_0000029_1
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-4 [STRUCTURED_PROGRESS]:
+worker_id=POOL-4
+status=CREATED
+target_shape=opencare:BodyPartShape
+target_class=opencare:BodyPart
+changed_triples_count=20
+created_or_updated_subjects=https://w3id.org/opencare#BodyPart-heart-001,https://w3id.org/opencare#BodyPart-pancreas-001
+validation_result=CONFORMS
+remaining_issues=NONE

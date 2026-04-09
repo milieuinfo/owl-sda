@@ -1,0 +1,132 @@
+@prefix :         <https://w3id.org/opencare#> .
+@prefix dc:       <http://purl.org/dc/elements/1.1/> .
+@prefix metadata: <http://data.bioontology.org/metadata/> .
+@prefix mod:      <https://w3id.org/mod#> .
+@prefix mod1:     <http://w3id.org/mod#> .
+@prefix opencare: <https://w3id.org/opencare#> .
+@prefix owl:      <http://www.w3.org/2002/07/owl#> .
+@prefix prov:     <http://www.w3.org/ns/prov#> .
+@prefix rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:       <http://www.w3.org/ns/shacl#> .
+@prefix skos:     <http://www.w3.org/2004/02/skos/core#> .
+@prefix terms:    <http://purl.org/dc/terms/> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+
+<http://purl.obolibrary.org/obo/OGMS_0000014Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.obolibrary.org/obo/OGMS_0000014> .
+
+opencare:MedicationShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Medication .
+
+opencare:ImagingProcedureShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:ImagingProcedure .
+
+opencare:ProkaryoteShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Prokaryote .
+
+<http://purl.bioontology.org/ontology/SNOMEDCT/80943009Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/SNOMEDCT/80943009> .
+
+opencare:PediatricSurgeonShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:PediatricSurgeon .
+
+opencare:PharmaceuticalPreparationShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:PharmaceuticalPreparation .
+
+<http://purl.bioontology.org/ontology/LNC/LP64610-6Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/LNC/LP64610-6> .
+
+opencare:HospitalPharmacistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:HospitalPharmacist .
+
+opencare:FindingShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Finding .
+
+opencare:LaboratoryTestShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:LaboratoryTest .
+
+opencare:CityShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  opencare:City .
+
+opencare:RheumatologistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Rheumatologist .
+
+opencare:SymptomShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Symptom .
+
+opencare:DiseaseShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Disease .
+
+opencare:PathologicProcessShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:PathologicProcess .
+
+<http://www.w3.org/ns/org#OrganizationalUnitShape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://www.w3.org/ns/org#OrganizationalUnit> .
+
+opencare:DentalProcedureShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:DentalProcedure .
+
+<https://schema.org/PatientShape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <https://schema.org/Patient> .
+
+opencare:FungusShape  rdf:type  sh:NodeShape ;
+        sh:targetClass  opencare:Fungus .
+
+<http://purl.bioontology.org/ontology/LNC/LP63617-2Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/LNC/LP63617-2> .
+
+opencare:EncounterTypeShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:EncounterType .
+
+opencare:RiskFactorShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:RiskFactor .
+
+opencare:CertifiedNurseMidwifeShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:CertifiedNurseMidwife .
+
+<http://sbmi.uth.tmc.edu/ontology/ochv#53152Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://sbmi.uth.tmc.edu/ontology/ochv#53152> .
+
+opencare:MedicalSpecialityShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:MedicalSpeciality .
+
+opencare:RadiologistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Radiologist .
+
+opencare:RecreationalDrugShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:RecreationalDrug .
+
+opencare:RetailPharmacistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:RetailPharmacist .
+
+<http://schema.org/DiagnosticProcedureShape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://schema.org/DiagnosticProcedure> .

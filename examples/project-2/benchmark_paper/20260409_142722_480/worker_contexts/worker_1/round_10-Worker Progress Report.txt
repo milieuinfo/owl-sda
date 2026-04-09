@@ -1,0 +1,8 @@
+worker_id=POOL-1
+status=CREATED
+target_shape=opencare:DiagnosticImagingResultShape and opencare:InfectiousDiseaseSpecialistShape
+target_class=opencare:DiagnosticImagingResult, opencare:InfectiousDiseaseSpecialist
+changed_triples_count=44
+created_or_updated_subjects=https://w3id.org/opencare/data/diagImgRes-1, https://w3id.org/opencare/data/diagImgRes-2, https://w3id.org/opencare/data/idspec-1
+validation_result=CONFORMS
+remaining_issues=NONE

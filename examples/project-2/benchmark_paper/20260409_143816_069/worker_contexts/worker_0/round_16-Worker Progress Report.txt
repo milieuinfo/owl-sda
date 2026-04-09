@@ -1,0 +1,8 @@
+worker_id=POOL-0
+status=CREATED
+target_shape=opencare:PediatricsHistoryShape
+target_class=opencare:PediatricsHistory
+changed_triples_count=39
+created_or_updated_subjects=https://w3id.org/opencare/instances/pedi-0001,https://w3id.org/opencare/instances/pedi-0002,https://contsys.org/records/hr-0001
+validation_result=CONFORMS
+remaining_issues=NONE

@@ -1,0 +1,16 @@
+CREATE instances for the following target classes. No existing instances — create new ones.
+
+1. Shape: `http://xmlns.com/foaf/0.1/AgentShape`
+   Target class: `http://xmlns.com/foaf/0.1/Agent`
+   → Create at least 2 instances.
+
+2. Shape: `http://sbmi.uth.tmc.edu/ontology/ochv#C0424945Shape`
+   Target class: `http://sbmi.uth.tmc.edu/ontology/ochv#C0424945`
+   → Create at least 1 instance.
+
+NOTE: `http://purl.obolibrary.org/obo/OGMS_0000029Shape` was already completed in the prior round — skip it.
+
+Use prefix: `@prefix foaf: <http://xmlns.com/foaf/0.1/> .` and `@prefix ochv: <http://sbmi.uth.tmc.edu/ontology/ochv#> .`
+Use the ontology to determine appropriate properties. Commit to triple store.
+
+Respond with: worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues)

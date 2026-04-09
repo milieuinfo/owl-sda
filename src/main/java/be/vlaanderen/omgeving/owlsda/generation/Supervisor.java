@@ -8,6 +8,7 @@ import be.vlaanderen.omgeving.owlsda.agent.context.ValidationContext;
 import be.vlaanderen.omgeving.owlsda.agent.context.Context;
 import be.vlaanderen.omgeving.owlsda.ontology.Shacl;
 import be.vlaanderen.omgeving.owlsda.validation.OutputValidator;
+import be.vlaanderen.omgeving.owlsda.config.Config;
 import be.vlaanderen.omgeving.owlsda.agent.handler.WorkerTripleStore;
 import be.vlaanderen.omgeving.owlsda.agent.handler.WorkerProgressHandler;
 import be.vlaanderen.omgeving.owlsda.agent.handler.DelegationHandler;
@@ -15,8 +16,10 @@ import be.vlaanderen.omgeving.owlsda.agent.SessionMessageLogEntry;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.shacl.ValidationReport;
@@ -37,6 +40,7 @@ public record Supervisor(Session supervisorSession, OutputValidator validator,
   private static final String WORKER_RESPONSES_CONTEXT_NAME = "Worker Responses";
   private static final String WORKER_PROGRESS_CONTEXT_NAME = WorkerProgressHandler.CONTEXT_NAME;
   private static final int MAX_WORKER_RESPONSE_CHARS = 1200;
+  private static final int MAX_SHAPE_NAMES_PER_WORKER_IN_DISTRIBUTION = 4;
 
   public boolean orchestrate(int shapes, boolean firstPass) {
     try {
@@ -131,8 +135,14 @@ public record Supervisor(Session supervisorSession, OutputValidator validator,
     clearWorkerDelegationInstructions();
 
     if (shacl != null && shacl.getShapes() != null && !shacl.getShapes().isEmpty()) {
-      supervisorSession.addContextIfChanged(new ShaclContext(shacl, 0, shacl.getShapes().size(),
-          shacl.getShapes().size()));
+      int unprocessedShapeCount = (int) shacl.getShapes().stream()
+          .filter(shape -> !shape.isProcessed())
+          .count();
+      int scopedShapeCount = Math.min(Math.max(shapes, 1), unprocessedShapeCount);
+      if (scopedShapeCount > 0) {
+        supervisorSession.addContextIfChanged(new ShaclContext(shacl, 0, scopedShapeCount,
+            unprocessedShapeCount));
+      }
     }
 
     boolean hasValidationReport = validationReport != null && !validationReport.isEmpty();
@@ -166,10 +176,140 @@ public record Supervisor(Session supervisorSession, OutputValidator validator,
 
     boolean batchSuccess = concurrentWorkerBatch.runWithDelegation(workerInstructions, shapes);
     publishWorkerResponsesToSupervisor(delegatedWorkerSessions);
+
+    int progressMarkedShapes = markCompletedShapesFromWorkerProgress(delegatedWorkerSessions);
     if (batchSuccess) {
       markDelegatedShapesAsProcessed(delegatedWorkerCount);
     }
-    return batchSuccess;
+
+    boolean roundSuccess = batchSuccess || progressMarkedShapes > 0;
+    if (!batchSuccess && progressMarkedShapes > 0) {
+      logger.warn(
+          "Worker batch finished with failures/timeouts, but {} shape(s) were marked as processed from structured worker progress",
+          progressMarkedShapes);
+    }
+
+    return roundSuccess;
+  }
+
+  private int markCompletedShapesFromWorkerProgress(List<Session> delegatedWorkerSessions) {
+    if (delegatedWorkerSessions == null || delegatedWorkerSessions.isEmpty()
+        || shacl == null || shacl.getShapes() == null || shacl.getShapes().isEmpty()) {
+      return 0;
+    }
+
+    Set<String> completedShapeNames = new HashSet<>();
+    for (Session workerSession : delegatedWorkerSessions) {
+      if (workerSession == null) {
+        continue;
+      }
+
+      String workerReport = getWorkerProgressReport(workerSession);
+      if (workerReport == null || workerReport.isBlank()) {
+        continue;
+      }
+
+      Map<String, String> progress = parseProgressReport(workerReport);
+      if (!isConformingProgress(progress)) {
+        continue;
+      }
+
+      String targetShape = progress.getOrDefault("target_shape", "").trim();
+      if (targetShape.isBlank()) {
+        continue;
+      }
+
+      for (String shapeName : splitShapeNames(targetShape)) {
+        if (shapeName.isBlank()) {
+          continue;
+        }
+
+        boolean exists = shacl.getShapes().stream()
+            .anyMatch(shape -> shapeName.equals(shape.getName()));
+        if (exists) {
+          completedShapeNames.add(shapeName);
+        }
+      }
+    }
+
+    if (completedShapeNames.isEmpty()) {
+      return 0;
+    }
+
+    shacl.getShapes().stream()
+        .filter(shape -> completedShapeNames.contains(shape.getName()))
+        .forEach(shape -> shape.setProcessed(true));
+
+    if (shapeProcessingTracker != null) {
+      shapeProcessingTracker.markCompleted(new ArrayList<>(completedShapeNames));
+    }
+
+    logger.info("Marked {} shape(s) as processed from worker progress: {}",
+        completedShapeNames.size(), String.join(", ", completedShapeNames));
+    return completedShapeNames.size();
+  }
+
+  private Map<String, String> parseProgressReport(String report) {
+    Map<String, String> values = new HashMap<>();
+    if (report == null || report.isBlank()) {
+      return values;
+    }
+
+    String[] lines = report.split("\\R");
+    for (String line : lines) {
+      if (line == null || line.isBlank()) {
+        continue;
+      }
+
+      int separator = line.indexOf('=');
+      if (separator <= 0 || separator >= line.length() - 1) {
+        continue;
+      }
+
+      String key = line.substring(0, separator).trim().toLowerCase();
+      String value = line.substring(separator + 1).trim();
+      if (!key.isBlank() && !value.isBlank()) {
+        values.put(key, value);
+      }
+    }
+
+    return values;
+  }
+
+  private boolean isConformingProgress(Map<String, String> progress) {
+    if (progress == null || progress.isEmpty()) {
+      return false;
+    }
+
+    String status = progress.getOrDefault("status", "").trim();
+    String validationResult = progress.getOrDefault("validation_result", "").trim();
+
+    boolean acceptableStatus = "CREATED".equals(status)
+        || "FIXED".equals(status)
+        || "VERIFIED_NO_CHANGE".equals(status);
+    boolean conforms = "CONFORMS".equals(validationResult);
+    return acceptableStatus && conforms;
+  }
+
+  private List<String> splitShapeNames(String targetShapeField) {
+    if (targetShapeField == null || targetShapeField.isBlank()) {
+      return List.of();
+    }
+
+    String[] tokens = targetShapeField.split("[;,]");
+    List<String> shapeNames = new ArrayList<>();
+    for (String token : tokens) {
+      String trimmed = token.trim();
+      if (!trimmed.isBlank()) {
+        shapeNames.add(trimmed);
+      }
+    }
+
+    if (shapeNames.isEmpty()) {
+      return List.of(targetShapeField.trim());
+    }
+
+    return shapeNames;
   }
 
   /**
@@ -239,17 +379,22 @@ public record Supervisor(Session supervisorSession, OutputValidator validator,
       if (startShape < actualShapesToAssign) {
         distribution.append(String.format("POOL-%d: shapes [%d..%d) - ", workerIndex, startShape, endShape));
 
-        List<String> assignedNames = new ArrayList<>();
-        for (int i = startShape; i < endShape; i++) {
-          assignedNames.add(unprocessedShapes.get(i).getName());
+        int maxNames = Math.min(endShape, startShape + MAX_SHAPE_NAMES_PER_WORKER_IN_DISTRIBUTION);
+        List<String> sampleNames = new ArrayList<>();
+        for (int i = startShape; i < maxNames; i++) {
+          sampleNames.add(unprocessedShapes.get(i).getName());
         }
+        distribution.append(String.join(", ", sampleNames));
 
-        distribution.append(String.join(", ", assignedNames));
+        int omitted = endShape - maxNames;
+        if (omitted > 0) {
+          distribution.append(" ... (+").append(omitted).append(" more)");
+        }
         distribution.append("\n");
       }
     }
 
-    distribution.append("\nDelegate to workers above with their assigned shapes.\n");
+    distribution.append("\nDelegate immediately using these assignments.\n");
     return distribution.toString();
   }
 
@@ -269,7 +414,23 @@ public record Supervisor(Session supervisorSession, OutputValidator validator,
         : "This is a follow-up pass: update only unresolved issues and avoid repeating unchanged instructions.\n";
 
     placeholders.put("validationReportHint", validationContextHint + iterationHint);
+    placeholders.put("dataRichnessHint", buildWorkerDataRichnessHint());
     return InstructionFactory.render("worker-instructions-generation", placeholders);
+  }
+
+  private Config.DataRichness resolveDataRichness() {
+    if (concurrentWorkerBatch == null || concurrentWorkerBatch.config() == null) {
+      return Config.DataRichness.MINIMAL;
+    }
+    return concurrentWorkerBatch.config().getDataRichness();
+  }
+
+  private String buildWorkerDataRichnessHint() {
+    return switch (resolveDataRichness()) {
+      case MINIMAL -> "RICHNESS PROFILE: MINIMAL\n- Generate only required SHACL-constrained triples plus minimal identifiers/labels needed for coherence.\n- Avoid inventing new predicates unless absolutely necessary to express a required fact.\n";
+      case BALANCED -> "RICHNESS PROFILE: BALANCED\n- Generate required SHACL triples and a small set of realistic optional predicates that improve interpretability.\n- Prefer ontology predicates first; invent new predicates only when there is a clear domain need not covered by existing vocabulary.\n";
+      case RICH -> "RICHNESS PROFILE: RICH\n- Generate required SHACL triples and substantial realistic optional enrichment (context, relationships, provenance, temporal details).\n- You may invent new predicates for useful domain facts when existing ontology predicates are insufficient. Keep them consistent and reusable.\n";
+    };
   }
 
   private String buildIterationGuidance(boolean firstPass) {
@@ -459,6 +620,9 @@ public record Supervisor(Session supervisorSession, OutputValidator validator,
    * delegation round. Workers without new assignments must not retain stale instructions, and
    * the Worker Progress Report must be wiped so the supervisor cannot mistake a prior round's
    * result for current-round progress.
+   * <p>
+   * Each session is also reset (server-side message history cleared) to prevent context-window
+   * saturation from accumulating conversation turns across many delegation rounds.
    */
   private void clearWorkerDelegationInstructions() {
     if (concurrentWorkerBatch == null || concurrentWorkerBatch.workerSessionPool() == null) {
@@ -491,6 +655,9 @@ public record Supervisor(Session supervisorSession, OutputValidator validator,
       clearedProgress.setType("text/plain");
       clearedProgress.setContent("");
       workerSession.addContextIfChanged(clearedProgress);
+
+      // Reset server-side message history to prevent context-window overflow across rounds.
+      workerSession.reset();
     }
   }
 

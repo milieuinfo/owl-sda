@@ -1,0 +1,49 @@
+POOL-0 [STRUCTURED_PROGRESS]:
+worker_id=POOL-0
+status=CREATED
+target_shape=opencare:FungusShape
+target_class=opencare:Fungus
+changed_triples_count=20
+created_or_updated_subjects=https://w3id.org/opencare#Fungus-001,https://w3id.org/opencare#Fungus-002
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-1 [STRUCTURED_PROGRESS]:
+worker_id=POOL-1
+status=CREATED
+target_shape=opencare:RiskFactorShape
+target_class=https://w3id.org/opencare#RiskFactor
+changed_triples_count=24
+created_or_updated_subjects=https://w3id.org/opencare/data/RiskFactor/rf-0001,https://w3id.org/opencare/data/RiskFactor/rf-0002,https://w3id.org/opencare/data/LNC/LP64610-6/obs-001,https://w3id.org/opencare/data/Agent/clinician-789
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-2 [STRUCTURED_PROGRESS]:
+worker_id=POOL-2
+status=CREATED
+target_shape=https://w3id.org/opencare#PediatricSurgeonShape
+target_class=https://w3id.org/opencare#PediatricSurgeon
+changed_triples_count=10
+created_or_updated_subjects=https://w3id.org/opencare#surgeon-anne-smith,https://w3id.org/opencare#org-001
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-3 [STRUCTURED_PROGRESS]:
+worker_id=POOL-3
+status=CREATED
+target_shape=opencare:DiseaseShape
+target_class=https://w3id.org/opencare#Disease
+changed_triples_count=0
+created_or_updated_subjects=https://w3id.org/opencare/disease/influenza,https://w3id.org/opencare/disease/type-2-diabetes
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-4 [STRUCTURED_PROGRESS]:
+worker_id=POOL-4
+status=CREATED
+target_shape=opencare:SymptomShape
+target_class=opencare:Symptom
+changed_triples_count=12
+created_or_updated_subjects=https://w3id.org/opencare#Symptom_Fever,https://w3id.org/opencare#Symptom_Cough
+validation_result=CONFORMS
+remaining_issues=NONE

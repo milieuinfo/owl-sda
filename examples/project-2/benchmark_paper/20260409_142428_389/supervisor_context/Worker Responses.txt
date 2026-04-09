@@ -1,0 +1,49 @@
+POOL-0 [STRUCTURED_PROGRESS]:
+worker_id=POOL-0
+status=CREATED
+target_shape=opencare:PlantShape,opencare:OncologistShape
+target_class=opencare:Plant,opencare:Oncologist
+changed_triples_count=30
+created_or_updated_subjects=https://w3id.org/opencare#Plant_001,https://w3id.org/opencare#Plant_002,https://w3id.org/opencare#Oncologist_001
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-1 [STRUCTURED_PROGRESS]:
+worker_id=POOL-1
+status=CREATED
+target_shape=http://purl.obolibrary.org/obo/OGMS_0000073Shape
+target_class=http://purl.obolibrary.org/obo/OGMS_0000073
+changed_triples_count=22
+created_or_updated_subjects=https://w3id.org/opencare#ogms-0000073-2
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-2 [STRUCTURED_PROGRESS]:
+worker_id=POOL-2
+status=CREATED
+target_shape=opencare:PathologyFindingShape
+target_class=https://w3id.org/opencare#PathologyFinding
+changed_triples_count=27
+created_or_updated_subjects=https://w3id.org/opencare#pf-001,https://w3id.org/opencare#pf-002
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-3 [STRUCTURED_PROGRESS]:
+worker_id=POOL-3
+status=CREATED
+target_shape=https://w3id.org/opencare#AnatomicalRegionShape
+target_class=https://w3id.org/opencare#AnatomicalRegion
+changed_triples_count=8
+created_or_updated_subjects=https://w3id.org/opencare#AnatomicalRegion-1,https://w3id.org/opencare#AnatomicalRegion-2
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-4 [STRUCTURED_PROGRESS]:
+worker_id=POOL-4
+status=CREATED
+target_shape=opencare:SeasonalAllergyShape, opencare:AllergicDispositionShape
+target_class=opencare:SeasonalAllergy, opencare:AllergicDisposition
+changed_triples_count=34
+created_or_updated_subjects=https://w3id.org/opencare#seasonalAllergy-001, https://w3id.org/opencare#seasonalAllergy-002, https://w3id.org/opencare#allergicDisposition-001, https://w3id.org/opencare#allergicDisposition-002
+validation_result=CONFORMS
+remaining_issues=NONE

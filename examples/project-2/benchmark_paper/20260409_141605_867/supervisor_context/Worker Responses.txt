@@ -1,0 +1,49 @@
+POOL-0 [STRUCTURED_PROGRESS]:
+worker_id=POOL-0
+status=CREATED
+target_shape=opencare:MedicalTherapyShape
+target_class=opencare:MedicalTherapy
+changed_triples_count=28
+created_or_updated_subjects=https://w3id.org/opencare#therapy-001,https://w3id.org/opencare#therapy-002,https://w3id.org/opencare#surgeon-001
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-1 [STRUCTURED_PROGRESS]:
+worker_id=POOL-1
+status=CREATED
+target_shape=http://xmlns.com/foaf/0.1/PersonShape
+target_class=http://xmlns.com/foaf/0.1/Person
+changed_triples_count=23
+created_or_updated_subjects=https://w3id.org/opencare#person-anna,https://w3id.org/opencare#person-john
+validation_result=null
+remaining_issues=NONE
+
+POOL-2 [STRUCTURED_PROGRESS]:
+worker_id=POOL-2
+status=CREATED
+target_shape=opencare:LicensedPracticalNurseShape
+target_class=opencare:LicensedPracticalNurse
+changed_triples_count=7
+created_or_updated_subjects=opencare:LPN_001,opencare:CareHome_Sunrise
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-3 [STRUCTURED_PROGRESS]:
+worker_id=POOL-3
+status=CREATED
+target_shape=opencare:VirusShape
+target_class=opencare:Virus
+changed_triples_count=21
+created_or_updated_subjects=https://w3id.org/opencare/data/Virus/virus-001,https://w3id.org/opencare/data/Virus/virus-002,https://w3id.org/opencare/data/MedicalProceduresSensitivity/mps-001
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-4 [STRUCTURED_PROGRESS]:
+worker_id=POOL-4
+status=CREATED
+target_shape=http://purl.obolibrary.org/obo/GEO_000000372Shape
+target_class=http://purl.obolibrary.org/obo/GEO_000000372
+changed_triples_count=7
+created_or_updated_subjects=http://purl.obolibrary.org/obo/GEO_000000372_AtlanticCoast
+validation_result=CONFORMS
+remaining_issues=NONE

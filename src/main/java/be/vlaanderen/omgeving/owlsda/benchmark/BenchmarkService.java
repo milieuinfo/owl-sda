@@ -16,11 +16,12 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Properties;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
+import java.nio.charset.StandardCharsets;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -145,14 +146,25 @@ public class BenchmarkService {
     }
 
     // Include token counters in state hash so snapshots capture token-usage deltas.
-    hash = 31 * hash + Long.hashCode(generatorSession != null ? generatorSession.getTotalTokensUsed() : 0L);
-    hash = 31 * hash + Long.hashCode(reviewerSession != null ? reviewerSession.getTotalTokensUsed() : 0L);
+    hash = appendTokenHash(hash, generatorSession);
+    hash = appendTokenHash(hash, reviewerSession);
     if (workerSessions != null) {
       for (Session workerSession : workerSessions) {
-        hash = 31 * hash + Long.hashCode(workerSession != null ? workerSession.getTotalTokensUsed() : 0L);
+        hash = appendTokenHash(hash, workerSession);
       }
     }
 
+    return hash;
+  }
+
+  private int appendTokenHash(int hash, Session session) {
+    long inputTokens = session != null ? session.getInputTokensUsed() : 0L;
+    long outputTokens = session != null ? session.getOutputTokensUsed() : 0L;
+    long totalTokens = session != null ? session.getTotalTokensUsed() : 0L;
+
+    hash = 31 * hash + Long.hashCode(inputTokens);
+    hash = 31 * hash + Long.hashCode(outputTokens);
+    hash = 31 * hash + Long.hashCode(totalTokens);
     return hash;
   }
 
@@ -297,16 +309,26 @@ public class BenchmarkService {
       }
       w.write("current_violations=" + currentViolations + "\n");
 
-      w.write("tokens.supervisor=" + (supervisorSession != null ? supervisorSession.getTotalTokensUsed() : 0L) + "\n");
-      w.write("tokens.reviewer=" + (reviewerSession != null ? reviewerSession.getTotalTokensUsed() : 0L) + "\n");
+      writeRoleTokenUsage(w, "tokens.supervisor", supervisorSession);
+      writeRoleTokenUsage(w, "tokens.reviewer", reviewerSession);
+
       if (workerSessions != null) {
         for (int i = 0; i < workerSessions.size(); i++) {
-          Session workerSession = workerSessions.get(i);
-          long workerTokens = workerSession != null ? workerSession.getTotalTokensUsed() : 0L;
-          w.write("tokens.worker.worker_" + i + "=" + workerTokens + "\n");
+          writeRoleTokenUsage(w, "tokens.worker.worker_" + i, workerSessions.get(i));
         }
       }
     }
+  }
+
+  private void writeRoleTokenUsage(BufferedWriter writer, String keyPrefix, Session session)
+      throws IOException {
+    long inputTokens = session != null ? session.getInputTokensUsed() : 0L;
+    long outputTokens = session != null ? session.getOutputTokensUsed() : 0L;
+    long totalTokens = session != null ? session.getTotalTokensUsed() : 0L;
+
+    writer.write(keyPrefix + ".input=" + inputTokens + "\n");
+    writer.write(keyPrefix + ".output=" + outputTokens + "\n");
+    writer.write(keyPrefix + ".total=" + totalTokens + "\n");
   }
 
   /**
@@ -375,12 +397,56 @@ public class BenchmarkService {
     for (Context c : contexts) {
       String name = c.getName() != null ? c.getName() : "context_" + i++;
       Path target = targetDir.resolve(filePrefix + safeFileName(name) + ".txt");
-      String content = c.getContent();
-      if (content == null) {
-        content = "";
-      }
-      Files.writeString(target, content);
+      String content = sanitizeForUtf8(c.getContent());
+      Files.writeString(target, content, StandardCharsets.UTF_8);
     }
+  }
+
+  /**
+   * Replaces invalid surrogate code units so text can be written as UTF-8.
+   */
+  private String sanitizeForUtf8(String content) {
+    if (content == null || content.isEmpty()) {
+      return "";
+    }
+
+    StringBuilder sanitized = null;
+    int length = content.length();
+
+    for (int i = 0; i < length; i++) {
+      char ch = content.charAt(i);
+
+      if (Character.isHighSurrogate(ch)) {
+        if (i + 1 < length && Character.isLowSurrogate(content.charAt(i + 1))) {
+          if (sanitized != null) {
+            sanitized.append(ch).append(content.charAt(i + 1));
+          }
+          i++;
+          continue;
+        }
+        if (sanitized == null) {
+          sanitized = new StringBuilder(length);
+          sanitized.append(content, 0, i);
+        }
+        sanitized.append('\uFFFD');
+        continue;
+      }
+
+      if (Character.isLowSurrogate(ch)) {
+        if (sanitized == null) {
+          sanitized = new StringBuilder(length);
+          sanitized.append(content, 0, i);
+        }
+        sanitized.append('\uFFFD');
+        continue;
+      }
+
+      if (sanitized != null) {
+        sanitized.append(ch);
+      }
+    }
+
+    return sanitized == null ? content : sanitized.toString();
   }
 
   /**
@@ -561,19 +627,60 @@ public class BenchmarkService {
   }
 
   private BenchmarkTokenUsage readTokenUsage(Properties props) {
-    Map<String, Long> workers = new LinkedHashMap<>();
+    Map<String, BenchmarkRoleTokenUsage> workers = new LinkedHashMap<>();
+
+    for (String propertyName : props.stringPropertyNames()) {
+      if (propertyName.startsWith("tokens.worker.") && propertyName.endsWith(".total")) {
+        String workerName = propertyName.substring("tokens.worker.".length(),
+            propertyName.length() - ".total".length());
+        workers.put(workerName, readRoleTokenUsage(props, "tokens.worker." + workerName));
+      }
+    }
+
     for (String propertyName : props.stringPropertyNames()) {
       if (propertyName.startsWith("tokens.worker.")) {
-        String workerName = propertyName.substring("tokens.worker.".length());
-        workers.put(workerName, parseLong(props.getProperty(propertyName)));
+        String suffix = propertyName.substring("tokens.worker.".length());
+        String workerName;
+
+        if (suffix.endsWith(".input")) {
+          workerName = suffix.substring(0, suffix.length() - ".input".length());
+        } else if (suffix.endsWith(".output")) {
+          workerName = suffix.substring(0, suffix.length() - ".output".length());
+        } else if (suffix.endsWith(".total")) {
+          workerName = suffix.substring(0, suffix.length() - ".total".length());
+        } else {
+          workerName = suffix;
+        }
+
+        workers.putIfAbsent(workerName, readRoleTokenUsage(props, "tokens.worker." + workerName));
       }
     }
 
     return BenchmarkTokenUsage.builder()
         .workers(workers)
-        .reviewer(parseLong(props.getProperty("tokens.reviewer")))
-        .supervisor(parseLong(props.getProperty("tokens.supervisor")))
+        .reviewer(readRoleTokenUsage(props, "tokens.reviewer"))
+        .supervisor(readRoleTokenUsage(props, "tokens.supervisor"))
         .build();
+  }
+
+  private BenchmarkRoleTokenUsage readRoleTokenUsage(Properties props, String keyPrefix) {
+    boolean hasInput = props.containsKey(keyPrefix + ".input");
+    boolean hasOutput = props.containsKey(keyPrefix + ".output");
+    boolean hasTotal = props.containsKey(keyPrefix + ".total");
+
+    long input = parseLong(props.getProperty(keyPrefix + ".input"));
+    long output = parseLong(props.getProperty(keyPrefix + ".output"));
+
+    long total;
+    if (hasTotal) {
+      total = parseLong(props.getProperty(keyPrefix + ".total"));
+    } else if (hasInput || hasOutput) {
+      total = input + output;
+    } else {
+      total = parseLong(props.getProperty(keyPrefix));
+    }
+
+    return BenchmarkRoleTokenUsage.fromValues(input, output, total);
   }
 
   /**

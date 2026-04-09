@@ -1,0 +1,8 @@
+worker_id=POOL-0
+status=CREATED
+target_shape=opencare:ReviewOfSystemShape
+target_class=opencare:ReviewOfSystem
+changed_triples_count=17
+created_or_updated_subjects=https://w3id.org/opencare/review/ros-2001,https://w3id.org/opencare/review/ros-2002
+validation_result=CONFORMS
+remaining_issues=NONE

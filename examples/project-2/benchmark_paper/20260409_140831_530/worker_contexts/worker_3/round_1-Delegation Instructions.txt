@@ -1,0 +1,15 @@
+CREATE instances for the following target classes. No existing instances — create new ones.
+
+1. Shape: `opencare:CardiologistShape`
+   Target class: `opencare:Cardiologist`
+   → Create at least 1 instance of `opencare:Cardiologist`.
+
+2. Shape: `opencare:TownShape`
+   Target class: `opencare:Town`
+   → Create at least 2 instances of `opencare:Town`.
+
+Use prefix: `@prefix opencare: <https://w3id.org/opencare#> .`
+Use the ontology to determine appropriate properties for each instance.
+Commit results to the triple store.
+
+Respond with: worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues)

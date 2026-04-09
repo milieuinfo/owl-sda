@@ -1,0 +1,8 @@
+worker_id=POOL-3
+status=CREATED
+target_shape=http://purl.obolibrary.org/obo/OGMS_0000029Shape
+target_class=http://purl.obolibrary.org/obo/OGMS_0000029
+changed_triples_count=4
+created_or_updated_subjects=https://w3id.org/opencare/instances/OGMS_0000029_1
+validation_result=CONFORMS
+remaining_issues=NONE

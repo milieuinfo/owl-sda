@@ -1,0 +1,78 @@
+@prefix :         <https://w3id.org/opencare#> .
+@prefix dc:       <http://purl.org/dc/elements/1.1/> .
+@prefix metadata: <http://data.bioontology.org/metadata/> .
+@prefix mod:      <https://w3id.org/mod#> .
+@prefix mod1:     <http://w3id.org/mod#> .
+@prefix opencare: <https://w3id.org/opencare#> .
+@prefix owl:      <http://www.w3.org/2002/07/owl#> .
+@prefix prov:     <http://www.w3.org/ns/prov#> .
+@prefix rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:       <http://www.w3.org/ns/shacl#> .
+@prefix skos:     <http://www.w3.org/2004/02/skos/core#> .
+@prefix terms:    <http://purl.org/dc/terms/> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+
+opencare:DermatologistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Dermatologist .
+
+opencare:ImplantProcedureShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:ImplantProcedure .
+
+<http://purl.bioontology.org/ontology/LNC/MTHU017829Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/LNC/MTHU017829> .
+
+<http://purl.obolibrary.org/obo/OGMS_0000029Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.obolibrary.org/obo/OGMS_0000029> .
+
+opencare:SiteOfCareShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:SiteOfCare .
+
+opencare:LatexAllergyShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:LatexAllergy .
+
+<http://sbmi.uth.tmc.edu/ontology/ochv#C0332119Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://sbmi.uth.tmc.edu/ontology/ochv#C0332119> .
+
+opencare:BacteriaShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Bacteria .
+
+opencare:BodyPartShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:BodyPart .
+
+<http://sbmi.uth.tmc.edu/ontology/ochv#C0424945Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://sbmi.uth.tmc.edu/ontology/ochv#C0424945> .
+
+opencare:RadiationTherapyShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:RadiationTherapy .
+
+<http://purl.obolibrary.org/obo/IDO_0000586Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.obolibrary.org/obo/IDO_0000586> .
+
+opencare:EndocrinologistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Endocrinologist .
+
+<http://xmlns.com/foaf/0.1/AgentShape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://xmlns.com/foaf/0.1/Agent> .
+
+opencare:GastroenterologistShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  opencare:Gastroenterologist .
+
+<http://purl.bioontology.org/ontology/CMDO/CM0025Shape>
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  <http://purl.bioontology.org/ontology/CMDO/CM0025> .

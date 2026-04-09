@@ -1,0 +1,49 @@
+POOL-0 [STRUCTURED_PROGRESS]:
+worker_id=POOL-0
+status=CREATED
+target_shape=opencare:PharmaceuticalPreparationShape
+target_class=opencare:PharmaceuticalPreparation
+changed_triples_count=50
+created_or_updated_subjects=https://w3id.org/opencare#PharmaceuticalPreparation_PP001, https://w3id.org/opencare#PharmaceuticalPreparation_PP002, https://w3id.org/opencare#ActiveIngredient_PenicillinV, https://w3id.org/opencare#ActiveIngredient_Amoxicillin, https://w3id.org/opencare#RecreationalDrug_RD001, https://w3id.org/opencare#RecreationalDrug_RD002
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-1 [STRUCTURED_PROGRESS]:
+worker_id=POOL-1
+status=CREATED
+target_shape=opencare:LaboratoryTestShape
+target_class=https://w3id.org/opencare#LaboratoryTest
+changed_triples_count=23
+created_or_updated_subjects=https://w3id.org/opencare/lt/LT-0001,https://w3id.org/opencare/lt/LT-0002,https://w3id.org/opencare/org/unit/CentralLab
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-2 [STRUCTURED_PROGRESS]:
+worker_id=POOL-2
+status=CREATED
+target_shape=opencare:CertifiedNurseMidwifeShape
+target_class=https://w3id.org/opencare#CertifiedNurseMidwife
+changed_triples_count=14
+created_or_updated_subjects=https://w3id.org/opencare/cnm/cnm-2001
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-3 [STRUCTURED_PROGRESS]:
+worker_id=POOL-3
+status=CREATED
+target_shape=http://purl.obolibrary.org/obo/OGMS_0000014Shape
+target_class=http://purl.obolibrary.org/obo/OGMS_0000014
+changed_triples_count=16
+created_or_updated_subjects=https://w3id.org/opencare#ogms_0000014_inst1
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-4 [STRUCTURED_PROGRESS]:
+worker_id=POOL-4
+status=CREATED
+target_shape=http://schema.org/DiagnosticProcedureShape / https://w3id.org/opencare#RheumatologistShape
+target_class=http://schema.org/DiagnosticProcedure / https://w3id.org/opencare#Rheumatologist
+changed_triples_count=38
+created_or_updated_subjects=https://w3id.org/opencare#DiagnosticProcedure-0001, https://w3id.org/opencare#DiagnosticProcedure-0002, https://w3id.org/opencare#Rheumatologist-1
+validation_result=CONFORMS
+remaining_issues=NONE

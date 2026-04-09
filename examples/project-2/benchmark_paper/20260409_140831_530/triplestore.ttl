@@ -1,0 +1,168 @@
+@prefix dcterms:  <http://purl.org/dc/terms/> .
+@prefix ex:       <https://w3id.org/opencare/instances/> .
+@prefix foaf:     <http://xmlns.com/foaf/0.1/> .
+@prefix opencare: <https://w3id.org/opencare#> .
+@prefix prov:     <http://www.w3.org/ns/prov#> .
+@prefix rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema:   <http://schema.org/> .
+@prefix skos:     <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+
+ex:Comorbidity-002  rdf:type    opencare:Comorbidity ;
+        opencare:conditionName  "Primary Hypertension" ;
+        opencare:diagnosedBy    ex:Neurologist-001 ;
+        opencare:onsetDate      "2010-09-01"^^xsd:date ;
+        opencare:patient        ex:Patient-123 ;
+        opencare:severityLevel  "mild" .
+
+opencare:CentralHospital
+        rdf:type        schema:Hospital ;
+        schema:address  "123 Main St, Metropolis" ;
+        schema:name     "Central General Hospital" .
+
+ex:Comorbidity-001  rdf:type    opencare:Comorbidity ;
+        opencare:conditionName  "Type 2 Diabetes Mellitus" ;
+        opencare:diagnosedBy    ex:Neurologist-001 ;
+        opencare:onsetDate      "2012-06-15"^^xsd:date ;
+        opencare:patient        ex:Patient-123 ;
+        opencare:severityLevel  "moderate" .
+
+opencare:LA26428-5-1  rdf:type  <http://purl.bioontology.org/ontology/LNC/LA26428-5> ;
+        rdfs:label          "Serum creatinine [Mass/volume] in Blood" ;
+        dcterms:created     "2026-04-09T12:00:00Z"^^xsd:dateTime ;
+        dcterms:creator     opencare:Agent-Curator1 ;
+        dcterms:identifier  "LA26428-5" ;
+        skos:prefLabel      "Serum creatinine measurement (LOINC 26428-5)" ;
+        opencare:code       <http://purl.bioontology.org/ontology/LNC/LA26428-5> ;
+        opencare:method     "Automated enzymatic assay" ;
+        opencare:unit       "mg/dL" .
+
+opencare:Encounter-2  rdf:type  opencare:Encounter ;
+        schema:dateCreated     "2026-04-09T12:07:31Z"^^xsd:dateTime ;
+        schema:description     "Abdominal ultrasound for right upper quadrant pain" ;
+        schema:endDate         "2026-04-08T14:25:00"^^xsd:dateTime ;
+        schema:identifier      "E-2026-0002" ;
+        schema:startDate       "2026-04-08T14:00:00"^^xsd:dateTime ;
+        opencare:encounterFor  opencare:Patient-002 ;
+        opencare:modality      "Ultrasound" ;
+        opencare:performedBy   opencare:RadiologicTechnologist-1 .
+
+opencare:Woman-002  rdf:type       opencare:Woman ;
+        rdfs:label                 "Aisha Khan" ;
+        prov:wasGeneratedBy        <https://w3id.org/opencare/agent/data-generator> ;
+        foaf:name                  "Aisha Khan" ;
+        opencare:birthDate         "1992-11-03"^^xsd:date ;
+        opencare:country           "Pakistan" ;
+        opencare:hasMedicalRecord  <https://w3id.org/opencare/medicalRecord/W-0002> ;
+        opencare:identifier        "W-0002" .
+
+opencare:Encounter-1  rdf:type  opencare:Encounter ;
+        schema:dateCreated     "2026-04-09T12:07:31Z"^^xsd:dateTime ;
+        schema:description     "Chest X-ray for suspected pneumonia" ;
+        schema:endDate         "2026-04-07T09:30:00"^^xsd:dateTime ;
+        schema:identifier      "E-2026-0001" ;
+        schema:startDate       "2026-04-07T09:15:00"^^xsd:dateTime ;
+        opencare:encounterFor  opencare:Patient-001 ;
+        opencare:modality      "X-ray" ;
+        opencare:performedBy   opencare:RadiologicTechnologist-1 .
+
+<https://w3id.org/opencare/Clinic/2>
+        rdf:type        opencare:Clinic ;
+        schema:address  "Laan 2, 1181 BB Amstelveen" ;
+        schema:name     "Amstelveen Cardiac Care" .
+
+opencare:Woman-001  rdf:type       opencare:Woman ;
+        rdfs:label                 "Maria Garcia" ;
+        prov:wasGeneratedBy        <https://w3id.org/opencare/agent/data-generator> ;
+        foaf:name                  "Maria Garcia" ;
+        opencare:birthDate         "1988-04-12"^^xsd:date ;
+        opencare:country           "Spain" ;
+        opencare:hasMedicalRecord  <https://w3id.org/opencare/medicalRecord/W-0001> ;
+        opencare:identifier        "W-0001" .
+
+opencare:Patient-002  rdf:type  opencare:Patient ;
+        schema:familyName  "Smith" ;
+        schema:givenName   "John" ;
+        schema:identifier  "P-1002" .
+
+ex:Neurologist-001  rdf:type     opencare:Neurologist ;
+        opencare:affiliation     <https://orcid.org/0000-0002-1825-0097> ;
+        opencare:contactEmail    "ana.pereira@example.org" ;
+        opencare:fullName        "Dr. Ana Pereira" ;
+        opencare:licenseNumber   "NEU-789452" ;
+        opencare:profileCreated  "2026-04-09T12:00:00Z"^^xsd:dateTime ;
+        opencare:specialty       "Clinical Neurology" ;
+        opencare:worksAt         "St. Mary's Neurology Clinic" .
+
+<https://w3id.org/opencare/Clinic/1>
+        rdf:type        opencare:Clinic ;
+        schema:address  "Straat 1, 1211 AB Hilversum" ;
+        schema:name     "Hilversum Heart Centre" .
+
+opencare:RadiologicTechnologist-1
+        rdf:type                opencare:RadiologicTechnologist ;
+        schema:email            "alex.nguyen@hospital.example.org" ;
+        schema:familyName       "Nguyen" ;
+        schema:givenName        "Alex" ;
+        schema:identifier       "RT-0001" ;
+        schema:telephone        "+1-555-0199" ;
+        opencare:licenseNumber  "RRT-2024-4512" ;
+        opencare:qualification  "Registered Radiologic Technologist (RRT)" ;
+        opencare:worksAt        opencare:CentralHospital .
+
+opencare:Patient-001  rdf:type  opencare:Patient ;
+        schema:familyName  "Gonzalez" ;
+        schema:givenName   "Maria" ;
+        schema:identifier  "P-1001" .
+
+<https://w3id.org/opencare/Town/2>
+        rdf:type                    opencare:Town ;
+        schema:name                 "Amstelveen" ;
+        opencare:hasHealthFacility  <https://w3id.org/opencare/Clinic/2> ;
+        opencare:population         86000 ;
+        opencare:postalCode         "1181" .
+
+<https://w3id.org/opencare/Cardiologist/1>
+        rdf:type                  opencare:Cardiologist ;
+        schema:email              "ana.devries@example.org" ;
+        schema:name               "Dr. Ana de Vries" ;
+        schema:telephone          "+31-20-555-0101" ;
+        prov:generatedAtTime      "2026-04-09T12:00:00Z"^^xsd:dateTime ;
+        opencare:licenseNumber    "CARD-2026-0423" ;
+        opencare:specialty        "Interventional Cardiology" ;
+        opencare:worksIn          <https://w3id.org/opencare/Town/1> ;
+        opencare:yearsExperience  12 .
+
+opencare:SNOMEDCT-394733009-1
+        rdf:type                 <http://purl.bioontology.org/ontology/SNOMEDCT/394733009> ;
+        rdfs:label               "Stage 2 hypertension (disorder)" ;
+        dcterms:created          "2026-04-09T12:05:00Z"^^xsd:dateTime ;
+        dcterms:creator          opencare:Agent-Curator1 ;
+        dcterms:identifier       "394733009" ;
+        skos:prefLabel           "Stage 2 hypertension (SNOMED CT 394733009)" ;
+        opencare:clinicalStatus  "active" ;
+        opencare:code            <http://purl.bioontology.org/ontology/SNOMEDCT/394733009> .
+
+opencare:Agent-Curator1
+        rdf:type           opencare:Agent ;
+        rdfs:label         "Curator A. Example" ;
+        dcterms:publisher  "OpenCare curators" .
+
+<https://w3id.org/opencare/Town/1>
+        rdf:type                    opencare:Town ;
+        schema:name                 "Hilversum" ;
+        opencare:hasHealthFacility  <https://w3id.org/opencare/Clinic/1> ;
+        opencare:population         92300 ;
+        opencare:postalCode         "1211" .
+
+opencare:RespiratoryTherapist-001
+        rdf:type                 opencare:RespiratoryTherapist ;
+        rdfs:label               "Dr. Samuel Osei" ;
+        schema:medicalSpecialty  "Respiratory therapy" ;
+        prov:wasAttributedTo     <https://w3id.org/opencare/agent/data-generator> ;
+        foaf:name                "Samuel Osei" ;
+        opencare:identifier      "RT-100" ;
+        opencare:licenseNumber   "GH-RT-2020-045" ;
+        opencare:licensedIn      "Ghana" ;
+        opencare:worksAt         <https://w3id.org/opencare/hospital/AccraCentral> .

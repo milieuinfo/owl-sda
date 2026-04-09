@@ -1,0 +1,8 @@
+worker_id=POOL-1
+status=CREATED
+target_shape=opencare:DiagnosisShape
+target_class=opencare:Diagnosis
+changed_triples_count=32
+created_or_updated_subjects=https://w3id.org/opencare#Diagnosis_w2_001,https://w3id.org/opencare#Diagnosis_w2_002,https://w3id.org/opencare#Food_w2_001,https://w3id.org/opencare#Food_w2_002
+validation_result=CONFORMS
+remaining_issues=NONE

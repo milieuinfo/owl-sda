@@ -1,0 +1,8 @@
+worker_id=POOL-4
+status=CREATED
+target_shape=http://sbmi.uth.tmc.edu/ontology/ochv#C0424945Shape
+target_class=http://sbmi.uth.tmc.edu/ontology/ochv#C0424945
+changed_triples_count=22
+created_or_updated_subjects=https://w3id.org/opencare/agents/clinician-alexander-smith,https://w3id.org/opencare/agents/community-nurse-maya,https://w3id.org/opencare/conditions/C0424945-1
+validation_result=CONFORMS
+remaining_issues=NONE

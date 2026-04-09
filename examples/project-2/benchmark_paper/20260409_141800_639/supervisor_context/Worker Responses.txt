@@ -1,0 +1,49 @@
+POOL-0 [STRUCTURED_PROGRESS]:
+worker_id=POOL-0
+status=CREATED
+target_shape=opencare:CertifiedRegisteredNurseAnesthetistShape
+target_class=opencare:CertifiedRegisteredNurseAnesthetist
+changed_triples_count=17
+created_or_updated_subjects=https://w3id.org/opencare#CRNA1,https://w3id.org/opencare#Hospital_NY
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-1 [STRUCTURED_PROGRESS]:
+worker_id=POOL-1
+status=VERIFIED_NO_CHANGE
+target_shape=http://purl.bioontology.org/ontology/LNC/MTHU014081Shape
+target_class=http://purl.bioontology.org/ontology/LNC/MTHU014081
+changed_triples_count=0
+created_or_updated_subjects=https://w3id.org/opencare#MTHU014081-1
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-2 [STRUCTURED_PROGRESS]:
+worker_id=POOL-2
+status=CREATED
+target_shape=http://purl.bioontology.org/ontology/SNOMEDCT/263490005Shape
+target_class=http://purl.bioontology.org/ontology/SNOMEDCT/263490005
+changed_triples_count=6
+created_or_updated_subjects=https://w3id.org/opencare/data/snomed/263490005-1
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-3 [STRUCTURED_PROGRESS]:
+worker_id=POOL-3
+status=CREATED
+target_shape=opencare:HematologistShape
+target_class=opencare:Hematologist
+changed_triples_count=47
+created_or_updated_subjects=https://w3id.org/opencare#hematologist-1, https://w3id.org/opencare#chemo-1, https://w3id.org/opencare#chemo-2
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-4 [STRUCTURED_PROGRESS]:
+worker_id=POOL-4
+status=CREATED
+target_shape=opencare:PhysicalExaminationShape
+target_class=https://w3id.org/opencare#PhysicalExamination
+changed_triples_count=46
+created_or_updated_subjects=https://w3id.org/opencare#PhysicalExamination_2026-04-09_01,https://w3id.org/opencare#PhysicalExamination_2026-04-09_02
+validation_result=CONFORMS
+remaining_issues=NONE

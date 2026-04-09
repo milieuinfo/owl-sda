@@ -1,0 +1,8 @@
+worker_id=POOL-2
+status=CREATED
+target_shape=https://w3id.org/opencare#PediatricSurgeonShape
+target_class=https://w3id.org/opencare#PediatricSurgeon
+changed_triples_count=10
+created_or_updated_subjects=https://w3id.org/opencare#surgeon-anne-smith,https://w3id.org/opencare#org-001
+validation_result=CONFORMS
+remaining_issues=NONE

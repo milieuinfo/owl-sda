@@ -1,0 +1,8 @@
+worker_id=POOL-1
+status=CREATED
+target_shape=opencare:GeographycalRegionShape
+target_class=https://w3id.org/opencare#GeographycalRegion
+changed_triples_count=21
+created_or_updated_subjects=https://w3id.org/opencare#region-001,https://w3id.org/opencare#region-002, http://purl.obolibrary.org/obo/HP_0410323_instance_01
+validation_result=CONFORMS
+remaining_issues=NONE

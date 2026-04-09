@@ -1,0 +1,49 @@
+POOL-0 [STRUCTURED_PROGRESS]:
+worker_id=POOL-0
+status=CREATED
+target_shape=http://purl.bioontology.org/ontology/LNC/MTHU017829Shape
+target_class=http://purl.bioontology.org/ontology/LNC/MTHU017829
+changed_triples_count=16
+created_or_updated_subjects=http://purl.bioontology.org/ontology/LNC/MTHU017829-2,https://w3id.org/opencare/Gastroenterologist-1,https://w3id.org/opencare/org/CityHospital-1
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-1 [STRUCTURED_PROGRESS]:
+worker_id=POOL-1
+status=CREATED
+target_shape=http://purl.bioontology.org/ontology/CMDO/CM0025Shape
+target_class=http://purl.bioontology.org/ontology/CMDO/CM0025
+changed_triples_count=6
+created_or_updated_subjects=https://w3id.org/opencare/instances/CM0025-001
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-2 [STRUCTURED_PROGRESS]:
+worker_id=POOL-2
+status=CREATED
+target_shape=opencare:EndocrinologistShape
+target_class=opencare:Endocrinologist
+changed_triples_count=9
+created_or_updated_subjects=https://w3id.org/opencare/instance/END-0001,https://w3id.org/opencare/instance/Clinic-001
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-3 [STRUCTURED_PROGRESS]:
+worker_id=POOL-3
+status=CREATED
+target_shape=http://sbmi.uth.tmc.edu/ontology/ochv#C0332119Shape, opencare:DermatologistShape
+target_class=http://sbmi.uth.tmc.edu/ontology/ochv#C0332119, https://w3id.org/opencare#Dermatologist
+changed_triples_count=11
+created_or_updated_subjects=https://w3id.org/opencare/instances/C0332119_1, https://w3id.org/opencare/instances/Dermatologist_1
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-4 [STRUCTURED_PROGRESS]:
+worker_id=POOL-4
+status=CREATED
+target_shape=http://sbmi.uth.tmc.edu/ontology/ochv#C0424945Shape
+target_class=http://sbmi.uth.tmc.edu/ontology/ochv#C0424945
+changed_triples_count=22
+created_or_updated_subjects=https://w3id.org/opencare/agents/clinician-alexander-smith,https://w3id.org/opencare/agents/community-nurse-maya,https://w3id.org/opencare/conditions/C0424945-1
+validation_result=CONFORMS
+remaining_issues=NONE

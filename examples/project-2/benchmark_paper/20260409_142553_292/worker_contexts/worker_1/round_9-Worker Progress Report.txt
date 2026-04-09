@@ -1,0 +1,8 @@
+worker_id=POOL-1
+status=CREATED
+target_shape=http://purl.obolibrary.org/obo/XAO_0003186Shape
+target_class=http://purl.obolibrary.org/obo/XAO_0003186
+changed_triples_count=6
+created_or_updated_subjects=https://w3id.org/opencare#XAO_0003186_001
+validation_result=CONFORMS
+remaining_issues=NONE

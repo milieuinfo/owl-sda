@@ -1,0 +1,29 @@
+POOL-0 [STRUCTURED_PROGRESS]:
+worker_id=POOL-0
+status=VERIFIED_NO_CHANGE
+target_shape=opencare:EndocrinologistShape
+target_class=opencare:Endocrinologist
+changed_triples_count=0
+created_or_updated_subjects=NONE
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-1 [STRUCTURED_PROGRESS]:
+worker_id=POOL-1
+status=VERIFIED_NO_CHANGE
+target_shape=opencare:BodyPartShape
+target_class=opencare:BodyPart
+changed_triples_count=0
+created_or_updated_subjects=NONE
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-2 [STRUCTURED_PROGRESS]:
+worker_id=POOL-2
+status=CREATED
+target_shape=http://purl.obolibrary.org/obo/IDO_0000586Shape
+target_class=http://purl.obolibrary.org/obo/IDO_0000586
+changed_triples_count=29
+created_or_updated_subjects=http://purl.obolibrary.org/obo/IDO_0000586_1, https://w3id.org/opencare#LatexAllergy_1, https://w3id.org/opencare#LatexAllergy_2
+validation_result=CONFORMS
+remaining_issues=NONE

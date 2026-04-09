@@ -1,0 +1,8 @@
+worker_id=POOL-2
+status=CREATED
+target_shape=http://purl.obolibrary.org/obo/HP_0012393Shape
+target_class=http://purl.obolibrary.org/obo/HP_0012393
+changed_triples_count=19
+created_or_updated_subjects=https://w3id.org/opencare/data/observational-finding-001,https://w3id.org/opencare/data/observational-finding-002,https://w3id.org/opencare/data/hp-0012393-instance
+validation_result=CONFORMS
+remaining_issues=NONE

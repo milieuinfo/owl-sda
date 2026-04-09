@@ -1,0 +1,8 @@
+worker_id=POOL-0
+status=CREATED
+target_shape=opencare:OrganismShape
+target_class=opencare:Organism
+changed_triples_count=25
+created_or_updated_subjects=https://w3id.org/opencare/instance/organism-001,https://w3id.org/opencare/instance/organism-002,https://w3id.org/opencare/instance/traumasurgeon-001
+validation_result=CONFORMS
+remaining_issues=NONE

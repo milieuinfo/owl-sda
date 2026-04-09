@@ -1,0 +1,8 @@
+worker_id=POOL-0
+status=CREATED
+target_shape=opencare:ClinicalExaminationShape
+target_class=https://w3id.org/opencare#ClinicalExamination
+changed_triples_count=39
+created_or_updated_subjects=https://w3id.org/opencare/instances/CE1,https://w3id.org/opencare/instances/CE2,https://w3id.org/opencare/instances/CF1,https://w3id.org/opencare/instances/CF2,https://w3id.org/opencare/instances/Practitioner1,https://w3id.org/opencare/instances/Patient1,https://w3id.org/opencare/instances/Patient2,https://w3id.org/opencare/instances/Encounter1,https://w3id.org/opencare/instances/Encounter2
+validation_result=CONFORMS
+remaining_issues=NONE

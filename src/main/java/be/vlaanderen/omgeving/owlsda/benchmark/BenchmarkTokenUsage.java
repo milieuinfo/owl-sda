@@ -10,8 +10,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class BenchmarkTokenUsage {
-  private Map<String, Long> workers;
-  private long reviewer;
-  private long supervisor;
+  private Map<String, BenchmarkRoleTokenUsage> workers;
+  private BenchmarkRoleTokenUsage reviewer;
+  private BenchmarkRoleTokenUsage supervisor;
 }
-

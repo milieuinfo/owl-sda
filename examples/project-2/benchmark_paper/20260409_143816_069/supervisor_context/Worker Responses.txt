@@ -1,0 +1,49 @@
+POOL-0 [STRUCTURED_PROGRESS]:
+worker_id=POOL-0
+status=CREATED
+target_shape=opencare:PediatricsHistoryShape
+target_class=opencare:PediatricsHistory
+changed_triples_count=39
+created_or_updated_subjects=https://w3id.org/opencare/instances/pedi-0001,https://w3id.org/opencare/instances/pedi-0002,https://contsys.org/records/hr-0001
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-1 [STRUCTURED_PROGRESS]:
+worker_id=POOL-1
+status=CREATED
+target_shape=opencare:MenstrualHistoryShape
+target_class=https://w3id.org/opencare#MenstrualHistory
+changed_triples_count=19
+created_or_updated_subjects=https://w3id.org/opencare#menstrualhistory-001,https://w3id.org/opencare#menstrualhistory-002
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-2 [STRUCTURED_PROGRESS]:
+worker_id=POOL-2
+status=CREATED
+target_shape=opencare:RegionShape
+target_class=https://w3id.org/opencare#Region
+changed_triples_count=22
+created_or_updated_subjects=https://w3id.org/opencare#Region-South-West,https://w3id.org/opencare#Region-North-Valley
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-3 [STRUCTURED_PROGRESS]:
+worker_id=POOL-3
+status=CREATED
+target_shape=https://w3id.org/opencare#CountryShape
+target_class=https://w3id.org/opencare#Country
+changed_triples_count=8
+created_or_updated_subjects=https://w3id.org/opencare#country-nl,https://w3id.org/opencare#country-de
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-4 [STRUCTURED_PROGRESS]:
+worker_id=POOL-4
+status=CREATED
+target_shape=http://purl.bioontology.org/ontology/SNOMEDCT/43741000Shape
+target_class=http://purl.bioontology.org/ontology/SNOMEDCT/43741000
+changed_triples_count=25
+created_or_updated_subjects=https://w3id.org/opencare/instance/snomed-43741000-1,https://w3id.org/opencare/record/hr-1,https://w3id.org/opencare/record/hr-2
+validation_result=CONFORMS
+remaining_issues=NONE

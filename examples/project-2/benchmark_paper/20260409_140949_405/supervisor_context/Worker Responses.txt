@@ -1,0 +1,49 @@
+POOL-0 [STRUCTURED_PROGRESS]:
+worker_id=POOL-0
+status=CREATED
+target_shape=opencare:ReviewOfSystemShape
+target_class=opencare:ReviewOfSystem
+changed_triples_count=17
+created_or_updated_subjects=https://w3id.org/opencare/review/ros-2001,https://w3id.org/opencare/review/ros-2002
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-1 [STRUCTURED_PROGRESS]:
+worker_id=POOL-1
+status=CREATED
+target_shape=opencare:PersonalHistoryShape
+target_class=https://w3id.org/opencare#PersonalHistory
+changed_triples_count=23
+created_or_updated_subjects=https://w3id.org/opencare#PersonalHistory_1,https://w3id.org/opencare#PersonalHistory_2
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-2 [STRUCTURED_PROGRESS]:
+worker_id=POOL-2
+status=CREATED
+target_shape=http://purl.obolibrary.org/obo/HP_0012393Shape
+target_class=http://purl.obolibrary.org/obo/HP_0012393
+changed_triples_count=19
+created_or_updated_subjects=https://w3id.org/opencare/data/observational-finding-001,https://w3id.org/opencare/data/observational-finding-002,https://w3id.org/opencare/data/hp-0012393-instance
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-3 [STRUCTURED_PROGRESS]:
+worker_id=POOL-3
+status=CREATED
+target_shape=http://sbmi.uth.tmc.edu/ontology/ochv#47686Shape
+target_class=http://sbmi.uth.tmc.edu/ontology/ochv#47686
+changed_triples_count=21
+created_or_updated_subjects=https://w3id.org/opencare/instances/ochv-47686-001, https://w3id.org/opencare/instances/OccupationalTherapist-001
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-4 [STRUCTURED_PROGRESS]:
+worker_id=POOL-4
+status=CREATED
+target_shape=opencare:SupplementShape
+target_class=opencare:Supplement
+changed_triples_count=14
+created_or_updated_subjects=https://w3id.org/opencare#supplement-001,https://w3id.org/opencare#supplement-002
+validation_result=CONFORMS
+remaining_issues=NONE

@@ -1,0 +1,8 @@
+worker_id=POOL-2
+status=CREATED
+target_shape=opencare:PathologyFindingShape
+target_class=https://w3id.org/opencare#PathologyFinding
+changed_triples_count=27
+created_or_updated_subjects=https://w3id.org/opencare#pf-001,https://w3id.org/opencare#pf-002
+validation_result=CONFORMS
+remaining_issues=NONE

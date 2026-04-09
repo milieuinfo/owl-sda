@@ -1,0 +1,16 @@
+CREATE instances for the following target classes. No existing instances — create new ones.
+
+1. Shape: `opencare:PhysicalExaminationShape`
+   Target class: `opencare:PhysicalExamination`
+   → Create at least 2 instances.
+
+2. Shape: `http://purl.obolibrary.org/obo/GEO_000000372Shape`
+   Target class: `http://purl.obolibrary.org/obo/GEO_000000372`
+   → Already handled in prior round — SKIP if instance exists. Otherwise create 1 instance.
+
+Note: Focus on `opencare:PhysicalExaminationShape` as the primary target. GEO_000000372 was previously created — verify and skip if already present.
+
+Use prefix: `@prefix opencare: <https://w3id.org/opencare#> .`
+Use the ontology to determine appropriate properties. Commit to triple store.
+
+Respond with: worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues)

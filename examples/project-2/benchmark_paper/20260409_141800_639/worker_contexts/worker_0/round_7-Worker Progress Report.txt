@@ -1,0 +1,8 @@
+worker_id=POOL-0
+status=CREATED
+target_shape=opencare:CertifiedRegisteredNurseAnesthetistShape
+target_class=opencare:CertifiedRegisteredNurseAnesthetist
+changed_triples_count=17
+created_or_updated_subjects=https://w3id.org/opencare#CRNA1,https://w3id.org/opencare#Hospital_NY
+validation_result=CONFORMS
+remaining_issues=NONE

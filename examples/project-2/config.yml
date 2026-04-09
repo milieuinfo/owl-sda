@@ -1,0 +1,45 @@
+program-timeout-ms: 5500000
+
+input-path: "examples/project-2/owlapi.xrdf"
+output-path: "examples/project-2/output.ttl"
+user-input: "Create a patient history record for the ontology."
+log-level: "INFO"
+user-context:
+  - name: 'related paper'
+    path: 'examples/project-2/2504.08750v1.pdf'
+
+generation:
+  data-richness: "rich"
+
+client:
+  worker:
+    model: "gpt-5-mini"
+    timeout-ms: 400000
+    between-message-timeout-ms: 200000
+    batch-size: 2
+    pool-count: 5
+  supervisor:
+    #model: "gpt-5-mini" # DEBUGGING (free)
+    model: "gpt-5.4"
+    timeout-ms: 360000
+  reviewer:
+    #model: "gpt-5-mini" # DEBUGGING (free)
+    model: "claude-4.6-sonnet"
+    timeout-ms: 360000
+    max-review-attempts: 3
+
+benchmark:
+  enabled: true
+  output-dir: "examples/project-2/benchmark/"
+
+shacl:
+  output-dir: "examples/project-2/shacl/"
+
+reasoner:
+  rules-file: "examples/project-2/reasoner.rules"
+  reasoner-type: "owl"
+  inferred-output-path: "examples/project-2/inferred.ttl"
+
+extract:
+  cache-dir: "examples/project-2/external/"
+  cache-ttl-ms: 3600000

@@ -1,0 +1,8 @@
+worker_id=POOL-4
+status=CREATED
+target_shape=opencare:SeasonalAllergyShape, opencare:AllergicDispositionShape
+target_class=opencare:SeasonalAllergy, opencare:AllergicDisposition
+changed_triples_count=34
+created_or_updated_subjects=https://w3id.org/opencare#seasonalAllergy-001, https://w3id.org/opencare#seasonalAllergy-002, https://w3id.org/opencare#allergicDisposition-001, https://w3id.org/opencare#allergicDisposition-002
+validation_result=CONFORMS
+remaining_issues=NONE

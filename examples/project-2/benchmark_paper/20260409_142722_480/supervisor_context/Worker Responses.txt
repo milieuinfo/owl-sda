@@ -1,0 +1,49 @@
+POOL-0 [STRUCTURED_PROGRESS]:
+worker_id=POOL-0
+status=CREATED
+target_shape=opencare:GeneticFindingShape
+target_class=opencare:GeneticFinding
+changed_triples_count=30
+created_or_updated_subjects=https://w3id.org/opencare#GeneticFinding-001,https://w3id.org/opencare#GeneticFinding-002, http://www.w3.org/ns/org#OpenCareGeneticsLab1
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-1 [STRUCTURED_PROGRESS]:
+worker_id=POOL-1
+status=CREATED
+target_shape=opencare:DiagnosticImagingResultShape and opencare:InfectiousDiseaseSpecialistShape
+target_class=opencare:DiagnosticImagingResult, opencare:InfectiousDiseaseSpecialist
+changed_triples_count=44
+created_or_updated_subjects=https://w3id.org/opencare/data/diagImgRes-1, https://w3id.org/opencare/data/diagImgRes-2, https://w3id.org/opencare/data/idspec-1
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-2 [STRUCTURED_PROGRESS]:
+worker_id=POOL-2
+status=CREATED
+target_shape=opencare:SurgeonShape / opencare:ImplantHistoryShape
+target_class=opencare:Surgeon / opencare:ImplantHistory
+changed_triples_count=31
+created_or_updated_subjects=https://w3id.org/opencare#surgeon-1, https://w3id.org/opencare#implant-0001, https://w3id.org/opencare#implant-0002
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-3 [STRUCTURED_PROGRESS]:
+worker_id=POOL-3
+status=CREATED
+target_shape=opencare:SocialWorkerShape & http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C39564Shape
+target_class=opencare:SocialWorker & http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C39564
+changed_triples_count=23
+created_or_updated_subjects=https://w3id.org/opencare#socialworker-001, https://w3id.org/opencare#ncit-C39564-001
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-4 [STRUCTURED_PROGRESS]:
+worker_id=POOL-4
+status=CREATED
+target_shape=opencare:OrthopedicSurgeonShape
+target_class=opencare:OrthopedicSurgeon
+changed_triples_count=12
+created_or_updated_subjects=https://w3id.org/opencare/persons/orthopedic-surgeon-1
+validation_result=CONFORMS
+remaining_issues=NONE

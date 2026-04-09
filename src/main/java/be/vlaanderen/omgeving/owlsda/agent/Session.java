@@ -52,11 +52,37 @@ public interface Session extends AutoCloseable {
   }
 
   /**
+   * Returns cumulative input tokens sent to the model by this session.
+   * Implementations that cannot provide this can keep the default value.
+   */
+  default long getInputTokensUsed() {
+    return 0L;
+  }
+
+  /**
+   * Returns cumulative output tokens received from the model by this session.
+   * Implementations that cannot provide this can keep the default value.
+   */
+  default long getOutputTokensUsed() {
+    return 0L;
+  }
+
+  /**
    * Returns the total token usage for this session.
    * Implementations should return cumulative tokens for the session lifetime.
    */
   default long getTotalTokensUsed() {
     return 0L;
+  }
+
+  /**
+   * Resets the session by clearing the server-side message history and recreating the underlying
+   * LLM session. Contexts are preserved so the next prompt starts with a clean message history
+   * but the same context window. This prevents context-window saturation across many delegation
+   * rounds without losing the shared triplestore state or delegation metadata.
+   */
+  default void reset() {
+    // No-op for implementations that do not support session reset.
   }
 
   /**

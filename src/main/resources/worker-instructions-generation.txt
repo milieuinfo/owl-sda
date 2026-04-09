@@ -4,6 +4,7 @@ CRITICAL FIRST STEP:
 3. Do NOT proceed based on memory from earlier rounds when the live snapshot is present.
 
 GENERATION MODE:
+{{dataRichnessHint}}
 - If NO instances of your assigned target class exist, CREATE them from scratch.
 - Generate realistic instances that satisfy SHACL constraints.
 - Use URI patterns based on your assigned target class and existing project conventions.

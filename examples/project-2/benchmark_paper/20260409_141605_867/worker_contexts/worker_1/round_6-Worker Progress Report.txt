@@ -1,0 +1,8 @@
+worker_id=POOL-1
+status=CREATED
+target_shape=http://xmlns.com/foaf/0.1/PersonShape
+target_class=http://xmlns.com/foaf/0.1/Person
+changed_triples_count=23
+created_or_updated_subjects=https://w3id.org/opencare#person-anna,https://w3id.org/opencare#person-john
+validation_result=null
+remaining_issues=NONE

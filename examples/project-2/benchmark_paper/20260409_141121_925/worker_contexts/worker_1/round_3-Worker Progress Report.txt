@@ -1,0 +1,8 @@
+worker_id=POOL-1
+status=CREATED
+target_shape=opencare:RiskFactorShape
+target_class=https://w3id.org/opencare#RiskFactor
+changed_triples_count=24
+created_or_updated_subjects=https://w3id.org/opencare/data/RiskFactor/rf-0001,https://w3id.org/opencare/data/RiskFactor/rf-0002,https://w3id.org/opencare/data/LNC/LP64610-6/obs-001,https://w3id.org/opencare/data/Agent/clinician-789
+validation_result=CONFORMS
+remaining_issues=NONE

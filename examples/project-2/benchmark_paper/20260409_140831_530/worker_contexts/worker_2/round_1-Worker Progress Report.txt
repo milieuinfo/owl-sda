@@ -1,0 +1,8 @@
+worker_id=POOL-2
+status=CREATED
+target_shape=opencare:ComorbidityShape, opencare:NeurologistShape
+target_class=opencare:Comorbidity, opencare:Neurologist
+changed_triples_count=20
+created_or_updated_subjects=https://w3id.org/opencare/instances/Comorbidity-001, https://w3id.org/opencare/instances/Comorbidity-002, https://w3id.org/opencare/instances/Neurologist-001
+validation_result=CONFORMS
+remaining_issues=NONE

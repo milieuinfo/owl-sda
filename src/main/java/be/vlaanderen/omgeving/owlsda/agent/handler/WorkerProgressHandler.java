@@ -62,7 +62,7 @@ public record WorkerProgressHandler(String workerId, Consumer<Context> progressP
       WorkerStatus status = WorkerStatus.valueOf(String.valueOf(arguments.get("status")));
       String targetShape = String.valueOf(arguments.get("target_shape"));
       String targetClass = String.valueOf(arguments.get("target_class"));
-      int changedTriples = ((Number) arguments.get("changed_triples_count")).intValue();
+      int changedTriples = readChangedTriplesCount(arguments.get("changed_triples_count"));
       String subjects = String.valueOf(arguments.get("created_or_updated_subjects"));
       String validationResult = String.valueOf(arguments.get("validation_result"));
       String remainingIssues = String.valueOf(arguments.get("remaining_issues"));
@@ -101,5 +101,14 @@ public record WorkerProgressHandler(String workerId, Consumer<Context> progressP
       ));
     }
   }
-}
 
+  private int readChangedTriplesCount(Object rawValue) {
+    if (rawValue instanceof Number number) {
+      return number.intValue();
+    }
+    if (rawValue instanceof String stringValue) {
+      return Integer.parseInt(stringValue.trim());
+    }
+    throw new IllegalArgumentException("changed_triples_count must be a number or numeric string");
+  }
+}

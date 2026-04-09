@@ -1,0 +1,8 @@
+worker_id=POOL-2
+status=CREATED
+target_shape=http://purl.bioontology.org/ontology/STY/T167Shape
+target_class=http://purl.bioontology.org/ontology/STY/T167
+changed_triples_count=8
+created_or_updated_subjects=https://w3id.org/opencare/instance/T167_1,https://w3id.org/opencare/instance/activity_20260409,https://w3id.org/opencare/instance/agent_opencare_tool
+validation_result=CONFORMS
+remaining_issues=NONE

@@ -1,0 +1,8 @@
+worker_id=POOL-2
+status=CREATED
+target_shape=opencare:PediatricianShape & opencare:FamilyHistoryShape
+target_class=opencare:Pediatrician, opencare:FamilyHistory
+changed_triples_count=35
+created_or_updated_subjects=https://w3id.org/opencare#pediatrician-anna-kline, https://w3id.org/opencare#clinic-brighton, https://w3id.org/opencare#patient-1001, https://w3id.org/opencare#familyhistory-1, https://w3id.org/opencare#familyhistory-2
+validation_result=CONFORMS
+remaining_issues=NONE

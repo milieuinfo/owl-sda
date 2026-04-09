@@ -1,0 +1,8 @@
+VERIFY existing instances for the following shapes (both were created in prior rounds — no new triples needed):
+
+1. Shape: `opencare:SiteOfCareShape` → target class `opencare:SiteOfCare` (instances already exist)
+2. Shape: `opencare:EndocrinologistShape` → target class `opencare:Endocrinologist` (instances already exist)
+
+Confirm instances exist in triple store. Run store-level SHACL validation.
+
+Respond with: worker_progress(status=VERIFIED_NO_CHANGE, target_shape, target_class, changed_triples_count=0, validation_result, remaining_issues)

@@ -1,0 +1,8 @@
+worker_id=POOL-3
+status=CREATED
+target_shape=opencare:BodySiteShape, http://purl.obolibrary.org/obo/OGMS_0000020Shape
+target_class=https://w3id.org/opencare#BodySite, http://purl.obolibrary.org/obo/OGMS_0000020
+changed_triples_count=19
+created_or_updated_subjects=https://w3id.org/opencare/instances/BodySite-1, https://w3id.org/opencare/instances/BodySite-2, https://w3id.org/opencare/instances/OGMS-0000020-1
+validation_result=CONFORMS
+remaining_issues=NONE

@@ -8,6 +8,7 @@ import be.vlaanderen.omgeving.owlsda.generation.SupervisorReviewCoordinator;
 import be.vlaanderen.omgeving.owlsda.generation.SupervisorWorkflow;
 import be.vlaanderen.omgeving.owlsda.agent.Session;
 import be.vlaanderen.omgeving.owlsda.agent.context.Context;
+import be.vlaanderen.omgeving.owlsda.agent.context.ContextContentLoader;
 import be.vlaanderen.omgeving.owlsda.agent.context.OntologyContext;
 import be.vlaanderen.omgeving.owlsda.ontology.Ontology;
 import be.vlaanderen.omgeving.owlsda.ontology.OntologyExtractor;
@@ -26,6 +27,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import lombok.Getter;
 import org.slf4j.Logger;
@@ -86,6 +88,15 @@ public class OWLSDA {
   private void runPipeline() {
     cleanupOutputAndBenchmarks();
     prepareStep();
+
+    int totalShapes = defaultShacl != null && defaultShacl.getShapes() != null
+        ? defaultShacl.getShapes().size()
+        : 0;
+    if (totalShapes <= 0) {
+      logger.error("No SHACL shapes available after preparation; skipping generation run");
+      return;
+    }
+
     int shapesPerBatch = config.getBatchSize() * config.getPoolCount();
     supervisorWorkflow.run(shapesPerBatch);
   }
@@ -176,6 +187,16 @@ public class OWLSDA {
       if (Files.exists(Path.of(defaultPath)) && Files.exists(Path.of(inferredPath))) {
         defaultShacl.load(defaultPath, true);
         inferredShacl.load(inferredPath, false);
+
+        int loadedShapeCount = defaultShacl.getShapes() != null ? defaultShacl.getShapes().size() : 0;
+        if (loadedShapeCount <= 0) {
+          logger.warn(
+              "Loaded cached SHACL files but found {} default shape(s); regenerating SHACL from ontology",
+              loadedShapeCount);
+          generateAndSaveShacl();
+        } else {
+          logger.info("Loaded {} SHACL shape(s) from cache", loadedShapeCount);
+        }
       } else {
         generateAndSaveShacl();
       }
@@ -219,7 +240,7 @@ public class OWLSDA {
             : entry.getName();
         userContext.setName(contextName);
         userContext.setFilePath(entry.getPath());
-        userContext.setType("text/plain");
+        userContext.setType(ContextContentLoader.inferMimeType(entry.getPath(), null));
         sessionManager.addContextToAllSessions(userContext);
       }
     }
@@ -227,7 +248,6 @@ public class OWLSDA {
 
   private void buildSupervisorWorkflow() {
     Session supervisorSession = sessionManager.getSupervisorSession();
-    Session reviewerSession = sessionManager.getReviewerSession();
 
     ConcurrentWorkerBatch concurrentWorkerBatch = new ConcurrentWorkerBatch(
         config, sessionManager.getWorkerSessionPool(), defaultShacl, validator);
@@ -245,7 +265,7 @@ public class OWLSDA {
         : 3;
 
     SupervisorReviewCoordinator reviewCoordinator = new SupervisorReviewCoordinator(
-        reviewerSession,
+        (Supplier<Session>) sessionManager::getReviewerSession,
         supervisor,
         validator,
         benchmarkService,

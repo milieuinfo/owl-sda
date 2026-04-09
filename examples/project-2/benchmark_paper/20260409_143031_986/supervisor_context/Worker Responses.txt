@@ -1,0 +1,49 @@
+POOL-0 [STRUCTURED_PROGRESS]:
+worker_id=POOL-0
+status=CREATED
+target_shape=http://purl.obolibrary.org/obo/HP_0500094Shape
+target_class=http://purl.obolibrary.org/obo/HP_0500094
+changed_triples_count=6
+created_or_updated_subjects=https://w3id.org/opencare/instance/HP_0500094_1
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-1 [STRUCTURED_PROGRESS]:
+worker_id=POOL-1
+status=CREATED
+target_shape=opencare:EukaryoteShape
+target_class=opencare:Eukaryote
+changed_triples_count=38
+created_or_updated_subjects=https://w3id.org/opencare#Eukaryote_Homo_sapiens,https://w3id.org/opencare#Eukaryote_Arabidopsis_thaliana,https://w3id.org/opencare#Surgery_Appendectomy_2020_06_15,https://w3id.org/opencare#Surgery_Coronary_Bypass_2021_11_02
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-2 [STRUCTURED_PROGRESS]:
+worker_id=POOL-2
+status=CREATED
+target_shape=opencare:DrugIntoleranceShape
+target_class=opencare:DrugIntolerance
+changed_triples_count=26
+created_or_updated_subjects=https://w3id.org/opencare#DrugIntolerance-1,https://w3id.org/opencare#DrugIntolerance-2
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-3 [STRUCTURED_PROGRESS]:
+worker_id=POOL-3
+status=CREATED
+target_shape=opencare:InfectionShape
+target_class=https://w3id.org/opencare#Infection
+changed_triples_count=23
+created_or_updated_subjects=https://w3id.org/opencare/data/infection/inf-001,https://w3id.org/opencare/data/infection/inf-002,https://w3id.org/opencare/data/lnc/mthu034880/inst1
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-4 [STRUCTURED_PROGRESS]:
+worker_id=POOL-4
+status=CREATED
+target_shape=opencare:LaboratoryFindingShape / opencare:DiagnosisTypeShape
+target_class=opencare:LaboratoryFinding / opencare:DiagnosisType
+changed_triples_count=33
+created_or_updated_subjects=https://w3id.org/opencare/instances/labfinding-1001,https://w3id.org/opencare/instances/labfinding-1002,https://w3id.org/opencare/instances/diag-type-htn,https://w3id.org/opencare/instances/diag-type-t2dm
+validation_result=CONFORMS
+remaining_issues=NONE

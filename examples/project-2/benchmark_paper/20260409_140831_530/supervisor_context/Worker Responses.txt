@@ -1,0 +1,49 @@
+POOL-0 [STRUCTURED_PROGRESS]:
+worker_id=POOL-0
+status=CREATED
+target_shape=http://purl.bioontology.org/ontology/SNOMEDCT/394733009Shape
+target_class=http://purl.bioontology.org/ontology/SNOMEDCT/394733009
+changed_triples_count=20
+created_or_updated_subjects=https://w3id.org/opencare#LA26428-5-1,https://w3id.org/opencare#SNOMEDCT-394733009-1,https://w3id.org/opencare#Agent-Curator1
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-1 [STRUCTURED_PROGRESS]:
+worker_id=POOL-1
+status=CREATED
+target_shape=opencare:WomanShape
+target_class=opencare:Woman
+changed_triples_count=25
+created_or_updated_subjects=https://w3id.org/opencare#Woman-001, https://w3id.org/opencare#Woman-002, https://w3id.org/opencare#RespiratoryTherapist-001
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-2 [STRUCTURED_PROGRESS]:
+worker_id=POOL-2
+status=CREATED
+target_shape=opencare:ComorbidityShape, opencare:NeurologistShape
+target_class=opencare:Comorbidity, opencare:Neurologist
+changed_triples_count=20
+created_or_updated_subjects=https://w3id.org/opencare/instances/Comorbidity-001, https://w3id.org/opencare/instances/Comorbidity-002, https://w3id.org/opencare/instances/Neurologist-001
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-3 [STRUCTURED_PROGRESS]:
+worker_id=POOL-3
+status=CREATED
+target_shape=opencare:TownShape
+target_class=opencare:Town
+changed_triples_count=25
+created_or_updated_subjects=https://w3id.org/opencare/Town/1,https://w3id.org/opencare/Town/2
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-4 [STRUCTURED_PROGRESS]:
+worker_id=POOL-4
+status=CREATED
+target_shape=opencare:RadiologicTechnologistShape, opencare:EncounterShape
+target_class=opencare:RadiologicTechnologist, opencare:Encounter
+changed_triples_count=38
+created_or_updated_subjects=https://w3id.org/opencare#RadiologicTechnologist-1, https://w3id.org/opencare#Encounter-1, https://w3id.org/opencare#Encounter-2
+validation_result=CONFORMS
+remaining_issues=NONE

@@ -56,7 +56,7 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
   }
 
   private Session getReviewerSession() {
-    return reviewCoordinator != null ? reviewCoordinator.getReviewerSession() : null;
+    return reviewCoordinator != null ? reviewCoordinator.getReviewerSessionIfInitialized() : null;
   }
 
   public void run(int shapesPerBatch) {

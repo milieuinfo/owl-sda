@@ -1,0 +1,8 @@
+worker_id=POOL-4
+status=CREATED
+target_shape=http://schema.org/DiagnosticProcedureShape / https://w3id.org/opencare#RheumatologistShape
+target_class=http://schema.org/DiagnosticProcedure / https://w3id.org/opencare#Rheumatologist
+changed_triples_count=38
+created_or_updated_subjects=https://w3id.org/opencare#DiagnosticProcedure-0001, https://w3id.org/opencare#DiagnosticProcedure-0002, https://w3id.org/opencare#Rheumatologist-1
+validation_result=CONFORMS
+remaining_issues=NONE

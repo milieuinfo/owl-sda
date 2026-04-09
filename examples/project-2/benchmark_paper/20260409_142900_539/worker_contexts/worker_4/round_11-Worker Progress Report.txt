@@ -1,0 +1,8 @@
+worker_id=POOL-4
+status=CREATED
+target_shape=opencare:AllergySensitivityShape / opencare:FoodAllergyShape
+target_class=opencare:AllergySensitivity, opencare:FoodAllergy
+changed_triples_count=58
+created_or_updated_subjects=https://w3id.org/opencare#AllergySensitivity-1,https://w3id.org/opencare#AllergySensitivity-2,https://w3id.org/opencare#FoodAllergy-1,https://w3id.org/opencare#FoodAllergy-2
+validation_result=CONFORMS
+remaining_issues=NONE

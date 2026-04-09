@@ -1,0 +1,14 @@
+CREATE instances for the following target classes. No existing instances — create new ones.
+
+1. Shape: `http://purl.bioontology.org/ontology/SNOMEDCT/257585005Shape`
+   Target class: `http://purl.bioontology.org/ontology/SNOMEDCT/257585005`
+   → Create at least 1 instance.
+
+2. Shape: `http://purl.obolibrary.org/obo/NCIT_C25457Shape`
+   Target class: `http://purl.obolibrary.org/obo/NCIT_C25457`
+   → Create at least 1 instance.
+
+Use prefix: `@prefix opencare: <https://w3id.org/opencare#> .`
+Use the ontology to determine appropriate properties. Commit to triple store.
+
+Respond with: worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues)

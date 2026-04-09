@@ -1,0 +1,8 @@
+worker_id=POOL-1
+status=CREATED
+target_shape=opencare:LaboratoryTestShape
+target_class=https://w3id.org/opencare#LaboratoryTest
+changed_triples_count=23
+created_or_updated_subjects=https://w3id.org/opencare/lt/LT-0001,https://w3id.org/opencare/lt/LT-0002,https://w3id.org/opencare/org/unit/CentralLab
+validation_result=CONFORMS
+remaining_issues=NONE
