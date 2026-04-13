@@ -31,7 +31,7 @@ Each snapshot is written to a timestamped sub-directory (e.g. `20260320_113645_5
 | `output.ttl` | Copy of the generated output file at snapshot time. |
 | `owlsda.log` | Copy of the log file (only when `log-to-file: true`). |
 
-Snapshots are deduplicated by content hash — if nothing changed between two rounds no duplicate snapshot is written.
+Snapshots are deduplicated by content hash - if nothing changed between two rounds no duplicate snapshot is written.
 
 ## JSON Summary
 
@@ -69,11 +69,24 @@ After every snapshot a `benchmark-summary.json` file is (re)generated in `output
 
 ## Visualising Results
 
-A Python plotting script is included in `scripts/plot_benchmark.py` and produces a PDF/PNG/SVG chart from the JSON summary file:
+A Python plotting script is included in `scripts/plot_benchmark.py` and produces PDF/PNG/SVG charts from a JSON summary file:
 
 ```bash
-cd scripts
-pip install matplotlib
-python plot_benchmark.py ../examples/project-1/benchmark_paper/benchmark-summary.json
+python scripts/plot_benchmark.py examples/project-1/benchmark_paper/benchmark-summary.json
+python scripts/plot_benchmark.py examples/project-2/benchmark_paper/benchmark-summary.json
 ```
 
+You can inspect generated sample visuals directly in the [Examples](./examples) page, or use these embedded charts:
+
+### Example benchmark chart - Project 1
+
+![Project 1 benchmark chart](/benchmarks/project-1-benchmark.svg)
+
+### Example benchmark chart - Project 2
+
+![Project 2 benchmark chart](/benchmarks/project-2-benchmark.svg)
+
+Raw benchmark data used for these images:
+
+- `examples/project-1/benchmark_paper/benchmark-summary.json`
+- `examples/project-2/benchmark_paper/benchmark-summary.json`

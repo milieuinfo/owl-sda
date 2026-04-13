@@ -32,3 +32,6 @@ Workers write triples directly into a shared in-memory triple store. After each 
 
 Currently only **GitHub Copilot** is supported as a language model backend. Support for additional providers can be added by implementing the `Client` / `Session` interfaces.
 
+## License
+
+OWL-SDA is distributed under the **GNU General Public License v3.0**. See [License](./license) for details and the full license text.

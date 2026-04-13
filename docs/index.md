@@ -10,6 +10,9 @@ hero:
       text: Get Started
       link: /guide/introduction
     - theme: alt
+      text: Examples & Benchmarks
+      link: /guide/examples
+    - theme: alt
       text: Configuration Reference
       link: /guide/configuration
 

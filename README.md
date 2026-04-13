@@ -41,3 +41,8 @@ client:
 ## Contributing
 
 ## License
+
+This project is released under the **GNU General Public License v3.0 (GPL-3.0)**.
+
+- Full text: `LICENSE`
+- Documentation: `docs/guide/license.md`

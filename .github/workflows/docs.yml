@@ -4,13 +4,13 @@ on:
   pull_request:
     paths:
       - "docs/**"
-      - ".github/workflows/docs.yml"
+      - ".github/workflows/docs-build.yml"
   push:
     branches:
       - main
     paths:
       - "docs/**"
-      - ".github/workflows/docs.yml"
+      - ".github/workflows/docs-build.yml"
 
 permissions:
   contents: read
@@ -31,6 +31,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Configure Pages metadata for this run (required by deploy-pages in many setups).
       - name: Setup Pages
         if: github.event_name == 'push'
         uses: actions/configure-pages@v5
@@ -51,7 +52,6 @@ jobs:
       - name: Build documentation
         env:
           DOCS_BASE: ${{ format('/{0}/', github.event.repository.name) }}
-          VITEPRESS_BASE: ${{ format('/{0}/', github.event.repository.name) }}
         run: npm run docs:build
 
       - name: Add .nojekyll
