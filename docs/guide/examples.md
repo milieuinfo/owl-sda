@@ -2,7 +2,7 @@
 
 The repository includes two complete example projects that you can run as-is.
 
-## Project 1 - Brownie Production Facility
+## Project 1 - Glass Factory
 
 `examples/project-1/` demonstrates a production-process ontology with temporal variants.
 
@@ -10,9 +10,9 @@ The repository includes two complete example projects that you can run as-is.
 
 Given the prompt:
 
-> *"Create a data example for a brownie production facility. Introduce multiple versions of the operation in different years with different systems, processes and subprocesses."*
+> *"Create a data example for a glass factory. Introduce multiple versions of the operation in different years with different systems, processes and subprocesses."*
 
-OWL-SDA generates RDF instances for facilities, systems, processes, and subprocesses across multiple years.
+OWL-SDA generates RDF instances for facilities, systems, processes, and subprocesses across multiple years, illustrated using a glass manufacturing scenario (installations like furnaces, processes such as melting/annealing, and measurement points for emissions).
 
 ### Running the example
 

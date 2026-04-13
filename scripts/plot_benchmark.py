@@ -143,7 +143,7 @@ def plot_benchmark(benchmark_dir):
                 stage_groups.append(st)
     
     # Create figure with subplots for better visibility due to different scales
-    fig, axes = plt.subplots(3, 1, figsize=(12, 10))
+    fig, axes = plt.subplots(3, 1, figsize=(6, 10))
     
     # Plot 1: Duration
     axes[0].plot(iterations, durations_sec, marker='o', linestyle='-', color='#1f77b4', linewidth=2)
@@ -167,7 +167,7 @@ def plot_benchmark(benchmark_dir):
     # combined legend for shapes and triples
     h1, l1 = ax_shapes.get_legend_handles_labels()
     h2, l2 = ax_triples.get_legend_handles_labels()
-    ax_shapes.legend(h1 + h2, l1 + l2, loc='upper right')
+    ax_shapes.legend(h1 + h2, l1 + l2, loc='upper left')
     
     # Plot 3: Token counts (workers aggregated, reviewer, supervisor)
     axes[2].plot(iterations, workers_tokens, marker='o', linestyle='-', color='#ff7f0e', linewidth=2, label='Workers (sum)')

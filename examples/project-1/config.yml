@@ -2,7 +2,7 @@ program-timeout-ms: 3800000
 
 input-path: "examples/project-1/input.ttl"
 output-path: "examples/project-1/output.ttl"
-user-input: "Create a data example for a brownie production facility. Introduce multiple versions of the operation in different years with different systems, processes and subprocesses."
+user-input: "Create a data example for a glass production facility. Introduce multiple versions of the operation in different years with different systems, processes and subprocesses."
 user-context:
   - name: 'example file'
     path: 'examples/project-1/input-example.txt'
