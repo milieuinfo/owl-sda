@@ -23,6 +23,10 @@ features:
     details: A supervisor coordinates a configurable pool of parallel worker agents, enabling concurrent generation of large datasets.
   - title: Built-in Review Loop
     details: A dedicated reviewer agent validates the generated output and requests revisions until the data meets quality standards.
+  - title: Flexible User Context
+    details: Attach local files or live web pages (URLs) as extra context to every agent session, so you can supply domain vocabulary, examples, or specification references.
+  - title: External Ontology Resolution
+    details: Automatically fetches and caches external ontologies referenced via owl:imports, with configurable mirrors and TTL.
   - title: Benchmark Snapshots
     details: Capture timestamped snapshots of every generation round including token usage, violations, and context state for full observability.
 ---

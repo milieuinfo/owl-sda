@@ -33,15 +33,15 @@ user-input: "Generate 5 example persons each working for one of 2 organisations.
 
 client:
   worker:
-    model: "gpt-5.1-mini"
+    model: "gpt-5-mini"
     timeout-ms: 120000
     batch-size: 2
     pool-count: 1
   supervisor:
-    model: "gpt-5.1"
+    model: "gpt-5.4"
     timeout-ms: 120000
   reviewer:
-    model: "gpt-5.1"
+    model: "claude-4.6-sonnet"
     timeout-ms: 60000
 ```
 

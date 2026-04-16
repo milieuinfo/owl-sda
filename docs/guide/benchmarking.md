@@ -40,17 +40,22 @@ After every snapshot a `benchmark-summary.json` file is (re)generated in `output
 ```json
 [
   {
-    "timestamp": "20260320_113645_535",
+    "timestamp": "20260407_090654_779",
     "stage": "GENERATE",
-    "snapshotDirectory": "20260320_113645_535",
-    "shapesProcessed": 3,
-    "durationMs": 12340,
-    "currentViolations": 2,
-    "triplestoreSize": 47,
+    "shapesProcessed": 5,
+    "durationMs": 174572,
+    "currentViolations": 6,
+    "triplestoreSize": 84,
     "tokens": {
-      "supervisor": 4210,
+      "supervisor": 24990,
       "reviewer": 0,
-      "workers": { "worker_0": 3100, "worker_1": 2800 }
+      "workers": {
+        "worker_0": 13569,
+        "worker_1": 11382,
+        "worker_2": 14494,
+        "worker_3": 10911,
+        "worker_4": 13724
+      }
     }
   }
 ]

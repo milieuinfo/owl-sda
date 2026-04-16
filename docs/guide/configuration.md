@@ -36,17 +36,17 @@ Controls the LLM models and timeouts for each agent role.
 ```yaml
 client:
   worker:
-    model: "gpt-5.1"
+    model: "gpt-5.4"
     timeout-ms: 60000
     between-message-timeout-ms: 0
     batch-size: 5
     pool-count: 1
   supervisor:
-    model: "gpt-5.1"
+    model: "gpt-5.4"
     timeout-ms: 120000
     between-message-timeout-ms: 0
   reviewer:
-    model: "gpt-5.1"
+    model: "claude-4.6-sonnet"
     timeout-ms: 60000
     between-message-timeout-ms: 0
     max-review-attempts: 3
@@ -56,7 +56,7 @@ client:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `model` | string | `gpt-5.1` | LLM model identifier for worker agents. |
+| `model` | string | `gpt-5.4` | LLM model identifier for worker agents. |
 | `timeout-ms` | int | `60000` | Maximum time to wait for a complete worker response. |
 | `between-message-timeout-ms` | int | `0` | Maximum idle time between assistant events within a single response. `0` disables. |
 | `batch-size` | int | `5` | Number of SHACL shapes assigned to each worker per round. |
@@ -66,7 +66,7 @@ client:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `model` | string | `gpt-5.1` | LLM model identifier for the supervisor agent. |
+| `model` | string | `gpt-5.4` | LLM model identifier for the supervisor agent. |
 | `timeout-ms` | int | `120000` | Maximum time to wait for a supervisor response. |
 | `between-message-timeout-ms` | int | `0` | Maximum idle time between assistant events. `0` disables. |
 
@@ -74,7 +74,7 @@ client:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `model` | string | `gpt-5.1` | LLM model identifier for the reviewer agent. |
+| `model` | string | `claude-4.6-sonnet` | LLM model identifier for the reviewer agent. |
 | `timeout-ms` | int | `60000` | Maximum time to wait for a reviewer response. |
 | `between-message-timeout-ms` | int | `0` | Maximum idle time between assistant events. `0` disables. |
 | `max-review-attempts` | int | `3` | Soft review iteration limit. Before this limit, reviewer may return `REVISION_REQUESTED`. On the final attempt, reviewer is instructed to make a terminal decision: `ACCEPTED` or `REJECTED`. |
@@ -148,16 +148,16 @@ generation:
 
 client:
   worker:
-    model: "gpt-5.1-mini"
+    model: "gpt-5-mini"
     timeout-ms: 180000
     between-message-timeout-ms: 120000
     batch-size: 3
     pool-count: 3
   supervisor:
-    model: "gpt-5.1"
+    model: "gpt-5.4"
     timeout-ms: 300000
   reviewer:
-    model: "gpt-5.1"
+    model: "claude-4.6-sonnet"
     timeout-ms: 120000
     max-review-attempts: 4
 

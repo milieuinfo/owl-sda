@@ -1,4 +1,4 @@
-# OWL-SDA: A tool for OWL-based data generation using Large Language Models
+# OWL-SDA: A Multi-Agent System for Generating Synthetic Data to Support Ontology Evaluation
 
 ## Installation
 
@@ -27,16 +27,23 @@ These context sources can be local files (`path`) or web pages (`url`). They are
 
 ### Client Configuration
 
-Configure the models and timeouts for the generator and reviewer:
+Configure the models and timeouts for each agent role:
 
 ```yaml
 client:
-  generator:
-    model: "gpt-5.1-mini"
+  worker:
+    model: "gpt-5-mini"
+    timeout-ms: 350000
+    between-message-timeout-ms: 200000
+    batch-size: 1
+    pool-count: 5
+  supervisor:
+    model: "gpt-5.4"
     timeout-ms: 360000
   reviewer:
-    model: "claude-3.5-sonnet"
-    timeout-ms: 60000
+    model: "claude-4.6-sonnet"
+    timeout-ms: 360000
+    max-review-attempts: 3
 ```
 
 
