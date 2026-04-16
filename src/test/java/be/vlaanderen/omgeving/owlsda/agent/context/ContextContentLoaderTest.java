@@ -1,9 +1,14 @@
 package be.vlaanderen.omgeving.owlsda.agent.context;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -60,6 +65,30 @@ public class ContextContentLoaderTest {
     assertEquals("second", context.getContent());
   }
 
+  @Test
+  public void getContent_WithHttpUrl_ReadsRemoteContent() throws IOException {
+    HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+    server.createContext("/context.txt", new FixedResponseHandler("available spaces: 124", "text/plain"));
+    server.start();
+
+    try {
+      String url = "http://localhost:" + server.getAddress().getPort() + "/context.txt";
+      Context context = new Context();
+      context.setFilePath(url);
+
+      assertEquals("available spaces: 124", context.getContent());
+      assertEquals("text/plain", ContextContentLoader.inferMimeType(url, null));
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  public void inferMimeType_WithPdfHttpUrl_ReturnsPdfMimeType() {
+    String url = "https://example.org/specification.pdf";
+    assertEquals("application/pdf", ContextContentLoader.inferMimeType(url, null));
+  }
+
   private void createPdf(Path path, String text) throws IOException {
     try (PDDocument document = new PDDocument()) {
       PDPage page = new PDPage();
@@ -72,6 +101,25 @@ public class ContextContentLoaderTest {
         contentStream.endText();
       }
       document.save(path.toFile());
+    }
+  }
+
+  private static final class FixedResponseHandler implements HttpHandler {
+    private final byte[] body;
+    private final String contentType;
+
+    private FixedResponseHandler(String body, String contentType) {
+      this.body = body.getBytes(StandardCharsets.UTF_8);
+      this.contentType = contentType;
+    }
+
+    @Override
+    public void handle(HttpExchange exchange) throws IOException {
+      exchange.getResponseHeaders().add("Content-Type", contentType);
+      exchange.sendResponseHeaders(200, body.length);
+      try (OutputStream outputStream = exchange.getResponseBody()) {
+        outputStream.write(body);
+      }
     }
   }
 }

@@ -228,19 +228,21 @@ public class OWLSDA {
     // Add user-defined contexts if provided
     if (config.getUserContext() != null && !config.getUserContext().isEmpty()) {
       for (Config.UserContextEntry entry : config.getUserContext()) {
-        if (entry == null || entry.getPath() == null || entry.getPath().isBlank()) {
-          logger.warn("Skipping user context with missing path: {}",
+        if (entry == null || !entry.hasSource()) {
+          logger.warn("Skipping user context with missing source (path/url): {}",
               entry != null ? entry.getName() : "<null>");
           continue;
         }
+
+        String source = entry.getSource();
 
         Context userContext = new Context();
         String contextName = (entry.getName() == null || entry.getName().isBlank())
             ? "user-context"
             : entry.getName();
         userContext.setName(contextName);
-        userContext.setFilePath(entry.getPath());
-        userContext.setType(ContextContentLoader.inferMimeType(entry.getPath(), null));
+        userContext.setFilePath(source);
+        userContext.setType(ContextContentLoader.inferMimeType(source, null));
         sessionManager.addContextToAllSessions(userContext);
       }
     }

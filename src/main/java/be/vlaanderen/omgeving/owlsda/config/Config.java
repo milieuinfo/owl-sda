@@ -100,6 +100,18 @@ public class Config {
   public static class UserContextEntry {
     private String name;
     private String path;
+    private String url;
+
+    public String getSource() {
+      if (url != null && !url.isBlank()) {
+        return url;
+      }
+      return path;
+    }
+
+    public boolean hasSource() {
+      return getSource() != null && !getSource().isBlank();
+    }
   }
 
   @Setter

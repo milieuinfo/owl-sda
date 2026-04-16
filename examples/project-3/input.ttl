@@ -1,0 +1,45 @@
+@prefix ex: <https://example.org/parking#> .
+@prefix ldes: <https://w3id.org/ldes#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ex:ParkingOntology a owl:Ontology ;
+  rdfs:label "Parking garage sample ontology" .
+
+# Domain classes for stream metadata and observations.
+ex:ParkingGarage a owl:Class .
+ex:ParkingObservation a owl:Class ;
+  rdfs:subClassOf sosa:Observation .
+
+ldes:EventStream a owl:Class .
+
+ex:garageId a owl:DatatypeProperty ;
+  rdfs:domain ex:ParkingGarage ;
+  rdfs:range xsd:string .
+
+ex:totalCapacity a owl:DatatypeProperty ;
+  rdfs:domain ex:ParkingGarage ;
+  rdfs:range xsd:integer .
+
+ex:availableSpaces a owl:DatatypeProperty ;
+  rdfs:domain ex:ParkingObservation ;
+  rdfs:range xsd:integer .
+
+ex:occupancyRate a owl:DatatypeProperty ;
+  rdfs:domain ex:ParkingObservation ;
+  rdfs:range xsd:decimal .
+
+ex:observedAt a owl:DatatypeProperty ;
+  rdfs:domain ex:ParkingObservation ;
+  rdfs:range xsd:dateTime .
+
+ex:observedGarage a owl:ObjectProperty ;
+  rdfs:domain ex:ParkingObservation ;
+  rdfs:range ex:ParkingGarage .
+
+ex:belongsToStream a owl:ObjectProperty ;
+  rdfs:domain ex:ParkingObservation ;
+  rdfs:range ldes:EventStream .
+

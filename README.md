@@ -19,9 +19,11 @@ user-context:
     path: 'example/input-example.txt'
   - name: 'additional context'
     path: 'path/to/another-file.ttl'
+  - name: 'web reference'
+    url: 'https://example.org/specification'
 ```
 
-These context files will be loaded and provided to both the generator and reviewer sessions, allowing you to give examples or additional information to guide the data generation process.
+These context sources can be local files (`path`) or web pages (`url`). They are loaded and provided to both the generator and reviewer sessions, allowing you to give examples or additional information to guide the data generation process.
 
 ### Client Configuration
 
@@ -40,9 +42,40 @@ client:
 
 ## Contributing
 
+Contributions are welcome. To keep reviews fast and changes predictable, please follow this workflow:
+
+1. Fork the repository and create a feature branch from `main`.
+2. Keep changes scoped to one concern per pull request.
+3. Use clear commit messages in the imperative mood (for example: `Add support for local agents`).
+4. Run local checks before opening a pull request.
+5. Write unit and integration tests for new features or bug fixes.
+6. Open a pull request with a short problem statement, approach, and test evidence.
+
+### Local Quality Checks
+
+Run the full Maven validation pipeline before submitting:
+
+```bash
+mvn clean verify
+```
+
+If you are iterating quickly, you can run tests only:
+
+```bash
+mvn test
+```
+
+### Pull Request Checklist
+
+- [ ] The build passes locally (`mvn clean verify`).
+- [ ] New behavior is covered by tests where relevant.
+- [ ] Existing tests remain green.
+- [ ] Configuration or behavior changes are reflected in `examples/` when applicable.
+- [ ] The pull request description explains why the change is needed.
+
 ## License
 
-This project is released under the **GNU General Public License v3.0 (GPL-3.0)**.
+This project is released under the **GNU General Public License v3.0 (GPL-3.0)** and is further detailed in [LICENSE](./LICENSE). By contributing to this project, you agree that your contributions will be licensed under the same terms. Please review the license for more information on your rights and responsibilities when using or contributing to this software.
 
-- Full text: `LICENSE`
-- Documentation: `docs/guide/license.md`
+(c) 2025-2026: Maxim Van de Wynckel, Emmelien De Roock, and contributors. All rights reserved. See [LICENSE](./LICENSE) for details.
+

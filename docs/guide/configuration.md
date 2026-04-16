@@ -120,11 +120,13 @@ You can attach additional text files as context to every agent session:
 user-context:
   - name: "Example data"
     path: "examples/sample.ttl"
+  - name: "LDES guide"
+    url: "https://semiceu.github.io/LinkedDataEventStreams/"
   - name: "Domain glossary"
     path: "docs/glossary.txt"
 ```
 
-These files are loaded at startup and added to the system context of all worker, supervisor, and reviewer sessions. Use them to provide domain vocabulary, sample data patterns, or any other background knowledge that helps the LLM generate more accurate output.
+Each entry can define either `path` (local file) or `url` (HTTP/HTTPS source). Context content is loaded at startup and added to the system context of all worker, supervisor, and reviewer sessions. Use it to provide domain vocabulary, sample data patterns, web references, or other background knowledge that helps the LLM generate more accurate output.
 
 ## Full Example
 

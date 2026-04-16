@@ -1,0 +1,47 @@
+program-timeout-ms: 2400000
+
+input-path: "examples/project-3/input.ttl"
+output-path: "examples/project-3/output.ttl"
+user-input: "Generate dummy LDES data for a parking garage with observations about available spaces over time."
+log-level: "INFO"
+
+user-context:
+  - name: "LDES reference"
+    url: "https://semiceu.github.io/LinkedDataEventStreams/"
+  - name: "Parking domain notes"
+    path: "examples/project-3/input-example.txt"
+
+generation:
+  data-richness: "balanced"
+
+client:
+  worker:
+    model: "gpt-5-mini"
+    timeout-ms: 240000
+    between-message-timeout-ms: 120000
+    batch-size: 2
+    pool-count: 2
+  supervisor:
+    model: "gpt-5.4"
+    timeout-ms: 240000
+  reviewer:
+    model: "claude-4.6-sonnet"
+    timeout-ms: 240000
+    max-review-attempts: 3
+
+benchmark:
+  enabled: true
+  output-dir: "examples/project-3/benchmark/"
+
+shacl:
+  output-dir: "examples/project-3/shacl/"
+
+reasoner:
+  rules-file: "examples/project-3/reasoner.rules"
+  reasoner-type: "owl"
+  inferred-output-path: "examples/project-3/inferred.ttl"
+
+extract:
+  cache-dir: "examples/project-3/external/"
+  cache-ttl-ms: 3600000
+

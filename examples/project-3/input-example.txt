@@ -1,0 +1,6 @@
+Generate realistic but clearly dummy parking observations:
+- Use one parking garage resource with a stable identifier.
+- Generate at least 8 observations over different timestamps.
+- availableSpaces must stay between 0 and totalCapacity.
+- occupancyRate should be coherent with availableSpaces and totalCapacity.
+- Link each observation to an LDES event stream resource.
