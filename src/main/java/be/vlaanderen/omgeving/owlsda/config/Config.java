@@ -23,6 +23,8 @@ public class Config {
   private ExtractExternalProperties extract = new ExtractExternalProperties();
   private ReasonerProperties reasoner = new ReasonerProperties();
   private ShaclProperties shacl = new ShaclProperties();
+  private ToolsProperties tools = new ToolsProperties();
+  private CompactionProperties compaction = new CompactionProperties();
   private String logLevel = "INFO";
 
   private boolean logToFile = false;
@@ -118,6 +120,9 @@ public class Config {
   @Getter
   @YamlConfig
   public static class ClientProperties {
+    private String provider = "copilot";
+    private OllamaProperties ollama = new OllamaProperties();
+    private OpenAiCompatibleProperties openaiCompatible = new OpenAiCompatibleProperties();
     private WorkerProperties worker = new WorkerProperties();
     private SupervisorProperties supervisor = new SupervisorProperties();
     private ReviewerProperties reviewer = new ReviewerProperties();
@@ -125,7 +130,42 @@ public class Config {
     @Setter
     @Getter
     @YamlConfig
+    public static class OllamaProperties {
+      private String baseUrl = "http://localhost:11434";
+      // Thinking-capable models (e.g. qwen3) default to emitting chain-of-thought reasoning
+      // before each answer, which is slow. Set to false to request plain answers via Ollama's
+      // "think" request field.
+      private boolean think = true;
+    }
+
+    @Setter
+    @Getter
+    @YamlConfig
+    public static class OpenAiCompatibleProperties {
+      private String baseUrl = "https://api.openai.com/v1";
+      // Nullable; blank/unset falls back to the OPENAI_API_KEY environment variable.
+      private String apiKey;
+
+      public String resolveApiKey() {
+        return resolveApiKey(System.getenv("OPENAI_API_KEY"));
+      }
+
+      // Package-visible so tests can exercise the fallback logic without touching real env vars.
+      String resolveApiKey(String envFallback) {
+        if (apiKey != null && !apiKey.isBlank()) {
+          return apiKey.trim();
+        }
+        return (envFallback != null && !envFallback.isBlank()) ? envFallback.trim() : null;
+      }
+    }
+
+    @Setter
+    @Getter
+    @YamlConfig
     public static class WorkerProperties {
+      // Optional per-role provider override (e.g. ollama, copilot, openai-compatible).
+      // Falls back to client.provider when omitted.
+      private String provider;
       private String model = "gpt-5.1";
       private int timeoutMs = 60000;
       // Max idle time between assistant events (messages/tool requests). 0 disables this guard.
@@ -138,6 +178,9 @@ public class Config {
     @Getter
     @YamlConfig
     public static class SupervisorProperties {
+      // Optional per-role provider override (e.g. ollama, copilot, openai-compatible).
+      // Falls back to client.provider when omitted.
+      private String provider;
       private String model = "gpt-5.1";
       private int timeoutMs = 120000;  // Supervisor may need more time for orchestration
       // Max idle time between assistant events (messages/tool requests). 0 disables this guard.
@@ -148,6 +191,9 @@ public class Config {
     @Getter
     @YamlConfig
     public static class ReviewerProperties {
+      // Optional per-role provider override (e.g. ollama, copilot, openai-compatible).
+      // Falls back to client.provider when omitted.
+      private String provider;
       private String model = "gpt-5.1";
       private int timeoutMs = 60000;
       // Max idle time between assistant events (messages/tool requests). 0 disables this guard.
@@ -247,5 +293,77 @@ public class Config {
   public static class BenchmarkProperties {
     private boolean enabled = false;
     private String outputDir = "target/benchmarks";
+  }
+
+  @Getter
+  @Setter
+  @YamlConfig
+  public static class ToolsProperties {
+    private RoleToolsProperties worker = new RoleToolsProperties();
+    private RoleToolsProperties supervisor = new RoleToolsProperties();
+    private RoleToolsProperties reviewer = new RoleToolsProperties();
+    private HttpToolProperties http = new HttpToolProperties();
+    private MemoryToolProperties memory = new MemoryToolProperties();
+  }
+
+  /**
+   * Per-role tool enable/disable list. Tool names match {@code SessionHandler.getName()}/{@code
+   * NAME} constants. When {@code enabled} is null/empty, all tools are allowed by default; {@code
+   * disabled} is then applied on top to subtract specific tools.
+   */
+  @Getter
+  @Setter
+  @YamlConfig
+  public static class RoleToolsProperties {
+    private List<String> enabled;
+    private List<String> disabled = new ArrayList<>();
+  }
+
+  @Getter
+  @Setter
+  @YamlConfig
+  public static class HttpToolProperties {
+    private boolean enabled = true;
+    // Additional hosts/URL prefixes to trust, on top of the auto-seeded
+    // extract.mirrors + user-context URLs.
+    private List<String> allowedHosts = new ArrayList<>();
+    // If false, the allowlist is ONLY allowedHosts (no auto-seeding).
+    private boolean seedFromExtractMirrors = true;
+    private boolean seedFromUserContext = true;
+    private int connectTimeoutMs = 5000;
+    private int readTimeoutMs = 15000;
+    private int maxResponseBodyBytes = 1_000_000;
+    private boolean allowPost = true;
+    private int maxRetries = 2;
+  }
+
+  @Getter
+  @Setter
+  @YamlConfig
+  public static class MemoryToolProperties {
+    private boolean enabled = true;
+    private int maxEntries = 500;
+    private int maxValueBytes = 100_000;
+  }
+
+  /**
+   * Automatic context compaction for long-running sessions. Applies to the Ollama provider only
+   * today; see {@link #copilotEnabled}.
+   */
+  @Getter
+  @Setter
+  @YamlConfig
+  public static class CompactionProperties {
+    private boolean enabled = true;
+    // Primary trigger: estimated tokens currently in a session's message history.
+    private int tokenThreshold = 6000;
+    // Secondary OR-trigger: raw message count. 0 disables this trigger.
+    private int messageCountThreshold = 40;
+    // Number of most-recent messages (after the system message) preserved verbatim.
+    private int keepRecentMessages = 8;
+    // Compaction is only implemented for the Ollama provider; the Copilot SDK manages its own
+    // opaque server-side history and only exposes a full reset(), not partial compaction.
+    private boolean ollamaEnabled = true;
+    private boolean copilotEnabled = false;
   }
 }

@@ -31,7 +31,7 @@ public class Main implements Runnable {
       names = {"-c", "--config"},
       description = "Configuration file path",
       required = true,
-      defaultValue = "examples/project-2/config.yml"
+      defaultValue = "examples/project-1/config.yml"
   )
   private String configLocation;
 

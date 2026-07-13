@@ -6,6 +6,7 @@ from pathlib import Path
 import statistics as _stats
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+from matplotlib.ticker import MaxNLocator
 
 
 def _token_total(token_entry):
@@ -143,7 +144,7 @@ def plot_benchmark(benchmark_dir):
                 stage_groups.append(st)
     
     # Create figure with subplots for better visibility due to different scales
-    fig, axes = plt.subplots(3, 1, figsize=(6, 10))
+    fig, axes = plt.subplots(3, 1, figsize=(6, 6.2))
     
     # Plot 1: Duration
     axes[0].plot(iterations, durations_sec, marker='o', linestyle='-', color='#1f77b4', linewidth=2)
@@ -151,6 +152,7 @@ def plot_benchmark(benchmark_dir):
     # Title removed per user request
     axes[0].grid(True, alpha=0.3)
     axes[0].set_xlim(-0.5, len(iterations) - 0.5)
+    axes[0].yaxis.set_major_locator(MaxNLocator(nbins=3))
     
     # Plot 2: Shapes Processed (with violations as red line on secondary y-axis)
     ax_shapes = axes[1]
@@ -159,11 +161,13 @@ def plot_benchmark(benchmark_dir):
     ax_shapes.grid(True, alpha=0.3)
     ax_shapes.set_xlim(-0.5, len(iterations) - 0.5)
     ax_shapes.set_ylim(bottom=0)
+    ax_shapes.yaxis.set_major_locator(MaxNLocator(nbins=3))
     # secondary y-axis for triples (triplestore size)
     ax_triples = ax_shapes.twinx()
     ax_triples.plot(iterations, triplestore_sizes, marker='o', linestyle='-', color='#2ca02c', linewidth=2, label='Triples')
     ax_triples.set_ylabel('Triples', color='#2ca02c', fontsize=11, fontweight='bold')
     ax_triples.tick_params(axis='y', colors='#2ca02c')
+    ax_triples.yaxis.set_major_locator(MaxNLocator(nbins=3))
     # combined legend for shapes and triples
     h1, l1 = ax_shapes.get_legend_handles_labels()
     h2, l2 = ax_triples.get_legend_handles_labels()
@@ -178,6 +182,7 @@ def plot_benchmark(benchmark_dir):
     axes[2].grid(True, alpha=0.3)
     axes[2].set_xlim(-0.5, len(iterations) - 0.5)
     axes[2].set_ylim(bottom=0)
+    axes[2].yaxis.set_major_locator(MaxNLocator(nbins=3))
     axes[2].legend(loc='upper left')
 
     # Force integer ticks/labels for iterations on x-axis
@@ -212,10 +217,10 @@ def plot_benchmark(benchmark_dir):
     for name, col in group_colors.items():
         patches.append(mpatches.Patch(color=col, alpha=0.4, label=name))
     # Place the background legend above the subplots
-    fig.subplots_adjust(top=0.88)
+    fig.subplots_adjust(top=0.90)
     fig.legend(handles=patches, loc='upper center', ncol=len(patches), bbox_to_anchor=(0.5, 0.97))
     
-    plt.tight_layout()
+    plt.tight_layout(pad=0.5, h_pad=0.35)
 
     # Compute and log useful statistics
     num_iterations = len(proc_data)

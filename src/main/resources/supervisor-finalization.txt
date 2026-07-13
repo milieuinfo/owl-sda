@@ -6,8 +6,9 @@ Tasks:
 - Keep vocabulary usage aligned with ontology and SHACL contexts.
 - Keep URI/prefix style internally consistent across the dataset.
 - Remove duplicates and obvious contradictions.
-- Improve readability by grouping related entities and properties.
-- Add comments and structure for clarity where needed, without overcomplicating the data.
+- Improve readability by grouping related entities and properties, using blank lines and section `#` comments that describe the data itself (e.g. `# Installations`, `# Processes - 2023`).
+- Do NOT add `#` comments that record internal bookkeeping (worker/pool IDs, batch ranges, "created by", "fixed by", round numbers). The output is final RDF data, not a work log — comments must read as if a human authored the dataset directly.
+- Mint a named IRI for every domain entity you create or finalize. Reserve blank nodes for genuinely anonymous auxiliary structures only (e.g. RDF list cells), never for primary instances like installations, systems, or processes.
 - Do a final pre-review pass: treat reviewer acceptance as the goal and fix quality blockers now.
 - Focus pre-review checks on the reviewer rubric: required entities/properties, valid vocabulary, datatype/cardinality consistency, and clear grouping.
 - Avoid style-only rewrites once data is already clear and conformant.

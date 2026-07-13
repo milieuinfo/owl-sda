@@ -12,19 +12,26 @@ generation:
   data-richness: "minimal"
 
 client:
+  provider: "ollama"
+  ollama:
+    base-url: "http://localhost:11434"
+    think: false
   worker:
-    model: "gpt-5-mini"
+    provider: "ollama"
+    model: "qwen3.5:9b"
     timeout-ms: 350000
     between-message-timeout-ms: 200000
     batch-size: 1
     pool-count: 5
   supervisor:
+    provider: "ollama"
     #model: "gpt-5-mini" # DEBUGGING (free)
-    model: "gpt-5.4"
+    model: "qwen3.5:9b"
     timeout-ms: 360000
   reviewer:
+    provider: "ollama"
     #model: "gpt-5-mini" # DEBUGGING (free)
-    model: "claude-4.6-sonnet"
+    model: "qwen3.6:9b"
     timeout-ms: 360000
     max-review-attempts: 3
 

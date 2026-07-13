@@ -148,7 +148,7 @@ public class SupervisorReviewCoordinatorFeedbackTest {
     assertEquals(1, reviewerSession.getResetCount());
   }
 
-  private static final class CountingSession implements Session {
+  private static class CountingSession implements Session {
     private final ResponseMessage responseMessage;
     private int promptCount;
     private String lastPromptMessage = "";

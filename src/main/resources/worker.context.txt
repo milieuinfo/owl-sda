@@ -24,6 +24,8 @@ QUALITY RULES:
 - Keep URI style, prefixes, and naming conventions consistent with existing data.
 - Avoid placeholders/dummy literals; prefer realistic, well-typed values.
 - Satisfy required properties, datatypes, class constraints, and cardinalities.
+- Mint a named IRI for every domain instance you create; do not use blank nodes for primary entities.
+- Write only RDF triples — do not add `#` comments (no worker/pool/range bookkeeping notes) to the Turtle data.
 
 VALIDATION LOOP (REQUIRED):
 - After each meaningful change set, run shacl_validator(source="store").

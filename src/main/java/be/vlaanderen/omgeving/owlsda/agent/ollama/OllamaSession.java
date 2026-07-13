@@ -6,6 +6,7 @@ import be.vlaanderen.omgeving.owlsda.agent.Session;
 import be.vlaanderen.omgeving.owlsda.agent.SessionMessageLogEntry;
 import be.vlaanderen.omgeving.owlsda.agent.context.Context;
 import be.vlaanderen.omgeving.owlsda.agent.handler.SessionHandler;
+import be.vlaanderen.omgeving.owlsda.config.Config;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -43,10 +44,15 @@ public class OllamaSession implements Session {
   private static final Type STRING_OBJECT_MAP_TYPE = new TypeToken<Map<String, Object>>() {
   }.getType();
 
+  private static final int CHAT_REQUEST_MAX_RETRIES = 2;
+  private static final long CHAT_REQUEST_RETRY_BASE_DELAY_MS = 500L;
+
   private final be.vlaanderen.omgeving.owlsda.agent.SessionConfig config;
   private final HttpClient httpClient;
   private final URI chatUri;
   private final Map<String, SessionHandler> handlersByName;
+  private final Config.CompactionProperties compactionProperties;
+  private final boolean think;
 
   private final Set<Context> contexts = ConcurrentHashMap.newKeySet();
   private final List<JsonObject> messageHistory = new ArrayList<>();
@@ -57,14 +63,38 @@ public class OllamaSession implements Session {
   private final AtomicLong inputTokensUsed = new AtomicLong(0L);
   private final AtomicLong outputTokensUsed = new AtomicLong(0L);
   private final AtomicLong lastAssistantActivityMs = new AtomicLong(System.currentTimeMillis());
+  // Tokens consumed by the messages array on the most recently sent chat request - i.e. the
+  // current size of messageHistory, as measured by Ollama itself (prompt_eval_count). Used as
+  // the primary compaction trigger; reset after a successful compaction since the next request's
+  // size is not yet known.
+  private final AtomicLong lastPromptTokens = new AtomicLong(0L);
 
   protected OllamaSession(be.vlaanderen.omgeving.owlsda.agent.SessionConfig config,
       String baseUrl,
       HttpClient httpClient) {
+    this(config, baseUrl, httpClient, new Config.CompactionProperties(), true);
+  }
+
+  protected OllamaSession(be.vlaanderen.omgeving.owlsda.agent.SessionConfig config,
+      String baseUrl,
+      HttpClient httpClient,
+      Config.CompactionProperties compactionProperties) {
+    this(config, baseUrl, httpClient, compactionProperties, true);
+  }
+
+  protected OllamaSession(be.vlaanderen.omgeving.owlsda.agent.SessionConfig config,
+      String baseUrl,
+      HttpClient httpClient,
+      Config.CompactionProperties compactionProperties,
+      boolean think) {
     this.config = config;
     this.httpClient = httpClient;
     this.chatUri = URI.create(baseUrl + "/api/chat");
     this.handlersByName = new LinkedHashMap<>();
+    this.compactionProperties = compactionProperties != null
+        ? compactionProperties
+        : new Config.CompactionProperties();
+    this.think = think;
 
     if (config.getHandlers() != null) {
       for (SessionHandler handler : config.getHandlers()) {
@@ -191,6 +221,7 @@ public class OllamaSession implements Session {
 
   private ResponseMessage executeConversation() throws Exception {
     while (true) {
+      maybeCompactHistory();
       JsonObject payload = buildChatPayload();
       JsonObject response = sendChatRequest(payload);
       ParsedAssistantTurn turn = parseAssistantTurn(response);
@@ -245,6 +276,9 @@ public class OllamaSession implements Session {
     JsonObject payload = new JsonObject();
     payload.addProperty("model", config.getModel());
     payload.addProperty("stream", false);
+    if (!think) {
+      payload.addProperty("think", false);
+    }
 
     JsonArray messages = new JsonArray();
     for (JsonObject message : messageHistory) {
@@ -275,7 +309,42 @@ public class OllamaSession implements Session {
   }
 
   private JsonObject sendChatRequest(JsonObject payload) throws IOException, InterruptedException {
-    long timeoutMs = Math.max(1000, config.getTimeoutMs());
+    return sendChatRequest(payload, Math.max(1000, config.getTimeoutMs()));
+  }
+
+  /**
+   * Sends a chat request, retrying with exponential backoff on transient failures (connection
+   * errors, 5xx) but not on 4xx, which indicate a real request problem rather than flakiness.
+   */
+  private JsonObject sendChatRequest(JsonObject payload, long timeoutMs)
+      throws IOException, InterruptedException {
+    IOException lastError = null;
+
+    for (int attempt = 0; attempt <= CHAT_REQUEST_MAX_RETRIES; attempt++) {
+      try {
+        return sendChatRequestOnce(payload, timeoutMs);
+      } catch (NonRetryableHttpException e) {
+        throw e;
+      } catch (IOException e) {
+        lastError = e;
+        if (attempt < CHAT_REQUEST_MAX_RETRIES) {
+          logger.warn("Ollama chat request failed (attempt {}/{}): {}; retrying",
+              attempt + 1, CHAT_REQUEST_MAX_RETRIES + 1, e.getMessage());
+          try {
+            Thread.sleep(CHAT_REQUEST_RETRY_BASE_DELAY_MS * (1L << attempt));
+          } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+            throw interrupted;
+          }
+        }
+      }
+    }
+
+    throw lastError;
+  }
+
+  private JsonObject sendChatRequestOnce(JsonObject payload, long timeoutMs)
+      throws IOException, InterruptedException {
     HttpRequest request = HttpRequest.newBuilder()
         .uri(chatUri)
         .timeout(Duration.ofMillis(timeoutMs))
@@ -284,12 +353,23 @@ public class OllamaSession implements Session {
         .build();
 
     HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-    if (response.statusCode() < 200 || response.statusCode() >= 300) {
+    if (response.statusCode() >= 500) {
       throw new IOException("Ollama chat request failed: HTTP " + response.statusCode()
           + " - " + response.body());
     }
+    if (response.statusCode() < 200 || response.statusCode() >= 300) {
+      // 4xx and other non-2xx, non-5xx statuses are not retried.
+      throw new NonRetryableHttpException("Ollama chat request failed: HTTP "
+          + response.statusCode() + " - " + response.body());
+    }
 
     return JsonParser.parseString(response.body()).getAsJsonObject();
+  }
+
+  private static final class NonRetryableHttpException extends IOException {
+    NonRetryableHttpException(String message) {
+      super(message);
+    }
   }
 
   static ParsedAssistantTurn parseAssistantTurn(JsonObject response) {
@@ -389,6 +469,118 @@ public class OllamaSession implements Session {
     inputTokensUsed.addAndGet(Math.max(0, turn.promptEvalCount()));
     outputTokensUsed.addAndGet(Math.max(0, turn.evalCount()));
     totalTokensUsed.set(inputTokensUsed.get() + outputTokensUsed.get());
+    lastPromptTokens.set(Math.max(0, turn.promptEvalCount()));
+  }
+
+  /**
+   * Compacts {@code messageHistory} when it has grown past the configured thresholds, by
+   * summarizing older turns into a single synthetic message via a separate, non-tool-looped LLM
+   * call. Fails open: any error here is logged and swallowed so a stalled/oversized history never
+   * blocks forward progress of the actual conversation.
+   */
+  private void maybeCompactHistory() {
+    if (!compactionProperties.isEnabled() || !compactionProperties.isOllamaEnabled()) {
+      return;
+    }
+    if (!exceedsCompactionThreshold()) {
+      return;
+    }
+
+    try {
+      compactHistory();
+    } catch (Exception e) {
+      logger.warn("History compaction failed, continuing with full history: {}", e.getMessage());
+    }
+  }
+
+  private boolean exceedsCompactionThreshold() {
+    int tokenThreshold = compactionProperties.getTokenThreshold();
+    if (tokenThreshold > 0 && lastPromptTokens.get() >= tokenThreshold) {
+      return true;
+    }
+
+    int messageCountThreshold = compactionProperties.getMessageCountThreshold();
+    return messageCountThreshold > 0 && messageHistory.size() >= messageCountThreshold;
+  }
+
+  private void compactHistory() throws IOException, InterruptedException {
+    int startIndex = (!messageHistory.isEmpty() && "system".equals(readString(messageHistory.get(0), "role")))
+        ? 1
+        : 0;
+    int keepRecent = Math.max(0, compactionProperties.getKeepRecentMessages());
+    int endIndex = Math.max(startIndex, messageHistory.size() - keepRecent);
+
+    if (endIndex - startIndex < 2) {
+      // Not enough older messages to be worth summarizing.
+      return;
+    }
+
+    List<JsonObject> toSummarize = new ArrayList<>(messageHistory.subList(startIndex, endIndex));
+    String summary = requestSummary(toSummarize);
+
+    JsonObject summaryMessage = createMessage("user",
+        "Summary of earlier conversation (compacted to manage context size):\n" + summary);
+    summaryMessage.addProperty("__compaction_summary__", true);
+
+    List<JsonObject> newHistory = new ArrayList<>(messageHistory.subList(0, startIndex));
+    newHistory.add(summaryMessage);
+    newHistory.addAll(messageHistory.subList(endIndex, messageHistory.size()));
+
+    messageHistory.clear();
+    messageHistory.addAll(newHistory);
+    // Unknown until the next request; conservative reset so a stale large value doesn't
+    // suppress the next legitimate compaction check.
+    lastPromptTokens.set(0);
+
+    addMessageLogEntry("COMPACTION", null,
+        "Compacted " + toSummarize.size() + " messages into a summary");
+  }
+
+  private String requestSummary(List<JsonObject> messagesToSummarize)
+      throws IOException, InterruptedException {
+    StringBuilder transcript = new StringBuilder();
+    for (JsonObject message : messagesToSummarize) {
+      String role = readString(message, "role");
+      String content = readString(message, "content");
+      transcript.append(role != null ? role : "unknown").append(": ");
+      if (content != null && content.length() > 2000) {
+        transcript.append(content, 0, 2000).append(" ...[truncated]");
+      } else if (content != null) {
+        transcript.append(content);
+      }
+      transcript.append('\n');
+    }
+
+    JsonObject summaryRequest = createMessage("user", """
+        Summarize the following conversation transcript into a concise factual note. Preserve:
+        (a) any RDF/TURTLE triples already added or removed and their subjects,
+        (b) outstanding TODOs/instructions still pending,
+        (c) any tool results that are still relevant,
+        (d) explicit decisions made.
+        Do not include pleasantries. Target under 500 words.
+
+        Transcript:
+        """ + transcript);
+
+    JsonArray messages = new JsonArray();
+    messages.add(summaryRequest);
+
+    JsonObject payload = new JsonObject();
+    payload.addProperty("model", config.getModel());
+    payload.addProperty("stream", false);
+    if (!think) {
+      payload.addProperty("think", false);
+    }
+    payload.add("messages", messages);
+
+    long summaryTimeoutMs = Math.max(1000, config.getTimeoutMs() / 2);
+    JsonObject response = sendChatRequest(payload, summaryTimeoutMs);
+    JsonObject message = response.has("message") && response.get("message").isJsonObject()
+        ? response.getAsJsonObject("message")
+        : new JsonObject();
+
+    String content = readString(message, "content");
+    return content != null ? content : "";
   }
 
   private JsonObject createMessage(String role, String content) {

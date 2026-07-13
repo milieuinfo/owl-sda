@@ -12,17 +12,24 @@ generation:
   data-richness: "rich"
 
 client:
+  provider: "copilot"
+  ollama:
+    base-url: "http://localhost:11434"
+    think: false
   worker:
-    model: "gpt-5-mini"
+    provider: "ollama"
+    model: "qwen3:8b"
     timeout-ms: 400000
     between-message-timeout-ms: 200000
     batch-size: 2
     pool-count: 5
   supervisor:
+    provider: "copilot"
     #model: "gpt-5-mini" # DEBUGGING (free)
     model: "gpt-5.4"
     timeout-ms: 360000
   reviewer:
+    provider: "copilot"
     #model: "gpt-5-mini" # DEBUGGING (free)
     model: "claude-4.6-sonnet"
     timeout-ms: 360000

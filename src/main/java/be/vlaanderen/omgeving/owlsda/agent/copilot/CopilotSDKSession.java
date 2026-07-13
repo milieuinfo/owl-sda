@@ -395,6 +395,7 @@ public class CopilotSDKSession implements Session {
    * Returns the timestamp (ms) of the last assistant activity (message/tool/event).
    * Used for monitoring session progress and detecting stalls.
    */
+  @Override
   public long getLastAssistantActivityMs() {
     return lastAssistantActivityMs.get();
   }
@@ -406,6 +407,7 @@ public class CopilotSDKSession implements Session {
    * @param idleThresholdMs idle time threshold in milliseconds
    * @return true if session has no assistant activity for >= idleThresholdMs
    */
+  @Override
   public boolean isIdleSince(long idleThresholdMs) {
     long lastActivity = lastAssistantActivityMs.get();
     long elapsedMs = System.currentTimeMillis() - lastActivity;

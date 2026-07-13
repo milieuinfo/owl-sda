@@ -76,6 +76,21 @@ public interface Session extends AutoCloseable {
   }
 
   /**
+   * Returns the timestamp (ms) of the most recent assistant-side activity for this session.
+   */
+  default long getLastAssistantActivityMs() {
+    return System.currentTimeMillis();
+  }
+
+  /**
+   * Indicates whether this session has been idle for at least {@code idleThresholdMs}.
+   */
+  default boolean isIdleSince(long idleThresholdMs) {
+    long elapsedMs = System.currentTimeMillis() - getLastAssistantActivityMs();
+    return elapsedMs >= idleThresholdMs;
+  }
+
+  /**
    * Resets the session by clearing the server-side message history and recreating the underlying
    * LLM session. Contexts are preserved so the next prompt starts with a clean message history
    * but the same context window. This prevents context-window saturation across many delegation

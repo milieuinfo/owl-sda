@@ -19,16 +19,21 @@ public class OllamaClient implements Client {
 
   private final HttpClient httpClient;
   private final String baseUrl;
+  private final Config.CompactionProperties compactionProperties;
+  private final boolean think;
   private final List<Session> sessions = new ArrayList<>();
 
   public OllamaClient(Config config) {
     String configuredBaseUrl = "http://localhost:11434";
+    boolean configuredThink = true;
     if (config != null
         && config.getClient() != null
-        && config.getClient().getOllama() != null
-        && config.getClient().getOllama().getBaseUrl() != null
-        && !config.getClient().getOllama().getBaseUrl().isBlank()) {
-      configuredBaseUrl = config.getClient().getOllama().getBaseUrl().trim();
+        && config.getClient().getOllama() != null) {
+      if (config.getClient().getOllama().getBaseUrl() != null
+          && !config.getClient().getOllama().getBaseUrl().isBlank()) {
+        configuredBaseUrl = config.getClient().getOllama().getBaseUrl().trim();
+      }
+      configuredThink = config.getClient().getOllama().isThink();
     }
 
     this.baseUrl = configuredBaseUrl.endsWith("/")
@@ -37,6 +42,10 @@ public class OllamaClient implements Client {
     this.httpClient = HttpClient.newBuilder()
         .connectTimeout(Duration.ofSeconds(5))
         .build();
+    this.compactionProperties = config != null
+        ? config.getCompaction()
+        : new Config.CompactionProperties();
+    this.think = configuredThink;
 
     logger.info("Initialized Ollama client with base URL {}", this.baseUrl);
   }
@@ -49,7 +58,7 @@ public class OllamaClient implements Client {
   @Override
   public Session createSession(be.vlaanderen.omgeving.owlsda.agent.SessionConfig config)
       throws ExecutionException, InterruptedException {
-    OllamaSession session = new OllamaSession(config, baseUrl, httpClient);
+    OllamaSession session = new OllamaSession(config, baseUrl, httpClient, compactionProperties, think);
     sessions.add(session);
     return session;
   }

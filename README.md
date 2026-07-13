@@ -1,11 +1,34 @@
 # OWL-SDA: A Multi-Agent System for Generating Synthetic Data to Support Ontology Evaluation
 
+## Quickstart
+
+Build the executable jar:
+
+```bash
+mvn -DskipTests clean package
+```
+
+This produces a single runnable jar at `target/owlsda.jar` (all dependencies bundled, requires JDK 25+).
+
+Run example 1 (a glass production facility ontology, using a local [Ollama](https://ollama.com/) model):
+
+```bash
+java -jar target/owlsda.jar -c examples/project-1/config.yml
+```
+
+The generated RDF instance data is written to `examples/project-1/output.ttl`. See `examples/project-1/config.yml` to see how the example is configured, and the [Installation](#installation) and [Configuration](#configuration) sections below to point OWL-SDA at GitHub Copilot or an OpenAI-compatible endpoint instead.
+
 ## Installation
 
-> Currently only GitHub Copilot is supported as a large language model
+> Supports GitHub Copilot, Ollama (self-hosted models), and any OpenAI-compatible endpoint
+> (bring-your-own-key — OpenAI itself, Azure OpenAI, or self-hosted gateways). See
+> `docs/guide/configuration.md` for `client.provider` setup.
 
-1. Install GitHub Copilot CLI: https://github.com/features/copilot/cli
-2. Sign-in to GitHub Copilot CLI: `gh copilot auth`
+1. **GitHub Copilot** (default): install the Copilot CLI and sign in.
+   - Install: https://github.com/features/copilot/cli
+   - Sign in: `gh copilot auth`
+2. **Ollama**: run a local/self-hosted Ollama server and set `client.provider: "ollama"` with `client.ollama.base-url`.
+3. **OpenAI-compatible (BYOK)**: set `client.provider: "openai-compatible"`, `client.openai-compatible.base-url`, and supply an API key via `client.openai-compatible.api-key` or the `OPENAI_API_KEY` environment variable.
 
 ## Configuration
 

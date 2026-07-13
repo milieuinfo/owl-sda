@@ -45,10 +45,18 @@ client:
     timeout-ms: 60000
 ```
 
-## 3. Run
+## 3. Build and run
+
+Build the executable jar (requires JDK 25+):
 
 ```bash
-java -jar OWL-SDA.jar --config config.yml
+mvn -DskipTests clean package
+```
+
+Then run it against your configuration:
+
+```bash
+java -jar target/owlsda.jar --config config.yml
 ```
 
 ## 4. Inspect the output

@@ -1,0 +1,198 @@
+[
+  {
+    "timestamp": "20260630_132704_610",
+    "stage": "GENERATE",
+    "shapesProcessed": 0,
+    "durationMs": 886025,
+    "triplestoreSize": 0,
+    "triplestoreEmpty": true,
+    "currentViolations": -1,
+    "snapshotDirectory": "20260630_132704_610",
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 65633,
+          "output": 494,
+          "total": 66127
+        },
+        "worker_2": {
+          "input": 42172,
+          "output": 504,
+          "total": 42676
+        },
+        "worker_4": {
+          "input": 44085,
+          "output": 543,
+          "total": 44628
+        },
+        "worker_1": {
+          "input": 53498,
+          "output": 682,
+          "total": 54180
+        },
+        "worker_3": {
+          "input": 76695,
+          "output": 462,
+          "total": 77157
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 6437,
+        "output": 783,
+        "total": 7220
+      }
+    }
+  },
+  {
+    "timestamp": "20260630_132706_159",
+    "stage": "GENERATE",
+    "shapesProcessed": 0,
+    "durationMs": 1517,
+    "triplestoreSize": 0,
+    "triplestoreEmpty": true,
+    "currentViolations": -1,
+    "snapshotDirectory": "20260630_132706_159",
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 65633,
+          "output": 494,
+          "total": 66127
+        },
+        "worker_2": {
+          "input": 42172,
+          "output": 504,
+          "total": 42676
+        },
+        "worker_4": {
+          "input": 44085,
+          "output": 543,
+          "total": 44628
+        },
+        "worker_1": {
+          "input": 53498,
+          "output": 682,
+          "total": 54180
+        },
+        "worker_3": {
+          "input": 76695,
+          "output": 462,
+          "total": 77157
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 6437,
+        "output": 783,
+        "total": 7220
+      }
+    }
+  },
+  {
+    "timestamp": "20260630_132707_678",
+    "stage": "GENERATE",
+    "shapesProcessed": 0,
+    "durationMs": 1509,
+    "triplestoreSize": 0,
+    "triplestoreEmpty": true,
+    "currentViolations": -1,
+    "snapshotDirectory": "20260630_132707_678",
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 65633,
+          "output": 494,
+          "total": 66127
+        },
+        "worker_2": {
+          "input": 42172,
+          "output": 504,
+          "total": 42676
+        },
+        "worker_4": {
+          "input": 44085,
+          "output": 543,
+          "total": 44628
+        },
+        "worker_1": {
+          "input": 53498,
+          "output": 682,
+          "total": 54180
+        },
+        "worker_3": {
+          "input": 76695,
+          "output": 462,
+          "total": 77157
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 6437,
+        "output": 783,
+        "total": 7220
+      }
+    }
+  },
+  {
+    "timestamp": "20260630_132709_194",
+    "stage": "GENERATE",
+    "shapesProcessed": 0,
+    "durationMs": 1508,
+    "triplestoreSize": 0,
+    "triplestoreEmpty": true,
+    "currentViolations": -1,
+    "snapshotDirectory": "20260630_132709_194",
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 65633,
+          "output": 494,
+          "total": 66127
+        },
+        "worker_2": {
+          "input": 42172,
+          "output": 504,
+          "total": 42676
+        },
+        "worker_4": {
+          "input": 44085,
+          "output": 543,
+          "total": 44628
+        },
+        "worker_1": {
+          "input": 53498,
+          "output": 682,
+          "total": 54180
+        },
+        "worker_3": {
+          "input": 76695,
+          "output": 462,
+          "total": 77157
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 6437,
+        "output": 783,
+        "total": 7220
+      }
+    }
+  }
+]

@@ -9,6 +9,8 @@ GENERATION MODE:
 - Generate realistic instances that satisfy SHACL constraints.
 - Use URI patterns based on your assigned target class and existing project conventions.
 - Create required supporting resources when needed.
+- Mint a named IRI for every instance you create. Do NOT use blank nodes (`[ ... ]` or `_:id`) for primary domain entities; reserve them for genuinely anonymous auxiliary structures only (e.g. RDF list cells).
+- Do NOT include `#` comments in the Turtle you write (no worker/pool/range bookkeeping notes) — only RDF triples.
 
 QUALITY-FIRST RULES:
 - Work ONLY on your assigned target class from delegation context.

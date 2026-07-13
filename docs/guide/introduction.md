@@ -30,7 +30,7 @@ Workers write triples directly into a shared in-memory triple store. After each 
 
 ## Supported LLM Backends
 
-Currently only **GitHub Copilot** is supported as a language model backend. Support for additional providers can be added by implementing the `Client` / `Session` interfaces.
+OWL-SDA supports **GitHub Copilot**, **Ollama** (self-hosted models), and any **OpenAI-compatible endpoint** (bring-your-own-key — OpenAI itself, Azure OpenAI, or self-hosted gateways) as language model backends. Support for additional providers can be added by implementing the `Client` / `Session` interfaces.
 
 ## License
 

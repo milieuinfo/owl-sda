@@ -50,6 +50,7 @@ public class OWLSDA {
   private SessionManager sessionManager;
   private OutputValidator validator;
   private SupervisorWorkflow supervisorWorkflow;
+  private ConcurrentWorkerBatch concurrentWorkerBatch;
 
   public OWLSDA(Config config) {
     this.config = config;
@@ -102,6 +103,9 @@ public class OWLSDA {
   }
 
   private void stopSessions() {
+    if (concurrentWorkerBatch != null) {
+      concurrentWorkerBatch.shutdown();
+    }
     if (sessionManager != null) {
       sessionManager.shutdown();
     }
@@ -251,7 +255,7 @@ public class OWLSDA {
   private void buildSupervisorWorkflow() {
     Session supervisorSession = sessionManager.getSupervisorSession();
 
-    ConcurrentWorkerBatch concurrentWorkerBatch = new ConcurrentWorkerBatch(
+    concurrentWorkerBatch = new ConcurrentWorkerBatch(
         config, sessionManager.getWorkerSessionPool(), defaultShacl, validator);
     Supervisor supervisor = new Supervisor(
         supervisorSession,

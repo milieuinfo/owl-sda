@@ -1,0 +1,14 @@
+POOL-0 [ERROR]:
+
+
+POOL-1 [ERROR]:
+
+
+POOL-2 [ERROR]:
+
+
+POOL-3 [ERROR]:
+
+
+POOL-4 [ERROR]:
+HTTP/1.1 header parser received no bytes

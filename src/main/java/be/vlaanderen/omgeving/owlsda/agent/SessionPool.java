@@ -1,11 +1,11 @@
 package be.vlaanderen.omgeving.owlsda.agent;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Getter;
 import lombok.Setter;
@@ -61,7 +61,7 @@ public class SessionPool implements AutoCloseable {
 
   public SessionPool(int poolSize) {
     this.poolSize = Math.max(1, poolSize);
-    this.allSessions = new ArrayList<>(this.poolSize);
+    this.allSessions = new CopyOnWriteArrayList<>();
     this.availableSessions = new ArrayBlockingQueue<>(this.poolSize);
   }
 
