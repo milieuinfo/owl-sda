@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
  * Preserves content outside the specified range while replacing the target lines.
  */
 public class OutputReplaceHandler implements SessionHandler {
+  public static final String NAME = "output_data_replace";
+
   private static final Logger logger = LoggerFactory.getLogger(OutputReplaceHandler.class);
   private final Config config;
 
@@ -25,7 +27,7 @@ public class OutputReplaceHandler implements SessionHandler {
 
   @Override
   public String getName() {
-    return "output_data_replace";
+    return NAME;
   }
 
   @Override
@@ -140,6 +142,14 @@ public class OutputReplaceHandler implements SessionHandler {
         if (i < totalLines - 1) {
           newData.append("\n");
         }
+      }
+
+      String syntaxError = TurtleSyntaxValidator.validate(newData.toString());
+      if (syntaxError != null) {
+        logger.warn("Rejected output_data_replace with invalid Turtle: {}", syntaxError);
+        return CompletableFuture.completedFuture(Map.of(
+            "error", "Resulting output would not be valid Turtle and was not written: " + syntaxError
+        ));
       }
 
       // Write to file

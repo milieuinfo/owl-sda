@@ -18,11 +18,13 @@ import java.util.stream.Collectors;
 public record TripleStoreAddHandler(WorkerTripleStore tripleStore, String workerId) implements
     SessionHandler {
 
+  public static final String NAME = "triplestore_add";
+
   private static final Logger logger = LoggerFactory.getLogger(TripleStoreAddHandler.class);
 
   @Override
   public String getName() {
-    return "triplestore_add";
+    return NAME;
   }
 
   @Override

@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 public record OutputFeedbackHandler(
     Supplier<SupervisorReviewCoordinator> reviewCoordinatorProvider) implements SessionHandler {
 
+  public static final String NAME = "output_feedback";
+
   private static final Logger logger = LoggerFactory.getLogger(OutputFeedbackHandler.class);
 
   public enum FeedbackState {
@@ -24,7 +26,7 @@ public record OutputFeedbackHandler(
 
   @Override
   public String getName() {
-    return "output_feedback";
+    return NAME;
   }
 
   @Override

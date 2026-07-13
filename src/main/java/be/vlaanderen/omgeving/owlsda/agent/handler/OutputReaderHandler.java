@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
  * Supports both line-based and character-based chunked reading for efficient handling of large files.
  */
 public class OutputReaderHandler implements SessionHandler {
+  public static final String NAME = "output_data_reader";
+
   private final Logger logger = LoggerFactory.getLogger(OutputReaderHandler.class);
   private final Config config;
 
@@ -25,7 +27,7 @@ public class OutputReaderHandler implements SessionHandler {
 
   @Override
   public String getName() {
-    return "output_data_reader";
+    return NAME;
   }
 
   @Override

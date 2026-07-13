@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
  * if the output file already contains prefixes, preventing duplicate declarations.
  */
 public class OutputAppendHandler implements SessionHandler {
+  public static final String NAME = "output_data_append";
+
   private final Logger logger = LoggerFactory.getLogger(OutputAppendHandler.class);
   private final Config config;
 
@@ -29,7 +31,7 @@ public class OutputAppendHandler implements SessionHandler {
 
   @Override
   public String getName() {
-    return "output_data_append";
+    return NAME;
   }
 
   @Override
@@ -89,6 +91,7 @@ public class OutputAppendHandler implements SessionHandler {
     try {
       Path path = Path.of(outputFilePath);
       long sizeBefore = Files.exists(path) ? Files.size(path) : 0;
+      String existingContent = Files.exists(path) ? Files.readString(path) : "";
 
       // Deduplicate prefixes: strip them from output if the file already contains prefixes
       String processedOutput = deduplicatePrefixes(outputFilePath, output);
@@ -96,7 +99,15 @@ public class OutputAppendHandler implements SessionHandler {
 
       if (insertLine != null && insertLine > 0) {
         // Insert at specific line
-        insertAtLine(outputFilePath, processedOutput, insertLine);
+        String newFullContent = buildInsertedContent(existingContent, processedOutput, insertLine);
+        String syntaxError = TurtleSyntaxValidator.validate(newFullContent);
+        if (syntaxError != null) {
+          logger.warn("Rejected output_data_append insert with invalid Turtle: {}", syntaxError);
+          return CompletableFuture.completedFuture(Map.of(
+              "error", "Resulting output would not be valid Turtle and was not written: " + syntaxError
+          ));
+        }
+        Files.writeString(path, newFullContent, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         logger.info("Inserted {} characters at line {} ({} prefixes removed)",
             processedOutput.length(), insertLine, prefixesRemoved);
       } else {
@@ -104,6 +115,14 @@ public class OutputAppendHandler implements SessionHandler {
         String contentToAppend = processedOutput;
         if (addNewline && sizeBefore > 0) {
           contentToAppend = System.lineSeparator() + processedOutput;
+        }
+        String newFullContent = existingContent + contentToAppend;
+        String syntaxError = TurtleSyntaxValidator.validate(newFullContent);
+        if (syntaxError != null) {
+          logger.warn("Rejected output_data_append with invalid Turtle: {}", syntaxError);
+          return CompletableFuture.completedFuture(Map.of(
+              "error", "Resulting output would not be valid Turtle and was not written: " + syntaxError
+          ));
         }
         Files.writeString(path, contentToAppend, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         logger.info("Appended {} characters ({} prefixes removed)",
@@ -227,13 +246,11 @@ public class OutputAppendHandler implements SessionHandler {
   }
 
   /**
-   * Insert output at a specific line in the file.
+   * Build the file content that results from inserting output at a specific line.
    * Line numbers are 1-based (line 1 is the first line).
    */
-  private void insertAtLine(String filePath, String output, int lineNumber) throws IOException {
-    Path path = Path.of(filePath);
-    String content = Files.exists(path) ? Files.readString(path) : "";
-    String[] lines = content.split("\n", -1);  // -1 keeps trailing empty strings
+  private String buildInsertedContent(String existingContent, String output, int lineNumber) throws IOException {
+    String[] lines = existingContent.split("\n", -1);  // -1 keeps trailing empty strings
 
     // Validate line number
     if (lineNumber < 1 || lineNumber > lines.length + 1) {
@@ -260,7 +277,6 @@ public class OutputAppendHandler implements SessionHandler {
       }
     }
 
-    Files.writeString(path, newContent.toString(), StandardOpenOption.CREATE,
-        StandardOpenOption.TRUNCATE_EXISTING);
+    return newContent.toString();
   }
 }

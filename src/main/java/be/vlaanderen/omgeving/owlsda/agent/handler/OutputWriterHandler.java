@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
  * Supports overwriting the entire file with validation and size reporting.
  */
 public class OutputWriterHandler implements SessionHandler {
+  public static final String NAME = "output_data_writer";
+
   private final Logger logger = LoggerFactory.getLogger(OutputWriterHandler.class);
   private final Config config;
 
@@ -24,7 +26,7 @@ public class OutputWriterHandler implements SessionHandler {
 
   @Override
   public String getName() {
-    return "output_data_writer";
+    return NAME;
   }
 
   @Override
@@ -86,6 +88,14 @@ public class OutputWriterHandler implements SessionHandler {
             "error", "Failed to delete output file: " + e.getMessage()
         ));
       }
+    }
+
+    String syntaxError = TurtleSyntaxValidator.validate(output);
+    if (syntaxError != null) {
+      logger.warn("Rejected output_data_writer call with invalid Turtle: {}", syntaxError);
+      return CompletableFuture.completedFuture(Map.of(
+          "error", "Output is not valid Turtle and was not written: " + syntaxError
+      ));
     }
 
     // Write output to file directly (single-writer supervisor flow)

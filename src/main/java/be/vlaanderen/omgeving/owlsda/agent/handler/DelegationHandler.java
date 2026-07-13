@@ -13,6 +13,7 @@ public record DelegationHandler(DelegationPublisher publishContext) implements S
 
   /** Canonical name for the context used to carry per-worker delegation instructions. */
   public static final String DELEGATION_CONTEXT_NAME = "Delegation Instructions";
+  public static final String NAME = "delegate_tasks";
 
   private static final Logger logger = LoggerFactory.getLogger(DelegationHandler.class);
 
@@ -57,7 +58,7 @@ public record DelegationHandler(DelegationPublisher publishContext) implements S
 
   @Override
   public String getName() {
-    return "delegate_tasks";
+    return NAME;
   }
 
   @Override

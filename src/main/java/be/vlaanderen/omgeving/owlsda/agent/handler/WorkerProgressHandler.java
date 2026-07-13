@@ -15,6 +15,7 @@ public record WorkerProgressHandler(String workerId, Consumer<Context> progressP
 
   private static final Logger logger = LoggerFactory.getLogger(WorkerProgressHandler.class);
   public static final String CONTEXT_NAME = "Worker Progress Report";
+  public static final String NAME = "worker_progress";
 
   public enum WorkerStatus {
     CREATED,
@@ -25,7 +26,7 @@ public record WorkerProgressHandler(String workerId, Consumer<Context> progressP
 
   @Override
   public String getName() {
-    return "worker_progress";
+    return NAME;
   }
 
   @Override

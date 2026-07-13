@@ -14,11 +14,13 @@ import java.util.concurrent.CompletableFuture;
 public record TripleStoreClearHandler(WorkerTripleStore tripleStore, String workerId) implements
     SessionHandler {
 
+  public static final String NAME = "triplestore_clear";
+
   private static final Logger logger = LoggerFactory.getLogger(TripleStoreClearHandler.class);
 
   @Override
   public String getName() {
-    return "triplestore_clear";
+    return NAME;
   }
 
   @Override

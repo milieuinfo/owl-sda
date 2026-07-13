@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory;
  * - "store" mode: Validates worker's triple store (workers only)
  */
 public class OutputValidatorHandler implements SessionHandler {
+  public static final String NAME = "shacl_validator";
+
   private static final Logger logger = LoggerFactory.getLogger(OutputValidatorHandler.class);
   private final Shacl shacl;
   private final Config config;
@@ -55,7 +57,7 @@ public class OutputValidatorHandler implements SessionHandler {
 
   @Override
   public String getName() {
-    return "shacl_validator";
+    return NAME;
   }
 
   @Override

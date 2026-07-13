@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
  */
 public class ContextReaderHandler implements SessionHandler {
 
+  public static final String NAME = "context_reader";
+
   private final Logger logger = LoggerFactory.getLogger(ContextReaderHandler.class);
   private final Supplier<List<Context>> contextSupplier;
 
@@ -29,7 +31,7 @@ public class ContextReaderHandler implements SessionHandler {
 
   @Override
   public String getName() {
-    return "context_reader";
+    return NAME;
   }
 
   @Override

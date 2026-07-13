@@ -13,11 +13,13 @@ import org.slf4j.LoggerFactory;
  */
 public record ShapeStatusCheckerHandler(ShapeProcessingTracker tracker) implements SessionHandler {
 
+  public static final String NAME = "check_shape_status";
+
   private static final Logger logger = LoggerFactory.getLogger(ShapeStatusCheckerHandler.class);
 
   @Override
   public String getName() {
-    return "check_shape_status";
+    return NAME;
   }
 
   @Override
