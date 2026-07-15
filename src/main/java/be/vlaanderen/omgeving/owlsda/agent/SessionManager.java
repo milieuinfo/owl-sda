@@ -208,6 +208,7 @@ public class SessionManager {
                 .timeoutMs(config.getClient().getWorker().getTimeoutMs())
                 .betweenMessageTimeoutMs(
                     config.getClient().getWorker().getBetweenMessageTimeoutMs())
+                .contextWindowTokens(config.getClient().getWorker().getContextWindowTokens())
                 .handlers(handlers)
                 .build();
 
@@ -295,6 +296,7 @@ public class SessionManager {
               .timeoutMs(config.getClient().getSupervisor().getTimeoutMs())
               .betweenMessageTimeoutMs(
                   config.getClient().getSupervisor().getBetweenMessageTimeoutMs())
+              .contextWindowTokens(config.getClient().getSupervisor().getContextWindowTokens())
               .handlers(handlers)
               .build();
 
@@ -451,6 +453,7 @@ public class SessionManager {
               .timeoutMs(config.getClient().getReviewer().getTimeoutMs())
               .betweenMessageTimeoutMs(
                   config.getClient().getReviewer().getBetweenMessageTimeoutMs())
+              .contextWindowTokens(config.getClient().getReviewer().getContextWindowTokens())
               .handlers(handlers)
               .build();
 
@@ -498,25 +501,16 @@ public class SessionManager {
   }
 
   public void addContextToAllSessions(Context context) {
-    rememberSharedContext(context);
-
-    List<Session> allSessions = new ArrayList<>(workerSessionPool.getAllSessions());
-    allSessions.add(supervisorSession);
-    Session initializedReviewer = getReviewerSessionIfInitialized();
-    if (initializedReviewer != null) {
-      allSessions.add(initializedReviewer);
-    }
-
-    for (Session session : allSessions) {
-      if (session != null) {
-        session.addContext(new Context(context));
-      }
-    }
-
+    addContextToAllSessionsInternal(context, false);
     logger.debug("Added context '{}' to all sessions", context.getName());
   }
 
   public void addContextToAllSessionsIfChanged(Context context) {
+    addContextToAllSessionsInternal(context, true);
+    logger.debug("Added/updated context '{}' to all sessions (if changed)", context.getName());
+  }
+
+  private void addContextToAllSessionsInternal(Context context, boolean onlyIfChanged) {
     rememberSharedContext(context);
 
     List<Session> allSessions = new ArrayList<>(workerSessionPool.getAllSessions());
@@ -528,11 +522,13 @@ public class SessionManager {
 
     for (Session session : allSessions) {
       if (session != null) {
-        session.addContextIfChanged(new Context(context));
+        if (onlyIfChanged) {
+          session.addContextIfChanged(new Context(context));
+        } else {
+          session.addContext(new Context(context));
+        }
       }
     }
-
-    logger.debug("Added/updated context '{}' to all sessions (if changed)", context.getName());
   }
 
   public void shutdown() {

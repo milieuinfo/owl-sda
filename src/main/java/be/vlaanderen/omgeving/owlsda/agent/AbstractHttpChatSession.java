@@ -299,33 +299,26 @@ public abstract class AbstractHttpChatSession implements Session {
    */
   protected JsonObject sendChatRequest(JsonObject payload, long timeoutMs)
       throws IOException, InterruptedException {
-    IOException lastError = null;
-
-    for (int attempt = 0; attempt <= CHAT_REQUEST_MAX_RETRIES; attempt++) {
-      try {
-        return sendChatRequestOnce(payload, timeoutMs);
-      } catch (NonRetryableHttpException e) {
-        throw e;
-      } catch (IOException e) {
-        lastError = e;
-        if (attempt < CHAT_REQUEST_MAX_RETRIES) {
-          logger.warn(
-              "{} chat request failed (attempt {}/{}): {}; retrying",
-              providerLabel(),
-              attempt + 1,
-              CHAT_REQUEST_MAX_RETRIES + 1,
-              e.getMessage());
-          try {
-            Thread.sleep(CHAT_REQUEST_RETRY_BASE_DELAY_MS * (1L << attempt));
-          } catch (InterruptedException interrupted) {
-            Thread.currentThread().interrupt();
-            throw interrupted;
-          }
-        }
-      }
+    try {
+      return HttpRetryExecutor.retry(
+          CHAT_REQUEST_MAX_RETRIES,
+          CHAT_REQUEST_RETRY_BASE_DELAY_MS,
+          e -> e instanceof IOException && !(e instanceof NonRetryableHttpException),
+          (attempt, maxRetries, cause) ->
+              logger.warn(
+                  "{} chat request failed (attempt {}/{}): {}; retrying",
+                  providerLabel(),
+                  attempt + 1,
+                  maxRetries + 1,
+                  cause.getMessage()),
+          () -> sendChatRequestOnce(payload, timeoutMs));
+    } catch (IOException | InterruptedException e) {
+      throw e;
+    } catch (Exception e) {
+      // sendChatRequestOnce only declares IOException/InterruptedException, so this path is
+      // unreachable; required only to satisfy HttpRetryExecutor's generic `throws Exception`.
+      throw new IOException(e);
     }
-
-    throw lastError;
   }
 
   private JsonObject sendChatRequestOnce(JsonObject payload, long timeoutMs)
@@ -478,9 +471,19 @@ public abstract class AbstractHttpChatSession implements Session {
   }
 
   private boolean exceedsCompactionThreshold() {
-    int tokenThreshold = compactionProperties.getTokenThreshold();
-    if (tokenThreshold > 0 && lastPromptTokens.get() >= tokenThreshold) {
-      return true;
+    int contextWindowTokens = config.getContextWindowTokens();
+    if (contextWindowTokens > 0) {
+      // Ratio-based trigger against the model's real, configured context window rather than a
+      // guessed absolute token count - see SessionConfig#contextWindowTokens.
+      double ratio = compactionProperties.getContextWindowThresholdRatio();
+      if (ratio > 0 && lastPromptTokens.get() >= contextWindowTokens * ratio) {
+        return true;
+      }
+    } else {
+      int tokenThreshold = compactionProperties.getTokenThreshold();
+      if (tokenThreshold > 0 && lastPromptTokens.get() >= tokenThreshold) {
+        return true;
+      }
     }
 
     int messageCountThreshold = compactionProperties.getMessageCountThreshold();

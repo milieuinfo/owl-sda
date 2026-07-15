@@ -1,5 +1,6 @@
 package be.vlaanderen.omgeving.owlsda.agent.handler;
 
+import be.vlaanderen.omgeving.owlsda.agent.HttpRetryExecutor;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -105,33 +106,26 @@ public record HttpCallHandler(
   }
 
   private Map<String, Object> executeWithRetry(URI uri, String method, String body) {
-    Exception lastError = null;
-
-    for (int attempt = 0; attempt <= maxRetries; attempt++) {
-      try {
-        return execute(uri, method, body);
-      } catch (RetryableHttpException e) {
-        lastError = e;
-        if (attempt < maxRetries) {
-          logger.warn(
-              "http_call to {} failed (attempt {}/{}): {}; retrying",
-              uri.getHost(),
-              attempt + 1,
-              maxRetries + 1,
-              e.getMessage());
-          sleepBackoff(attempt);
-        }
-      } catch (Exception e) {
-        return Map.of("error", "Request failed: " + e.getMessage());
-      }
+    try {
+      return HttpRetryExecutor.retry(
+          maxRetries,
+          RETRY_BASE_DELAY_MS,
+          e -> e instanceof RetryableHttpException,
+          (attempt, retries, cause) ->
+              logger.warn(
+                  "http_call to {} failed (attempt {}/{}): {}; retrying",
+                  uri.getHost(),
+                  attempt + 1,
+                  retries + 1,
+                  cause.getMessage()),
+          () -> execute(uri, method, body));
+    } catch (RetryableHttpException e) {
+      return Map.of(
+          "error",
+          "Request failed after " + (maxRetries + 1) + " attempt(s): " + e.getMessage());
+    } catch (Exception e) {
+      return Map.of("error", "Request failed: " + e.getMessage());
     }
-
-    return Map.of(
-        "error",
-        "Request failed after "
-            + (maxRetries + 1)
-            + " attempt(s): "
-            + (lastError != null ? lastError.getMessage() : "unknown error"));
   }
 
   private Map<String, Object> execute(URI uri, String method, String body) throws Exception {
@@ -165,14 +159,6 @@ public record HttpCallHandler(
         "status", response.statusCode(),
         "body", responseBody,
         "truncated", truncated);
-  }
-
-  private void sleepBackoff(int attempt) {
-    try {
-      Thread.sleep(RETRY_BASE_DELAY_MS * (1L << attempt));
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-    }
   }
 
   private static final class RetryableHttpException extends Exception {
