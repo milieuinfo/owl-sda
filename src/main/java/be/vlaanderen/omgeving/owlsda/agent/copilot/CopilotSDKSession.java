@@ -1,9 +1,8 @@
 package be.vlaanderen.omgeving.owlsda.agent.copilot;
 
+import be.vlaanderen.omgeving.owlsda.agent.AbstractSession;
 import be.vlaanderen.omgeving.owlsda.agent.RequestMessage;
 import be.vlaanderen.omgeving.owlsda.agent.ResponseMessage;
-import be.vlaanderen.omgeving.owlsda.agent.Session;
-import be.vlaanderen.omgeving.owlsda.agent.SessionMessageLogEntry;
 import be.vlaanderen.omgeving.owlsda.agent.context.Context;
 import com.github.copilot.sdk.CopilotSession;
 import com.github.copilot.sdk.events.AssistantMessageEvent;
@@ -14,24 +13,19 @@ import com.github.copilot.sdk.events.SessionUsageInfoEvent.SessionUsageInfoData;
 import com.github.copilot.sdk.json.MessageOptions;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.time.Instant;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CopilotSDKSession implements Session {
+public class CopilotSDKSession extends AbstractSession {
   private static final Logger logger = LoggerFactory.getLogger(CopilotSDKSession.class);
 
   /**
@@ -43,8 +37,6 @@ public class CopilotSDKSession implements Session {
     CopilotSession create() throws ExecutionException, InterruptedException;
   }
 
-  private final Set<CopilotSDKContext> contexts = ConcurrentHashMap.newKeySet();
-
   /** Mutable reference so reset() can swap in a freshly created CopilotSession. */
   private final AtomicReference<CopilotSession> sessionRef;
 
@@ -53,11 +45,6 @@ public class CopilotSDKSession implements Session {
   /** Allows creating a replacement Copilot session on reset; null means reset is not supported. */
   private final SessionFactory sessionFactory;
 
-  private final List<SessionMessageLogEntry> messageLog = new CopyOnWriteArrayList<>();
-  private final AtomicLong totalTokensUsed = new AtomicLong(0L);
-  private final AtomicLong inputTokensUsed = new AtomicLong(0L);
-  private final AtomicLong outputTokensUsed = new AtomicLong(0L);
-  private final AtomicLong lastAssistantActivityMs = new AtomicLong(System.currentTimeMillis());
   private final ScheduledThreadPoolExecutor inactivityMonitorExecutor;
 
   protected CopilotSDKSession(
@@ -86,10 +73,6 @@ public class CopilotSDKSession implements Session {
     ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1, factory);
     executor.setRemoveOnCancelPolicy(true);
     return executor;
-  }
-
-  private void markAssistantActivity() {
-    lastAssistantActivityMs.set(System.currentTimeMillis());
   }
 
   private long resolveMonitorIntervalMs(long betweenMessageTimeoutMs) {
@@ -207,54 +190,16 @@ public class CopilotSDKSession implements Session {
     return null;
   }
 
+  /** Stores contexts as {@link CopilotSDKContext} so each carries its resolved SDK attachment. */
   @Override
-  public void addContext(Context context) {
-    synchronized (contexts) {
-      contexts.removeIf(context::equals);
-      contexts.add(new CopilotSDKContext(context));
-    }
+  protected Context wrapContext(Context context) {
+    return new CopilotSDKContext(context);
   }
 
+  /** Exposes stored {@link CopilotSDKContext} instances as-is (no defensive copy). */
   @Override
-  public boolean addContextIfChanged(Context context) {
-    synchronized (contexts) {
-      // Find existing context with same name
-      CopilotSDKContext existingContext =
-          contexts.stream().filter(context::equals).findFirst().orElse(null);
-
-      // If context doesn't exist, add it
-      if (existingContext == null) {
-        contexts.add(new CopilotSDKContext(context));
-        logger.debug("Added new context: {}", context.getName());
-        return true;
-      }
-
-      // Check if content has changed
-      String newContent = context.getContent();
-      String existingContent = existingContext.getContent();
-
-      if (newContent == null && existingContent == null) {
-        return false; // No change
-      }
-
-      if (newContent == null || !newContent.equals(existingContent)) {
-        // Content changed, replace it
-        contexts.removeIf(context::equals);
-        contexts.add(new CopilotSDKContext(context));
-        logger.debug("Updated context (content changed): {}", context.getName());
-        return true;
-      }
-
-      logger.debug("Context unchanged (same content): {}", context.getName());
-      return false; // No change
-    }
-  }
-
-  @Override
-  public List<Context> getContext() {
-    synchronized (contexts) {
-      return contexts.stream().map(c -> (Context) c).toList();
-    }
+  protected Context exposeContext(Context stored) {
+    return stored;
   }
 
   @Override
@@ -279,7 +224,7 @@ public class CopilotSDKSession implements Session {
                   return;
                 }
 
-                long idleMs = System.currentTimeMillis() - lastAssistantActivityMs.get();
+                long idleMs = System.currentTimeMillis() - getLastAssistantActivityMs();
                 if (idleMs < betweenMessageTimeoutMs) {
                   return;
                 }
@@ -353,23 +298,7 @@ public class CopilotSDKSession implements Session {
 
   @Override
   public CompletableFuture<ResponseMessage> prompt(RequestMessage input) {
-    // Create a thread-safe snapshot of contexts
-    List<Context> contextSnapshot;
-    synchronized (contexts) {
-      contextSnapshot = List.copyOf(contexts);
-    }
-    return prompt(input, contextSnapshot);
-  }
-
-  @Override
-  public List<SessionMessageLogEntry> getMessageLog() {
-    return List.copyOf(messageLog);
-  }
-
-  private void addMessageLogEntry(String direction, String messageId, String content) {
-    messageLog.add(
-        new SessionMessageLogEntry(
-            Instant.now().toString(), direction, messageId, content == null ? "" : content));
+    return prompt(input, getContext());
   }
 
   @Override
@@ -401,44 +330,5 @@ public class CopilotSDKSession implements Session {
   public void close() {
     inactivityMonitorExecutor.shutdownNow();
     sessionRef.get().close();
-  }
-
-  @Override
-  public long getTotalTokensUsed() {
-    long directionalTotal = inputTokensUsed.get() + outputTokensUsed.get();
-    return Math.max(totalTokensUsed.get(), directionalTotal);
-  }
-
-  @Override
-  public long getInputTokensUsed() {
-    return inputTokensUsed.get();
-  }
-
-  @Override
-  public long getOutputTokensUsed() {
-    return outputTokensUsed.get();
-  }
-
-  /**
-   * Returns the timestamp (ms) of the last assistant activity (message/tool/event). Used for
-   * monitoring session progress and detecting stalls.
-   */
-  @Override
-  public long getLastAssistantActivityMs() {
-    return lastAssistantActivityMs.get();
-  }
-
-  /**
-   * Returns whether this session has been idle for longer than the specified duration. Useful for
-   * detecting stuck sessions during delegation execution.
-   *
-   * @param idleThresholdMs idle time threshold in milliseconds
-   * @return true if session has no assistant activity for >= idleThresholdMs
-   */
-  @Override
-  public boolean isIdleSince(long idleThresholdMs) {
-    long lastActivity = lastAssistantActivityMs.get();
-    long elapsedMs = System.currentTimeMillis() - lastActivity;
-    return elapsedMs >= idleThresholdMs;
   }
 }

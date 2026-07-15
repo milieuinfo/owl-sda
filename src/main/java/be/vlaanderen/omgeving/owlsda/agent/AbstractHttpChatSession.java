@@ -17,15 +17,11 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
@@ -43,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * subclass. Everything that does not depend on that shape - context management, the HTTP send/retry
  * loop, payload/tool-schema building, history compaction, and message bookkeeping - lives here.
  */
-public abstract class AbstractHttpChatSession implements Session {
+public abstract class AbstractHttpChatSession extends AbstractSession {
   // HTML-escaping must stay disabled: tool results routinely carry IRIs as plain RDF/Turtle text,
   // and this Gson instance both stringifies those results into a message's `content` field AND
   // re-serializes the whole payload containing that field. With HTML-escaping on, angle brackets
@@ -65,15 +61,9 @@ public abstract class AbstractHttpChatSession implements Session {
   protected final Map<String, SessionHandler> handlersByName;
   protected final Config.CompactionProperties compactionProperties;
 
-  private final Set<Context> contexts = ConcurrentHashMap.newKeySet();
   protected final List<JsonObject> messageHistory = new ArrayList<>();
   private final Object conversationLock = new Object();
 
-  private final List<SessionMessageLogEntry> messageLog = new CopyOnWriteArrayList<>();
-  private final AtomicLong totalTokensUsed = new AtomicLong(0L);
-  protected final AtomicLong inputTokensUsed = new AtomicLong(0L);
-  protected final AtomicLong outputTokensUsed = new AtomicLong(0L);
-  private final AtomicLong lastAssistantActivityMs = new AtomicLong(System.currentTimeMillis());
   // Tokens consumed by the messages array on the most recently sent chat request. Used as the
   // primary compaction trigger; reset after a successful compaction since the next request's
   // size is not yet known.
@@ -98,49 +88,6 @@ public abstract class AbstractHttpChatSession implements Session {
     }
 
     resetConversationState();
-  }
-
-  // --- Session: context management ---
-
-  @Override
-  public void addContext(Context context) {
-    synchronized (contexts) {
-      contexts.removeIf(context::equals);
-      contexts.add(new Context(context));
-    }
-  }
-
-  @Override
-  public boolean addContextIfChanged(Context context) {
-    synchronized (contexts) {
-      Context existingContext = contexts.stream().filter(context::equals).findFirst().orElse(null);
-
-      if (existingContext == null) {
-        contexts.add(new Context(context));
-        return true;
-      }
-
-      String existingContent = existingContext.getContent();
-      String newContent = context.getContent();
-      if (newContent == null && existingContent == null) {
-        return false;
-      }
-
-      if (newContent == null || !newContent.equals(existingContent)) {
-        contexts.removeIf(context::equals);
-        contexts.add(new Context(context));
-        return true;
-      }
-
-      return false;
-    }
-  }
-
-  @Override
-  public List<Context> getContext() {
-    synchronized (contexts) {
-      return contexts.stream().map(Context::new).toList();
-    }
   }
 
   // --- Session: prompting ---
@@ -171,11 +118,6 @@ public abstract class AbstractHttpChatSession implements Session {
   }
 
   @Override
-  public List<SessionMessageLogEntry> getMessageLog() {
-    return List.copyOf(messageLog);
-  }
-
-  @Override
   public void reset() {
     synchronized (conversationLock) {
       resetConversationState();
@@ -188,34 +130,7 @@ public abstract class AbstractHttpChatSession implements Session {
     // No close action required for java.net.http.HttpClient.
   }
 
-  // --- Session: token/activity accounting ---
-
-  @Override
-  public long getTotalTokensUsed() {
-    long directionalTotal = inputTokensUsed.get() + outputTokensUsed.get();
-    return Math.max(totalTokensUsed.get(), directionalTotal);
-  }
-
-  @Override
-  public long getInputTokensUsed() {
-    return inputTokensUsed.get();
-  }
-
-  @Override
-  public long getOutputTokensUsed() {
-    return outputTokensUsed.get();
-  }
-
-  @Override
-  public long getLastAssistantActivityMs() {
-    return lastAssistantActivityMs.get();
-  }
-
-  @Override
-  public boolean isIdleSince(long idleThresholdMs) {
-    long elapsedMs = System.currentTimeMillis() - lastAssistantActivityMs.get();
-    return elapsedMs >= idleThresholdMs;
-  }
+  // --- Session: token accounting ---
 
   /** Recomputes {@code totalTokensUsed} from the current input/output counters. */
   protected void recordTotalTokens() {
@@ -578,16 +493,6 @@ public abstract class AbstractHttpChatSession implements Session {
     message.addProperty("role", role);
     message.addProperty("content", content == null ? "" : content);
     return message;
-  }
-
-  protected void addMessageLogEntry(String direction, String messageId, String content) {
-    messageLog.add(
-        new SessionMessageLogEntry(
-            Instant.now().toString(), direction, messageId, content == null ? "" : content));
-  }
-
-  protected void markAssistantActivity() {
-    lastAssistantActivityMs.set(System.currentTimeMillis());
   }
 
   private void resetConversationState() {
