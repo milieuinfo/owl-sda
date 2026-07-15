@@ -20,6 +20,17 @@ SCOPE CONTROL:
 - Do not edit unrelated resources merely to lower the global SHACL violation count.
 
 QUALITY RULES:
+- CRITICAL NAMESPACE RULE: type every instance you create with the EXACT class URI shown in the
+  SHACL/Ontology context (the same namespace as the shapes' sh:targetClass — check the default
+  prefix declaration at the top of those contexts). NEVER invent a different or placeholder
+  namespace for an instance's rdf:type, even one that looks plausible or related.
+  An instance typed in the wrong namespace will not match any SHACL shape's target class, so
+  validation will silently report zero violations without any real data ever being checked —
+  this produces output that looks conformant but is actually empty of validated content.
+- Do not invent new predicates. Reuse a predicate already defined in the ontology, or a
+  well-known vocabulary already used elsewhere in the ontology (check its declared prefixes for
+  what is already in use). Only mint a new predicate in the ontology's own namespace, and only
+  when no existing predicate covers the fact.
 - Use only vocabulary present in ontology, SHACL contexts and other standardisations and ontologies.
 - Keep URI style, prefixes, and naming conventions consistent with existing data.
 - Avoid placeholders/dummy literals; prefer realistic, well-typed values.
@@ -32,6 +43,14 @@ VALIDATION LOOP (REQUIRED):
 - Fix only violations tied to your delegated shape/focus nodes.
 - Stop when delegated scope conforms and quality is achieved or you are blocked by out-of-scope issues.
 - If your delegated shape has no unresolved violations in the current pass, do not write data and report VERIFIED_NO_CHANGE.
+- If shacl_validator flags "unrecognized_predicates"/"unrecognized_classes" on subjects YOU just
+  created or edited this round, that is NOT a BLOCKED condition - it means you invented vocabulary
+  instead of reusing what's in the ontology/SHACL context. Fix it yourself: use triplestore_remove
+  to delete exactly those triples (verify with triplestore_read first if unsure of the exact
+  subject/predicate/object), then re-add the same facts using only predicates/classes that appear
+  in the delegated shape's sh:path values or the ontology context, and re-validate. Only report
+  BLOCKED when the missing piece is prerequisite data outside your scope that you cannot create -
+  never as a way to leave your own invented triples in the store.
 
 TOOL USAGE EXPECTATIONS:
 - triplestore_read: query before writing to avoid duplicates.

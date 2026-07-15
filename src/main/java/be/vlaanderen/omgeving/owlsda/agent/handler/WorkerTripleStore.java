@@ -8,7 +8,9 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import lombok.Getter;
+import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
@@ -18,7 +20,9 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.riot.system.PrefixMapFactory;
 import org.apache.jena.shacl.ValidationReport;
+import org.apache.jena.sparql.util.NodeFactoryExtra;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,8 +112,8 @@ public class WorkerTripleStore {
       String subject, String predicate, String object, String workerId) {
     int sizeBefore = (int) model.size();
 
-    Resource subjectRes = subject != null ? model.getResource(subject) : null;
-    Property predicateRes = predicate != null ? model.getProperty(predicate) : null;
+    Resource subjectRes = subject != null ? resolveResource(subject) : null;
+    Property predicateRes = predicate != null ? resolveProperty(predicate) : null;
     RDFNode objectNode = object != null ? parseObject(object) : null;
 
     model.removeAll(subjectRes, predicateRes, objectNode);
@@ -137,8 +141,8 @@ public class WorkerTripleStore {
       String subject, String predicate, String object, String workerId) {
     int sizeBefore = (int) model.size();
 
-    Resource subjectRes = subject != null ? model.getResource(subject) : null;
-    Property predicateRes = predicate != null ? model.getProperty(predicate) : null;
+    Resource subjectRes = subject != null ? resolveResource(subject) : null;
+    Property predicateRes = predicate != null ? resolveProperty(predicate) : null;
     RDFNode objectNode = object != null ? parseObject(object) : null;
 
     // Collect blank nodes that will be affected by this removal
@@ -283,8 +287,8 @@ public class WorkerTripleStore {
    */
   public synchronized List<String> queryTriples(
       String subject, String predicate, String object, String workerId) {
-    Resource subjectRes = subject != null ? model.getResource(subject) : null;
-    Property predicateRes = predicate != null ? model.getProperty(predicate) : null;
+    Resource subjectRes = subject != null ? resolveResource(subject) : null;
+    Property predicateRes = predicate != null ? resolveProperty(predicate) : null;
     RDFNode objectNode = object != null ? parseObject(object) : null;
 
     List<String> results = new ArrayList<>();
@@ -397,12 +401,54 @@ public class WorkerTripleStore {
     }
   }
 
-  /** Parse object string to RDFNode. */
+  // Matches a plausible prefixed name (e.g. "dc:created", ":LocalName") so it can be routed
+  // through Turtle-term parsing instead of being treated as a literal string. Deliberately
+  // permissive: a false match is harmless because parseObject falls back to a plain literal
+  // whenever the candidate doesn't resolve to a known prefix or valid RDF term.
+  private static final Pattern CURIE_LIKE = Pattern.compile("^[A-Za-z][\\w.-]*:\\S+$");
+
+  /**
+   * Resolve a subject/predicate/object identifier that may be a bare full URI (existing behaviour)
+   * or a prefixed name such as {@code dc:created} or {@code :LocalName} using the store's own
+   * prefix mappings (populated from every worker's {@code @prefix} declarations). Callers that
+   * already pass full URIs are unaffected, since {@link Model#expandPrefix} leaves strings with no
+   * recognised prefix unchanged.
+   */
+  private String resolveUri(String value) {
+    return model.expandPrefix(value);
+  }
+
+  private Resource resolveResource(String subject) {
+    return model.getResource(resolveUri(subject));
+  }
+
+  private Property resolveProperty(String predicate) {
+    return model.getProperty(resolveUri(predicate));
+  }
+
+  /**
+   * Parse object string to RDFNode. Supports bare full URIs (backward-compatible), quoted/typed
+   * Turtle literals (e.g. {@code "2023-01-01"^^xsd:date}), and prefixed-name resources (e.g. {@code
+   * m:Celsius}) resolved against the store's prefix mappings. Falls back to a plain string literal
+   * - the historical behaviour - whenever the value isn't recognisable RDF term syntax, so existing
+   * callers passing raw literal text keep working unchanged.
+   */
   private RDFNode parseObject(String object) {
     if (object.startsWith("http://")
         || object.startsWith("https://")
         || object.startsWith("urn:")) {
       return model.getResource(object);
+    }
+    if (object.startsWith("\"") || object.startsWith("<") || CURIE_LIKE.matcher(object).matches()) {
+      try {
+        Node node = NodeFactoryExtra.parseNode(object, PrefixMapFactory.create(model));
+        return model.asRDFNode(node);
+      } catch (RuntimeException e) {
+        logger.debug(
+            "Could not parse '{}' as an RDF term, treating as a plain literal: {}",
+            object,
+            e.getMessage());
+      }
     }
     return model.createLiteral(object);
   }

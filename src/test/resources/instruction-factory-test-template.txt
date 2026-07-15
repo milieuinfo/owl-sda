@@ -1,0 +1,3 @@
+Hello {{name}}, welcome to {{place}}.
+Your role is {{role}}.
+Unresolved: {{missing}}

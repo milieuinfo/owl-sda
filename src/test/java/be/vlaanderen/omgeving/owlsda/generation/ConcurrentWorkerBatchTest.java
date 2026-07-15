@@ -1,5 +1,9 @@
 package be.vlaanderen.omgeving.owlsda.generation;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import be.vlaanderen.omgeving.owlsda.agent.RequestMessage;
 import be.vlaanderen.omgeving.owlsda.agent.ResponseMessage;
 import be.vlaanderen.omgeving.owlsda.agent.Session;
@@ -16,10 +20,6 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.RDF;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class ConcurrentWorkerBatchTest {
 
@@ -62,7 +62,8 @@ public class ConcurrentWorkerBatchTest {
   @Test
   public void getWorkerCount_ReturnsPoolSize() {
     SessionPool pool = poolOf(succeedingSession(), succeedingSession(), succeedingSession());
-    ConcurrentWorkerBatch batch = new ConcurrentWorkerBatch(null, pool, shaclWithClasses("Sensor"), null);
+    ConcurrentWorkerBatch batch =
+        new ConcurrentWorkerBatch(null, pool, shaclWithClasses("Sensor"), null);
 
     assertEquals(3, batch.getWorkerCount());
 
@@ -152,7 +153,6 @@ public class ConcurrentWorkerBatchTest {
     }
 
     @Override
-    public void close() {
-    }
+    public void close() {}
   }
 }

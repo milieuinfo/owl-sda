@@ -1,5 +1,9 @@
 package be.vlaanderen.omgeving.owlsda.agent.ollama;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import be.vlaanderen.omgeving.owlsda.agent.RequestMessage;
 import be.vlaanderen.omgeving.owlsda.agent.ResponseMessage;
 import be.vlaanderen.omgeving.owlsda.agent.SessionConfig;
@@ -20,10 +24,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class OllamaSessionCompactionTest {
 
@@ -82,13 +82,15 @@ public class OllamaSessionCompactionTest {
     Context systemContext = new Context();
     systemContext.setContent("You are a helpful assistant.");
 
-    SessionConfig sessionConfig = SessionConfig.builder()
-        .model("test-model")
-        .systemContext(systemContext)
-        .timeoutMs(5000)
-        .build();
+    SessionConfig sessionConfig =
+        SessionConfig.builder()
+            .model("test-model")
+            .systemContext(systemContext)
+            .timeoutMs(5000)
+            .build();
 
-    return new OllamaSession(sessionConfig, baseUrl, HttpClient.newHttpClient(), compactionProperties);
+    return new OllamaSession(
+        sessionConfig, baseUrl, HttpClient.newHttpClient(), compactionProperties);
   }
 
   private boolean hasCompactionLogEntry(OllamaSession session) {
@@ -114,7 +116,8 @@ public class OllamaSessionCompactionTest {
       assertEquals("ack", response.getMessage());
     }
 
-    assertTrue("Expected a COMPACTION log entry once message-count threshold was crossed",
+    assertTrue(
+        "Expected a COMPACTION log entry once message-count threshold was crossed",
         hasCompactionLogEntry(session));
   }
 
@@ -168,7 +171,8 @@ public class OllamaSessionCompactionTest {
     for (ResponseMessage response : responses) {
       assertEquals("ack", response.getMessage());
     }
-    assertFalse("Compaction should not have succeeded while summarization fails",
+    assertFalse(
+        "Compaction should not have succeeded while summarization fails",
         hasCompactionLogEntry(session));
   }
 }

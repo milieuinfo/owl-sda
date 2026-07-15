@@ -1,5 +1,6 @@
 package be.vlaanderen.omgeving.owlsda.agent.handler;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -82,12 +83,26 @@ public record TripleStoreRemoveHandler(WorkerTripleStore tripleStore, String wor
               "Removed %d triples (including any orphaned blank nodes). Shared store now contains %d triples.",
               triplesRemoved, totalTriples);
 
-      return CompletableFuture.completedFuture(
-          Map.of(
-              "status", "success",
-              "triples_removed", triplesRemoved,
-              "total_triples", totalTriples,
-              "message", message));
+      Map<String, Object> response = new HashMap<>();
+      response.put("status", "success");
+      response.put("triples_removed", triplesRemoved);
+      response.put("total_triples", totalTriples);
+
+      boolean gaveAnyPattern = subject != null || predicate != null || object != null;
+      if (triplesRemoved == 0 && gaveAnyPattern) {
+        response.put(
+            "warning",
+            "⚠️ No triples matched this pattern, so nothing was removed. Common causes: the"
+                + " subject/predicate/object doesn't exactly match what's stored (check exact"
+                + " casing and full URI), or a literal object needs its datatype/language tag"
+                + " (e.g. \"2023-01-01\"^^xsd:date) to match. Use triplestore_read to see the"
+                + " exact triples before retrying.");
+        response.put("message", message + " (no matching triples found)");
+      } else {
+        response.put("message", message);
+      }
+
+      return CompletableFuture.completedFuture(response);
     } catch (Exception e) {
       logger.error("[{}] Failed to remove triples from shared store", workerId, e);
       return CompletableFuture.completedFuture(

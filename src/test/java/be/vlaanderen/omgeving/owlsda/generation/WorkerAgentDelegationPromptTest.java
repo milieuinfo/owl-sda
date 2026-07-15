@@ -1,5 +1,8 @@
 package be.vlaanderen.omgeving.owlsda.generation;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import be.vlaanderen.omgeving.owlsda.agent.RequestMessage;
 import be.vlaanderen.omgeving.owlsda.agent.ResponseMessage;
 import be.vlaanderen.omgeving.owlsda.agent.Session;
@@ -12,10 +15,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 public class WorkerAgentDelegationPromptTest {
 
@@ -33,18 +32,9 @@ public class WorkerAgentDelegationPromptTest {
     sessionPool.addSession(session);
 
     AtomicBoolean success = new AtomicBoolean(false);
-    WorkerAgent workerAgent = new WorkerAgent(
-        sessionPool,
-        null,
-        0,
-        1,
-        0,
-        1,
-        1,
-        "Base worker instructions",
-        success,
-        true
-    );
+    WorkerAgent workerAgent =
+        new WorkerAgent(
+            sessionPool, null, 0, 1, 0, 1, 1, "Base worker instructions", success, true);
 
     workerAgent.run();
 
@@ -59,16 +49,12 @@ public class WorkerAgentDelegationPromptTest {
     Config config = new Config();
     config.getGeneration().setDataRichness("rich");
 
-    Supervisor supervisor = new Supervisor(
-        null,
-        null,
-        new ConcurrentWorkerBatch(config, null, null, null),
-        null,
-        null,
-        null
-    );
+    Supervisor supervisor =
+        new Supervisor(
+            null, null, new ConcurrentWorkerBatch(config, null, null, null), null, null, null);
 
-    Method method = Supervisor.class.getDeclaredMethod("buildWorkerInstructions", boolean.class, boolean.class);
+    Method method =
+        Supervisor.class.getDeclaredMethod("buildWorkerInstructions", boolean.class, boolean.class);
     method.setAccessible(true);
     String instructions = (String) method.invoke(supervisor, true, false);
 
@@ -84,17 +70,18 @@ public class WorkerAgentDelegationPromptTest {
     SessionPool sessionPool = new SessionPool(1);
     sessionPool.addSession(new RecordingSession());
 
-    Supervisor supervisor = new Supervisor(
-        null,
-        null,
-        new ConcurrentWorkerBatch(config, sessionPool, null, null),
-        null,
-        null,
-        null
-    );
+    Supervisor supervisor =
+        new Supervisor(
+            null,
+            null,
+            new ConcurrentWorkerBatch(config, sessionPool, null, null),
+            null,
+            null,
+            null);
 
-    Method method = Supervisor.class.getDeclaredMethod("buildDelegationInstructions", int.class,
-        boolean.class, boolean.class);
+    Method method =
+        Supervisor.class.getDeclaredMethod(
+            "buildDelegationInstructions", int.class, boolean.class, boolean.class);
     method.setAccessible(true);
     String instructions = (String) method.invoke(supervisor, 1, true, false);
 
@@ -122,11 +109,13 @@ public class WorkerAgentDelegationPromptTest {
 
     @Override
     public boolean addContextIfChanged(Context context) {
-      Context existing = contexts.stream()
-          .filter(candidate -> sameName(candidate, context))
-          .findFirst()
-          .orElse(null);
-      if (existing != null && java.util.Objects.equals(existing.getContent(), context.getContent())) {
+      Context existing =
+          contexts.stream()
+              .filter(candidate -> sameName(candidate, context))
+              .findFirst()
+              .orElse(null);
+      if (existing != null
+          && java.util.Objects.equals(existing.getContent(), context.getContent())) {
         return false;
       }
       addContext(context);
@@ -152,8 +141,7 @@ public class WorkerAgentDelegationPromptTest {
     }
 
     @Override
-    public void close() {
-    }
+    public void close() {}
 
     private boolean sameName(Context left, Context right) {
       return java.util.Objects.equals(left.getName(), right.getName());

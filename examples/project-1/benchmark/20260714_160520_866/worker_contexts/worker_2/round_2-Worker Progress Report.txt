@@ -1,0 +1,8 @@
+worker_id=POOL-2
+status=BLOCKED
+target_shape=WithdrawalPointShape
+target_class=m:WithdrawalPoint
+changed_triples_count=0
+created_or_updated_subjects=null
+validation_result=NON_CONFORMS
+remaining_issues=Blocked: Repeated `triplestore_add` calls fail with "Undefined prefix" errors, preventing creation/fixing of :withdrawalPoint1 to conform to WithdrawalPointShape. Cannot proceed with generation until prefix resolution is confirmed.

@@ -1,0 +1,1 @@
+Target Shape: MeasurementPointShape. Target Class: MeasurementPoint. Goal: CREATE instances if no instances exist, or FIX existing ones to comply with MeasurementPointShape constraints. Use the SHACL context as the source of truth. Report progress using worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues).

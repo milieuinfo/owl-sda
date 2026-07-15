@@ -1,18 +1,15 @@
 package be.vlaanderen.omgeving.owlsda.agent;
 
+import static org.junit.Assert.assertEquals;
+
 import be.vlaanderen.omgeving.owlsda.agent.context.Context;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class SessionPoolTargetedBorrowTest {
 
@@ -64,8 +61,7 @@ public class SessionPoolTargetedBorrowTest {
   private static final class NoOpSession implements Session {
 
     @Override
-    public void addContext(Context context) {
-    }
+    public void addContext(Context context) {}
 
     @Override
     public boolean addContextIfChanged(Context context) {
@@ -88,8 +84,6 @@ public class SessionPoolTargetedBorrowTest {
     }
 
     @Override
-    public void close() {
-    }
+    public void close() {}
   }
 }
-

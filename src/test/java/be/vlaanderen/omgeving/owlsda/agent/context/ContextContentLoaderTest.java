@@ -1,22 +1,22 @@
 package be.vlaanderen.omgeving.owlsda.agent.context;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class ContextContentLoaderTest {
 
@@ -68,7 +68,8 @@ public class ContextContentLoaderTest {
   @Test
   public void getContent_WithHttpUrl_ReadsRemoteContent() throws IOException {
     HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
-    server.createContext("/context.txt", new FixedResponseHandler("available spaces: 124", "text/plain"));
+    server.createContext(
+        "/context.txt", new FixedResponseHandler("available spaces: 124", "text/plain"));
     server.start();
 
     try {

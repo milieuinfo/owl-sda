@@ -1,0 +1,8 @@
+worker_id=POOL-3
+status=BLOCKED
+target_shape=MeasurementPointShape
+target_class=MeasurementPoint
+changed_triples_count=4
+created_or_updated_subjects=:NewCompliantMeasurementPoint
+validation_result=NON_CONFORMS
+remaining_issues=Blocked. The SHACL validation reports 45 violations, the majority of which are due to using predicates/classes not present in the known vocabulary (Vocabulary Check failures). Remedying the numerous cardinality and datatype errors in existing data requires an authoritative ontology mapping that defines the allowed predicates for existing entities, which is currently missing or misaligned with the provided context. The scope is blocked by out-of-scope vocabulary definition issues.

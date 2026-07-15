@@ -1,9 +1,9 @@
 package be.vlaanderen.omgeving.owlsda.agent;
 
+import static org.junit.Assert.assertEquals;
+
 import be.vlaanderen.omgeving.owlsda.config.Config;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 public class ClientFactoryTest {
 
@@ -54,7 +54,7 @@ public class ClientFactoryTest {
     config.getClient().setProvider("copilot");
     config.getClient().getWorker().setProvider("openai-compatible");
 
-    assertEquals("openai-compatible", ClientFactory.resolveProvider(config, ClientFactory.Role.WORKER));
+    assertEquals(
+        "openai-compatible", ClientFactory.resolveProvider(config, ClientFactory.Role.WORKER));
   }
 }
-

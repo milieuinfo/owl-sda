@@ -1,39 +1,39 @@
 [
   {
-    "timestamp": "20260630_132704_610",
+    "timestamp": "20260714_155443_563",
     "stage": "GENERATE",
     "shapesProcessed": 0,
-    "durationMs": 886025,
-    "triplestoreSize": 0,
-    "triplestoreEmpty": true,
-    "currentViolations": -1,
-    "snapshotDirectory": "20260630_132704_610",
+    "durationMs": 474135,
+    "triplestoreSize": 31,
+    "triplestoreEmpty": false,
+    "currentViolations": 26,
+    "snapshotDirectory": "20260714_155443_563",
     "tokens": {
       "workers": {
         "worker_0": {
-          "input": 65633,
-          "output": 494,
-          "total": 66127
+          "input": 113644,
+          "output": 4769,
+          "total": 118413
         },
         "worker_2": {
-          "input": 42172,
-          "output": 504,
-          "total": 42676
+          "input": 83752,
+          "output": 1776,
+          "total": 85528
         },
         "worker_4": {
-          "input": 44085,
-          "output": 543,
-          "total": 44628
+          "input": 155520,
+          "output": 4915,
+          "total": 160435
         },
         "worker_1": {
-          "input": 53498,
-          "output": 682,
-          "total": 54180
+          "input": 63146,
+          "output": 1771,
+          "total": 64917
         },
         "worker_3": {
-          "input": 76695,
-          "output": 462,
-          "total": 77157
+          "input": 54864,
+          "output": 1526,
+          "total": 56390
         }
       },
       "reviewer": {
@@ -42,47 +42,47 @@
         "total": 0
       },
       "supervisor": {
-        "input": 6437,
-        "output": 783,
-        "total": 7220
+        "input": 5892,
+        "output": 543,
+        "total": 6435
       }
     }
   },
   {
-    "timestamp": "20260630_132706_159",
+    "timestamp": "20260714_160520_866",
     "stage": "GENERATE",
     "shapesProcessed": 0,
-    "durationMs": 1517,
-    "triplestoreSize": 0,
-    "triplestoreEmpty": true,
-    "currentViolations": -1,
-    "snapshotDirectory": "20260630_132706_159",
+    "durationMs": 637269,
+    "triplestoreSize": 61,
+    "triplestoreEmpty": false,
+    "currentViolations": 45,
+    "snapshotDirectory": "20260714_160520_866",
     "tokens": {
       "workers": {
         "worker_0": {
-          "input": 65633,
-          "output": 494,
-          "total": 66127
+          "input": 319467,
+          "output": 7232,
+          "total": 326699
         },
         "worker_2": {
-          "input": 42172,
-          "output": 504,
-          "total": 42676
+          "input": 177908,
+          "output": 4719,
+          "total": 182627
         },
         "worker_4": {
-          "input": 44085,
-          "output": 543,
-          "total": 44628
+          "input": 263002,
+          "output": 7069,
+          "total": 270071
         },
         "worker_1": {
-          "input": 53498,
-          "output": 682,
-          "total": 54180
+          "input": 122800,
+          "output": 3842,
+          "total": 126642
         },
         "worker_3": {
-          "input": 76695,
-          "output": 462,
-          "total": 77157
+          "input": 235602,
+          "output": 5558,
+          "total": 241160
         }
       },
       "reviewer": {
@@ -91,107 +91,9 @@
         "total": 0
       },
       "supervisor": {
-        "input": 6437,
-        "output": 783,
-        "total": 7220
-      }
-    }
-  },
-  {
-    "timestamp": "20260630_132707_678",
-    "stage": "GENERATE",
-    "shapesProcessed": 0,
-    "durationMs": 1509,
-    "triplestoreSize": 0,
-    "triplestoreEmpty": true,
-    "currentViolations": -1,
-    "snapshotDirectory": "20260630_132707_678",
-    "tokens": {
-      "workers": {
-        "worker_0": {
-          "input": 65633,
-          "output": 494,
-          "total": 66127
-        },
-        "worker_2": {
-          "input": 42172,
-          "output": 504,
-          "total": 42676
-        },
-        "worker_4": {
-          "input": 44085,
-          "output": 543,
-          "total": 44628
-        },
-        "worker_1": {
-          "input": 53498,
-          "output": 682,
-          "total": 54180
-        },
-        "worker_3": {
-          "input": 76695,
-          "output": 462,
-          "total": 77157
-        }
-      },
-      "reviewer": {
-        "input": 0,
-        "output": 0,
-        "total": 0
-      },
-      "supervisor": {
-        "input": 6437,
-        "output": 783,
-        "total": 7220
-      }
-    }
-  },
-  {
-    "timestamp": "20260630_132709_194",
-    "stage": "GENERATE",
-    "shapesProcessed": 0,
-    "durationMs": 1508,
-    "triplestoreSize": 0,
-    "triplestoreEmpty": true,
-    "currentViolations": -1,
-    "snapshotDirectory": "20260630_132709_194",
-    "tokens": {
-      "workers": {
-        "worker_0": {
-          "input": 65633,
-          "output": 494,
-          "total": 66127
-        },
-        "worker_2": {
-          "input": 42172,
-          "output": 504,
-          "total": 42676
-        },
-        "worker_4": {
-          "input": 44085,
-          "output": 543,
-          "total": 44628
-        },
-        "worker_1": {
-          "input": 53498,
-          "output": 682,
-          "total": 54180
-        },
-        "worker_3": {
-          "input": 76695,
-          "output": 462,
-          "total": 77157
-        }
-      },
-      "reviewer": {
-        "input": 0,
-        "output": 0,
-        "total": 0
-      },
-      "supervisor": {
-        "input": 6437,
-        "output": 783,
-        "total": 7220
+        "input": 27720,
+        "output": 1505,
+        "total": 29225
       }
     }
   }

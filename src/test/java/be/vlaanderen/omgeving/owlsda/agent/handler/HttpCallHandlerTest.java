@@ -1,5 +1,8 @@
 package be.vlaanderen.omgeving.owlsda.agent.handler;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
@@ -12,9 +15,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class HttpCallHandlerTest {
 
@@ -76,9 +76,8 @@ public class HttpCallHandlerTest {
     HttpCallHandler handler = handlerFor(ALLOWLISTED_HOST, true, 2);
 
     @SuppressWarnings("unchecked")
-    Map<String, Object> result = (Map<String, Object>) handler.handle(Map.of(
-        "url", baseUrl + "/ok"
-    )).join();
+    Map<String, Object> result =
+        (Map<String, Object>) handler.handle(Map.of("url", baseUrl + "/ok")).join();
 
     assertEquals(200, result.get("status"));
     assertEquals("hello", result.get("body"));
@@ -90,11 +89,15 @@ public class HttpCallHandlerTest {
     HttpCallHandler handler = handlerFor(ALLOWLISTED_HOST, true, 2);
 
     @SuppressWarnings("unchecked")
-    Map<String, Object> result = (Map<String, Object>) handler.handle(Map.of(
-        "url", baseUrl + "/echo",
-        "method", "POST",
-        "body", "payload"
-    )).join();
+    Map<String, Object> result =
+        (Map<String, Object>)
+            handler
+                .handle(
+                    Map.of(
+                        "url", baseUrl + "/echo",
+                        "method", "POST",
+                        "body", "payload"))
+                .join();
 
     assertEquals(200, result.get("status"));
     assertEquals("payload", result.get("body"));
@@ -105,9 +108,8 @@ public class HttpCallHandlerTest {
     HttpCallHandler handler = handlerFor("other-host.example", true, 2);
 
     @SuppressWarnings("unchecked")
-    Map<String, Object> result = (Map<String, Object>) handler.handle(Map.of(
-        "url", baseUrl + "/ok"
-    )).join();
+    Map<String, Object> result =
+        (Map<String, Object>) handler.handle(Map.of("url", baseUrl + "/ok")).join();
 
     assertTrue(((String) result.get("error")).contains("not allowlisted"));
   }
@@ -117,11 +119,15 @@ public class HttpCallHandlerTest {
     HttpCallHandler handler = handlerFor(ALLOWLISTED_HOST, false, 2);
 
     @SuppressWarnings("unchecked")
-    Map<String, Object> result = (Map<String, Object>) handler.handle(Map.of(
-        "url", baseUrl + "/echo",
-        "method", "POST",
-        "body", "payload"
-    )).join();
+    Map<String, Object> result =
+        (Map<String, Object>)
+            handler
+                .handle(
+                    Map.of(
+                        "url", baseUrl + "/echo",
+                        "method", "POST",
+                        "body", "payload"))
+                .join();
 
     assertTrue(((String) result.get("error")).contains("POST requests are disabled"));
   }
@@ -131,9 +137,8 @@ public class HttpCallHandlerTest {
     HttpCallHandler handler = handlerFor(ALLOWLISTED_HOST, true, 2);
 
     @SuppressWarnings("unchecked")
-    Map<String, Object> result = (Map<String, Object>) handler.handle(Map.of(
-        "url", baseUrl + "/flaky"
-    )).join();
+    Map<String, Object> result =
+        (Map<String, Object>) handler.handle(Map.of("url", baseUrl + "/flaky")).join();
 
     assertEquals(200, result.get("status"));
     assertEquals("recovered", result.get("body"));
@@ -144,9 +149,8 @@ public class HttpCallHandlerTest {
     HttpCallHandler handler = handlerFor(ALLOWLISTED_HOST, true, 1);
 
     @SuppressWarnings("unchecked")
-    Map<String, Object> result = (Map<String, Object>) handler.handle(Map.of(
-        "url", baseUrl + "/server-error"
-    )).join();
+    Map<String, Object> result =
+        (Map<String, Object>) handler.handle(Map.of("url", baseUrl + "/server-error")).join();
 
     assertTrue(((String) result.get("error")).contains("Request failed after 2 attempt(s)"));
   }
@@ -156,9 +160,8 @@ public class HttpCallHandlerTest {
     HttpCallHandler handler = handlerFor(ALLOWLISTED_HOST, true, 2);
 
     @SuppressWarnings("unchecked")
-    Map<String, Object> result = (Map<String, Object>) handler.handle(Map.of(
-        "url", baseUrl + "/client-error"
-    )).join();
+    Map<String, Object> result =
+        (Map<String, Object>) handler.handle(Map.of("url", baseUrl + "/client-error")).join();
 
     assertEquals(404, result.get("status"));
   }

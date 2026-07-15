@@ -1,11 +1,11 @@
 package be.vlaanderen.omgeving.owlsda.agent.handler;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import be.vlaanderen.omgeving.owlsda.config.Config.RoleToolsProperties;
 import java.util.List;
 import org.junit.Test;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class ToolFilterTest {
 

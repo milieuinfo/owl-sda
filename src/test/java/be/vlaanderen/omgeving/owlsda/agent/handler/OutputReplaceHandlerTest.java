@@ -1,19 +1,17 @@
 package be.vlaanderen.omgeving.owlsda.agent.handler;
 
-import be.vlaanderen.omgeving.owlsda.config.Config;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import be.vlaanderen.omgeving.owlsda.config.Config;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import org.junit.Before;
+import org.junit.Test;
 
-import static org.junit.Assert.*;
-
-/**
- * Tests for OutputReplaceHandler.
- */
+/** Tests for OutputReplaceHandler. */
 public class OutputReplaceHandlerTest {
 
   private OutputReplaceHandler handler;
@@ -31,18 +29,20 @@ public class OutputReplaceHandlerTest {
   @Test
   public void testReplaceEntireFile() throws Exception {
     // Write initial content
-    String initialContent = """
+    String initialContent =
+        """
         @prefix ex: <http://example.org/> .
-        
+
         ex:Person1 a ex:Person .
         ex:Person2 a ex:Person .
         """;
     Files.writeString(tempFile, initialContent);
 
     // Replace entire file (no line range specified)
-    String replacement = """
+    String replacement =
+        """
         @prefix ex: <http://example.org/> .
-        
+
         ex:NewPerson a ex:Person .
         """;
 
@@ -60,7 +60,8 @@ public class OutputReplaceHandlerTest {
   @Test
   public void testReplaceMiddleLines() throws Exception {
     // Write initial content with line numbers
-    String initialContent = """
+    String initialContent =
+        """
         Line 1
         Line 2
         Line 3
@@ -72,11 +73,11 @@ public class OutputReplaceHandlerTest {
     // Replace lines 2-4
     String replacement = "Replaced Lines";
 
-    Map<String, Object> arguments = Map.of(
-        "output", replacement,
-        "start_line", 2,
-        "end_line", 4
-    );
+    Map<String, Object> arguments =
+        Map.of(
+            "output", replacement,
+            "start_line", 2,
+            "end_line", 4);
 
     CompletableFuture<Object> result = handler.handle(arguments);
 
@@ -96,20 +97,21 @@ public class OutputReplaceHandlerTest {
 
   @Test
   public void testReplaceFirstLine() throws Exception {
-    String initialContent = """
+    String initialContent =
+        """
         @prefix ex: <http://example.org/> .
-        
+
         ex:Person1 a ex:Person .
         """;
     Files.writeString(tempFile, initialContent);
 
     String replacement = "@prefix ex: <http://newexample.org/> .";
 
-    Map<String, Object> arguments = Map.of(
-        "output", replacement,
-        "start_line", 1,
-        "end_line", 1
-    );
+    Map<String, Object> arguments =
+        Map.of(
+            "output", replacement,
+            "start_line", 1,
+            "end_line", 1);
 
     CompletableFuture<Object> result = handler.handle(arguments);
 
@@ -124,7 +126,8 @@ public class OutputReplaceHandlerTest {
 
   @Test
   public void testReplaceLastLine() throws Exception {
-    String initialContent = """
+    String initialContent =
+        """
         Line 1
         Line 2
         Line 3
@@ -133,11 +136,11 @@ public class OutputReplaceHandlerTest {
 
     String replacement = "New Last Line";
 
-    Map<String, Object> arguments = Map.of(
-        "output", replacement,
-        "start_line", 3,
-        "end_line", 3
-    );
+    Map<String, Object> arguments =
+        Map.of(
+            "output", replacement,
+            "start_line", 3,
+            "end_line", 3);
 
     CompletableFuture<Object> result = handler.handle(arguments);
 
@@ -173,24 +176,26 @@ public class OutputReplaceHandlerTest {
 
   @Test
   public void testReplaceWithMultilineContent() throws Exception {
-    String initialContent = """
+    String initialContent =
+        """
         Line 1
         Line 2
         Line 3
         """;
     Files.writeString(tempFile, initialContent);
 
-    String replacement = """
+    String replacement =
+        """
         Replacement Line A
         Replacement Line B
         Replacement Line C
         """;
 
-    Map<String, Object> arguments = Map.of(
-        "output", replacement,
-        "start_line", 2,
-        "end_line", 2
-    );
+    Map<String, Object> arguments =
+        Map.of(
+            "output", replacement,
+            "start_line", 2,
+            "end_line", 2);
 
     CompletableFuture<Object> result = handler.handle(arguments);
 

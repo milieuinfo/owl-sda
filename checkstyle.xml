@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+    "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--
+  Starter ruleset for OWL-SDA. Deliberately narrower than Checkstyle's stock
+  google_checks.xml: it targets checks that catch real defects (unused
+  imports, empty blocks, equals/hashCode contracts, etc.) without forcing a
+  wholesale reformat of the existing codebase. Formatting is Spotless's job.
+-->
+<module name="Checker">
+  <property name="charset" value="UTF-8"/>
+  <property name="severity" value="error"/>
+
+  <module name="TreeWalker">
+    <!-- Imports -->
+    <module name="UnusedImports"/>
+    <module name="RedundantImport"/>
+    <module name="AvoidStarImport"/>
+
+    <!-- Blocks -->
+    <module name="EmptyBlock">
+      <property name="option" value="text"/>
+      <property name="tokens" value="LITERAL_CATCH"/>
+    </module>
+    <module name="EmptyCatchBlock">
+      <property name="exceptionVariableName" value="expected|ignored"/>
+    </module>
+    <module name="NeedBraces"/>
+
+    <!-- Coding -->
+    <module name="EqualsHashCode"/>
+    <module name="EqualsAvoidNull"/>
+    <module name="SimplifyBooleanExpression"/>
+    <module name="SimplifyBooleanReturn"/>
+    <module name="StringLiteralEquality"/>
+    <module name="OneStatementPerLine"/>
+    <module name="MissingSwitchDefault"/>
+    <module name="FallThrough"/>
+
+    <!-- Class design -->
+    <module name="FinalClass"/>
+    <module name="InterfaceIsType"/>
+
+    <!-- Miscellaneous -->
+    <module name="UpperEll"/>
+    <module name="ArrayTypeStyle"/>
+  </module>
+
+  <!-- Files -->
+  <module name="FileTabCharacter"/>
+  <module name="NewlineAtEndOfFile">
+    <property name="lineSeparator" value="lf"/>
+  </module>
+</module>

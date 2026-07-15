@@ -1,10 +1,10 @@
 package be.vlaanderen.omgeving.owlsda.agent.handler;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 public class MemoryGetHandlerTest {
 
@@ -15,9 +15,8 @@ public class MemoryGetHandlerTest {
     MemoryGetHandler handler = new MemoryGetHandler(store);
 
     @SuppressWarnings("unchecked")
-    Map<String, Object> result = (Map<String, Object>) handler.handle(Map.of(
-        "key", "finding-1"
-    )).join();
+    Map<String, Object> result =
+        (Map<String, Object>) handler.handle(Map.of("key", "finding-1")).join();
 
     assertEquals(true, result.get("found"));
     assertEquals("finding-1", result.get("key"));
@@ -30,9 +29,8 @@ public class MemoryGetHandlerTest {
     MemoryGetHandler handler = new MemoryGetHandler(store);
 
     @SuppressWarnings("unchecked")
-    Map<String, Object> result = (Map<String, Object>) handler.handle(Map.of(
-        "key", "missing"
-    )).join();
+    Map<String, Object> result =
+        (Map<String, Object>) handler.handle(Map.of("key", "missing")).join();
 
     assertEquals(false, result.get("found"));
   }

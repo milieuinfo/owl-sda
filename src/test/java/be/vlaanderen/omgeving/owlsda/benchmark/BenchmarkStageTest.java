@@ -1,26 +1,24 @@
 package be.vlaanderen.omgeving.owlsda.benchmark;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import be.vlaanderen.omgeving.owlsda.agent.RequestMessage;
 import be.vlaanderen.omgeving.owlsda.agent.ResponseMessage;
 import be.vlaanderen.omgeving.owlsda.agent.Session;
-import be.vlaanderen.omgeving.owlsda.agent.SessionMessageLogEntry;
 import be.vlaanderen.omgeving.owlsda.agent.context.Context;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import org.junit.Before;
+import org.junit.Test;
 
-import static org.junit.Assert.*;
-
-/**
- * Tests for benchmark stage tracking.
- */
+/** Tests for benchmark stage tracking. */
 public class BenchmarkStageTest {
 
   private Path tempDir;
@@ -34,7 +32,8 @@ public class BenchmarkStageTest {
   @Test
   public void testStageInMetadata() throws Exception {
     // Create a simple config
-    be.vlaanderen.omgeving.owlsda.config.Config config = new be.vlaanderen.omgeving.owlsda.config.Config();
+    be.vlaanderen.omgeving.owlsda.config.Config config =
+        new be.vlaanderen.omgeving.owlsda.config.Config();
     config.setOutputPath(tempDir.resolve("output.ttl").toString());
 
     // Enable benchmarking
@@ -47,40 +46,16 @@ public class BenchmarkStageTest {
     benchmarkService = new BenchmarkService(config);
 
     // Create snapshots for each stage
-    DefaultBenchmarkSnapshotData generateSnapshot = new DefaultBenchmarkSnapshotData(
-        "GENERATE",
-        0,
-        10,
-        1000L,
-        null,
-        null,
-        null,
-        List.of()
-    );
+    DefaultBenchmarkSnapshotData generateSnapshot =
+        new DefaultBenchmarkSnapshotData("GENERATE", 0, 10, 1000L, null, null, null, List.of());
     benchmarkService.createBatchSnapshot(generateSnapshot, 5);
 
-    DefaultBenchmarkSnapshotData finalizingSnapshot = new DefaultBenchmarkSnapshotData(
-        "FINALIZING",
-        0,
-        10,
-        500L,
-        null,
-        null,
-        null,
-        List.of()
-    );
+    DefaultBenchmarkSnapshotData finalizingSnapshot =
+        new DefaultBenchmarkSnapshotData("FINALIZING", 0, 10, 500L, null, null, null, List.of());
     benchmarkService.createBatchSnapshot(finalizingSnapshot, 2);
 
-    DefaultBenchmarkSnapshotData reviewSnapshot = new DefaultBenchmarkSnapshotData(
-        "REVIEW",
-        0,
-        10,
-        300L,
-        null,
-        null,
-        null,
-        List.of()
-    );
+    DefaultBenchmarkSnapshotData reviewSnapshot =
+        new DefaultBenchmarkSnapshotData("REVIEW", 0, 10, 300L, null, null, null, List.of());
     benchmarkService.createBatchSnapshot(reviewSnapshot, 0);
 
     // Generate JSON summary
@@ -101,7 +76,8 @@ public class BenchmarkStageTest {
   @Test
   public void testMetadataFileContainsStage() throws Exception {
     // Create a simple config
-    be.vlaanderen.omgeving.owlsda.config.Config config = new be.vlaanderen.omgeving.owlsda.config.Config();
+    be.vlaanderen.omgeving.owlsda.config.Config config =
+        new be.vlaanderen.omgeving.owlsda.config.Config();
     config.setOutputPath(tempDir.resolve("output.ttl").toString());
 
     // Enable benchmarking
@@ -114,16 +90,8 @@ public class BenchmarkStageTest {
     benchmarkService = new BenchmarkService(config);
 
     // Create a snapshot
-    DefaultBenchmarkSnapshotData snapshot = new DefaultBenchmarkSnapshotData(
-        "GENERATE",
-        0,
-        5,
-        1500L,
-        null,
-        null,
-        null,
-        List.of()
-    );
+    DefaultBenchmarkSnapshotData snapshot =
+        new DefaultBenchmarkSnapshotData("GENERATE", 0, 5, 1500L, null, null, null, List.of());
     String snapshotId = benchmarkService.createBatchSnapshot(snapshot, 3);
     assertNotNull("Snapshot should be created", snapshotId);
 
@@ -146,7 +114,8 @@ public class BenchmarkStageTest {
     Files.createDirectories(snapshotDir);
 
     Path metadataFile = snapshotDir.resolve("metadata.txt");
-    String oldFormatMetadata = """
+    String oldFormatMetadata =
+        """
         shapes_processed=10
         duration_ms=2000
         timestamp=20260304_120000_000
@@ -157,7 +126,8 @@ public class BenchmarkStageTest {
     Files.writeString(metadataFile, oldFormatMetadata);
 
     // Create config and service
-    be.vlaanderen.omgeving.owlsda.config.Config config = new be.vlaanderen.omgeving.owlsda.config.Config();
+    be.vlaanderen.omgeving.owlsda.config.Config config =
+        new be.vlaanderen.omgeving.owlsda.config.Config();
     config.setOutputPath(tempDir.resolve("output.ttl").toString());
 
     be.vlaanderen.omgeving.owlsda.config.Config.BenchmarkProperties benchmarkProps =
@@ -173,12 +143,14 @@ public class BenchmarkStageTest {
     assertNotNull("JSON summary should be generated", jsonFile);
 
     String jsonContent = Files.readString(jsonFile);
-    assertTrue("Should default to GENERATE stage for old snapshots", jsonContent.contains("GENERATE"));
+    assertTrue(
+        "Should default to GENERATE stage for old snapshots", jsonContent.contains("GENERATE"));
   }
 
   @Test
   public void testJsonContainsTokenUsageBreakdown() throws Exception {
-    be.vlaanderen.omgeving.owlsda.config.Config config = new be.vlaanderen.omgeving.owlsda.config.Config();
+    be.vlaanderen.omgeving.owlsda.config.Config config =
+        new be.vlaanderen.omgeving.owlsda.config.Config();
     config.setOutputPath(tempDir.resolve("output.ttl").toString());
 
     be.vlaanderen.omgeving.owlsda.config.Config.BenchmarkProperties benchmarkProps =
@@ -191,21 +163,14 @@ public class BenchmarkStageTest {
 
     Session supervisor = new TokenOnlySession(700L, 287L);
     Session reviewer = new TokenOnlySession(400L, 254L);
-    List<Session> workers = List.of(new TokenOnlySession(1000L, 515L), new TokenOnlySession(1200L, 1022L));
+    List<Session> workers =
+        List.of(new TokenOnlySession(1000L, 515L), new TokenOnlySession(1200L, 1022L));
 
-    String snapshotId = benchmarkService.createBatchSnapshot(
-        new DefaultBenchmarkSnapshotData(
-            "GENERATE",
-            0,
-            10,
-            1200L,
-            supervisor,
-            reviewer,
-            null,
-            workers
-        ),
-        0
-    );
+    String snapshotId =
+        benchmarkService.createBatchSnapshot(
+            new DefaultBenchmarkSnapshotData(
+                "GENERATE", 0, 10, 1200L, supervisor, reviewer, null, workers),
+            0);
 
     assertNotNull("Snapshot should be created", snapshotId);
 
@@ -221,14 +186,20 @@ public class BenchmarkStageTest {
     assertNotNull("Should include tokens object", tokens);
 
     JsonObject supervisorTokens = tokens.getAsJsonObject("supervisor");
-    assertEquals("Supervisor input tokens should match", 700L, supervisorTokens.get("input").getAsLong());
-    assertEquals("Supervisor output tokens should match", 287L, supervisorTokens.get("output").getAsLong());
-    assertEquals("Supervisor total tokens should match", 987L, supervisorTokens.get("total").getAsLong());
+    assertEquals(
+        "Supervisor input tokens should match", 700L, supervisorTokens.get("input").getAsLong());
+    assertEquals(
+        "Supervisor output tokens should match", 287L, supervisorTokens.get("output").getAsLong());
+    assertEquals(
+        "Supervisor total tokens should match", 987L, supervisorTokens.get("total").getAsLong());
 
     JsonObject reviewerTokens = tokens.getAsJsonObject("reviewer");
-    assertEquals("Reviewer input tokens should match", 400L, reviewerTokens.get("input").getAsLong());
-    assertEquals("Reviewer output tokens should match", 254L, reviewerTokens.get("output").getAsLong());
-    assertEquals("Reviewer total tokens should match", 654L, reviewerTokens.get("total").getAsLong());
+    assertEquals(
+        "Reviewer input tokens should match", 400L, reviewerTokens.get("input").getAsLong());
+    assertEquals(
+        "Reviewer output tokens should match", 254L, reviewerTokens.get("output").getAsLong());
+    assertEquals(
+        "Reviewer total tokens should match", 654L, reviewerTokens.get("total").getAsLong());
 
     JsonObject workersTokens = tokens.getAsJsonObject("workers");
     JsonObject worker0 = workersTokens.getAsJsonObject("worker_0");
@@ -245,7 +216,8 @@ public class BenchmarkStageTest {
 
   @Test
   public void testSnapshotSanitizesInvalidSurrogatesInContext() throws Exception {
-    be.vlaanderen.omgeving.owlsda.config.Config config = new be.vlaanderen.omgeving.owlsda.config.Config();
+    be.vlaanderen.omgeving.owlsda.config.Config config =
+        new be.vlaanderen.omgeving.owlsda.config.Config();
     config.setOutputPath(tempDir.resolve("output.ttl").toString());
 
     be.vlaanderen.omgeving.owlsda.config.Config.BenchmarkProperties benchmarkProps =
@@ -262,32 +234,23 @@ public class BenchmarkStageTest {
 
     Session supervisor = new ContextOnlySession(List.of(invalidContext));
 
-    String snapshotId = benchmarkService.createBatchSnapshot(
-        new DefaultBenchmarkSnapshotData(
-            "GENERATE",
-            0,
-            1,
-            10L,
-            supervisor,
-            null,
-            null,
-            List.of()
-        ),
-        0
-    );
+    String snapshotId =
+        benchmarkService.createBatchSnapshot(
+            new DefaultBenchmarkSnapshotData(
+                "GENERATE", 0, 1, 10L, supervisor, null, null, List.of()),
+            0);
 
     assertNotNull("Snapshot should still be created", snapshotId);
 
-    Path contextFile = tempDir.resolve(snapshotId)
-        .resolve("supervisor_context")
-        .resolve("invalid-surrogate.txt");
+    Path contextFile =
+        tempDir.resolve(snapshotId).resolve("supervisor_context").resolve("invalid-surrogate.txt");
     assertTrue("Context file should exist", Files.exists(contextFile));
 
     String storedContent = Files.readString(contextFile);
     assertEquals("Invalid surrogate should be replaced", "prefix-\uFFFD-suffix", storedContent);
   }
 
-  private static class TokenOnlySession implements Session {
+  private static final class TokenOnlySession implements Session {
     private final long inputTokens;
     private final long outputTokens;
 
@@ -297,8 +260,7 @@ public class BenchmarkStageTest {
     }
 
     @Override
-    public void addContext(Context context) {
-    }
+    public void addContext(Context context) {}
 
     @Override
     public boolean addContextIfChanged(Context context) {
@@ -336,8 +298,7 @@ public class BenchmarkStageTest {
     }
 
     @Override
-    public void close() {
-    }
+    public void close() {}
   }
 
   private static final class ContextOnlySession implements Session {
@@ -348,8 +309,7 @@ public class BenchmarkStageTest {
     }
 
     @Override
-    public void addContext(Context context) {
-    }
+    public void addContext(Context context) {}
 
     @Override
     public boolean addContextIfChanged(Context context) {
@@ -372,7 +332,6 @@ public class BenchmarkStageTest {
     }
 
     @Override
-    public void close() {
-    }
+    public void close() {}
   }
 }

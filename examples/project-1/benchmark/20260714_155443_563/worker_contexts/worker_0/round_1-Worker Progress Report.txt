@@ -1,0 +1,8 @@
+worker_id=POOL-0
+status=VERIFIED_NO_CHANGE
+target_shape=InstallationShape
+target_class=Installation
+changed_triples_count=0
+created_or_updated_subjects=ns:Installation1, ns:InfrastructureHub
+validation_result=NON_CONFORMS
+remaining_issues=Violations persist on out-of-scope resources (e.g., SensorPoint1, emPoint1) related to min cardinality constraints, but InstallationShape conformance is achieved for ns:Installation1.

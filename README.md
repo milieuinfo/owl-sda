@@ -107,5 +107,5 @@ mvn test
 
 This project is released under the **GNU General Public License v3.0 (GPL-3.0)** and is further detailed in [LICENSE](./LICENSE). By contributing to this project, you agree that your contributions will be licensed under the same terms. Please review the license for more information on your rights and responsibilities when using or contributing to this software.
 
-(c) 2025-2026: Maxim Van de Wynckel, Emmelien De Roock, and contributors. All rights reserved. See [LICENSE](./LICENSE) for details.
+(c) 2025-2026: Vlaamse Overheid, Maxim Van de Wynckel, Emmelien De Roock, and contributors. All rights reserved. See [LICENSE](./LICENSE) for details.
 

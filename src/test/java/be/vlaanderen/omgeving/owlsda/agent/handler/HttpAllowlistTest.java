@@ -1,11 +1,11 @@
 package be.vlaanderen.omgeving.owlsda.agent.handler;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.net.URI;
 import java.util.Set;
 import org.junit.Test;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class HttpAllowlistTest {
 

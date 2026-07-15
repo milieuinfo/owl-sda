@@ -4,9 +4,18 @@ CRITICAL FIRST STEP:
 3. Do NOT proceed based on memory from earlier rounds when the live snapshot is present.
 
 GENERATION MODE:
-{{dataRichnessHint}}
+{{namespaceReminder}}{{dataRichnessHint}}
 - If NO instances of your assigned target class exist, CREATE them from scratch.
 - Generate realistic instances that satisfy SHACL constraints.
+- Type every new instance with the EXACT target class URI from the SHACL/Ontology context (the
+  same namespace as the shapes' sh:targetClass). Do NOT invent a different or placeholder
+  namespace, even one that looks plausible or related — an instance typed in the wrong namespace
+  will not match any shape, so it will never actually be validated.
+- A shape's own name is the name of a validation rule, not necessarily a class - never assume it
+  is one. Always look up your assigned shape's sh:targetClass property in the SHACL context and
+  use THAT value's exact URI as the rdf:type for new instances.
+- Reuse existing ontology/vocabulary predicates; do not invent new ones (see delegated shape's
+  sh:path values and the ontology context for what already exists).
 - Use URI patterns based on your assigned target class and existing project conventions.
 - Create required supporting resources when needed.
 - Mint a named IRI for every instance you create. Do NOT use blank nodes (`[ ... ]` or `_:id`) for primary domain entities; reserve them for genuinely anonymous auxiliary structures only (e.g. RDF list cells).
@@ -23,6 +32,10 @@ VALIDATION LOOP:
 - Fix only violations tied to your assigned shape(s)/focus nodes.
 - If unrelated violations remain, report and stop.
 - If there are no violations for your assigned shape/focus nodes in this pass, do not write triples and report VERIFIED_NO_CHANGE.
+- If shacl_validator reports unrecognized predicates/classes on subjects you just created, remove
+  those specific triples with triplestore_remove and re-add them using only predicates/classes
+  from the delegated shape's sh:path values or the ontology context. Do not report BLOCKED for
+  vocabulary you invented yourself - fix it and re-validate instead.
 
 CHANGE SAFETY:
 - Prefer additive fixes over destructive removals.

@@ -1,19 +1,21 @@
 package be.vlaanderen.omgeving.owlsda.agent.openai;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.util.Map;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 public class OpenAiCompatibleSessionParsingTest {
 
   @Test
   public void parseAssistantTurn_WithToolCallsAndUsage_ReturnsExpectedValues() {
-    JsonObject response = JsonParser.parseString("""
+    JsonObject response =
+        JsonParser.parseString(
+                """
         {
           "choices": [
             {
@@ -39,21 +41,27 @@ public class OpenAiCompatibleSessionParsingTest {
             "total_tokens": 168
           }
         }
-        """).getAsJsonObject();
+        """)
+            .getAsJsonObject();
 
-    OpenAiCompatibleSession.ParsedAssistantTurn turn = OpenAiCompatibleSession.parseAssistantTurn(response);
+    OpenAiCompatibleSession.ParsedAssistantTurn turn =
+        OpenAiCompatibleSession.parseAssistantTurn(response);
 
     assertEquals(1, turn.toolCalls().size());
     assertEquals("call_abc123", turn.toolCalls().getFirst().id());
     assertEquals("output_data_write", turn.toolCalls().getFirst().name());
-    assertEquals("@prefix ex: <https://example.org/> .", turn.toolCalls().getFirst().arguments().get("output"));
+    assertEquals(
+        "@prefix ex: <https://example.org/> .",
+        turn.toolCalls().getFirst().arguments().get("output"));
     assertEquals(123L, turn.promptTokens());
     assertEquals(45L, turn.completionTokens());
   }
 
   @Test
   public void parseAssistantTurn_WithPlainContentAndNoToolCalls_ReturnsContent() {
-    JsonObject response = JsonParser.parseString("""
+    JsonObject response =
+        JsonParser.parseString(
+                """
         {
           "choices": [
             {
@@ -68,9 +76,11 @@ public class OpenAiCompatibleSessionParsingTest {
             "completion_tokens": 2
           }
         }
-        """).getAsJsonObject();
+        """)
+            .getAsJsonObject();
 
-    OpenAiCompatibleSession.ParsedAssistantTurn turn = OpenAiCompatibleSession.parseAssistantTurn(response);
+    OpenAiCompatibleSession.ParsedAssistantTurn turn =
+        OpenAiCompatibleSession.parseAssistantTurn(response);
 
     assertEquals("hello there", turn.content());
     assertTrue(turn.toolCalls().isEmpty());
@@ -82,7 +92,8 @@ public class OpenAiCompatibleSessionParsingTest {
   public void parseAssistantTurn_WithMissingChoices_ReturnsEmptyTurn() {
     JsonObject response = JsonParser.parseString("{}").getAsJsonObject();
 
-    OpenAiCompatibleSession.ParsedAssistantTurn turn = OpenAiCompatibleSession.parseAssistantTurn(response);
+    OpenAiCompatibleSession.ParsedAssistantTurn turn =
+        OpenAiCompatibleSession.parseAssistantTurn(response);
 
     assertNull(turn.content());
     assertTrue(turn.toolCalls().isEmpty());
@@ -92,16 +103,17 @@ public class OpenAiCompatibleSessionParsingTest {
 
   @Test
   public void parseToolArguments_WithJsonEncodedString_ParsesObject() {
-    Map<String, Object> arguments = OpenAiCompatibleSession.parseToolArguments(
-        JsonParser.parseString("\"{\\\"target_agent\\\":\\\"POOL-0\\\"}\"")
-    );
+    Map<String, Object> arguments =
+        OpenAiCompatibleSession.parseToolArguments(
+            JsonParser.parseString("\"{\\\"target_agent\\\":\\\"POOL-0\\\"}\""));
 
     assertEquals("POOL-0", arguments.get("target_agent"));
   }
 
   @Test
   public void parseToolArguments_WithInvalidInput_ReturnsEmptyMap() {
-    Map<String, Object> arguments = OpenAiCompatibleSession.parseToolArguments(JsonParser.parseString("42"));
+    Map<String, Object> arguments =
+        OpenAiCompatibleSession.parseToolArguments(JsonParser.parseString("42"));
 
     assertTrue(arguments.isEmpty());
   }
