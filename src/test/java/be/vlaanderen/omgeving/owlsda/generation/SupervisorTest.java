@@ -21,9 +21,7 @@ import be.vlaanderen.omgeving.owlsda.validation.OutputValidator;
 import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.jena.rdf.model.Model;
@@ -36,11 +34,12 @@ import org.junit.Test;
 /**
  * Tests for {@link Supervisor}: the top-level {@code orchestrate()} guard clauses, a full
  * delegation round driven end-to-end through a fake supervisor session and a mocked {@link
- * ConcurrentWorkerBatch}, the worker-progress-derived completion helpers ({@code
- * isAcceptableWorkerStatus}/{@code isConformingProgress}), and {@code
- * reopenShapesWithOutstandingViolations}. Follows the reflection-based private-method testing
- * pattern established in {@code WorkerAgentDelegationPromptTest}: real records are constructed with
- * mostly-null collaborators and private methods are invoked via {@code setAccessible(true)}.
+ * ConcurrentWorkerBatch} (worker-progress-derived completion is covered via these end-to-end
+ * rounds; the underlying parsing helpers live in {@link WorkerProgressReportParserTest}), and
+ * {@code reopenShapesWithOutstandingViolations}. Follows the reflection-based private-method
+ * testing pattern established in {@code WorkerAgentDelegationPromptTest}: real records are
+ * constructed with mostly-null collaborators and private methods are invoked via {@code
+ * setAccessible(true)}.
  */
 public class SupervisorTest {
 
@@ -232,46 +231,6 @@ public class SupervisorTest {
 
     assertFalse(result);
     assertFalse(shacl.getShapes().get(0).isProcessed());
-  }
-
-  // ---------------------------------------------------------------------
-  // isAcceptableWorkerStatus / isConformingProgress (private helpers)
-  // ---------------------------------------------------------------------
-
-  @Test
-  public void isAcceptableWorkerStatus_AcceptsOnlyNonBlockedKnownStatuses() throws Exception {
-    Method method = Supervisor.class.getDeclaredMethod("isAcceptableWorkerStatus", String.class);
-    method.setAccessible(true);
-
-    assertTrue((Boolean) method.invoke(null, "CREATED"));
-    assertTrue((Boolean) method.invoke(null, "FIXED"));
-    assertTrue((Boolean) method.invoke(null, "VERIFIED_NO_CHANGE"));
-    assertFalse((Boolean) method.invoke(null, "BLOCKED"));
-    assertFalse((Boolean) method.invoke(null, "NOT_A_REAL_STATUS"));
-    assertFalse((Boolean) method.invoke(null, ""));
-  }
-
-  @Test
-  public void isConformingProgress_RequiresAcceptableStatusAndConformsResult() throws Exception {
-    Supervisor supervisor = new Supervisor(null, null, null, null, null, null);
-    Method method = Supervisor.class.getDeclaredMethod("isConformingProgress", Map.class);
-    method.setAccessible(true);
-
-    assertTrue((Boolean) method.invoke(supervisor, progressMap("CREATED", "CONFORMS")));
-    assertFalse(
-        "non-conforming validation result must not count as progress",
-        (Boolean) method.invoke(supervisor, progressMap("CREATED", "NON_CONFORMS")));
-    assertFalse(
-        "BLOCKED status must never count as progress even if flagged CONFORMS",
-        (Boolean) method.invoke(supervisor, progressMap("BLOCKED", "CONFORMS")));
-    assertFalse((Boolean) method.invoke(supervisor, new HashMap<String, String>()));
-  }
-
-  private Map<String, String> progressMap(String status, String validationResult) {
-    Map<String, String> map = new HashMap<>();
-    map.put("status", status);
-    map.put("validation_result", validationResult);
-    return map;
   }
 
   // ---------------------------------------------------------------------

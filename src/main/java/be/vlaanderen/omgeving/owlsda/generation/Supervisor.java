@@ -16,10 +16,8 @@ import be.vlaanderen.omgeving.owlsda.validation.OutputValidator;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.shacl.ValidationReport;
 import org.slf4j.Logger;
@@ -175,7 +173,9 @@ public record Supervisor(
     boolean batchSuccess = concurrentWorkerBatch.runWithDelegation(workerInstructions, shapes);
     publishWorkerResponsesToSupervisor(delegatedWorkerSessions);
 
-    int progressMarkedShapes = markCompletedShapesFromWorkerProgress(delegatedWorkerSessions);
+    int progressMarkedShapes =
+        new WorkerProgressReportParser(shacl, shapeProcessingTracker)
+            .markCompletedShapesFromWorkerProgress(delegatedWorkerSessions);
     if (batchSuccess) {
       markDelegatedShapesAsProcessed(delegatedWorkerCount);
     }
@@ -188,148 +188,6 @@ public record Supervisor(
     }
 
     return roundSuccess;
-  }
-
-  private int markCompletedShapesFromWorkerProgress(List<Session> delegatedWorkerSessions) {
-    if (delegatedWorkerSessions == null
-        || delegatedWorkerSessions.isEmpty()
-        || shacl == null
-        || shacl.getShapes() == null
-        || shacl.getShapes().isEmpty()) {
-      return 0;
-    }
-
-    Set<String> completedShapeNames = new HashSet<>();
-    for (Session workerSession : delegatedWorkerSessions) {
-      if (workerSession == null) {
-        continue;
-      }
-
-      String workerReport = getWorkerProgressReport(workerSession);
-      if (workerReport == null || workerReport.isBlank()) {
-        continue;
-      }
-
-      Map<String, String> progress = parseProgressReport(workerReport);
-      if (!isConformingProgress(progress)) {
-        continue;
-      }
-
-      String targetShape = progress.getOrDefault("target_shape", "").trim();
-      if (targetShape.isBlank()) {
-        continue;
-      }
-
-      for (String shapeName : splitShapeNames(targetShape)) {
-        if (shapeName.isBlank()) {
-          continue;
-        }
-
-        boolean exists =
-            shacl.getShapes().stream().anyMatch(shape -> shapeName.equals(shape.getName()));
-        if (exists) {
-          completedShapeNames.add(shapeName);
-        }
-      }
-    }
-
-    if (completedShapeNames.isEmpty()) {
-      return 0;
-    }
-
-    shacl.getShapes().stream()
-        .filter(shape -> completedShapeNames.contains(shape.getName()))
-        .forEach(shape -> shape.setProcessed(true));
-
-    if (shapeProcessingTracker != null) {
-      shapeProcessingTracker.markCompleted(new ArrayList<>(completedShapeNames));
-    }
-
-    logger.info(
-        "Marked {} shape(s) as processed from worker progress: {}",
-        completedShapeNames.size(),
-        String.join(", ", completedShapeNames));
-    return completedShapeNames.size();
-  }
-
-  private Map<String, String> parseProgressReport(String report) {
-    Map<String, String> values = new HashMap<>();
-    if (report == null || report.isBlank()) {
-      return values;
-    }
-
-    String[] lines = report.split("\\R");
-    for (String line : lines) {
-      if (line == null || line.isBlank()) {
-        continue;
-      }
-
-      int separator = line.indexOf('=');
-      if (separator <= 0 || separator >= line.length() - 1) {
-        continue;
-      }
-
-      String key = line.substring(0, separator).trim().toLowerCase();
-      String value = line.substring(separator + 1).trim();
-      if (!key.isBlank() && !value.isBlank()) {
-        values.put(key, value);
-      }
-    }
-
-    return values;
-  }
-
-  private boolean isConformingProgress(Map<String, String> progress) {
-    if (progress == null || progress.isEmpty()) {
-      return false;
-    }
-
-    String status = progress.getOrDefault("status", "").trim();
-    String validationResult = progress.getOrDefault("validation_result", "").trim();
-
-    return isAcceptableWorkerStatus(status) && isConformingValidationResult(validationResult);
-  }
-
-  /**
-   * A worker report only counts as progress if it reflects new/verified work (not {@code BLOCKED}).
-   * Derived from {@link WorkerProgressHandler.WorkerStatus}, the tool contract workers actually
-   * submit, so this can't silently drift from the values the LLM is instructed to send.
-   */
-  private static boolean isAcceptableWorkerStatus(String status) {
-    try {
-      WorkerProgressHandler.WorkerStatus parsed =
-          WorkerProgressHandler.WorkerStatus.valueOf(status);
-      return parsed == WorkerProgressHandler.WorkerStatus.CREATED
-          || parsed == WorkerProgressHandler.WorkerStatus.FIXED
-          || parsed == WorkerProgressHandler.WorkerStatus.VERIFIED_NO_CHANGE;
-    } catch (IllegalArgumentException e) {
-      return false;
-    }
-  }
-
-  private static boolean isConformingValidationResult(String validationResult) {
-    return WorkerProgressHandler.ValidationResult.CONFORMS.name().equals(validationResult);
-  }
-
-  private List<String> splitShapeNames(String targetShapeField) {
-    if (targetShapeField == null || targetShapeField.isBlank()) {
-      return List.of();
-    }
-
-    String[] tokens = targetShapeField.split("[;,]");
-    List<String> shapeNames = new ArrayList<>();
-    for (String token : tokens) {
-      String trimmed = token.trim();
-      if (!trimmed.isBlank()) {
-        shapeNames.add(trimmed);
-      }
-    }
-
-    if (shapeNames.isEmpty()) {
-      return List.of(targetShapeField.trim());
-    }
-
-    return shapeNames;
   }
 
   /**
