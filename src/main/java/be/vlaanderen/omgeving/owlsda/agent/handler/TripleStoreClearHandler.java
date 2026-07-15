@@ -80,8 +80,7 @@ public record TripleStoreClearHandler(WorkerTripleStore tripleStore, String work
                   "⚠️ Cleared %d triples from SHARED store. All workers affected.", sizeBefore)));
     } catch (Exception e) {
       logger.error("[{}] Failed to clear shared triple store", workerId, e);
-      return CompletableFuture.completedFuture(
-          Map.of("error", "Failed to clear triple store: " + e.getMessage()));
+      return errorResult("Failed to clear triple store: " + e.getMessage());
     }
   }
 }

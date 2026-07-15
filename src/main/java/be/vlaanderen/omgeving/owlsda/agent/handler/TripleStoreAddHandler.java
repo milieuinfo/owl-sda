@@ -61,14 +61,14 @@ public record TripleStoreAddHandler(WorkerTripleStore tripleStore, String worker
     String data = (String) arguments.get("data");
 
     if (data == null || data.trim().isEmpty()) {
-      return CompletableFuture.completedFuture(Map.of("error", "No data provided"));
+      return errorResult("No data provided");
     }
 
     try {
       AddResult result = tripleStore.addTriples(data, workerId);
 
       if (result.hasError()) {
-        return CompletableFuture.completedFuture(Map.of("error", result.getError()));
+        return errorResult(result.getError());
       }
 
       // Build response with duplicate information
@@ -113,8 +113,7 @@ public record TripleStoreAddHandler(WorkerTripleStore tripleStore, String worker
       return CompletableFuture.completedFuture(response);
     } catch (Exception e) {
       logger.error("[{}] Failed to add triples to shared store", workerId, e);
-      return CompletableFuture.completedFuture(
-          Map.of("error", "Failed to add triples: " + e.getMessage()));
+      return errorResult("Failed to add triples: " + e.getMessage());
     }
   }
 

@@ -151,8 +151,7 @@ public class ContextReaderHandler implements SessionHandler {
     String contextName = (String) arguments.get("name");
     if (contextName == null || contextName.isEmpty()) {
       logger.warn("Context name not provided for read action");
-      return CompletableFuture.completedFuture(
-          Map.of("error", "Context name is required for read action"));
+      return errorResult("Context name is required for read action");
     }
 
     // Find context by name
@@ -162,14 +161,13 @@ public class ContextReaderHandler implements SessionHandler {
 
     if (foundContext == null) {
       logger.warn("Context with name '{}' not found", contextName);
-      return CompletableFuture.completedFuture(
-          Map.of("error", "Context with name '" + contextName + "' not found"));
+      return errorResult("Context with name '" + contextName + "' not found");
     }
 
     String content = foundContext.getContent();
     if (content == null) {
       logger.warn("Context '{}' has no content", contextName);
-      return CompletableFuture.completedFuture(Map.of("error", "Context has no content"));
+      return errorResult("Context has no content");
     }
 
     // Update hash for this context
@@ -187,8 +185,7 @@ public class ContextReaderHandler implements SessionHandler {
 
       if (start >= totalLength) {
         logger.warn("Start position {} is beyond content length {}", start, totalLength);
-        return CompletableFuture.completedFuture(
-            Map.of("error", "Start position is beyond content length"));
+        return errorResult("Start position is beyond content length");
       }
 
       String chunk = content.substring(start, end);

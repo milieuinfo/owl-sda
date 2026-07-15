@@ -78,7 +78,7 @@ public class OutputReaderHandler implements SessionHandler {
 
     if (outputFilePath == null) {
       logger.error("Output path is not configured");
-      return CompletableFuture.completedFuture(Map.of("error", "Output path is not configured"));
+      return errorResult("Output path is not configured");
     }
 
     Path path = Path.of(outputFilePath);
@@ -104,8 +104,7 @@ public class OutputReaderHandler implements SessionHandler {
       }
     } catch (IOException e) {
       logger.error("Failed to read output from file: {}", outputFilePath, e);
-      return CompletableFuture.completedFuture(
-          Map.of("error", "Failed to read output: " + e.getMessage()));
+      return errorResult("Failed to read output: " + e.getMessage());
     }
   }
 

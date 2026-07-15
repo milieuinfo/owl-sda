@@ -57,7 +57,7 @@ public class OutputWriterHandler implements SessionHandler {
 
     if (outputFilePath == null) {
       logger.error("Output path is not configured");
-      return CompletableFuture.completedFuture(Map.of("error", "Output path is not configured"));
+      return errorResult("Output path is not configured");
     }
 
     Path path = Path.of(outputFilePath);
@@ -81,16 +81,14 @@ public class OutputWriterHandler implements SessionHandler {
         }
       } catch (IOException e) {
         logger.error("Failed to delete output file: {}", outputFilePath, e);
-        return CompletableFuture.completedFuture(
-            Map.of("error", "Failed to delete output file: " + e.getMessage()));
+        return errorResult("Failed to delete output file: " + e.getMessage());
       }
     }
 
     String syntaxError = TurtleSyntaxValidator.validate(output);
     if (syntaxError != null) {
       logger.warn("Rejected output_data_writer call with invalid Turtle: {}", syntaxError);
-      return CompletableFuture.completedFuture(
-          Map.of("error", "Output is not valid Turtle and was not written: " + syntaxError));
+      return errorResult("Output is not valid Turtle and was not written: " + syntaxError);
     }
 
     // Write output to file directly (single-writer supervisor flow)
@@ -122,8 +120,7 @@ public class OutputWriterHandler implements SessionHandler {
               fileSize));
     } catch (IOException e) {
       logger.error("Failed to write output to file: {}", outputFilePath, e);
-      return CompletableFuture.completedFuture(
-          Map.of("error", "Failed to write output: " + e.getMessage()));
+      return errorResult("Failed to write output: " + e.getMessage());
     }
   }
 }

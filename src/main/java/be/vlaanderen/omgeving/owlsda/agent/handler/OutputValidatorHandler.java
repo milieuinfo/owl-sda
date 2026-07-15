@@ -109,9 +109,7 @@ public class OutputValidatorHandler implements SessionHandler {
       case "file" -> validateFile(formatOnError);
       case "data" -> validateData(arguments, formatOnError);
       case "store" -> validateStore(formatOnError);
-      default ->
-          CompletableFuture.completedFuture(
-              Map.of("error", "Unknown source: " + source + ". Use 'data', 'file', or 'store'."));
+      default -> errorResult("Unknown source: " + source + ". Use 'data', 'file', or 'store'.");
     };
   }
 
@@ -122,7 +120,7 @@ public class OutputValidatorHandler implements SessionHandler {
 
     if (data == null || data.isEmpty()) {
       logger.warn("No data provided for validation");
-      return CompletableFuture.completedFuture(Map.of("error", "No data provided for validation"));
+      return errorResult("No data provided for validation");
     }
 
     try {
@@ -141,8 +139,7 @@ public class OutputValidatorHandler implements SessionHandler {
   private CompletableFuture<Object> validateStore(boolean formatOnError) {
     if (tripleStore == null) {
       logger.error("Triple store is not available for this session");
-      return CompletableFuture.completedFuture(
-          Map.of("error", "Triple store validation is not available for this session type"));
+      return errorResult("Triple store validation is not available for this session type");
     }
 
     try {
@@ -161,7 +158,7 @@ public class OutputValidatorHandler implements SessionHandler {
   private CompletableFuture<Object> validateFile(boolean formatOnError) {
     if (config == null || config.getOutputPath() == null) {
       logger.error("Output path is not configured");
-      return CompletableFuture.completedFuture(Map.of("error", "Output path is not configured"));
+      return errorResult("Output path is not configured");
     }
 
     try {

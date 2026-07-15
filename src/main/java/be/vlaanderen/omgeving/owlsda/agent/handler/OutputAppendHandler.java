@@ -78,12 +78,12 @@ public class OutputAppendHandler implements SessionHandler {
 
     if (outputFilePath == null) {
       logger.error("Output path is not configured");
-      return CompletableFuture.completedFuture(Map.of("error", "Output path is not configured"));
+      return errorResult("Output path is not configured");
     }
 
     if (output == null || output.isEmpty()) {
       logger.warn("No output provided");
-      return CompletableFuture.completedFuture(Map.of("error", "No output provided"));
+      return errorResult("No output provided");
     }
 
     try {
@@ -163,8 +163,7 @@ public class OutputAppendHandler implements SessionHandler {
               "prefixes_deduplicated", prefixesRemoved));
     } catch (IOException e) {
       logger.error("Failed to modify output file: {}", outputFilePath, e);
-      return CompletableFuture.completedFuture(
-          Map.of("error", "Failed to modify output: " + e.getMessage()));
+      return errorResult("Failed to modify output: " + e.getMessage());
     }
   }
 

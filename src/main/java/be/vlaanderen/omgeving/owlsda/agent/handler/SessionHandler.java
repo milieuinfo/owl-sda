@@ -30,4 +30,9 @@ public interface SessionHandler {
    * @return the tool result, serialized back to the model
    */
   CompletableFuture<Object> handle(Map<String, Object> arguments);
+
+  /** Convenience for the common {@code {"error": message}} failure result. */
+  default CompletableFuture<Object> errorResult(String message) {
+    return CompletableFuture.completedFuture(Map.of("error", message));
+  }
 }

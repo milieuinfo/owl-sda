@@ -105,8 +105,7 @@ public record TripleStoreRemoveHandler(WorkerTripleStore tripleStore, String wor
       return CompletableFuture.completedFuture(response);
     } catch (Exception e) {
       logger.error("[{}] Failed to remove triples from shared store", workerId, e);
-      return CompletableFuture.completedFuture(
-          Map.of("error", "Failed to remove triples: " + e.getMessage()));
+      return errorResult("Failed to remove triples: " + e.getMessage());
     }
   }
 }

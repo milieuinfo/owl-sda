@@ -72,12 +72,12 @@ public class OutputReplaceHandler implements SessionHandler {
 
     if (outputFilePath == null) {
       logger.error("Output path is not configured");
-      return CompletableFuture.completedFuture(Map.of("error", "Output path is not configured"));
+      return errorResult("Output path is not configured");
     }
 
     if (output == null) {
       logger.warn("No output provided to replace");
-      return CompletableFuture.completedFuture(Map.of("error", "No output provided"));
+      return errorResult("No output provided");
     }
 
     try {
@@ -188,12 +188,10 @@ public class OutputReplaceHandler implements SessionHandler {
               "file_size", fileSize));
     } catch (IOException e) {
       logger.error("Failed to replace output in file: {}", outputFilePath, e);
-      return CompletableFuture.completedFuture(
-          Map.of("error", "Failed to replace output: " + e.getMessage()));
+      return errorResult("Failed to replace output: " + e.getMessage());
     } catch (Exception e) {
       logger.error("Error processing output replacement: {}", e.getMessage(), e);
-      return CompletableFuture.completedFuture(
-          Map.of("error", "Error processing replacement: " + e.getMessage()));
+      return errorResult("Error processing replacement: " + e.getMessage());
     }
   }
 }

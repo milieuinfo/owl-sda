@@ -84,14 +84,11 @@ public record TripleStoreReadHandler(WorkerTripleStore tripleStore, String worke
         case "count" -> handleCount();
         case "query" -> handleQuery(arguments);
         case "all" -> handleAll();
-        default ->
-            CompletableFuture.completedFuture(
-                Map.of("error", "Unknown mode: " + mode + ". Use 'all', 'query', or 'count'."));
+        default -> errorResult("Unknown mode: " + mode + ". Use 'all', 'query', or 'count'.");
       };
     } catch (Exception e) {
       logger.error("[{}] Failed to read from shared triple store", workerId, e);
-      return CompletableFuture.completedFuture(
-          Map.of("error", "Failed to read triples: " + e.getMessage()));
+      return errorResult("Failed to read triples: " + e.getMessage());
     }
   }
 

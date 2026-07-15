@@ -58,7 +58,7 @@ public record MemorySetHandler(RunMemoryStore memoryStore, String actorId)
 
     PutResult result = memoryStore.put(key, value, actorId);
     if (!result.isSuccess()) {
-      return CompletableFuture.completedFuture(Map.of("error", result.getError()));
+      return errorResult(result.getError());
     }
 
     return CompletableFuture.completedFuture(

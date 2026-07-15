@@ -79,30 +79,26 @@ public record HttpCallHandler(
     String body = (String) arguments.get("body");
 
     if (rawUrl == null || rawUrl.isBlank()) {
-      return CompletableFuture.completedFuture(Map.of("error", "url is required"));
+      return errorResult("url is required");
     }
 
     URI uri;
     try {
       uri = new URI(rawUrl.trim());
     } catch (Exception e) {
-      return CompletableFuture.completedFuture(Map.of("error", "Invalid url: " + e.getMessage()));
+      return errorResult("Invalid url: " + e.getMessage());
     }
 
     if (!allowlist.isAllowed(uri)) {
-      return CompletableFuture.completedFuture(
-          Map.of("error", "Host not allowlisted: " + uri.getHost()));
+      return errorResult("Host not allowlisted: " + uri.getHost());
     }
 
     if (!"GET".equals(method) && !"POST".equals(method)) {
-      return CompletableFuture.completedFuture(
-          Map.of("error", "Unsupported method: " + method + ". Use GET or POST."));
+      return errorResult("Unsupported method: " + method + ". Use GET or POST.");
     }
 
     if ("POST".equals(method) && !allowPost) {
-      return CompletableFuture.completedFuture(
-          Map.of(
-              "error", "POST requests are disabled for this tool (tools.http.allow-post=false)"));
+      return errorResult("POST requests are disabled for this tool (tools.http.allow-post=false)");
     }
 
     return CompletableFuture.supplyAsync(() -> executeWithRetry(uri, method, body));
