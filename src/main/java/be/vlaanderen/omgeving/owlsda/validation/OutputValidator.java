@@ -84,4 +84,15 @@ public class OutputValidator {
   public boolean isValid() {
     return validate() == null;
   }
+
+  /** Count SHACL violations in the current output data, or -1 if it could not be validated. */
+  public int countViolations() {
+    try {
+      ValidationReport report = shacl.validate(readOutputData());
+      return report.conforms() ? 0 : report.getEntries().size();
+    } catch (Exception e) {
+      logger.debug("Could not count violations: {}", e.getMessage());
+      return -1;
+    }
+  }
 }

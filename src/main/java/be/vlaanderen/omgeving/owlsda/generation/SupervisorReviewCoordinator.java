@@ -180,7 +180,7 @@ public class SupervisorReviewCoordinator {
 
     try {
       long durationMs = System.currentTimeMillis() - iterationStart;
-      int currentViolations = validator != null ? countViolations() : -1;
+      int currentViolations = validator != null ? validator.countViolations() : -1;
       int shapesProcessed = resolveShapesProcessed();
 
       benchmarkService.createBatchSnapshot(
@@ -214,20 +214,6 @@ public class SupervisorReviewCoordinator {
     }
 
     return (int) supervisor.shacl().getShapes().stream().filter(Shacl.Shape::isProcessed).count();
-  }
-
-  private int countViolations() {
-    try {
-      String validationReport = validator.validate();
-      if (validationReport == null || validationReport.isEmpty()) {
-        return 0;
-      }
-
-      return (int) validationReport.lines().filter(line -> line.contains("sh:result")).count();
-    } catch (Exception e) {
-      logger.debug("Could not count violations: {}", e.getMessage());
-      return -1;
-    }
   }
 
   private ResponseMessage requestReviewerDecision(int iteration, boolean finalAttempt)

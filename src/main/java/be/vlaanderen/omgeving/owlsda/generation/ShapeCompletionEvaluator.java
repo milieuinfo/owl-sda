@@ -50,8 +50,6 @@ class ShapeCompletionEvaluator {
         }
         case SKIPPED_VALIDATION -> skippedByValidationShapeNames.add(shape.getName());
         case SKIPPED_NO_INSTANCES -> skippedShapeNames.add(shape.getName());
-        default ->
-            throw new IllegalStateException("Unexpected completion status: " + completionStatus);
       }
     }
 

@@ -67,6 +67,9 @@ public class ShaclTest {
     assertEquals("PersonShape", shape.getName());
     assertTrue(shape.getTurtle().contains("NodeShape"));
     assertTrue(shacl.getTurtle().contains("targetClass"));
+    // Comment must round-trip through refresh()'s Shape(Model) constructor, which requires the
+    // Shape(Resource, Model) generation constructor to have written it into the model.
+    assertEquals("A human being.", shape.getComment());
   }
 
   @Test

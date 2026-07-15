@@ -371,6 +371,9 @@ public class Shacl {
 
       // Get comment from ontology targetClass (cls)
       comment = cls.hasProperty(RDFS.comment) ? cls.getProperty(RDFS.comment).getString() : null;
+      if (comment != null) {
+        ns.addProperty(RDFS.comment, comment);
+      }
 
       // find rdfs:subClassOf values that are OWL.Restriction
       Iterator<Statement> it = ontology.listStatements(cls, RDFS.subClassOf, (RDFNode) null);
