@@ -3,18 +3,14 @@ package be.vlaanderen.omgeving.owlsda.generation;
 import be.vlaanderen.omgeving.owlsda.agent.RequestMessage;
 import be.vlaanderen.omgeving.owlsda.agent.ResponseMessage;
 import be.vlaanderen.omgeving.owlsda.agent.Session;
-import be.vlaanderen.omgeving.owlsda.agent.SessionMessageLogEntry;
-import be.vlaanderen.omgeving.owlsda.agent.context.Context;
 import be.vlaanderen.omgeving.owlsda.agent.context.ShaclContext;
 import be.vlaanderen.omgeving.owlsda.agent.context.ValidationContext;
 import be.vlaanderen.omgeving.owlsda.agent.handler.DelegationHandler;
-import be.vlaanderen.omgeving.owlsda.agent.handler.WorkerProgressHandler;
 import be.vlaanderen.omgeving.owlsda.agent.handler.WorkerTripleStore;
 import be.vlaanderen.omgeving.owlsda.config.Config;
 import be.vlaanderen.omgeving.owlsda.ontology.Shacl;
 import be.vlaanderen.omgeving.owlsda.validation.OutputValidator;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,9 +33,6 @@ public record Supervisor(
 
   private static final Logger logger = LoggerFactory.getLogger(Supervisor.class);
   private static final String DELEGATION_CONTEXT_NAME = DelegationHandler.DELEGATION_CONTEXT_NAME;
-  private static final String WORKER_RESPONSES_CONTEXT_NAME = "Worker Responses";
-  private static final String WORKER_PROGRESS_CONTEXT_NAME = WorkerProgressHandler.CONTEXT_NAME;
-  private static final int MAX_WORKER_RESPONSE_CHARS = 1200;
 
   public boolean orchestrate(int shapes, boolean firstPass) {
     try {
@@ -127,7 +120,7 @@ public record Supervisor(
   }
 
   private boolean prepareDelegationRound(int shapes, String validationReport) {
-    clearWorkerDelegationInstructions();
+    new WorkerDelegationContextManager(concurrentWorkerBatch).clearDelegationInstructions();
 
     if (shacl != null && shacl.getShapes() != null && !shacl.getShapes().isEmpty()) {
       int unprocessedShapeCount =
@@ -171,7 +164,8 @@ public record Supervisor(
     logger.info("Delegation round assigned tasks to {} worker(s)", delegatedWorkerCount);
 
     boolean batchSuccess = concurrentWorkerBatch.runWithDelegation(workerInstructions, shapes);
-    publishWorkerResponsesToSupervisor(delegatedWorkerSessions);
+    new WorkerResponsePublisher(concurrentWorkerBatch)
+        .publish(supervisorSession, delegatedWorkerSessions);
 
     int progressMarkedShapes =
         new WorkerProgressReportParser(shacl, shapeProcessingTracker)
@@ -460,88 +454,12 @@ public record Supervisor(
     sharedTripleStore.flushToOutputFile("SUPERVISOR");
   }
 
-  /**
-   * Clear delegation context and stale progress report for all workers at the start of each
-   * delegation round. Workers without new assignments must not retain stale instructions, and the
-   * Worker Progress Report must be wiped so the supervisor cannot mistake a prior round's result
-   * for current-round progress.
-   *
-   * <p>Sessions are intentionally NOT reset here: message history persistence lets workers remember
-   * static context (ontology, SHACL shapes) they already fetched in earlier rounds instead of
-   * re-reading it every round via context_reader. Context-window growth across rounds is bounded by
-   * each session's own automatic compaction (see {@code CompactionProperties}) rather than a
-   * blanket reset.
-   */
-  private void clearWorkerDelegationInstructions() {
-    if (concurrentWorkerBatch == null || concurrentWorkerBatch.workerSessionPool() == null) {
-      return;
-    }
-
-    for (Session workerSession : concurrentWorkerBatch.workerSessionPool().getAllSessions()) {
-      List<String> delegationContextNames =
-          workerSession.getContext().stream()
-              .map(Context::getName)
-              .filter(this::isDelegationContextName)
-              .distinct()
-              .toList();
-
-      if (delegationContextNames.isEmpty()) {
-        delegationContextNames = List.of(DELEGATION_CONTEXT_NAME);
-      }
-
-      for (String contextName : delegationContextNames) {
-        Context clearedDelegation = new Context();
-        clearedDelegation.setName(contextName);
-        clearedDelegation.setType("text/plain");
-        clearedDelegation.setContent("");
-        workerSession.addContextIfChanged(clearedDelegation);
-      }
-
-      // Clear the Worker Progress Report so the supervisor does not read a stale result
-      // from a previous round and mistake it for a report from the current round.
-      Context clearedProgress = new Context();
-      clearedProgress.setName(WORKER_PROGRESS_CONTEXT_NAME);
-      clearedProgress.setType("text/plain");
-      clearedProgress.setContent("");
-      workerSession.addContextIfChanged(clearedProgress);
-    }
-  }
-
   public int getDelegatedWorkerCount() {
-    if (concurrentWorkerBatch == null || concurrentWorkerBatch.workerSessionPool() == null) {
-      return 0;
-    }
-
-    int delegatedWorkers = 0;
-    for (Session workerSession : concurrentWorkerBatch.workerSessionPool().getAllSessions()) {
-      if (hasActiveDelegationInstructions(workerSession)) {
-        delegatedWorkers++;
-      }
-    }
-
-    return delegatedWorkers;
+    return new WorkerDelegationContextManager(concurrentWorkerBatch).getDelegatedWorkerCount();
   }
 
   private List<Session> getDelegatedWorkerSessions() {
-    if (concurrentWorkerBatch == null || concurrentWorkerBatch.workerSessionPool() == null) {
-      return List.of();
-    }
-
-    List<Session> delegated = new ArrayList<>();
-    for (Session workerSession : concurrentWorkerBatch.workerSessionPool().getAllSessions()) {
-      if (hasActiveDelegationInstructions(workerSession)) {
-        delegated.add(workerSession);
-      }
-    }
-    return delegated;
-  }
-
-  private boolean hasActiveDelegationInstructions(Session workerSession) {
-    return SessionContextLookup.hasNonBlankContent(workerSession, DELEGATION_CONTEXT_NAME);
-  }
-
-  private boolean isDelegationContextName(String contextName) {
-    return contextName != null && contextName.toLowerCase().contains("delegation");
+    return new WorkerDelegationContextManager(concurrentWorkerBatch).getDelegatedWorkerSessions();
   }
 
   private String getTargetAgentRange() {
@@ -609,85 +527,4 @@ public record Supervisor(
     return instruction.toString();
   }
 
-  private void publishWorkerResponsesToSupervisor(List<Session> delegatedWorkerSessions) {
-    if (supervisorSession == null
-        || concurrentWorkerBatch == null
-        || concurrentWorkerBatch.workerSessionPool() == null
-        || delegatedWorkerSessions == null
-        || delegatedWorkerSessions.isEmpty()) {
-      return;
-    }
-
-    StringBuilder content = new StringBuilder();
-    for (Session workerSession : delegatedWorkerSessions) {
-      if (workerSession == null || !hasActiveDelegationInstructions(workerSession)) {
-        continue;
-      }
-
-      String workerId = concurrentWorkerBatch.workerSessionPool().getSessionId(workerSession);
-      if (workerId == null || workerId.isBlank() || "UNKNOWN".equals(workerId)) {
-        continue;
-      }
-
-      String workerReport = getWorkerProgressReport(workerSession);
-      if (workerReport != null && !workerReport.isBlank()) {
-        content
-            .append(workerId)
-            .append(" [STRUCTURED_PROGRESS]:\n")
-            .append(truncate(workerReport))
-            .append("\n\n");
-        // Progress report already provides full context; skip the raw message log.
-        continue;
-      }
-
-      // No structured progress report for this round — fall back to latest message.
-      SessionMessageLogEntry latest = getLatestWorkerResponse(workerSession);
-      if (latest == null) {
-        continue;
-      }
-
-      content
-          .append(workerId)
-          .append(" [")
-          .append(latest.direction())
-          .append("]:\n")
-          .append(truncate(latest.content()))
-          .append("\n\n");
-    }
-
-    if (content.isEmpty()) {
-      return;
-    }
-
-    Context workerResponses = new Context();
-    workerResponses.setName(WORKER_RESPONSES_CONTEXT_NAME);
-    workerResponses.setType("text/plain");
-    workerResponses.setContent(content.toString().trim());
-    supervisorSession.addContextIfChanged(workerResponses);
-  }
-
-  private String getWorkerProgressReport(Session workerSession) {
-    return SessionContextLookup.findContent(workerSession, WORKER_PROGRESS_CONTEXT_NAME);
-  }
-
-  private SessionMessageLogEntry getLatestWorkerResponse(Session workerSession) {
-    List<SessionMessageLogEntry> entries = workerSession.getMessageLog();
-    for (int i = entries.size() - 1; i >= 0; i--) {
-      SessionMessageLogEntry entry = entries.get(i);
-      if ("INBOUND".equals(entry.direction()) || "ERROR".equals(entry.direction())) {
-        return entry;
-      }
-    }
-    return null;
-  }
-
-  private String truncate(String value) {
-    if (value == null) {
-      return "";
-    }
-    if (value.length() <= Supervisor.MAX_WORKER_RESPONSE_CHARS) {
-      return value;
-    }
-    return value.substring(0, Supervisor.MAX_WORKER_RESPONSE_CHARS) + "...";
-  }
 }
