@@ -59,19 +59,21 @@ public class OutputReplaceHandlerTest {
 
   @Test
   public void testReplaceMiddleLines() throws Exception {
-    // Write initial content with line numbers
+    // Write initial content with line numbers. Lines are Turtle comments so the resulting file
+    // stays valid Turtle - the handler now rejects writes that wouldn't parse (see
+    // TurtleSyntaxValidator) - while the plain text still exercises the line-splicing logic below.
     String initialContent =
         """
-        Line 1
-        Line 2
-        Line 3
-        Line 4
-        Line 5
+        # Line 1
+        # Line 2
+        # Line 3
+        # Line 4
+        # Line 5
         """;
     Files.writeString(tempFile, initialContent);
 
     // Replace lines 2-4
-    String replacement = "Replaced Lines";
+    String replacement = "# Replaced Lines";
 
     Map<String, Object> arguments =
         Map.of(
@@ -90,9 +92,9 @@ public class OutputReplaceHandlerTest {
 
     String newContent = Files.readString(tempFile);
     String[] lines = newContent.split("\n");
-    assertEquals("Line 1", lines[0]);
-    assertEquals("Replaced Lines", lines[1]);
-    assertEquals("Line 5", lines[2]);
+    assertEquals("# Line 1", lines[0]);
+    assertEquals("# Replaced Lines", lines[1]);
+    assertEquals("# Line 5", lines[2]);
   }
 
   @Test
@@ -128,13 +130,13 @@ public class OutputReplaceHandlerTest {
   public void testReplaceLastLine() throws Exception {
     String initialContent =
         """
-        Line 1
-        Line 2
-        Line 3
+        # Line 1
+        # Line 2
+        # Line 3
         """;
     Files.writeString(tempFile, initialContent);
 
-    String replacement = "New Last Line";
+    String replacement = "# New Last Line";
 
     Map<String, Object> arguments =
         Map.of(
@@ -150,9 +152,9 @@ public class OutputReplaceHandlerTest {
 
     String newContent = Files.readString(tempFile);
     String[] lines = newContent.split("\n");
-    assertEquals("Line 1", lines[0]);
-    assertEquals("Line 2", lines[1]);
-    assertEquals("New Last Line", lines[2]);
+    assertEquals("# Line 1", lines[0]);
+    assertEquals("# Line 2", lines[1]);
+    assertEquals("# New Last Line", lines[2]);
   }
 
   @Test
@@ -160,7 +162,7 @@ public class OutputReplaceHandlerTest {
     // Delete the temp file to simulate non-existent file
     Files.deleteIfExists(tempFile);
 
-    String replacement = "New content";
+    String replacement = "# New content";
 
     Map<String, Object> arguments = Map.of("output", replacement);
     CompletableFuture<Object> result = handler.handle(arguments);
@@ -178,17 +180,17 @@ public class OutputReplaceHandlerTest {
   public void testReplaceWithMultilineContent() throws Exception {
     String initialContent =
         """
-        Line 1
-        Line 2
-        Line 3
+        # Line 1
+        # Line 2
+        # Line 3
         """;
     Files.writeString(tempFile, initialContent);
 
     String replacement =
         """
-        Replacement Line A
-        Replacement Line B
-        Replacement Line C
+        # Replacement Line A
+        # Replacement Line B
+        # Replacement Line C
         """;
 
     Map<String, Object> arguments =
