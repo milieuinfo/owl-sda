@@ -272,7 +272,7 @@ public record SupervisorWorkflow(
       return 0;
     }
 
-    DataModelValidation validation = getCurrentDataModelValidation();
+    DataModelSnapshotResolver.DataModelValidation validation = resolveCurrentDataModelValidation();
     if (validation == null) {
       return 0;
     }
@@ -392,11 +392,6 @@ public record SupervisorWorkflow(
     return ViolationSnapshot.unknown();
   }
 
-  private int countViolations(Model dataModel) {
-    ValidationReport report = shacl.validate(dataModel);
-    return report.getEntries().size();
-  }
-
   private String buildViolationSignature(ValidationReport report) {
     if (report == null || report.getEntries() == null || report.getEntries().isEmpty()) {
       return "";
@@ -444,7 +439,7 @@ public record SupervisorWorkflow(
       return 0;
     }
 
-    DataModelValidation validation = getCurrentDataModelValidation();
+    DataModelSnapshotResolver.DataModelValidation validation = resolveCurrentDataModelValidation();
     if (validation == null) {
       return 0;
     }
@@ -473,58 +468,14 @@ public record SupervisorWorkflow(
     return count;
   }
 
-  private record DataModelValidation(Model model, ValidationReport report) {}
-
   /**
    * Gets the current data model together with its SHACL validation report, reusing the shared
    * triple store's cached validation when available instead of re-validating the same unchanged
    * model.
    */
-  private DataModelValidation getCurrentDataModelValidation() {
-    if (sharedTripleStore != null && sharedTripleStore.size() > 0) {
-      try {
-        WorkerTripleStore.ValidationSnapshot snapshot =
-            sharedTripleStore.getValidationSnapshot(shacl);
-        return new DataModelValidation(snapshot.model(), snapshot.report());
-      } catch (Exception e) {
-        logger.debug("Could not get shared triple store validation snapshot: {}", e.getMessage());
-      }
-    }
-
-    Model dataModel = getCurrentDataModel();
-    if (dataModel == null) {
-      return null;
-    }
-    return new DataModelValidation(dataModel, shacl.validate(dataModel));
-  }
-
-  /** Gets the current data model from either the shared triple store or output file. */
-  private Model getCurrentDataModel() {
-    // During generation, the shared store is the live source of truth
-    if (sharedTripleStore != null && sharedTripleStore.size() > 0) {
-      try {
-        return sharedTripleStore.getModel();
-      } catch (Exception e) {
-        logger.debug("Could not get shared triple store model: {}", e.getMessage());
-      }
-    }
-
-    // Fall back to output file
-    if (config != null && config.getOutputPath() != null) {
-      Path outputFile = Path.of(config.getOutputPath());
-      if (Files.exists(outputFile)) {
-        try {
-          String turtleData = Files.readString(outputFile);
-          Model dataModel = ModelFactory.createDefaultModel();
-          dataModel.read(new StringReader(turtleData), null, "TURTLE");
-          return dataModel;
-        } catch (Exception e) {
-          logger.debug("Could not read output file model: {}", e.getMessage());
-        }
-      }
-    }
-
-    return null;
+  private DataModelSnapshotResolver.DataModelValidation resolveCurrentDataModelValidation() {
+    return DataModelSnapshotResolver.resolve(
+        sharedTripleStore, shacl, config != null ? config.getOutputPath() : null);
   }
 
   private void runFinalizationWithBenchmark() {

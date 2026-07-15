@@ -4,7 +4,6 @@ import be.vlaanderen.omgeving.owlsda.agent.RequestMessage;
 import be.vlaanderen.omgeving.owlsda.agent.Session;
 import be.vlaanderen.omgeving.owlsda.agent.SessionPool;
 import be.vlaanderen.omgeving.owlsda.agent.SessionPool.SessionWithId;
-import be.vlaanderen.omgeving.owlsda.agent.context.Context;
 import be.vlaanderen.omgeving.owlsda.agent.context.ShaclContext;
 import be.vlaanderen.omgeving.owlsda.agent.handler.DelegationHandler;
 import be.vlaanderen.omgeving.owlsda.ontology.Shacl;
@@ -120,16 +119,10 @@ public record WorkerAgent(
   }
 
   private String getDelegationContextContent(Session session) {
-    for (Context context : session.getContext()) {
-      if (DELEGATION_CONTEXT_NAME.equals(context.getName())) {
-        return context.getContent();
-      }
-    }
-    return null;
+    return SessionContextLookup.findContent(session, DELEGATION_CONTEXT_NAME);
   }
 
   private boolean hasActiveDelegationInstructions(Session session) {
-    String delegationInstructions = getDelegationContextContent(session);
-    return delegationInstructions != null && !delegationInstructions.isBlank();
+    return SessionContextLookup.hasNonBlankContent(session, DELEGATION_CONTEXT_NAME);
   }
 }

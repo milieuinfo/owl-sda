@@ -76,23 +76,18 @@ public record Supervisor(
   }
 
   private String validateSharedStore() {
-    if (sharedTripleStore == null || sharedTripleStore.size() == 0 || shacl == null) {
+    if (sharedTripleStore == null || sharedTripleStore.size() == 0) {
       return null;
     }
 
-    try {
-      ValidationReport report = sharedTripleStore.getValidationSnapshot(shacl).report();
-      if (report.conforms()) {
-        return null;
-      }
-
-      return formatValidationReport(report, "store");
-    } catch (Exception e) {
-      logger.warn(
-          "Failed shared-store validation for delegation, falling back to file validation: {}",
-          e.getMessage());
+    DataModelSnapshotResolver.DataModelValidation validation =
+        DataModelSnapshotResolver.resolve(
+            sharedTripleStore, shacl, validator != null ? validator.getOutputPath() : null);
+    if (validation == null || validation.report().conforms()) {
       return null;
     }
+
+    return formatValidationReport(validation.report(), "store");
   }
 
   private String formatValidationReport(ValidationReport report, String source) {
@@ -773,16 +768,7 @@ public record Supervisor(
   }
 
   private boolean hasActiveDelegationInstructions(Session workerSession) {
-    for (Context context : workerSession.getContext()) {
-      String contextName = context.getName();
-      if (!DELEGATION_CONTEXT_NAME.equals(contextName)) {
-        continue;
-      }
-
-      String content = context.getContent();
-      return content != null && !content.isBlank();
-    }
-    return false;
+    return SessionContextLookup.hasNonBlankContent(workerSession, DELEGATION_CONTEXT_NAME);
   }
 
   private boolean isDelegationContextName(String contextName) {
@@ -912,12 +898,7 @@ public record Supervisor(
   }
 
   private String getWorkerProgressReport(Session workerSession) {
-    for (Context context : workerSession.getContext()) {
-      if (WORKER_PROGRESS_CONTEXT_NAME.equals(context.getName())) {
-        return context.getContent();
-      }
-    }
-    return null;
+    return SessionContextLookup.findContent(workerSession, WORKER_PROGRESS_CONTEXT_NAME);
   }
 
   private SessionMessageLogEntry getLatestWorkerResponse(Session workerSession) {
