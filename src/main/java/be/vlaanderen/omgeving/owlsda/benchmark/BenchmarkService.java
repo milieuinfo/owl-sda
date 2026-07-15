@@ -211,7 +211,15 @@ public class BenchmarkService {
               .format(Instant.ofEpochMilli(now));
 
       String baseOutput = config.getBenchmark().getOutputDir();
-      Path snapshotDir = Path.of(baseOutput, timestamp);
+      String snapshotId = timestamp;
+      Path snapshotDir = Path.of(baseOutput, snapshotId);
+      // Millisecond-resolution timestamps can collide when snapshots are created in rapid
+      // succession (e.g. back-to-back stage transitions); disambiguate instead of silently
+      // overwriting an earlier snapshot's directory.
+      for (int suffix = 1; Files.exists(snapshotDir); suffix++) {
+        snapshotId = timestamp + "-" + suffix;
+        snapshotDir = Path.of(baseOutput, snapshotId);
+      }
       Files.createDirectories(snapshotDir);
 
       writeMetadata(
@@ -219,7 +227,7 @@ public class BenchmarkService {
           snapshotData.stage(),
           snapshotData.shapesProcessed(),
           snapshotData.durationMs(),
-          timestamp,
+          snapshotId,
           snapshotData.tripleStore(),
           currentViolations,
           snapshotData.generatorSession(),
@@ -248,7 +256,7 @@ public class BenchmarkService {
 
       log.info(
           "Benchmark snapshot created: {} (triple store: {} triples, violations: {})",
-          timestamp,
+          snapshotId,
           snapshotData.tripleStore() != null ? snapshotData.tripleStore().size() : 0,
           currentViolations);
 
@@ -256,7 +264,7 @@ public class BenchmarkService {
       if (jsonFile != null) {
         log.info("Benchmark JSON summary saved to: {}", jsonFile);
       }
-      return timestamp;
+      return snapshotId;
     } catch (IOException e) {
       log.error("Error creating benchmark snapshot", e);
       return null;
