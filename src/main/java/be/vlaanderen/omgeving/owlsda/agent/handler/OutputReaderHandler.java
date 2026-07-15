@@ -12,8 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Handler that reads output data from a TURTLE file.
- * Supports both line-based and character-based chunked reading for efficient handling of large files.
+ * Handler that reads output data from a TURTLE file. Supports both line-based and character-based
+ * chunked reading for efficient handling of large files.
  */
 public class OutputReaderHandler implements SessionHandler {
   public static final String NAME = "output_data_reader";
@@ -42,31 +42,33 @@ public class OutputReaderHandler implements SessionHandler {
   @Override
   public Map<String, Object> getArguments() {
     return Map.of(
-        "type", "object",
-        "properties", Map.of(
-            "mode", Map.of(
-                "type", "string",
-                "enum", List.of("full", "lines", "chunk"),
-                "description", "Reading mode: 'full' reads entire file, 'lines' reads line range, 'chunk' reads character range (default: full)"
-            ),
-            "start_line", Map.of(
-                "type", "integer",
-                "description", "Start line number for 'lines' mode (default: 0)"
-            ),
-            "end_line", Map.of(
-                "type", "integer",
-                "description", "End line number for 'lines' mode (default: end of file)"
-            ),
-            "start", Map.of(
-                "type", "integer",
-                "description", "Start character position for 'chunk' mode (default: 0)"
-            ),
-            "length", Map.of(
-                "type", "integer",
-                "description", "Number of characters to read for 'chunk' mode (default: 10000)"
-            )
-        )
-    );
+        "type",
+        "object",
+        "properties",
+        Map.of(
+            "mode",
+                Map.of(
+                    "type", "string",
+                    "enum", List.of("full", "lines", "chunk"),
+                    "description",
+                        "Reading mode: 'full' reads entire file, 'lines' reads line range, 'chunk' reads character range (default: full)"),
+            "start_line",
+                Map.of(
+                    "type", "integer",
+                    "description", "Start line number for 'lines' mode (default: 0)"),
+            "end_line",
+                Map.of(
+                    "type", "integer",
+                    "description", "End line number for 'lines' mode (default: end of file)"),
+            "start",
+                Map.of(
+                    "type", "integer",
+                    "description", "Start character position for 'chunk' mode (default: 0)"),
+            "length",
+                Map.of(
+                    "type", "integer",
+                    "description",
+                        "Number of characters to read for 'chunk' mode (default: 10000)")));
   }
 
   @Override
@@ -76,18 +78,16 @@ public class OutputReaderHandler implements SessionHandler {
 
     if (outputFilePath == null) {
       logger.error("Output path is not configured");
-      return CompletableFuture.completedFuture(Map.of(
-          "error", "Output path is not configured"
-      ));
+      return CompletableFuture.completedFuture(Map.of("error", "Output path is not configured"));
     }
 
     Path path = Path.of(outputFilePath);
     if (!Files.exists(path)) {
       logger.warn("Output file does not exist: {}", outputFilePath);
-      return CompletableFuture.completedFuture(Map.of(
-          "error", "Output file does not exist",
-          "content", ""
-      ));
+      return CompletableFuture.completedFuture(
+          Map.of(
+              "error", "Output file does not exist",
+              "content", ""));
     }
 
     try {
@@ -104,27 +104,26 @@ public class OutputReaderHandler implements SessionHandler {
       }
     } catch (IOException e) {
       logger.error("Failed to read output from file: {}", outputFilePath, e);
-      return CompletableFuture.completedFuture(Map.of(
-          "error", "Failed to read output: " + e.getMessage()
-      ));
+      return CompletableFuture.completedFuture(
+          Map.of("error", "Failed to read output: " + e.getMessage()));
     }
   }
 
   private CompletableFuture<Object> handleFullMode(Path path) throws IOException {
     String content = Files.readString(path);
     logger.info("Read full output file ({} characters)", content.length());
-    return CompletableFuture.completedFuture(Map.of(
-        "content", content,
-        "length", content.length(),
-        "mode", "full"
-    ));
+    return CompletableFuture.completedFuture(
+        Map.of("content", content, "length", content.length(), "mode", "full"));
   }
 
-  private CompletableFuture<Object> handleLinesMode(Path path, Map<String, Object> arguments) throws IOException {
-    int startLine = arguments.containsKey("start_line") ?
-        ((Number) arguments.get("start_line")).intValue() : 0;
-    int endLine = arguments.containsKey("end_line") ?
-        ((Number) arguments.get("end_line")).intValue() : Integer.MAX_VALUE;
+  private CompletableFuture<Object> handleLinesMode(Path path, Map<String, Object> arguments)
+      throws IOException {
+    int startLine =
+        arguments.containsKey("start_line") ? ((Number) arguments.get("start_line")).intValue() : 0;
+    int endLine =
+        arguments.containsKey("end_line")
+            ? ((Number) arguments.get("end_line")).intValue()
+            : Integer.MAX_VALUE;
 
     StringBuilder outputContent = new StringBuilder();
     int totalLines = 0;
@@ -143,49 +142,54 @@ public class OutputReaderHandler implements SessionHandler {
       }
     }
 
-    logger.info("Read {} lines from output file (lines {}-{} of {})",
-        readLines, startLine, Math.min(endLine, totalLines), totalLines);
+    logger.info(
+        "Read {} lines from output file (lines {}-{} of {})",
+        readLines,
+        startLine,
+        Math.min(endLine, totalLines),
+        totalLines);
 
-    return CompletableFuture.completedFuture(Map.of(
-        "content", outputContent.toString(),
-        "mode", "lines",
-        "start_line", startLine,
-        "lines_read", readLines,
-        "total_lines", totalLines
-    ));
+    return CompletableFuture.completedFuture(
+        Map.of(
+            "content", outputContent.toString(),
+            "mode", "lines",
+            "start_line", startLine,
+            "lines_read", readLines,
+            "total_lines", totalLines));
   }
 
-  private CompletableFuture<Object> handleChunkMode(Path path, Map<String, Object> arguments) throws IOException {
+  private CompletableFuture<Object> handleChunkMode(Path path, Map<String, Object> arguments)
+      throws IOException {
     String fullContent = Files.readString(path);
     int totalLength = fullContent.length();
 
-    int start = arguments.containsKey("start") ?
-        ((Number) arguments.get("start")).intValue() : 0;
-    int length = arguments.containsKey("length") ?
-        ((Number) arguments.get("length")).intValue() : 10000;
+    int start = arguments.containsKey("start") ? ((Number) arguments.get("start")).intValue() : 0;
+    int length =
+        arguments.containsKey("length") ? ((Number) arguments.get("length")).intValue() : 10000;
 
     if (start >= totalLength) {
       logger.warn("Start position {} is beyond file length {}", start, totalLength);
-      return CompletableFuture.completedFuture(Map.of(
-          "error", "Start position is beyond file length",
-          "total_length", totalLength
-      ));
+      return CompletableFuture.completedFuture(
+          Map.of("error", "Start position is beyond file length", "total_length", totalLength));
     }
 
     int end = Math.min(start + length, totalLength);
     String chunk = fullContent.substring(start, end);
     boolean hasMore = end < totalLength;
 
-    logger.info("Read chunk from output file ({} chars from position {}/{})",
-        chunk.length(), start, totalLength);
+    logger.info(
+        "Read chunk from output file ({} chars from position {}/{})",
+        chunk.length(),
+        start,
+        totalLength);
 
-    return CompletableFuture.completedFuture(Map.of(
-        "content", chunk,
-        "mode", "chunk",
-        "chunk_start", start,
-        "chunk_end", end,
-        "total_length", totalLength,
-        "has_more", hasMore
-    ));
+    return CompletableFuture.completedFuture(
+        Map.of(
+            "content", chunk,
+            "mode", "chunk",
+            "chunk_start", start,
+            "chunk_end", end,
+            "total_length", totalLength,
+            "has_more", hasMore));
   }
 }

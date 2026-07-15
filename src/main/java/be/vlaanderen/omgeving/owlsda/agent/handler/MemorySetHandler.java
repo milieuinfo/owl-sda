@@ -6,12 +6,12 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Stores a short note in the shared run-scoped memory, keyed by name, so other agents (or this
- * same agent in a later round) can retrieve it with {@code memory_get} instead of repeating it in
- * every message.
+ * Stores a short note in the shared run-scoped memory, keyed by name, so other agents (or this same
+ * agent in a later round) can retrieve it with {@code memory_get} instead of repeating it in every
+ * message.
  */
-public record MemorySetHandler(RunMemoryStore memoryStore, String actorId) implements
-    SessionHandler {
+public record MemorySetHandler(RunMemoryStore memoryStore, String actorId)
+    implements SessionHandler {
 
   public static final String NAME = "memory_set";
 
@@ -37,18 +37,18 @@ public record MemorySetHandler(RunMemoryStore memoryStore, String actorId) imple
   public Map<String, Object> getArguments() {
     return Map.of(
         "type", "object",
-        "properties", Map.of(
-            "key", Map.of(
-                "type", "string",
-                "description", "Name to store the value under"
-            ),
-            "value", Map.of(
-                "type", "string",
-                "description", "Value to store (plain text; JSON-encode it yourself if structured)"
-            )
-        ),
-        "required", List.of("key", "value")
-    );
+        "properties",
+            Map.of(
+                "key",
+                    Map.of(
+                        "type", "string",
+                        "description", "Name to store the value under"),
+                "value",
+                    Map.of(
+                        "type", "string",
+                        "description",
+                            "Value to store (plain text; JSON-encode it yourself if structured)")),
+        "required", List.of("key", "value"));
   }
 
   @Override
@@ -61,10 +61,7 @@ public record MemorySetHandler(RunMemoryStore memoryStore, String actorId) imple
       return CompletableFuture.completedFuture(Map.of("error", result.getError()));
     }
 
-    return CompletableFuture.completedFuture(Map.of(
-        "status", "success",
-        "key", key,
-        "total_entries", result.getTotalEntries()
-    ));
+    return CompletableFuture.completedFuture(
+        Map.of("status", "success", "key", key, "total_entries", result.getTotalEntries()));
   }
 }

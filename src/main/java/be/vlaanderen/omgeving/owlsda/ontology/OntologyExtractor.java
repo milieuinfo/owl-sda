@@ -45,8 +45,9 @@ public class OntologyExtractor {
 
   public OntologyExtractor(Config config) {
     this.config = config;
-    var builder = HttpClient.newBuilder()
-        .connectTimeout(Duration.ofMillis(config.getExtract().getConnectTimeoutMs()));
+    var builder =
+        HttpClient.newBuilder()
+            .connectTimeout(Duration.ofMillis(config.getExtract().getConnectTimeoutMs()));
     if (config.getExtract().isFollowRedirects()) {
       builder.followRedirects(HttpClient.Redirect.NORMAL);
     }
@@ -54,14 +55,17 @@ public class OntologyExtractor {
 
     // initialize file cache directory if caching enabled
     Path dirPath = null;
-    if (config.getExtract().isCacheEnabled() && config.getExtract().getCacheDir() != null && !config.getExtract().getCacheDir()
-        .isBlank()) {
+    if (config.getExtract().isCacheEnabled()
+        && config.getExtract().getCacheDir() != null
+        && !config.getExtract().getCacheDir().isBlank()) {
       Path tmp = Paths.get(config.getExtract().getCacheDir());
       try {
         Files.createDirectories(tmp);
         dirPath = tmp;
       } catch (Exception e) {
-        logger.warn("Unable to create cache directory {}: {}", config.getExtract().getCacheDir(),
+        logger.warn(
+            "Unable to create cache directory {}: {}",
+            config.getExtract().getCacheDir(),
             e.getMessage());
       }
     }
@@ -96,10 +100,14 @@ public class OntologyExtractor {
     return externalReferences;
   }
 
-  private void resolveReference(Ontology info, String reference,
+  private void resolveReference(
+      Ontology info,
+      String reference,
       Map<String, Model> resolvedByNormalizedReference,
       Set<String> failedNormalizedReferences) {
-    if (reference == null || reference.isBlank() || info.getExternalModels().containsKey(reference)) {
+    if (reference == null
+        || reference.isBlank()
+        || info.getExternalModels().containsKey(reference)) {
       return;
     }
 
@@ -116,11 +124,18 @@ public class OntologyExtractor {
       return;
     }
 
+    logger.warn(
+        "Could not resolve external ontology reference {} after exhausting cache, candidates,"
+            + " and mirrors",
+        reference);
     failedNormalizedReferences.add(normalizedReference);
     inMemoryFailedReferences.add(normalizedReference);
   }
 
-  private Model resolveModel(Ontology info, String reference, String normalizedReference,
+  private Model resolveModel(
+      Ontology info,
+      String reference,
+      String normalizedReference,
       Map<String, Model> resolvedByNormalizedReference) {
     var model = lookupResolvedModel(normalizedReference, resolvedByNormalizedReference);
     if (model != null) {
@@ -140,8 +155,8 @@ public class OntologyExtractor {
     return resolveFromCandidates(reference, normalizedReference, resolvedByNormalizedReference);
   }
 
-  private Model lookupResolvedModel(String normalizedReference,
-      Map<String, Model> resolvedByNormalizedReference) {
+  private Model lookupResolvedModel(
+      String normalizedReference, Map<String, Model> resolvedByNormalizedReference) {
     var model = resolvedByNormalizedReference.get(normalizedReference);
     if (model != null) {
       return model;
@@ -149,7 +164,9 @@ public class OntologyExtractor {
     return inMemoryResolvedModels.get(normalizedReference);
   }
 
-  private Model resolveFromCandidates(String reference, String normalizedReference,
+  private Model resolveFromCandidates(
+      String reference,
+      String normalizedReference,
       Map<String, Model> resolvedByNormalizedReference) {
     var candidates = new LinkedHashSet<String>();
     candidates.add(reference);
@@ -172,7 +189,8 @@ public class OntologyExtractor {
       var fetched = fetchExternalOntology(candidate);
       if (fetched != null) {
         rememberResolved(candidateNormalized, fetched, resolvedByNormalizedReference);
-        putInFileCacheQuietly(reference, normalizedReference, candidate, candidateNormalized, fetched);
+        putInFileCacheQuietly(
+            reference, normalizedReference, candidate, candidateNormalized, fetched);
         return fetched;
       }
 
@@ -182,15 +200,19 @@ public class OntologyExtractor {
     return null;
   }
 
-  private void rememberResolved(String normalizedReference, Model model,
-      Map<String, Model> resolvedByNormalizedReference) {
+  private void rememberResolved(
+      String normalizedReference, Model model, Map<String, Model> resolvedByNormalizedReference) {
     resolvedByNormalizedReference.put(normalizedReference, model);
     inMemoryResolvedModels.put(normalizedReference, model);
     inMemoryFailedReferences.remove(normalizedReference);
   }
 
-  private void putInFileCacheQuietly(String reference, String normalizedReference,
-      String candidate, String candidateNormalized, Model model) {
+  private void putInFileCacheQuietly(
+      String reference,
+      String normalizedReference,
+      String candidate,
+      String candidateNormalized,
+      Model model) {
     if (!config.getExtract().isCacheEnabled() || cacheDir == null) {
       return;
     }
@@ -253,13 +275,17 @@ public class OntologyExtractor {
       }
       try {
         Files.setLastModifiedTime(file, FileTime.fromMillis(System.currentTimeMillis()));
-      } catch (Exception e) { /* ignore */ }
+      } catch (Exception e) {
+        /* ignore */
+      }
     } finally {
       try {
         if (Files.exists(tmp)) {
           Files.deleteIfExists(tmp);
         }
-      } catch (Exception e) { /* ignore */ }
+      } catch (Exception e) {
+        /* ignore */
+      }
     }
   }
 
@@ -272,8 +298,11 @@ public class OntologyExtractor {
           return model;
         }
       } catch (Exception ex) {
-        logger.debug("Failed to parse cached model {} with format {}: {}", file,
-            config.getExtract().getCacheFormat(), ex.getMessage());
+        logger.debug(
+            "Failed to parse cached model {} with format {}: {}",
+            file,
+            config.getExtract().getCacheFormat(),
+            ex.getMessage());
       }
     } catch (Exception e) {
       logger.warn("Failed to read cached model file {}: {}", file, e.getMessage());
@@ -306,7 +335,8 @@ public class OntologyExtractor {
     return false;
   }
 
-  private Model findAlreadyLoadedModel(Map<String, Model> externalModels, String normalizedReference) {
+  private Model findAlreadyLoadedModel(
+      Map<String, Model> externalModels, String normalizedReference) {
     for (var entry : externalModels.entrySet()) {
       if (normalizeReference(entry.getKey()).equals(normalizedReference)) {
         return entry.getValue();
@@ -352,15 +382,16 @@ public class OntologyExtractor {
       int redirects = 0;
       try {
         while (true) {
-          var request = HttpRequest.newBuilder()
-              .uri(URI.create(current))
-              .timeout(Duration.ofMillis(config.getExtract().getReadTimeoutMs()))
-              .header("User-Agent", config.getExtract().getUserAgent())
-              .GET()
-              .build();
+          var request =
+              HttpRequest.newBuilder()
+                  .uri(URI.create(current))
+                  .timeout(Duration.ofMillis(config.getExtract().getReadTimeoutMs()))
+                  .header("User-Agent", config.getExtract().getUserAgent())
+                  .GET()
+                  .build();
 
-          HttpResponse<byte[]> response = httpClient.send(request,
-              HttpResponse.BodyHandlers.ofByteArray());
+          HttpResponse<byte[]> response =
+              httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
           int status = response.statusCode();
 
           if (status >= 200 && status < 300) {
@@ -370,9 +401,10 @@ public class OntologyExtractor {
             if (model != null) {
               return model;
             }
-            lastError = String.format(
-                "Unable to parse external ontology content from %s (content-type=%s)", current,
-                contentType.orElse("<none>"));
+            lastError =
+                String.format(
+                    "Unable to parse external ontology content from %s (content-type=%s)",
+                    current, contentType.orElse("<none>"));
             break; // parsing failed, don't retry this candidate further
           }
 
@@ -409,8 +441,8 @@ public class OntologyExtractor {
         return null;
       } catch (IOException ioe) {
         lastError = ioe.getMessage();
-        logger.debug("Network error fetching {} (attempt {}): {}", reference, attempt,
-            ioe.getMessage());
+        logger.debug(
+            "Network error fetching {} (attempt {}): {}", reference, attempt, ioe.getMessage());
         // try next attempt if any
         if (attempt == maxAttempts) {
           break;
@@ -422,7 +454,9 @@ public class OntologyExtractor {
       break;
     }
 
-    logger.warn("Failed fetching external ontology {}: {}", reference,
+    logger.warn(
+        "Failed fetching external ontology {}: {}",
+        reference,
         lastError == null ? "unknown error" : lastError);
     return null;
   }
@@ -438,13 +472,14 @@ public class OntologyExtractor {
       }
     }
     // If content-type is missing or unrecognized, infer from file extension
-    lang = switch (reference) {
-      case String r when r.endsWith(".json") || r.endsWith(".jsonld") -> "JSON-LD";
-      case String r when r.endsWith(".rdf") || r.endsWith(".xml") -> "RDF/XML";
-      case String r when r.endsWith(".nt") || r.endsWith(".ntriples") -> "N-TRIPLES";
-      case String r when r.endsWith(".n3") -> "N3";
-      default -> "TURTLE";
-    };
+    lang =
+        switch (reference) {
+          case String r when r.endsWith(".json") || r.endsWith(".jsonld") -> "JSON-LD";
+          case String r when r.endsWith(".rdf") || r.endsWith(".xml") -> "RDF/XML";
+          case String r when r.endsWith(".nt") || r.endsWith(".ntriples") -> "N-TRIPLES";
+          case String r when r.endsWith(".n3") -> "N3";
+          default -> "TURTLE";
+        };
     return parseWithLang(body, lang);
   }
 

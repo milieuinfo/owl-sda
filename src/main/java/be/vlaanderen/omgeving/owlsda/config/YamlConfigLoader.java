@@ -1,11 +1,5 @@
 package be.vlaanderen.omgeving.owlsda.config;
 
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.introspector.Property;
-import org.yaml.snakeyaml.introspector.PropertyUtils;
-import org.yaml.snakeyaml.LoaderOptions;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -13,12 +7,17 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.introspector.Property;
+import org.yaml.snakeyaml.introspector.PropertyUtils;
 
 /**
- * Helper to load YAML configurations into POJOs. Use the {@link YamlConfig}
- * annotation on a class to automatically load from a classpath resource.
+ * Helper to load YAML configurations into POJOs. Use the {@link YamlConfig} annotation on a class
+ * to automatically load from a classpath resource.
  *
- * Supports kebab-case property names in YAML that map to camelCase Java properties.
+ * <p>Supports kebab-case property names in YAML that map to camelCase Java properties.
  */
 public final class YamlConfigLoader {
 
@@ -26,9 +25,7 @@ public final class YamlConfigLoader {
     // static helper
   }
 
-  /**
-   * Custom PropertyUtils that converts kebab-case YAML properties to camelCase Java properties.
-   */
+  /** Custom PropertyUtils that converts kebab-case YAML properties to camelCase Java properties. */
   static class KebabCasePropertyUtils extends PropertyUtils {
 
     @Override
@@ -64,9 +61,9 @@ public final class YamlConfigLoader {
   }
 
   /**
-   * Loads a configuration object for the given class. The class must be annotated
-   * with {@link YamlConfig}. If the annotation provides no resource or the resource
-   * is missing and required=true, an IOException is thrown.
+   * Loads a configuration object for the given class. The class must be annotated with {@link
+   * YamlConfig}. If the annotation provides no resource or the resource is missing and
+   * required=true, an IOException is thrown.
    *
    * @param type the POJO type
    * @param <T> generic type
@@ -76,19 +73,19 @@ public final class YamlConfigLoader {
   public static <T> T load(Class<T> type) throws IOException {
     YamlConfig cfg = type.getAnnotation(YamlConfig.class);
     if (cfg == null || cfg.resource().isEmpty()) {
-      throw new IllegalArgumentException("Class must be annotated with @YamlConfig(resource = \"...\")");
+      throw new IllegalArgumentException(
+          "Class must be annotated with @YamlConfig(resource = \"...\")");
     }
     return loadFromClasspath(cfg.resource(), type, cfg.required());
   }
 
-  /**
-   * Load a YAML file from the classpath.
-   */
+  /** Load a YAML file from the classpath. */
   public static <T> T loadFromClasspath(String resource, Class<T> type) throws IOException {
     return loadFromClasspath(resource, type, true);
   }
 
-  private static <T> T loadFromClasspath(String resource, Class<T> type, boolean required) throws IOException {
+  private static <T> T loadFromClasspath(String resource, Class<T> type, boolean required)
+      throws IOException {
     InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
     if (in == null) {
       if (required) {
@@ -107,15 +104,14 @@ public final class YamlConfigLoader {
     }
   }
 
-  /**
-   * Load a YAML file from the filesystem path.
-   */
+  /** Load a YAML file from the filesystem path. */
   public static <T> T loadFromPath(String path, Class<T> type) throws IOException {
     Path p = Path.of(path);
     if (!Files.exists(p)) {
       throw new IOException("File not found: " + path);
     }
-    try (InputStream in = Files.newInputStream(p); Reader reader = new InputStreamReader(in, StandardCharsets.UTF_8)) {
+    try (InputStream in = Files.newInputStream(p);
+        Reader reader = new InputStreamReader(in, StandardCharsets.UTF_8)) {
       Yaml yaml = createYaml();
       try {
         return yaml.loadAs(reader, type);
@@ -126,8 +122,8 @@ public final class YamlConfigLoader {
   }
 
   /**
-   * Creates a YAML instance configured with KebabCasePropertyUtils to support
-   * kebab-case property names in YAML files mapped to camelCase Java properties.
+   * Creates a YAML instance configured with KebabCasePropertyUtils to support kebab-case property
+   * names in YAML files mapped to camelCase Java properties.
    */
   private static Yaml createYaml() {
     LoaderOptions options = new LoaderOptions();

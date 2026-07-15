@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
  * Handles output feedback from the LLM, supporting multiple feedback states: ACCEPTED (output is
  * ready), REJECTED (generation failed), or REVISION_REQUESTED.
  */
-public record OutputFeedbackHandler(
-    Supplier<SupervisorReviewCoordinator> reviewCoordinatorProvider) implements SessionHandler {
+public record OutputFeedbackHandler(Supplier<SupervisorReviewCoordinator> reviewCoordinatorProvider)
+    implements SessionHandler {
 
   public static final String NAME = "output_feedback";
 
@@ -37,18 +37,22 @@ public record OutputFeedbackHandler(
   @Override
   public Map<String, Object> getArguments() {
     return Map.of(
-        "type", "object",
-        "properties", Map.of(
-            "state", Map.of(
-                "type", "string",
-                "enum", new String[]{"ACCEPTED", "REJECTED", "REVISION_REQUESTED"},
-                "description", "The feedback state for the generated output"),
-            "feedback", Map.of(
-                "type", "string",
-                "description", "Actionable reviewer feedback for supervisor revisions. Required when state is REVISION_REQUESTED or REJECTED.")
-        ),
-        "required", new String[]{"state"}
-    );
+        "type",
+        "object",
+        "properties",
+        Map.of(
+            "state",
+                Map.of(
+                    "type", "string",
+                    "enum", new String[] {"ACCEPTED", "REJECTED", "REVISION_REQUESTED"},
+                    "description", "The feedback state for the generated output"),
+            "feedback",
+                Map.of(
+                    "type", "string",
+                    "description",
+                        "Actionable reviewer feedback for supervisor revisions. Required when state is REVISION_REQUESTED or REJECTED.")),
+        "required",
+        new String[] {"state"});
   }
 
   @Override
@@ -74,8 +78,8 @@ public record OutputFeedbackHandler(
     return CompletableFuture.completedFuture(null);
   }
 
-  private void handleFeedback(SupervisorReviewCoordinator coordinator, FeedbackState state,
-      String feedbackText) {
+  private void handleFeedback(
+      SupervisorReviewCoordinator coordinator, FeedbackState state, String feedbackText) {
     coordinator.markReviewerDecisionReceived();
 
     switch (state) {
@@ -99,6 +103,8 @@ public record OutputFeedbackHandler(
         coordinator.setReviewerFeedbackText(feedbackText);
         logger.info("Output feedback: REVISION_REQUESTED (requires changes)");
         break;
+      default:
+        throw new IllegalStateException("Unexpected output_feedback.state: " + state);
     }
   }
 

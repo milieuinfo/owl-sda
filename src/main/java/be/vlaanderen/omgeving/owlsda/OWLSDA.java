@@ -1,20 +1,20 @@
 package be.vlaanderen.omgeving.owlsda;
 
+import be.vlaanderen.omgeving.owlsda.agent.Session;
+import be.vlaanderen.omgeving.owlsda.agent.SessionManager;
+import be.vlaanderen.omgeving.owlsda.agent.context.Context;
+import be.vlaanderen.omgeving.owlsda.agent.context.ContextContentLoader;
+import be.vlaanderen.omgeving.owlsda.agent.context.OntologyContext;
 import be.vlaanderen.omgeving.owlsda.benchmark.BenchmarkService;
 import be.vlaanderen.omgeving.owlsda.config.Config;
 import be.vlaanderen.omgeving.owlsda.generation.ConcurrentWorkerBatch;
 import be.vlaanderen.omgeving.owlsda.generation.Supervisor;
 import be.vlaanderen.omgeving.owlsda.generation.SupervisorReviewCoordinator;
 import be.vlaanderen.omgeving.owlsda.generation.SupervisorWorkflow;
-import be.vlaanderen.omgeving.owlsda.agent.Session;
-import be.vlaanderen.omgeving.owlsda.agent.context.Context;
-import be.vlaanderen.omgeving.owlsda.agent.context.ContextContentLoader;
-import be.vlaanderen.omgeving.owlsda.agent.context.OntologyContext;
 import be.vlaanderen.omgeving.owlsda.ontology.Ontology;
 import be.vlaanderen.omgeving.owlsda.ontology.OntologyExtractor;
 import be.vlaanderen.omgeving.owlsda.ontology.OntologyReasoner;
 import be.vlaanderen.omgeving.owlsda.ontology.Shacl;
-import be.vlaanderen.omgeving.owlsda.agent.SessionManager;
 import be.vlaanderen.omgeving.owlsda.validation.OutputValidator;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,9 +33,7 @@ import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Main OWLSDA orchestrator.
- */
+/** Main OWLSDA orchestrator. */
 @Getter
 public class OWLSDA {
   private static final Logger logger = LoggerFactory.getLogger(OWLSDA.class);
@@ -90,9 +88,10 @@ public class OWLSDA {
     cleanupOutputAndBenchmarks();
     prepareStep();
 
-    int totalShapes = defaultShacl != null && defaultShacl.getShapes() != null
-        ? defaultShacl.getShapes().size()
-        : 0;
+    int totalShapes =
+        defaultShacl != null && defaultShacl.getShapes() != null
+            ? defaultShacl.getShapes().size()
+            : 0;
     if (totalShapes <= 0) {
       logger.error("No SHACL shapes available after preparation; skipping generation run");
       return;
@@ -145,13 +144,16 @@ public class OWLSDA {
     }
 
     try (Stream<Path> paths = Files.walk(dir)) {
-      paths.sorted(Comparator.reverseOrder()).forEach(path -> {
-        try {
-          Files.deleteIfExists(path);
-        } catch (IOException e) {
-          throw new RuntimeException(e);
-        }
-      });
+      paths
+          .sorted(Comparator.reverseOrder())
+          .forEach(
+              path -> {
+                try {
+                  Files.deleteIfExists(path);
+                } catch (IOException e) {
+                  throw new RuntimeException(e);
+                }
+              });
       logger.info("Deleted previous benchmark directory: {}", dir);
     } catch (Exception e) {
       logger.warn("Could not delete benchmark directory '{}': {}", dirPath, e.getMessage());
@@ -192,7 +194,8 @@ public class OWLSDA {
         defaultShacl.load(defaultPath, true);
         inferredShacl.load(inferredPath, false);
 
-        int loadedShapeCount = defaultShacl.getShapes() != null ? defaultShacl.getShapes().size() : 0;
+        int loadedShapeCount =
+            defaultShacl.getShapes() != null ? defaultShacl.getShapes().size() : 0;
         if (loadedShapeCount <= 0) {
           logger.warn(
               "Loaded cached SHACL files but found {} default shape(s); regenerating SHACL from ontology",
@@ -233,7 +236,8 @@ public class OWLSDA {
     if (config.getUserContext() != null && !config.getUserContext().isEmpty()) {
       for (Config.UserContextEntry entry : config.getUserContext()) {
         if (entry == null || !entry.hasSource()) {
-          logger.warn("Skipping user context with missing source (path/url): {}",
+          logger.warn(
+              "Skipping user context with missing source (path/url): {}",
               entry != null ? entry.getName() : "<null>");
           continue;
         }
@@ -241,9 +245,10 @@ public class OWLSDA {
         String source = entry.getSource();
 
         Context userContext = new Context();
-        String contextName = (entry.getName() == null || entry.getName().isBlank())
-            ? "user-context"
-            : entry.getName();
+        String contextName =
+            (entry.getName() == null || entry.getName().isBlank())
+                ? "user-context"
+                : entry.getName();
         userContext.setName(contextName);
         userContext.setFilePath(source);
         userContext.setType(ContextContentLoader.inferMimeType(source, null));
@@ -255,40 +260,41 @@ public class OWLSDA {
   private void buildSupervisorWorkflow() {
     Session supervisorSession = sessionManager.getSupervisorSession();
 
-    concurrentWorkerBatch = new ConcurrentWorkerBatch(
-        config, sessionManager.getWorkerSessionPool(), defaultShacl, validator);
-    Supervisor supervisor = new Supervisor(
-        supervisorSession,
-        validator,
-        concurrentWorkerBatch,
-        defaultShacl,
-        sessionManager.getSharedTripleStore(),
-        sessionManager.getShapeProcessingTracker()
-    );
-    int maxReviewAttempts = config.getClient() != null
-        && config.getClient().getReviewer() != null
-        ? config.getClient().getReviewer().getMaxReviewAttempts()
-        : 3;
+    concurrentWorkerBatch =
+        new ConcurrentWorkerBatch(
+            config, sessionManager.getWorkerSessionPool(), defaultShacl, validator);
+    Supervisor supervisor =
+        new Supervisor(
+            supervisorSession,
+            validator,
+            concurrentWorkerBatch,
+            defaultShacl,
+            sessionManager.getSharedTripleStore(),
+            sessionManager.getShapeProcessingTracker());
+    int maxReviewAttempts =
+        config.getClient() != null && config.getClient().getReviewer() != null
+            ? config.getClient().getReviewer().getMaxReviewAttempts()
+            : 3;
 
-    SupervisorReviewCoordinator reviewCoordinator = new SupervisorReviewCoordinator(
-        (Supplier<Session>) sessionManager::getReviewerSession,
-        supervisor,
-        validator,
-        benchmarkService,
-        sessionManager.getSharedTripleStore(),
-        maxReviewAttempts
-    );
+    SupervisorReviewCoordinator reviewCoordinator =
+        new SupervisorReviewCoordinator(
+            (Supplier<Session>) sessionManager::getReviewerSession,
+            supervisor,
+            validator,
+            benchmarkService,
+            sessionManager.getSharedTripleStore(),
+            maxReviewAttempts);
 
     sessionManager.setReviewerServiceProvider(() -> reviewCoordinator);
 
-    supervisorWorkflow = new SupervisorWorkflow(
-        config,
-        defaultShacl,
-        supervisor,
-        reviewCoordinator,
-        benchmarkService,
-        sessionManager.getSharedTripleStore(),
-        sessionManager.getWorkerSessionPool()
-    );
+    supervisorWorkflow =
+        new SupervisorWorkflow(
+            config,
+            defaultShacl,
+            supervisor,
+            reviewCoordinator,
+            benchmarkService,
+            sessionManager.getSharedTripleStore(),
+            sessionManager.getWorkerSessionPool());
   }
 }

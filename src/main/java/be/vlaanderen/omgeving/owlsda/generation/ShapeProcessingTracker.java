@@ -2,59 +2,36 @@ package be.vlaanderen.omgeving.owlsda.generation;
 
 import be.vlaanderen.omgeving.owlsda.ontology.Shacl;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Tracks which shapes have been delegated to workers and their processing status.
- * Provides methods for supervisors to verify worker completion.
+ * Tracks which SHACL shapes have been completed by workers, for supervisor status reporting via
+ * {@code check_shape_status}.
+ *
+ * <p>This only tracks completion, not per-worker delegation: because delegation instructions are
+ * free-text (a supervisor tells workers what to do in prose, not a rigid shape-to-worker assignment
+ * table), there is no reliable way to attribute "this shape is currently being worked on by worker
+ * X" versus "not yet delegated." Earlier versions of this class attempted to track that distinction
+ * but nothing ever populated it, so every shape not yet marked completed was silently misreported
+ * as "not delegated" and {@code allDelegatedShapesCompleted()} vacuously always returned {@code
+ * true}. Reporting only total/completed/remaining avoids presenting data this class cannot actually
+ * know.
  */
 public class ShapeProcessingTracker {
   private static final Logger logger = LoggerFactory.getLogger(ShapeProcessingTracker.class);
 
   private final Shacl shacl;
 
-  // Map of shape name to worker ID that was assigned
-  private final Map<String, String> shapeAssignments = new HashMap<>();
-
   // Set of shape names that have been marked as completed
   private final Set<String> completedShapes = new HashSet<>();
 
-  // Set of shape names that have been delegated but not yet completed
-  private final Set<String> pendingShapes = new HashSet<>();
-
   public ShapeProcessingTracker(Shacl shacl) {
     this.shacl = shacl;
-  }
-
-  /**
-   * Records that a shape has been delegated to a specific worker.
-   *
-   * @param shapeName The name of the shape
-   * @param workerId The worker ID (e.g., "POOL-0")
-   */
-  public synchronized void recordDelegation(String shapeName, String workerId) {
-    shapeAssignments.put(shapeName, workerId);
-    pendingShapes.add(shapeName);
-    logger.debug("Shape '{}' delegated to worker {}", shapeName, workerId);
-  }
-
-  /**
-   * Records that a shape has been delegated to multiple workers.
-   *
-   * @param shapeNames List of shape names
-   * @param workerId The worker ID
-   */
-  public synchronized void recordDelegations(List<String> shapeNames, String workerId) {
-    for (String shapeName : shapeNames) {
-      recordDelegation(shapeName, workerId);
-    }
   }
 
   /**
@@ -64,7 +41,6 @@ public class ShapeProcessingTracker {
    */
   public synchronized void markCompleted(String shapeName) {
     completedShapes.add(shapeName);
-    pendingShapes.remove(shapeName);
 
     // Also mark in SHACL shape object if available
     if (shacl != null && shacl.getShapes() != null) {
@@ -97,14 +73,7 @@ public class ShapeProcessingTracker {
     int totalShapes = shacl != null && shacl.getShapes() != null ? shacl.getShapes().size() : 0;
 
     return new ShapeProcessingStatus(
-        totalShapes,
-        completedShapes.size(),
-        pendingShapes.size(),
-        totalShapes - completedShapes.size() - pendingShapes.size(),
-        new ArrayList<>(completedShapes),
-        new ArrayList<>(pendingShapes),
-        new HashMap<>(shapeAssignments)
-    );
+        totalShapes, completedShapes.size(), new ArrayList<>(completedShapes));
   }
 
   /**
@@ -118,36 +87,20 @@ public class ShapeProcessingTracker {
     StringBuilder report = new StringBuilder();
     report.append("=== SHAPE PROCESSING STATUS ===\n\n");
     report.append(String.format("Total Shapes: %d\n", status.getTotalShapes()));
-    report.append(String.format("Completed: %d (%.1f%%)\n",
-        status.getCompletedCount(),
-        status.getTotalShapes() > 0 ? (status.getCompletedCount() * 100.0 / status.getTotalShapes()) : 0));
-    report.append(String.format("Pending: %d\n", status.getPendingCount()));
-    report.append(String.format("Not Delegated: %d\n\n", status.getNotDelegatedCount()));
-
-    if (!status.getPendingShapes().isEmpty()) {
-      report.append("PENDING SHAPES:\n");
-      for (String shapeName : status.getPendingShapes()) {
-        String workerId = status.getShapeAssignments().get(shapeName);
-        report.append(String.format("  - %s (assigned to: %s)\n", shapeName, workerId));
-      }
-      report.append("\n");
-    }
+    report.append(
+        String.format(
+            "Completed: %d (%.1f%%)\n",
+            status.getCompletedCount(),
+            status.getTotalShapes() > 0
+                ? (status.getCompletedCount() * 100.0 / status.getTotalShapes())
+                : 0));
+    report.append(String.format("Remaining: %d\n\n", status.getRemainingCount()));
 
     if (!status.getCompletedShapes().isEmpty()) {
       report.append("COMPLETED SHAPES:\n");
       for (String shapeName : status.getCompletedShapes()) {
-        String workerId = status.getShapeAssignments().get(shapeName);
-        report.append(String.format("  - %s (completed by: %s)\n", shapeName, workerId));
+        report.append(String.format("  - %s\n", shapeName));
       }
-      report.append("\n");
-    }
-
-    // Show not delegated shapes
-    if (status.getNotDelegatedCount() > 0 && shacl != null && shacl.getShapes() != null) {
-      report.append("NOT YET DELEGATED:\n");
-      shacl.getShapes().stream()
-          .filter(shape -> !status.getShapeAssignments().containsKey(shape.getName()))
-          .forEach(shape -> report.append(String.format("  - %s\n", shape.getName())));
       report.append("\n");
     }
 
@@ -155,53 +108,37 @@ public class ShapeProcessingTracker {
   }
 
   /**
-   * Checks if all delegated shapes have been completed.
+   * Checks whether every known shape has been marked completed.
    *
-   * @return true if no pending shapes remain
+   * @return true if there are no remaining shapes
    */
-  public synchronized boolean allDelegatedShapesCompleted() {
-    return pendingShapes.isEmpty();
+  public synchronized boolean allShapesCompleted() {
+    int totalShapes = shacl != null && shacl.getShapes() != null ? shacl.getShapes().size() : 0;
+    return totalShapes > 0 && completedShapes.size() >= totalShapes;
   }
 
-  /**
-   * Resets all tracking data (for new generation runs).
-   */
+  /** Resets all tracking data (for new generation runs). */
   public synchronized void reset() {
-    shapeAssignments.clear();
     completedShapes.clear();
-    pendingShapes.clear();
     logger.info("Shape processing tracker reset");
   }
 
-  /**
-   * Data class containing shape processing status information.
-   */
+  /** Data class containing shape processing status information. */
   @Getter
   public static class ShapeProcessingStatus {
     private final int totalShapes;
     private final int completedCount;
-    private final int pendingCount;
-    private final int notDelegatedCount;
     private final List<String> completedShapes;
-    private final List<String> pendingShapes;
-    private final Map<String, String> shapeAssignments;
 
     public ShapeProcessingStatus(
-        int totalShapes,
-        int completedCount,
-        int pendingCount,
-        int notDelegatedCount,
-        List<String> completedShapes,
-        List<String> pendingShapes,
-        Map<String, String> shapeAssignments) {
+        int totalShapes, int completedCount, List<String> completedShapes) {
       this.totalShapes = totalShapes;
       this.completedCount = completedCount;
-      this.pendingCount = pendingCount;
-      this.notDelegatedCount = notDelegatedCount;
       this.completedShapes = completedShapes;
-      this.pendingShapes = pendingShapes;
-      this.shapeAssignments = shapeAssignments;
+    }
+
+    public int getRemainingCount() {
+      return Math.max(0, totalShapes - completedCount);
     }
   }
 }
-

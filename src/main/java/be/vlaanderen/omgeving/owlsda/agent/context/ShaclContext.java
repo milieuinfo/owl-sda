@@ -12,6 +12,7 @@ public class ShaclContext extends Context {
 
   /**
    * Constructor for concurrent agents - each agent gets a range of shapes
+   *
    * @param shacl The SHACL shapes
    * @param startIndex The start index of shapes to process (0-based, inclusive)
    * @param endIndex The end index of shapes to process (0-based, exclusive)
@@ -22,16 +23,15 @@ public class ShaclContext extends Context {
     this.shacl = shacl;
     this.setType("text/turtle");
     int shapeCount = endIndex - startIndex;
-    this.setName(String.format("SHACL Shapes %d-%d/%d (%d shapes)",
-        startIndex + 1, endIndex, totalShapes, shapeCount));
+    this.setName(
+        String.format(
+            "SHACL Shapes %d-%d/%d (%d shapes)",
+            startIndex + 1, endIndex, totalShapes, shapeCount));
     this.setContent(getShapeRangeContext(startIndex, endIndex));
   }
 
   private String getShapeRangeContext(int startIndex, int endIndex) {
-    List<Shape> shapes = shacl.getShapes()
-        .stream()
-        .filter(shape -> !shape.isProcessed())
-        .toList();
+    List<Shape> shapes = shacl.getShapes().stream().filter(shape -> !shape.isProcessed()).toList();
 
     if (startIndex < 0 || endIndex > shapes.size() || startIndex >= endIndex) {
       return "# Invalid shape range: " + startIndex + " to " + endIndex;
@@ -49,5 +49,4 @@ public class ShaclContext extends Context {
     rangeModel.write(rangeString, "TURTLE");
     return rangeString.toString();
   }
-
 }

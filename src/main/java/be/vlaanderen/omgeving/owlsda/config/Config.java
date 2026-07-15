@@ -37,30 +37,22 @@ public class Config {
     return DataRichness.from(generation != null ? generation.getDataRichness() : null);
   }
 
-  /**
-   * Convenience method to access batch size from worker properties.
-   */
+  /** Convenience method to access batch size from worker properties. */
   public int getBatchSize() {
     return client.getWorker().getBatchSize();
   }
 
-  /**
-   * Convenience method to access pool count from worker properties.
-   */
+  /** Convenience method to access pool count from worker properties. */
   public int getPoolCount() {
     return client.getWorker().getPoolCount();
   }
 
-  /**
-   * Load from a filesystem path.
-   */
+  /** Load from a filesystem path. */
   public static Config loadFile(String path) throws IOException {
     return YamlConfigLoader.loadFromPath(path, Config.class);
   }
 
-  /**
-   * Load from a classpath resource.
-   */
+  /** Load from a classpath resource. */
   public static Config loadClasspath(String resource) throws IOException {
     return YamlConfigLoader.loadFromClasspath(resource, Config.class);
   }
@@ -166,7 +158,7 @@ public class Config {
       // Optional per-role provider override (e.g. ollama, copilot, openai-compatible).
       // Falls back to client.provider when omitted.
       private String provider;
-      private String model = "gpt-5.1";
+      private String model = "gpt-5.4";
       private int timeoutMs = 60000;
       // Max idle time between assistant events (messages/tool requests). 0 disables this guard.
       private int betweenMessageTimeoutMs = 0;
@@ -181,8 +173,8 @@ public class Config {
       // Optional per-role provider override (e.g. ollama, copilot, openai-compatible).
       // Falls back to client.provider when omitted.
       private String provider;
-      private String model = "gpt-5.1";
-      private int timeoutMs = 120000;  // Supervisor may need more time for orchestration
+      private String model = "gpt-5.4";
+      private int timeoutMs = 120000; // Supervisor may need more time for orchestration
       // Max idle time between assistant events (messages/tool requests). 0 disables this guard.
       private int betweenMessageTimeoutMs = 0;
     }
@@ -194,11 +186,12 @@ public class Config {
       // Optional per-role provider override (e.g. ollama, copilot, openai-compatible).
       // Falls back to client.provider when omitted.
       private String provider;
-      private String model = "gpt-5.1";
+      private String model = "claude-4.6-sonnet";
       private int timeoutMs = 60000;
       // Max idle time between assistant events (messages/tool requests). 0 disables this guard.
       private int betweenMessageTimeoutMs = 0;
-      // Soft limit for review iterations; on the last attempt reviewer must choose ACCEPTED or REJECTED.
+      // Soft limit for review iterations; on the last attempt reviewer must choose ACCEPTED or
+      // REJECTED.
       private int maxReviewAttempts = 3;
     }
   }
@@ -239,7 +232,6 @@ public class Config {
         return List.of();
       }
     }
-
   }
 
   @Getter
@@ -347,8 +339,8 @@ public class Config {
   }
 
   /**
-   * Automatic context compaction for long-running sessions. Applies to the Ollama provider only
-   * today; see {@link #copilotEnabled}.
+   * Automatic context compaction for long-running sessions. Applies to the Ollama and
+   * openai-compatible providers; see {@link #copilotEnabled}.
    */
   @Getter
   @Setter
@@ -361,9 +353,11 @@ public class Config {
     private int messageCountThreshold = 40;
     // Number of most-recent messages (after the system message) preserved verbatim.
     private int keepRecentMessages = 8;
-    // Compaction is only implemented for the Ollama provider; the Copilot SDK manages its own
-    // opaque server-side history and only exposes a full reset(), not partial compaction.
+    // Compaction is implemented for the Ollama and openai-compatible providers; the Copilot SDK
+    // manages its own opaque server-side history and only exposes a full reset(), not partial
+    // compaction.
     private boolean ollamaEnabled = true;
+    private boolean openaiCompatibleEnabled = true;
     private boolean copilotEnabled = false;
   }
 }

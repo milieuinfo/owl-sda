@@ -22,8 +22,8 @@ public class CopilotSDKClient implements Client {
   private final List<Session> sessions = new ArrayList<>();
 
   public CopilotSDKClient() {
-    try (CopilotClient client = new CopilotClient()) {
-      this.client = client;
+    try {
+      this.client = new CopilotClient();
       logger.info("Initializing Copilot SDK Client ...");
       client.start().get();
       logger.info("Copilot SDK Client initialized successfully");
@@ -48,13 +48,16 @@ public class CopilotSDKClient implements Client {
     systemMessageConfig.setContent(config.getSystemContext().getContent());
     systemMessageConfig.setMode(SystemMessageMode.APPEND);
     sessionConfig.setSystemMessage(systemMessageConfig);
-    List<ToolDefinition> tools = config.getHandlers().stream().map(handler ->
-        new ToolDefinition(
-            handler.getName(),
-            handler.getDescription(),
-            handler.getArguments(),
-            new CopilotSDKSessionHandler(handler)
-        )).toList();
+    List<ToolDefinition> tools =
+        config.getHandlers().stream()
+            .map(
+                handler ->
+                    new ToolDefinition(
+                        handler.getName(),
+                        handler.getDescription(),
+                        handler.getArguments(),
+                        new CopilotSDKSessionHandler(handler)))
+            .toList();
     sessionConfig.setTools(tools);
     sessionConfig.setAvailableTools(tools.stream().map(ToolDefinition::name).toList());
 
@@ -75,5 +78,8 @@ public class CopilotSDKClient implements Client {
   @Override
   public void close() {
     sessions.forEach(Session::close);
+    if (client != null) {
+      client.close();
+    }
   }
 }

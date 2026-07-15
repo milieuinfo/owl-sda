@@ -1,8 +1,8 @@
 package be.vlaanderen.omgeving.owlsda.agent.context;
 
 /**
- * Context for SHACL validation results.
- * Provides validation report as context instead of including it in prompt text.
+ * Context for SHACL validation results. Provides validation report as context instead of including
+ * it in prompt text.
  */
 public class ValidationContext extends Context {
 
@@ -13,4 +13,3 @@ public class ValidationContext extends Context {
     setContent(validationReport);
   }
 }
-

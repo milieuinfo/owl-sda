@@ -1,13 +1,14 @@
 package be.vlaanderen.omgeving.owlsda.benchmark;
 
-import be.vlaanderen.omgeving.owlsda.config.Config;
 import be.vlaanderen.omgeving.owlsda.agent.Session;
+import be.vlaanderen.omgeving.owlsda.agent.SessionMessageLogEntry;
 import be.vlaanderen.omgeving.owlsda.agent.context.Context;
 import be.vlaanderen.omgeving.owlsda.agent.handler.WorkerTripleStore;
-import be.vlaanderen.omgeving.owlsda.agent.SessionMessageLogEntry;
+import be.vlaanderen.omgeving.owlsda.config.Config;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,12 +22,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.nio.charset.StandardCharsets;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Service for managing benchmark snapshots and timing measurements.
- */
+/** Service for managing benchmark snapshots and timing measurements. */
 @Slf4j
 public class BenchmarkService {
 
@@ -37,27 +35,29 @@ public class BenchmarkService {
     this.config = config;
   }
 
-  /**
-   * Checks if benchmarking is enabled in the configuration.
-   */
+  /** Checks if benchmarking is enabled in the configuration. */
   public boolean isEnabled() {
     return config.getBenchmark() != null && config.getBenchmark().isEnabled();
   }
 
   /**
-   * Checks if a snapshot should be created based on state changes.
-   * The stage name is included in the hash so that lifecycle transitions
-   * (e.g. GENERATE → FINALIZING → REVIEW) always produce distinct snapshots
-   * even when session content has not changed.
+   * Checks if a snapshot should be created based on state changes. The stage name is included in
+   * the hash so that lifecycle transitions (e.g. GENERATE → FINALIZING → REVIEW) always produce
+   * distinct snapshots even when session content has not changed.
    */
-  private boolean shouldCreateSnapshot(String stage, Session generatorSession, Session reviewerSession,
-      WorkerTripleStore tripleStore, List<Session> workerSessions) {
+  private boolean shouldCreateSnapshot(
+      String stage,
+      Session generatorSession,
+      Session reviewerSession,
+      WorkerTripleStore tripleStore,
+      List<Session> workerSessions) {
     if (!isEnabled()) {
       return false;
     }
 
     // Calculate hash of current state (stage-aware)
-    int currentHash = calculateStateHash(stage, generatorSession, reviewerSession, tripleStore, workerSessions);
+    int currentHash =
+        calculateStateHash(stage, generatorSession, reviewerSession, tripleStore, workerSessions);
 
     // Check if state has changed since last snapshot
     if (currentHash == lastSnapshotHash && lastSnapshotHash != 0) {
@@ -70,11 +70,15 @@ public class BenchmarkService {
 
   /**
    * Calculates a hash representing the current state of contexts, output, and triple store.
-   * Includes the stage name so that distinct workflow stages always hash differently.
-   * Handles null sessions gracefully for worker return snapshots.
+   * Includes the stage name so that distinct workflow stages always hash differently. Handles null
+   * sessions gracefully for worker return snapshots.
    */
-  private int calculateStateHash(String stage, Session generatorSession, Session reviewerSession,
-      WorkerTripleStore tripleStore, List<Session> workerSessions) {
+  private int calculateStateHash(
+      String stage,
+      Session generatorSession,
+      Session reviewerSession,
+      WorkerTripleStore tripleStore,
+      List<Session> workerSessions) {
     int hash = 17;
 
     // Include the stage so GENERATE / FINALIZING / REVIEW always differ
@@ -135,7 +139,8 @@ public class BenchmarkService {
       hash = 31 * hash + (int) tripleStore.size();
     }
 
-    // Hash session message transcripts so benchmark snapshots are created when chat activity changes.
+    // Hash session message transcripts so benchmark snapshots are created when chat activity
+    // changes.
     hash = 31 * hash + hashSessionMessageLog(generatorSession);
     hash = 31 * hash + hashSessionMessageLog(reviewerSession);
 
@@ -184,8 +189,8 @@ public class BenchmarkService {
   }
 
   /**
-   * Creates a snapshot for a batch with timing information.
-   * Only creates snapshot if state has changed since last snapshot.
+   * Creates a snapshot for a batch with timing information. Only creates snapshot if state has
+   * changed since last snapshot.
    */
   public String createBatchSnapshot(BenchmarkSnapshotData snapshotData, int currentViolations) {
     if (!shouldCreateSnapshot(
@@ -199,10 +204,11 @@ public class BenchmarkService {
 
     try {
       long now = System.currentTimeMillis();
-      String timestamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_SSS")
-          .withLocale(Locale.US)
-          .withZone(ZoneId.systemDefault())
-          .format(Instant.ofEpochMilli(now));
+      String timestamp =
+          DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_SSS")
+              .withLocale(Locale.US)
+              .withZone(ZoneId.systemDefault())
+              .format(Instant.ofEpochMilli(now));
 
       String baseOutput = config.getBenchmark().getOutputDir();
       Path snapshotDir = Path.of(baseOutput, timestamp);
@@ -218,29 +224,30 @@ public class BenchmarkService {
           currentViolations,
           snapshotData.generatorSession(),
           snapshotData.reviewerSession(),
-          snapshotData.workerSessions()
-      );
+          snapshotData.workerSessions());
 
-      writeSessionContexts(snapshotDir, snapshotData.generatorSession(), snapshotData.reviewerSession());
+      writeSessionContexts(
+          snapshotDir, snapshotData.generatorSession(), snapshotData.reviewerSession());
       writeWorkerContexts(snapshotDir, snapshotData.workerSessions(), snapshotData.round());
       writeSessionMessageLogs(
           snapshotDir,
           snapshotData.generatorSession(),
           snapshotData.reviewerSession(),
-          snapshotData.workerSessions()
-      );
+          snapshotData.workerSessions());
       saveTripleStoreSnapshot(snapshotDir, snapshotData.tripleStore());
       copyOutputToSnapshot(snapshotDir);
       copyLogFileToSnapshot(snapshotDir);
 
-      lastSnapshotHash = calculateStateHash(
-          snapshotData.stage(),
-          snapshotData.generatorSession(),
-          snapshotData.reviewerSession(),
-          snapshotData.tripleStore(),
-          snapshotData.workerSessions());
+      lastSnapshotHash =
+          calculateStateHash(
+              snapshotData.stage(),
+              snapshotData.generatorSession(),
+              snapshotData.reviewerSession(),
+              snapshotData.tripleStore(),
+              snapshotData.workerSessions());
 
-      log.info("Benchmark snapshot created: {} (triple store: {} triples, violations: {})",
+      log.info(
+          "Benchmark snapshot created: {} (triple store: {} triples, violations: {})",
           timestamp,
           snapshotData.tripleStore() != null ? snapshotData.tripleStore().size() : 0,
           currentViolations);
@@ -256,9 +263,7 @@ public class BenchmarkService {
     }
   }
 
-  /**
-   * Backward-compatible overload.
-   */
+  /** Backward-compatible overload. */
   public String createBatchSnapshot(
       int shapesProcessed,
       long durationMs,
@@ -270,21 +275,17 @@ public class BenchmarkService {
     return createBatchSnapshot(
         new DefaultBenchmarkSnapshotData(
             "GENERATE", // Default stage for backward compatibility
-            0,          // round not tracked in legacy call path
+            0, // round not tracked in legacy call path
             shapesProcessed,
             durationMs,
             generatorSession,
             reviewerSession,
             tripleStore,
-            workerSessions == null ? List.<Session>of() : workerSessions
-        ),
-        currentViolations
-    );
+            workerSessions == null ? List.<Session>of() : workerSessions),
+        currentViolations);
   }
 
-  /**
-   * Writes metadata to metadata.txt in the snapshot directory.
-   */
+  /** Writes metadata to metadata.txt in the snapshot directory. */
   private void writeMetadata(
       Path snapshotDir,
       String stage,
@@ -332,11 +333,11 @@ public class BenchmarkService {
   }
 
   /**
-   * Writes all session contexts to subdirectories in the snapshot.
-   * Handles null sessions gracefully for worker return snapshots.
+   * Writes all session contexts to subdirectories in the snapshot. Handles null sessions gracefully
+   * for worker return snapshots.
    */
-  private void writeSessionContexts(Path snapshotDir, Session generatorSession, Session reviewerSession)
-      throws IOException {
+  private void writeSessionContexts(
+      Path snapshotDir, Session generatorSession, Session reviewerSession) throws IOException {
 
     if (generatorSession != null) {
       Path genDir = snapshotDir.resolve("supervisor_context");
@@ -352,10 +353,10 @@ public class BenchmarkService {
   }
 
   /**
-   * Writes individual worker delegation instructions to subdirectories in the snapshot.
-   * Each worker session's contexts are saved to a separate directory labeled with the worker index.
-   * When {@code round} is greater than zero the context files are prefixed with {@code round_N-}
-   * so that multiple delegation rounds within the same session can be distinguished.
+   * Writes individual worker delegation instructions to subdirectories in the snapshot. Each worker
+   * session's contexts are saved to a separate directory labeled with the worker index. When {@code
+   * round} is greater than zero the context files are prefixed with {@code round_N-} so that
+   * multiple delegation rounds within the same session can be distinguished.
    */
   private void writeWorkerContexts(Path snapshotDir, List<Session> workerSessions, int round)
       throws IOException {
@@ -381,16 +382,12 @@ public class BenchmarkService {
     log.debug("Saved {} worker delegation contexts (round={})", workerSessions.size(), round);
   }
 
-  /**
-   * Writes a list of contexts to a directory.
-   */
+  /** Writes a list of contexts to a directory. */
   private void writeContexts(Path targetDir, List<Context> contexts) throws IOException {
     writeContexts(targetDir, contexts, "");
   }
 
-  /**
-   * Writes a list of contexts to a directory, prepending {@code filePrefix} to each file name.
-   */
+  /** Writes a list of contexts to a directory, prepending {@code filePrefix} to each file name. */
   private void writeContexts(Path targetDir, List<Context> contexts, String filePrefix)
       throws IOException {
     int i = 0;
@@ -402,9 +399,7 @@ public class BenchmarkService {
     }
   }
 
-  /**
-   * Replaces invalid surrogate code units so text can be written as UTF-8.
-   */
+  /** Replaces invalid surrogate code units so text can be written as UTF-8. */
   private String sanitizeForUtf8(String content) {
     if (content == null || content.isEmpty()) {
       return "";
@@ -449,10 +444,9 @@ public class BenchmarkService {
     return sanitized == null ? content : sanitized.toString();
   }
 
-  /**
-   * Saves a snapshot of the shared triple store to the snapshot directory.
-   */
-  private void saveTripleStoreSnapshot(Path snapshotDir, WorkerTripleStore tripleStore) throws IOException {
+  /** Saves a snapshot of the shared triple store to the snapshot directory. */
+  private void saveTripleStoreSnapshot(Path snapshotDir, WorkerTripleStore tripleStore)
+      throws IOException {
     if (tripleStore == null) {
       log.debug("No triple store to snapshot");
       return;
@@ -489,9 +483,7 @@ public class BenchmarkService {
     }
   }
 
-  /**
-   * Copies the output file to the snapshot directory.
-   */
+  /** Copies the output file to the snapshot directory. */
   private void copyOutputToSnapshot(Path snapshotDir) throws IOException {
     String outputPath = config.getOutputPath();
     if (outputPath == null) {
@@ -499,14 +491,14 @@ public class BenchmarkService {
     }
     Path outputFile = Path.of(outputPath);
     if (Files.exists(outputFile)) {
-      Files.copy(outputFile, snapshotDir.resolve(outputFile.getFileName()),
+      Files.copy(
+          outputFile,
+          snapshotDir.resolve(outputFile.getFileName()),
           StandardCopyOption.REPLACE_EXISTING);
     }
   }
 
-  /**
-   * Copies the log file to the snapshot directory if log-to-file is enabled.
-   */
+  /** Copies the log file to the snapshot directory if log-to-file is enabled. */
   private void copyLogFileToSnapshot(Path snapshotDir) throws IOException {
     if (!config.isLogToFile()) {
       return;
@@ -515,13 +507,11 @@ public class BenchmarkService {
     if (!Files.exists(logPath)) {
       return;
     }
-    Files.copy(logPath, snapshotDir.resolve(logPath.getFileName()),
-        StandardCopyOption.REPLACE_EXISTING);
+    Files.copy(
+        logPath, snapshotDir.resolve(logPath.getFileName()), StandardCopyOption.REPLACE_EXISTING);
   }
 
-  /**
-   * Converts a name to a safe filename (removes special characters).
-   */
+  /** Converts a name to a safe filename (removes special characters). */
   private String safeFileName(String name) {
     return name.replaceAll("[^a-zA-Z0-9_. -]", "_");
   }
@@ -558,7 +548,8 @@ public class BenchmarkService {
       String jsonContent = JsonUtil.toJson(snapshots);
       Files.writeString(jsonFile, jsonContent);
 
-      log.info("Generated benchmark summary JSON with {} snapshots at: {}", snapshots.size(), jsonFile);
+      log.info(
+          "Generated benchmark summary JSON with {} snapshots at: {}", snapshots.size(), jsonFile);
       return jsonFile;
     } catch (IOException e) {
       log.error("Error generating benchmark JSON summary", e);
@@ -631,8 +622,9 @@ public class BenchmarkService {
 
     for (String propertyName : props.stringPropertyNames()) {
       if (propertyName.startsWith("tokens.worker.") && propertyName.endsWith(".total")) {
-        String workerName = propertyName.substring("tokens.worker.".length(),
-            propertyName.length() - ".total".length());
+        String workerName =
+            propertyName.substring(
+                "tokens.worker.".length(), propertyName.length() - ".total".length());
         workers.put(workerName, readRoleTokenUsage(props, "tokens.worker." + workerName));
       }
     }
@@ -683,9 +675,7 @@ public class BenchmarkService {
     return BenchmarkRoleTokenUsage.fromValues(input, output, total);
   }
 
-  /**
-   * Safely parses an integer from a string, returning default value if parsing fails.
-   */
+  /** Safely parses an integer from a string, returning default value if parsing fails. */
   private int parseInt(String value, int defaultValue) {
     if (value == null) {
       return defaultValue;
@@ -697,9 +687,7 @@ public class BenchmarkService {
     }
   }
 
-  /**
-   * Safely parses a long from a string, returning default value if parsing fails.
-   */
+  /** Safely parses a long from a string, returning default value if parsing fails. */
   private long parseLong(String value) {
     if (value == null) {
       return 0L;
@@ -711,9 +699,7 @@ public class BenchmarkService {
     }
   }
 
-  /**
-   * Safely parses a boolean from a string, returning default value if parsing fails.
-   */
+  /** Safely parses a boolean from a string, returning default value if parsing fails. */
   private boolean parseBoolean(String value) {
     if (value == null) {
       return true;
@@ -722,14 +708,15 @@ public class BenchmarkService {
   }
 
   /**
-   * Writes persisted session message logs to the snapshot.
-   * Supervisor, reviewer, and worker message logs are saved as JSON files.
+   * Writes persisted session message logs to the snapshot. Supervisor, reviewer, and worker message
+   * logs are saved as JSON files.
    */
   private void writeSessionMessageLogs(
       Path snapshotDir,
       Session supervisorSession,
       Session reviewerSession,
-      List<Session> workerSessions) throws IOException {
+      List<Session> workerSessions)
+      throws IOException {
     Path logsDir = snapshotDir.resolve("message_logs");
     Files.createDirectories(logsDir);
 
@@ -743,9 +730,7 @@ public class BenchmarkService {
     }
   }
 
-  /**
-   * Writes a single session's message log to a JSON file.
-   */
+  /** Writes a single session's message log to a JSON file. */
   private void writeSingleSessionMessageLog(Path logsDir, String sessionName, Session session)
       throws IOException {
     Path target = logsDir.resolve(safeFileName(sessionName) + "-messages.json");

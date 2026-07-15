@@ -48,29 +48,31 @@ public class ContextReaderHandler implements SessionHandler {
   public Map<String, Object> getArguments() {
     return Map.of(
         "type", "object",
-        "properties", Map.of(
-            "action", Map.of(
-                "type", "string",
-                "enum", List.of("list", "read", "read_chunk", "get_changes"),
-                "description",
-                "Action: 'list' for contexts, 'read' entire context, 'read_chunk' for chunks, 'get_changes' for what changed since last query"
-            ),
-            "name", Map.of(
-                "type", "string",
-                "description",
-                "Name of the context to read (required for 'read' and 'read_chunk' actions)"
-            ),
-            "start", Map.of(
-                "type", "integer",
-                "description", "Start character position for chunk reading (default: 0)"
-            ),
-            "length", Map.of(
-                "type", "integer",
-                "description", "Number of characters to read in chunk (default: 10000)"
-            )
-        ),
-        "required", List.of("action")
-    );
+        "properties",
+            Map.of(
+                "action",
+                    Map.of(
+                        "type",
+                        "string",
+                        "enum",
+                        List.of("list", "read", "read_chunk", "get_changes"),
+                        "description",
+                        "Action: 'list' for contexts, 'read' entire context, 'read_chunk' for chunks, 'get_changes' for what changed since last query"),
+                "name",
+                    Map.of(
+                        "type",
+                        "string",
+                        "description",
+                        "Name of the context to read (required for 'read' and 'read_chunk' actions)"),
+                "start",
+                    Map.of(
+                        "type", "integer",
+                        "description", "Start character position for chunk reading (default: 0)"),
+                "length",
+                    Map.of(
+                        "type", "integer",
+                        "description", "Number of characters to read in chunk (default: 10000)")),
+        "required", List.of("action"));
   }
 
   @Override
@@ -85,90 +87,89 @@ public class ContextReaderHandler implements SessionHandler {
       return handleGetChanges();
     } else {
       logger.warn("Unknown action: {}", action);
-      return CompletableFuture.completedFuture(Map.of(
-          "error",
-          "Unknown action: " + action + ". Use 'list', 'read', 'read_chunk', or 'get_changes'."
-      ));
+      return CompletableFuture.completedFuture(
+          Map.of(
+              "error",
+              "Unknown action: "
+                  + action
+                  + ". Use 'list', 'read', 'read_chunk', or 'get_changes'."));
     }
   }
 
-  /**
-   * Handle the 'list' action to return all available contexts with change indicators.
-   */
+  /** Handle the 'list' action to return all available contexts with change indicators. */
   private CompletableFuture<Object> handleList() {
     List<Context> contexts = contextSupplier.get();
-    List<Map<String, Object>> contextList = contexts.stream()
-        .map(ctx -> {
-          String content = ctx.getContent();
-          int contentLength = content != null ? content.length() : 0;
-          int currentHash = content != null ? content.hashCode() : 0;
-          String contextName = ctx.getName() != null ? ctx.getName() : "unknown";
+    List<Map<String, Object>> contextList =
+        contexts.stream()
+            .map(
+                ctx -> {
+                  String content = ctx.getContent();
+                  int contentLength = content != null ? content.length() : 0;
+                  int currentHash = content != null ? content.hashCode() : 0;
+                  String contextName = ctx.getName() != null ? ctx.getName() : "unknown";
 
-          // Check if this context changed since last query
-          Integer previousHash = contextHashMap.get(contextName);
-          boolean changed = previousHash == null || !previousHash.equals(currentHash);
+                  // Check if this context changed since last query
+                  Integer previousHash = contextHashMap.get(contextName);
+                  boolean changed = previousHash == null || !previousHash.equals(currentHash);
 
-          // Update the hash for next comparison
-          contextHashMap.put(contextName, currentHash);
+                  // Update the hash for next comparison
+                  contextHashMap.put(contextName, currentHash);
 
-          return Map.of(
-              "name", (Object) contextName,
-              "type", ctx.getType() != null ? ctx.getType() : "unknown",
-              "size", contentLength,
-              "changed", changed
-          );
-        })
-        .toList();
+                  return Map.of(
+                      "name",
+                      (Object) contextName,
+                      "type",
+                      ctx.getType() != null ? ctx.getType() : "unknown",
+                      "size",
+                      contentLength,
+                      "changed",
+                      changed);
+                })
+            .toList();
 
     logger.info("Retrieved list of {} available contexts", contextList.size());
 
     // Count how many contexts changed
-    long changedCount = contextList.stream()
-        .filter(ctx -> (boolean) ctx.get("changed"))
-        .count();
+    long changedCount = contextList.stream().filter(ctx -> (boolean) ctx.get("changed")).count();
 
-    return CompletableFuture.completedFuture(Map.of(
-        "contexts", contextList,
-        "count", contextList.size(),
-        "changed_count", changedCount,
-        "message", changedCount > 0
-            ? "There are " + changedCount + " changed context(s) since your last query"
-            : "No changes since last query"
-    ));
+    return CompletableFuture.completedFuture(
+        Map.of(
+            "contexts",
+            contextList,
+            "count",
+            contextList.size(),
+            "changed_count",
+            changedCount,
+            "message",
+            changedCount > 0
+                ? "There are " + changedCount + " changed context(s) since your last query"
+                : "No changes since last query"));
   }
 
-  /**
-   * Handle the 'read' or 'read_chunk' actions to read context content.
-   */
+  /** Handle the 'read' or 'read_chunk' actions to read context content. */
   private CompletableFuture<Object> handleRead(Map<String, Object> arguments, boolean isChunk) {
     String contextName = (String) arguments.get("name");
     if (contextName == null || contextName.isEmpty()) {
       logger.warn("Context name not provided for read action");
-      return CompletableFuture.completedFuture(Map.of(
-          "error", "Context name is required for read action"
-      ));
+      return CompletableFuture.completedFuture(
+          Map.of("error", "Context name is required for read action"));
     }
 
     // Find context by name
     List<Context> contexts = contextSupplier.get();
-    Context foundContext = contexts.stream()
-        .filter(ctx -> contextName.equals(ctx.getName()))
-        .findFirst()
-        .orElse(null);
+    Context foundContext =
+        contexts.stream().filter(ctx -> contextName.equals(ctx.getName())).findFirst().orElse(null);
 
     if (foundContext == null) {
       logger.warn("Context with name '{}' not found", contextName);
-      return CompletableFuture.completedFuture(Map.of(
-          "error", "Context with name '" + contextName + "' not found"
-      ));
+      return CompletableFuture.completedFuture(
+          Map.of("error", "Context with name '" + contextName + "' not found"));
     }
 
     String content = foundContext.getContent();
     if (content == null) {
       logger.warn("Context '{}' has no content", contextName);
-      return CompletableFuture.completedFuture(Map.of(
-          "error", "Context has no content"
-      ));
+      return CompletableFuture.completedFuture(Map.of("error", "Context has no content"));
     }
 
     // Update hash for this context
@@ -177,50 +178,54 @@ public class ContextReaderHandler implements SessionHandler {
 
     // Handle chunked reading
     if (isChunk) {
-      int start = arguments.containsKey("start") ?
-          ((Number) arguments.get("start")).intValue() : 0;
-      int length = arguments.containsKey("length") ?
-          ((Number) arguments.get("length")).intValue() : 10000;
+      int start = arguments.containsKey("start") ? ((Number) arguments.get("start")).intValue() : 0;
+      int length =
+          arguments.containsKey("length") ? ((Number) arguments.get("length")).intValue() : 10000;
 
       int totalLength = content.length();
       int end = Math.min(start + length, totalLength);
 
       if (start >= totalLength) {
         logger.warn("Start position {} is beyond content length {}", start, totalLength);
-        return CompletableFuture.completedFuture(Map.of(
-            "error", "Start position is beyond content length"
-        ));
+        return CompletableFuture.completedFuture(
+            Map.of("error", "Start position is beyond content length"));
       }
 
       String chunk = content.substring(start, end);
       boolean hasMore = end < totalLength;
 
-      logger.info("Read chunk from context '{}' ({} chars from position {}/{})",
-          contextName, chunk.length(), start, totalLength);
-      return CompletableFuture.completedFuture(Map.of(
-          "name", contextName,
-          "type", foundContext.getType() != null ? foundContext.getType() : "unknown",
-          "content", chunk,
-          "chunk_start", start,
-          "chunk_end", end,
-          "total_length", totalLength,
-          "has_more", hasMore
-      ));
+      logger.info(
+          "Read chunk from context '{}' ({} chars from position {}/{})",
+          contextName,
+          chunk.length(),
+          start,
+          totalLength);
+      return CompletableFuture.completedFuture(
+          Map.of(
+              "name", contextName,
+              "type", foundContext.getType() != null ? foundContext.getType() : "unknown",
+              "content", chunk,
+              "chunk_start", start,
+              "chunk_end", end,
+              "total_length", totalLength,
+              "has_more", hasMore));
     } else {
       // Read entire context
       logger.info("Read context '{}' ({} characters)", contextName, content.length());
-      return CompletableFuture.completedFuture(Map.of(
-          "name", contextName,
-          "type", foundContext.getType() != null ? foundContext.getType() : "unknown",
-          "content", content,
-          "length", content.length()
-      ));
+      return CompletableFuture.completedFuture(
+          Map.of(
+              "name",
+              contextName,
+              "type",
+              foundContext.getType() != null ? foundContext.getType() : "unknown",
+              "content",
+              content,
+              "length",
+              content.length()));
     }
   }
 
-  /**
-   * Handle the 'get_changes' action to report what contexts have changed.
-   */
+  /** Handle the 'get_changes' action to report what contexts have changed. */
   private CompletableFuture<Object> handleGetChanges() {
     List<Context> contexts = contextSupplier.get();
     List<Map<String, Object>> changes = new java.util.ArrayList<>();
@@ -259,15 +264,19 @@ public class ContextReaderHandler implements SessionHandler {
 
     logger.info("Reported {} changed and {} unchanged contexts", changes.size(), unchanged.size());
 
-    return CompletableFuture.completedFuture(Map.of(
-        "changed", changes,
-        "unchanged", unchanged,
-        "total_changed", changes.size(),
-        "total_unchanged", unchanged.size(),
-        "summary", changes.isEmpty()
-            ? "No changes detected in any contexts"
-            : changes.size() + " context(s) have changed"
-    ));
+    return CompletableFuture.completedFuture(
+        Map.of(
+            "changed",
+            changes,
+            "unchanged",
+            unchanged,
+            "total_changed",
+            changes.size(),
+            "total_unchanged",
+            unchanged.size(),
+            "summary",
+            changes.isEmpty()
+                ? "No changes detected in any contexts"
+                : changes.size() + " context(s) have changed"));
   }
 }
-

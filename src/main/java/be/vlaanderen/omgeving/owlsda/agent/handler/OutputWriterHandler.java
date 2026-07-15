@@ -11,8 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Handler that writes output data to a TURTLE file.
- * Supports overwriting the entire file with validation and size reporting.
+ * Handler that writes output data to a TURTLE file. Supports overwriting the entire file with
+ * validation and size reporting.
  */
 public class OutputWriterHandler implements SessionHandler {
   public static final String NAME = "output_data_writer";
@@ -41,14 +41,13 @@ public class OutputWriterHandler implements SessionHandler {
   public Map<String, Object> getArguments() {
     return Map.of(
         "type", "object",
-        "properties", Map.of(
-            "output", Map.of(
-                "type", "string",
-                "description", "Output TURTLE data (empty to delete file)"
-            )
-        ),
-        "required", List.of("output")
-    );
+        "properties",
+            Map.of(
+                "output",
+                Map.of(
+                    "type", "string",
+                    "description", "Output TURTLE data (empty to delete file)")),
+        "required", List.of("output"));
   }
 
   @Override
@@ -58,9 +57,7 @@ public class OutputWriterHandler implements SessionHandler {
 
     if (outputFilePath == null) {
       logger.error("Output path is not configured");
-      return CompletableFuture.completedFuture(Map.of(
-          "error", "Output path is not configured"
-      ));
+      return CompletableFuture.completedFuture(Map.of("error", "Output path is not configured"));
     }
 
     Path path = Path.of(outputFilePath);
@@ -71,31 +68,29 @@ public class OutputWriterHandler implements SessionHandler {
         if (Files.exists(path)) {
           Files.delete(path);
           logger.info("Deleted existing output file: {}", outputFilePath);
-          return CompletableFuture.completedFuture(Map.of(
-              "status", "deleted",
-              "message", "Output file has been deleted"
-          ));
+          return CompletableFuture.completedFuture(
+              Map.of(
+                  "status", "deleted",
+                  "message", "Output file has been deleted"));
         } else {
           logger.info("No output file to delete: {}", outputFilePath);
-          return CompletableFuture.completedFuture(Map.of(
-              "status", "no_file",
-              "message", "No output file exists"
-          ));
+          return CompletableFuture.completedFuture(
+              Map.of(
+                  "status", "no_file",
+                  "message", "No output file exists"));
         }
       } catch (IOException e) {
         logger.error("Failed to delete output file: {}", outputFilePath, e);
-        return CompletableFuture.completedFuture(Map.of(
-            "error", "Failed to delete output file: " + e.getMessage()
-        ));
+        return CompletableFuture.completedFuture(
+            Map.of("error", "Failed to delete output file: " + e.getMessage()));
       }
     }
 
     String syntaxError = TurtleSyntaxValidator.validate(output);
     if (syntaxError != null) {
       logger.warn("Rejected output_data_writer call with invalid Turtle: {}", syntaxError);
-      return CompletableFuture.completedFuture(Map.of(
-          "error", "Output is not valid Turtle and was not written: " + syntaxError
-      ));
+      return CompletableFuture.completedFuture(
+          Map.of("error", "Output is not valid Turtle and was not written: " + syntaxError));
     }
 
     // Write output to file directly (single-writer supervisor flow)
@@ -104,22 +99,31 @@ public class OutputWriterHandler implements SessionHandler {
       long fileSize = Files.size(path);
       int lineCount = output.split("\n").length;
 
-      logger.info("Successfully written output to file: {} ({} characters, {} lines, {} bytes)",
-          outputFilePath, output.length(), lineCount, fileSize);
+      logger.info(
+          "Successfully written output to file: {} ({} characters, {} lines, {} bytes)",
+          outputFilePath,
+          output.length(),
+          lineCount,
+          fileSize);
 
-      return CompletableFuture.completedFuture(Map.of(
-          "status", "success",
-          "message", "Output written to file",
-          "file_path", outputFilePath,
-          "characters", output.length(),
-          "lines", lineCount,
-          "bytes", fileSize
-      ));
+      return CompletableFuture.completedFuture(
+          Map.of(
+              "status",
+              "success",
+              "message",
+              "Output written to file",
+              "file_path",
+              outputFilePath,
+              "characters",
+              output.length(),
+              "lines",
+              lineCount,
+              "bytes",
+              fileSize));
     } catch (IOException e) {
       logger.error("Failed to write output to file: {}", outputFilePath, e);
-      return CompletableFuture.completedFuture(Map.of(
-          "error", "Failed to write output: " + e.getMessage()
-      ));
+      return CompletableFuture.completedFuture(
+          Map.of("error", "Failed to write output: " + e.getMessage()));
     }
   }
 }

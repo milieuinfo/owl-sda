@@ -7,8 +7,8 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * Set of hosts that the {@code http_call} tool is allowed to reach. A host matches if it is
- * exactly equal (case-insensitive) to an allowlisted host.
+ * Set of hosts that the {@code http_call} tool is allowed to reach. A host matches if it is exactly
+ * equal (case-insensitive) to an allowlisted host.
  */
 public class HttpAllowlist {
 

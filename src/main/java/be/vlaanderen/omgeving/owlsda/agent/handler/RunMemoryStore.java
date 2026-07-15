@@ -9,10 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Run-scoped key-value memory shared across worker/supervisor/reviewer sessions for the lifetime
- * of a single owlsda invocation. Lets agents stash short notes (intermediate findings, delegation
- * summaries, facts needed again later) without repeating them in every message. Cleared on
- * shutdown - not persisted across runs.
+ * Run-scoped key-value memory shared across worker/supervisor/reviewer sessions for the lifetime of
+ * a single owlsda invocation. Lets agents stash short notes (intermediate findings, delegation
+ * summaries, facts needed again later) without repeating them in every message. Cleared on shutdown
+ * - not persisted across runs.
  */
 public class RunMemoryStore {
   private static final Logger logger = LoggerFactory.getLogger(RunMemoryStore.class);
@@ -37,12 +37,16 @@ public class RunMemoryStore {
       return PutResult.error("value exceeds max-value-bytes (" + maxValueBytes + ")");
     }
     if (!store.containsKey(key) && store.size() >= maxEntries) {
-      return PutResult.error("memory store is full (max-entries=" + maxEntries
-          + "); remove or reuse an existing key");
+      return PutResult.error(
+          "memory store is full (max-entries=" + maxEntries + "); remove or reuse an existing key");
     }
 
     store.put(key, value);
-    logger.debug("[{}] memory_set '{}' ({} chars, {} total keys)", actorId, key, value.length(),
+    logger.debug(
+        "[{}] memory_set '{}' ({} chars, {} total keys)",
+        actorId,
+        key,
+        value.length(),
         store.size());
     return PutResult.success(store.size());
   }

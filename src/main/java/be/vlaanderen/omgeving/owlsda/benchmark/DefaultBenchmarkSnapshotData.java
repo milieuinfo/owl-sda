@@ -4,9 +4,7 @@ import be.vlaanderen.omgeving.owlsda.agent.Session;
 import be.vlaanderen.omgeving.owlsda.agent.handler.WorkerTripleStore;
 import java.util.List;
 
-/**
- * Default implementation of BenchmarkSnapshotData.
- */
+/** Default implementation of BenchmarkSnapshotData. */
 public record DefaultBenchmarkSnapshotData(
     String stage,
     int round,
@@ -15,7 +13,5 @@ public record DefaultBenchmarkSnapshotData(
     Session generatorSession,
     Session reviewerSession,
     WorkerTripleStore tripleStore,
-    List<Session> workerSessions
-) implements BenchmarkSnapshotData {
-}
-
+    List<Session> workerSessions)
+    implements BenchmarkSnapshotData {}

@@ -3,9 +3,7 @@ package be.vlaanderen.omgeving.owlsda.benchmark;
 import lombok.Builder;
 import lombok.Getter;
 
-/**
- * Represents a single benchmark snapshot with its metadata.
- */
+/** Represents a single benchmark snapshot with its metadata. */
 @Getter
 @Builder
 public class BenchmarkSnapshot {

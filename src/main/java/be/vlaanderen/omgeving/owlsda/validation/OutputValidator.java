@@ -1,5 +1,6 @@
 package be.vlaanderen.omgeving.owlsda.validation;
 
+import be.vlaanderen.omgeving.owlsda.exception.OntologyException;
 import be.vlaanderen.omgeving.owlsda.ontology.Shacl;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -13,8 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Handles validation of output data against SHACL shapes.
- * Generates validation reports and checks conformance.
+ * Handles validation of output data against SHACL shapes. Generates validation reports and checks
+ * conformance.
  */
 @Getter
 public class OutputValidator {
@@ -28,9 +29,7 @@ public class OutputValidator {
     this.shacl = shacl;
   }
 
-  /**
-   * Validate output data and return validation report (or null if valid).
-   */
+  /** Validate output data and return validation report (or null if valid). */
   public String validate() {
     try {
       Model data = readOutputData();
@@ -41,23 +40,19 @@ public class OutputValidator {
     }
   }
 
-  /**
-   * Get output data as a string from file.
-   */
+  /** Get output data as a string from file. */
   public String getOutputDataAsString() {
     if (outputPath == null) {
-      throw new IllegalArgumentException("Output path is not configured");
+      throw new OntologyException("Output path is not configured");
     }
     try {
       return Files.readString(Path.of(outputPath));
     } catch (Exception e) {
-      throw new RuntimeException("Unable to read output data: " + e.getMessage(), e);
+      throw new OntologyException("Unable to read output data: " + e.getMessage(), e);
     }
   }
 
-  /**
-   * Get output data as a Model.
-   */
+  /** Get output data as a Model. */
   public Model readOutputData() {
     String content = getOutputDataAsString();
     Model dataModel = ModelFactory.createDefaultModel();
@@ -85,11 +80,8 @@ public class OutputValidator {
     return reportString.toString();
   }
 
-  /**
-   * Check if output is currently valid.
-   */
+  /** Check if output is currently valid. */
   public boolean isValid() {
     return validate() == null;
   }
 }
-

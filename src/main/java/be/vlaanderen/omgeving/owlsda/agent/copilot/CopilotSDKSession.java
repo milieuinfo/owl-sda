@@ -1,10 +1,10 @@
 package be.vlaanderen.omgeving.owlsda.agent.copilot;
 
-import be.vlaanderen.omgeving.owlsda.agent.context.Context;
 import be.vlaanderen.omgeving.owlsda.agent.RequestMessage;
 import be.vlaanderen.omgeving.owlsda.agent.ResponseMessage;
 import be.vlaanderen.omgeving.owlsda.agent.Session;
 import be.vlaanderen.omgeving.owlsda.agent.SessionMessageLogEntry;
+import be.vlaanderen.omgeving.owlsda.agent.context.Context;
 import com.github.copilot.sdk.CopilotSession;
 import com.github.copilot.sdk.events.AssistantMessageEvent;
 import com.github.copilot.sdk.events.AssistantMessageEvent.AssistantMessageData.ToolRequest;
@@ -44,9 +44,12 @@ public class CopilotSDKSession implements Session {
   }
 
   private final Set<CopilotSDKContext> contexts = ConcurrentHashMap.newKeySet();
+
   /** Mutable reference so reset() can swap in a freshly created CopilotSession. */
   private final AtomicReference<CopilotSession> sessionRef;
+
   private final be.vlaanderen.omgeving.owlsda.agent.SessionConfig config;
+
   /** Allows creating a replacement Copilot session on reset; null means reset is not supported. */
   private final SessionFactory sessionFactory;
 
@@ -57,13 +60,15 @@ public class CopilotSDKSession implements Session {
   private final AtomicLong lastAssistantActivityMs = new AtomicLong(System.currentTimeMillis());
   private final ScheduledThreadPoolExecutor inactivityMonitorExecutor;
 
-  protected CopilotSDKSession(be.vlaanderen.omgeving.owlsda.agent.SessionConfig config,
-      CopilotSession session) {
+  protected CopilotSDKSession(
+      be.vlaanderen.omgeving.owlsda.agent.SessionConfig config, CopilotSession session) {
     this(config, session, null);
   }
 
-  protected CopilotSDKSession(be.vlaanderen.omgeving.owlsda.agent.SessionConfig config,
-      CopilotSession session, SessionFactory sessionFactory) {
+  protected CopilotSDKSession(
+      be.vlaanderen.omgeving.owlsda.agent.SessionConfig config,
+      CopilotSession session,
+      SessionFactory sessionFactory) {
     this.sessionRef = new AtomicReference<>(session);
     this.config = config;
     this.sessionFactory = sessionFactory;
@@ -72,11 +77,12 @@ public class CopilotSDKSession implements Session {
   }
 
   private ScheduledThreadPoolExecutor createInactivityMonitorExecutor() {
-    ThreadFactory factory = runnable -> {
-      Thread thread = new Thread(runnable, "copilot-session-inactivity-monitor");
-      thread.setDaemon(true);
-      return thread;
-    };
+    ThreadFactory factory =
+        runnable -> {
+          Thread thread = new Thread(runnable, "copilot-session-inactivity-monitor");
+          thread.setDaemon(true);
+          return thread;
+        };
     ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1, factory);
     executor.setRemoveOnCancelPolicy(true);
     return executor;
@@ -95,56 +101,62 @@ public class CopilotSDKSession implements Session {
   }
 
   private void registerSessionEvents(CopilotSession s) {
-    s.on(AssistantMessageEvent.class, message -> {
-      markAssistantActivity();
-      String content = message.getData().content();
-      String reasoning = message.getData().reasoningText();
-      List<ToolRequest> requests = message.getData().toolRequests();
+    s.on(
+        AssistantMessageEvent.class,
+        message -> {
+          markAssistantActivity();
+          String content = message.getData().content();
+          String reasoning = message.getData().reasoningText();
+          List<ToolRequest> requests = message.getData().toolRequests();
 
-      if (content != null && !content.isEmpty()) {
-        logger.debug("Received message from assistant: {}", message.getData().content());
-      } else {
-        logger.debug("Received tool requests from assistant: {}", requests);
-        if (reasoning != null) {
-          logger.debug("Received reasoning: {}", reasoning);
-        }
-      }
+          if (content != null && !content.isEmpty()) {
+            logger.debug("Received message from assistant: {}", message.getData().content());
+          } else {
+            logger.debug("Received tool requests from assistant: {}", requests);
+            if (reasoning != null) {
+              logger.debug("Received reasoning: {}", reasoning);
+            }
+          }
 
-      // Log tool invocations
-      if (requests != null && !requests.isEmpty()) {
-        for (ToolRequest toolRequest : requests) {
-          String toolInfo = toolRequest.toString();
-          addMessageLogEntry("TOOL_INVOCATION", null, toolInfo);
-          logger.debug("Tool invocation: {}", toolInfo);
-        }
-      }
-    });
-    s.on(SessionUsageInfoEvent.class, usage -> {
-      markAssistantActivity();
-      SessionUsageInfoData data = usage.getData();
-      long currentTokens = Math.round(data.currentTokens());
-      long inputTokens = readUsageTokenValue(data,
-          "inputTokens", "promptTokens", "input_tokens", "prompt_tokens");
-      long outputTokens = readUsageTokenValue(data,
-          "outputTokens", "completionTokens", "output_tokens", "completion_tokens");
+          // Log tool invocations
+          if (requests != null && !requests.isEmpty()) {
+            for (ToolRequest toolRequest : requests) {
+              String toolInfo = toolRequest.toString();
+              addMessageLogEntry("TOOL_INVOCATION", null, toolInfo);
+              logger.debug("Tool invocation: {}", toolInfo);
+            }
+          }
+        });
+    s.on(
+        SessionUsageInfoEvent.class,
+        usage -> {
+          markAssistantActivity();
+          SessionUsageInfoData data = usage.getData();
+          long currentTokens = Math.round(data.currentTokens());
+          long inputTokens =
+              readUsageTokenValue(
+                  data, "inputTokens", "promptTokens", "input_tokens", "prompt_tokens");
+          long outputTokens =
+              readUsageTokenValue(
+                  data, "outputTokens", "completionTokens", "output_tokens", "completion_tokens");
 
-      totalTokensUsed.accumulateAndGet(currentTokens, Math::max);
-      inputTokensUsed.accumulateAndGet(inputTokens, Math::max);
-      outputTokensUsed.accumulateAndGet(outputTokens, Math::max);
+          totalTokensUsed.accumulateAndGet(currentTokens, Math::max);
+          inputTokensUsed.accumulateAndGet(inputTokens, Math::max);
+          outputTokensUsed.accumulateAndGet(outputTokens, Math::max);
 
-      logger.debug(
-          "Session usage info - Tokens used total={}, input={}, output={}",
-          currentTokens,
-          inputTokens,
-          outputTokens
-      );
-    });
-    s.on(SessionIdleEvent.class, ignored -> {
-      markAssistantActivity();
-      logger.debug("Session is now idle");
-    });
-    s.setEventErrorHandler(
-        (_, e) -> logger.error("Error occurred while processing event", e));
+          logger.debug(
+              "Session usage info - Tokens used total={}, input={}, output={}",
+              currentTokens,
+              inputTokens,
+              outputTokens);
+        });
+    s.on(
+        SessionIdleEvent.class,
+        ignored -> {
+          markAssistantActivity();
+          logger.debug("Session is now idle");
+        });
+    s.setEventErrorHandler((_, e) -> logger.error("Error occurred while processing event", e));
   }
 
   private static long readUsageTokenValue(Object data, String... candidateMethodNames) {
@@ -165,7 +177,8 @@ public class CopilotSDKSession implements Session {
       if (parsed != null) {
         return parsed;
       }
-      logger.debug("Usage token method '{}' returned non-numeric value type: {}",
+      logger.debug(
+          "Usage token method '{}' returned non-numeric value type: {}",
           methodName,
           value == null ? "null" : value.getClass().getName());
     } catch (NoSuchMethodException ignored) {
@@ -206,10 +219,8 @@ public class CopilotSDKSession implements Session {
   public boolean addContextIfChanged(Context context) {
     synchronized (contexts) {
       // Find existing context with same name
-      CopilotSDKContext existingContext = contexts.stream()
-          .filter(context::equals)
-          .findFirst()
-          .orElse(null);
+      CopilotSDKContext existingContext =
+          contexts.stream().filter(context::equals).findFirst().orElse(null);
 
       // If context doesn't exist, add it
       if (existingContext == null) {
@@ -261,26 +272,35 @@ public class CopilotSDKSession implements Session {
     ScheduledFuture<?> inactivityMonitor = null;
     if (betweenMessageTimeoutMs > 0) {
       long monitorIntervalMs = resolveMonitorIntervalMs(betweenMessageTimeoutMs);
-      inactivityMonitor = inactivityMonitorExecutor.scheduleAtFixedRate(() -> {
-        if (future.isDone()) {
-          return;
-        }
+      inactivityMonitor =
+          inactivityMonitorExecutor.scheduleAtFixedRate(
+              () -> {
+                if (future.isDone()) {
+                  return;
+                }
 
-        long idleMs = System.currentTimeMillis() - lastAssistantActivityMs.get();
-        if (idleMs < betweenMessageTimeoutMs) {
-          return;
-        }
+                long idleMs = System.currentTimeMillis() - lastAssistantActivityMs.get();
+                if (idleMs < betweenMessageTimeoutMs) {
+                  return;
+                }
 
-        TimeoutException timeout = new TimeoutException(
-            "No assistant message/tool request received for " + idleMs + "ms"
-                + " (configured between-message-timeout-ms=" + betweenMessageTimeoutMs + ")"
-        );
+                TimeoutException timeout =
+                    new TimeoutException(
+                        "No assistant message/tool request received for "
+                            + idleMs
+                            + "ms"
+                            + " (configured between-message-timeout-ms="
+                            + betweenMessageTimeoutMs
+                            + ")");
 
-        if (future.completeExceptionally(timeout)) {
-          addMessageLogEntry("ERROR", null, timeout.getMessage());
-          logger.warn("Prompt timed out due to inactivity: {}", timeout.getMessage());
-        }
-      }, monitorIntervalMs, monitorIntervalMs, TimeUnit.MILLISECONDS);
+                if (future.completeExceptionally(timeout)) {
+                  addMessageLogEntry("ERROR", null, timeout.getMessage());
+                  logger.warn("Prompt timed out due to inactivity: {}", timeout.getMessage());
+                }
+              },
+              monitorIntervalMs,
+              monitorIntervalMs,
+              TimeUnit.MILLISECONDS);
     }
 
     final ScheduledFuture<?> finalInactivityMonitor = inactivityMonitor;
@@ -293,30 +313,41 @@ public class CopilotSDKSession implements Session {
       logger.info("Sending prompt to Copilot SDK Session: {}", input.getMessage());
     }
 
-    sessionRef.get().sendAndWait(options, config.getTimeoutMs()).thenApply(response -> {
-      if (future.isDone()) {
-        return null;
-      }
-      markAssistantActivity();
-      ResponseMessage responseMessage = new ResponseMessage(response.getData().messageId());
-      responseMessage.setMessage(response.getData().content());
-      addMessageLogEntry("INBOUND", response.getData().messageId(), response.getData().content());
-      future.complete(responseMessage);
-      logger.debug("Received response for message ID {}: {}", response.getData().messageId(), response.getData().content());
-      return null;
-    }).exceptionally(ex -> {
-      if (!future.isDone()) {
-        addMessageLogEntry("ERROR", null, ex.getMessage());
-        future.completeExceptionally(ex);
-      }
-      return null;
-    });
+    sessionRef
+        .get()
+        .sendAndWait(options, config.getTimeoutMs())
+        .thenApply(
+            response -> {
+              if (future.isDone()) {
+                return null;
+              }
+              markAssistantActivity();
+              ResponseMessage responseMessage = new ResponseMessage(response.getData().messageId());
+              responseMessage.setMessage(response.getData().content());
+              addMessageLogEntry(
+                  "INBOUND", response.getData().messageId(), response.getData().content());
+              future.complete(responseMessage);
+              logger.debug(
+                  "Received response for message ID {}: {}",
+                  response.getData().messageId(),
+                  response.getData().content());
+              return null;
+            })
+        .exceptionally(
+            ex -> {
+              if (!future.isDone()) {
+                addMessageLogEntry("ERROR", null, ex.getMessage());
+                future.completeExceptionally(ex);
+              }
+              return null;
+            });
 
-    future.whenComplete((ignored1, ignored2) -> {
-      if (finalInactivityMonitor != null) {
-        finalInactivityMonitor.cancel(true);
-      }
-    });
+    future.whenComplete(
+        (ignored1, ignored2) -> {
+          if (finalInactivityMonitor != null) {
+            finalInactivityMonitor.cancel(true);
+          }
+        });
     return future;
   }
 
@@ -336,12 +367,9 @@ public class CopilotSDKSession implements Session {
   }
 
   private void addMessageLogEntry(String direction, String messageId, String content) {
-    messageLog.add(new SessionMessageLogEntry(
-        Instant.now().toString(),
-        direction,
-        messageId,
-        content == null ? "" : content
-    ));
+    messageLog.add(
+        new SessionMessageLogEntry(
+            Instant.now().toString(), direction, messageId, content == null ? "" : content));
   }
 
   @Override
@@ -392,8 +420,8 @@ public class CopilotSDKSession implements Session {
   }
 
   /**
-   * Returns the timestamp (ms) of the last assistant activity (message/tool/event).
-   * Used for monitoring session progress and detecting stalls.
+   * Returns the timestamp (ms) of the last assistant activity (message/tool/event). Used for
+   * monitoring session progress and detecting stalls.
    */
   @Override
   public long getLastAssistantActivityMs() {
@@ -401,8 +429,8 @@ public class CopilotSDKSession implements Session {
   }
 
   /**
-   * Returns whether this session has been idle for longer than the specified duration.
-   * Useful for detecting stuck sessions during delegation execution.
+   * Returns whether this session has been idle for longer than the specified duration. Useful for
+   * detecting stuck sessions during delegation execution.
    *
    * @param idleThresholdMs idle time threshold in milliseconds
    * @return true if session has no assistant activity for >= idleThresholdMs

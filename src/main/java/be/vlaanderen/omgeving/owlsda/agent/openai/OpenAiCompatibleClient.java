@@ -21,14 +21,18 @@ public class OpenAiCompatibleClient implements Client {
   private final HttpClient httpClient;
   private final String baseUrl;
   private final String apiKey;
+  private final Config.CompactionProperties compactionProperties;
   private final List<Session> sessions = new ArrayList<>();
 
   public OpenAiCompatibleClient(Config config) {
     String configuredBaseUrl = "https://api.openai.com/v1";
     String resolvedApiKey = null;
 
-    if (config != null && config.getClient() != null && config.getClient().getOpenaiCompatible() != null) {
-      Config.ClientProperties.OpenAiCompatibleProperties props = config.getClient().getOpenaiCompatible();
+    if (config != null
+        && config.getClient() != null
+        && config.getClient().getOpenaiCompatible() != null) {
+      Config.ClientProperties.OpenAiCompatibleProperties props =
+          config.getClient().getOpenaiCompatible();
       if (props.getBaseUrl() != null && !props.getBaseUrl().isBlank()) {
         configuredBaseUrl = props.getBaseUrl().trim();
       }
@@ -41,13 +45,14 @@ public class OpenAiCompatibleClient implements Client {
               + "in the config file or the OPENAI_API_KEY environment variable.");
     }
 
-    this.baseUrl = configuredBaseUrl.endsWith("/")
-        ? configuredBaseUrl.substring(0, configuredBaseUrl.length() - 1)
-        : configuredBaseUrl;
+    this.baseUrl =
+        configuredBaseUrl.endsWith("/")
+            ? configuredBaseUrl.substring(0, configuredBaseUrl.length() - 1)
+            : configuredBaseUrl;
     this.apiKey = resolvedApiKey;
-    this.httpClient = HttpClient.newBuilder()
-        .connectTimeout(Duration.ofSeconds(5))
-        .build();
+    this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
+    this.compactionProperties =
+        config != null ? config.getCompaction() : new Config.CompactionProperties();
 
     logger.info("Initialized OpenAI-compatible client with base URL {}", this.baseUrl);
   }
@@ -60,7 +65,8 @@ public class OpenAiCompatibleClient implements Client {
   @Override
   public Session createSession(be.vlaanderen.omgeving.owlsda.agent.SessionConfig config)
       throws ExecutionException, InterruptedException {
-    OpenAiCompatibleSession session = new OpenAiCompatibleSession(config, baseUrl, apiKey, httpClient);
+    OpenAiCompatibleSession session =
+        new OpenAiCompatibleSession(config, baseUrl, apiKey, httpClient, compactionProperties);
     sessions.add(session);
     return session;
   }

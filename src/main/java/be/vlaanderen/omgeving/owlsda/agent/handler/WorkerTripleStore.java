@@ -1,5 +1,13 @@
 package be.vlaanderen.omgeving.owlsda.agent.handler;
 
+import be.vlaanderen.omgeving.owlsda.ontology.Shacl;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -10,26 +18,22 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.shacl.ValidationReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Shared triple store for all workers to collaborate on RDF triple generation.
- */
+/** Shared triple store for all workers to collaborate on RDF triple generation. */
 public class WorkerTripleStore {
   private static final Logger logger = LoggerFactory.getLogger(WorkerTripleStore.class);
 
   private final Model model;
   private final String outputPath;
   private boolean dirty;
+  // Bumped on every successful mutation; used to cache SHACL validation results so repeated
+  // validation calls within the same round (no intervening mutation) don't re-copy the model or
+  // re-run validation.
+  private long version;
+  private ValidationSnapshot cachedValidation;
 
   /**
    * Create a triple store that writes triples to an output file as they are added.
@@ -43,9 +47,9 @@ public class WorkerTripleStore {
   }
 
   /**
-   * Add triples from TURTLE data to the shared store.
-   * Returns information about duplicates to help workers coordinate.
-   * If an output path is configured, writes the complete merged model to the output file.
+   * Add triples from TURTLE data to the shared store. Returns information about duplicates to help
+   * workers coordinate. If an output path is configured, writes the complete merged model to the
+   * output file.
    *
    * @param turtleData TURTLE formatted data to add
    * @param workerId ID of the worker adding the triples
@@ -72,11 +76,16 @@ public class WorkerTripleStore {
       model.add(tempModel);
       int triplesAdded = (int) model.size() - sizeBefore;
 
-      logger.info("[{}] Added {} triples, {} duplicates ignored (total: {})",
-          workerId, triplesAdded, duplicates.size(), model.size());
+      logger.info(
+          "[{}] Added {} triples, {} duplicates ignored (total: {})",
+          workerId,
+          triplesAdded,
+          duplicates.size(),
+          model.size());
 
       if (triplesAdded > 0) {
         dirty = true;
+        version++;
       }
 
       return new AddResult(triplesAdded, duplicates, (int) model.size());
@@ -95,7 +104,8 @@ public class WorkerTripleStore {
    * @param workerId ID of the worker removing the triples
    * @return Number of triples removed
    */
-  public synchronized int removeTriples(String subject, String predicate, String object, String workerId) {
+  public synchronized int removeTriples(
+      String subject, String predicate, String object, String workerId) {
     int sizeBefore = (int) model.size();
 
     Resource subjectRes = subject != null ? model.getResource(subject) : null;
@@ -107,14 +117,15 @@ public class WorkerTripleStore {
     int triplesRemoved = sizeBefore - (int) model.size();
     if (triplesRemoved > 0) {
       dirty = true;
+      version++;
     }
     logger.info("[{}] Removed {} triples (total: {})", workerId, triplesRemoved, model.size());
     return triplesRemoved;
   }
 
   /**
-   * Remove triples from the shared store and recursively remove any orphaned blank nodes.
-   * This prevents floating blank nodes that are no longer referenced by any named resource.
+   * Remove triples from the shared store and recursively remove any orphaned blank nodes. This
+   * prevents floating blank nodes that are no longer referenced by any named resource.
    *
    * @param subject Subject URI or null for wildcard
    * @param predicate Predicate URI or null for wildcard
@@ -122,7 +133,8 @@ public class WorkerTripleStore {
    * @param workerId ID of the worker removing the triples
    * @return Number of triples removed (including cascaded blank node triples)
    */
-  public synchronized int removeTriplesWithBlankNodes(String subject, String predicate, String object, String workerId) {
+  public synchronized int removeTriplesWithBlankNodes(
+      String subject, String predicate, String object, String workerId) {
     int sizeBefore = (int) model.size();
 
     Resource subjectRes = subject != null ? model.getResource(subject) : null;
@@ -156,11 +168,17 @@ public class WorkerTripleStore {
     int totalRemoved = sizeBefore - (int) model.size();
     if (totalRemoved > 0) {
       dirty = true;
+      version++;
     }
 
     if (cascadedRemovals > 0) {
-      logger.info("[{}] Removed {} triples ({} direct, {} from orphaned blank nodes) (total: {})",
-          workerId, totalRemoved, totalRemoved - cascadedRemovals, cascadedRemovals, model.size());
+      logger.info(
+          "[{}] Removed {} triples ({} direct, {} from orphaned blank nodes) (total: {})",
+          workerId,
+          totalRemoved,
+          totalRemoved - cascadedRemovals,
+          cascadedRemovals,
+          model.size());
     } else {
       logger.info("[{}] Removed {} triples (total: {})", workerId, totalRemoved, model.size());
     }
@@ -169,10 +187,9 @@ public class WorkerTripleStore {
   }
 
   /**
-   * Recursively remove blank nodes that are no longer referenced by any named resource.
-   * A blank node is considered orphaned if:
-   * - It has no incoming references from named resources
-   * - It has no outgoing references to named resources (except through other blank nodes)
+   * Recursively remove blank nodes that are no longer referenced by any named resource. A blank
+   * node is considered orphaned if: - It has no incoming references from named resources - It has
+   * no outgoing references to named resources (except through other blank nodes)
    *
    * @param blankNodesToCheck List of blank nodes to check for orphan status
    * @param workerId ID of the worker performing the cleanup
@@ -237,8 +254,11 @@ public class WorkerTripleStore {
 
         if (removed > 0) {
           changed = true;
-          logger.debug("[{}] Removed {} triples from orphaned blank node {}",
-              workerId, removed, orphan.getId());
+          logger.debug(
+              "[{}] Removed {} triples from orphaned blank node {}",
+              workerId,
+              removed,
+              orphan.getId());
         }
 
         // Add newly exposed blank nodes to the check list
@@ -261,7 +281,8 @@ public class WorkerTripleStore {
    * @param workerId ID of the worker querying
    * @return List of matching statements in TURTLE format
    */
-  public synchronized List<String> queryTriples(String subject, String predicate, String object, String workerId) {
+  public synchronized List<String> queryTriples(
+      String subject, String predicate, String object, String workerId) {
     Resource subjectRes = subject != null ? model.getResource(subject) : null;
     Property predicateRes = predicate != null ? model.getProperty(predicate) : null;
     RDFNode objectNode = object != null ? parseObject(object) : null;
@@ -311,21 +332,58 @@ public class WorkerTripleStore {
   }
 
   /**
-   * Clear all triples from the shared store.
-   * Should only be called by initialization or cleanup routines.
+   * Clear all triples from the shared store. Should only be called by initialization or cleanup
+   * routines.
    */
   public synchronized void clear() {
     int sizeBefore = (int) model.size();
     model.removeAll();
     if (sizeBefore > 0) {
       dirty = true;
+      version++;
     }
     logger.info("Cleared {} triples from shared store", sizeBefore);
   }
 
   /**
-   * Flush current shared model to output file if there are pending changes.
+   * Validates the current store contents against the given SHACL shapes, returning a
+   * (model-snapshot, report) pair. Repeated calls with no intervening mutation return the cached
+   * result instead of re-copying the model and re-running validation, since supervisor-side round
+   * bookkeeping validates the same unchanged store several times per round.
    */
+  public ValidationSnapshot getValidationSnapshot(Shacl shacl) {
+    if (shacl == null) {
+      return null;
+    }
+
+    long versionAtSnapshot;
+    Model snapshot;
+    synchronized (this) {
+      if (cachedValidation != null && cachedValidation.version() == version) {
+        return cachedValidation;
+      }
+      versionAtSnapshot = version;
+      snapshot = ModelFactory.createDefaultModel().add(model);
+    }
+
+    ValidationReport report = shacl.validate(snapshot);
+    ValidationSnapshot result = new ValidationSnapshot(snapshot, report, versionAtSnapshot);
+
+    synchronized (this) {
+      if (cachedValidation == null || versionAtSnapshot >= cachedValidation.version()) {
+        cachedValidation = result;
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Snapshot of a SHACL validation run: the model as it existed at validation time, the resulting
+   * report, and the store version it corresponds to (for cache invalidation).
+   */
+  public record ValidationSnapshot(Model model, ValidationReport report, long version) {}
+
+  /** Flush current shared model to output file if there are pending changes. */
   public synchronized void flushToOutputFile(String actorId) {
     if (!dirty || outputPath == null) {
       return;
@@ -339,19 +397,19 @@ public class WorkerTripleStore {
     }
   }
 
-  /**
-   * Parse object string to RDFNode.
-   */
+  /** Parse object string to RDFNode. */
   private RDFNode parseObject(String object) {
-    if (object.startsWith("http://") || object.startsWith("https://") || object.startsWith("urn:")) {
+    if (object.startsWith("http://")
+        || object.startsWith("https://")
+        || object.startsWith("urn:")) {
       return model.getResource(object);
     }
     return model.createLiteral(object);
   }
 
   /**
-   * Write the complete merged model to the output file.
-   * Overwrites the file with the current state of all triples in the shared store.
+   * Write the complete merged model to the output file. Overwrites the file with the current state
+   * of all triples in the shared store.
    */
   private void writeCompleteModelToOutputFile(String workerId) {
     if (outputPath == null) {
@@ -370,31 +428,27 @@ public class WorkerTripleStore {
       String turtleData = writer.toString();
 
       // Write complete model to file (overwrite, not append)
-      Files.writeString(outputFile, turtleData,
-          StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+      Files.writeString(
+          outputFile, turtleData, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
-      logger.debug("[{}] Wrote complete model ({} triples) to output file: {}",
-          workerId, model.size(), outputFile);
+      logger.debug(
+          "[{}] Wrote complete model ({} triples) to output file: {}",
+          workerId,
+          model.size(),
+          outputFile);
     } catch (Exception e) {
-      logger.error("[{}] Failed to write model to output file: {}",
-          workerId, e.getMessage(), e);
+      logger.error("[{}] Failed to write model to output file: {}", workerId, e.getMessage(), e);
     }
   }
 
-  /**
-   * Format a statement as a string for display.
-   */
+  /** Format a statement as a string for display. */
   private String formatStatement(Statement stmt) {
-    return String.format("<%s> <%s> %s .",
-        stmt.getSubject().getURI(),
-        stmt.getPredicate().getURI(),
-        formatNode(stmt.getObject())
-    );
+    return String.format(
+        "<%s> <%s> %s .",
+        stmt.getSubject().getURI(), stmt.getPredicate().getURI(), formatNode(stmt.getObject()));
   }
 
-  /**
-   * Format an RDF node for display.
-   */
+  /** Format an RDF node for display. */
   private String formatNode(RDFNode node) {
     if (node.isResource()) {
       return "<" + node.asResource().getURI() + ">";
@@ -404,9 +458,7 @@ public class WorkerTripleStore {
     return node.toString();
   }
 
-  /**
-   * Result of adding triples, including duplicate detection.
-   */
+  /** Result of adding triples, including duplicate detection. */
   @Getter
   public static class AddResult {
     private final int triplesAdded;
@@ -441,4 +493,3 @@ public class WorkerTripleStore {
     }
   }
 }
-

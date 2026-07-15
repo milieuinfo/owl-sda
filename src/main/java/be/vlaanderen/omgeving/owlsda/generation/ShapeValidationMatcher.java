@@ -2,7 +2,9 @@ package be.vlaanderen.omgeving.owlsda.generation;
 
 import be.vlaanderen.omgeving.owlsda.ontology.Shacl;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.jena.graph.Node;
@@ -20,8 +22,7 @@ final class ShapeValidationMatcher {
   private static final String SH_NODE_SHAPE = "http://www.w3.org/ns/shacl#NodeShape";
   private static final String SH_TARGET_CLASS = "http://www.w3.org/ns/shacl#targetClass";
 
-  private ShapeValidationMatcher() {
-  }
+  private ShapeValidationMatcher() {}
 
   static Optional<String> getTargetClassUri(Shacl.Shape shape) {
     try {
@@ -52,23 +53,21 @@ final class ShapeValidationMatcher {
     }
   }
 
-  static boolean hasInstancesForTargetClass(Model dataModel, Model ontologyModel, Property rdfType,
-      Resource targetClass) {
+  static boolean hasInstancesForTargetClass(
+      Model dataModel, Model ontologyModel, Property rdfType, Resource targetClass) {
     if (dataModel.contains(null, rdfType, targetClass)) {
       return true;
     }
 
-    return dataModel.listStatements(null, rdfType, (Resource) null)
-        .toList()
-        .stream()
+    return dataModel.listStatements(null, rdfType, (Resource) null).toList().stream()
         .map(Statement::getObject)
         .filter(RDFNode::isResource)
         .map(RDFNode::asResource)
         .anyMatch(actualType -> isClassCompatible(actualType, targetClass, ontologyModel));
   }
 
-  static boolean hasViolationsForTargetClass(Model dataModel, Model ontologyModel,
-      ValidationReport report, Resource targetClass) {
+  static boolean hasViolationsForTargetClass(
+      Model dataModel, Model ontologyModel, ValidationReport report, Resource targetClass) {
     for (var entry : report.getEntries()) {
       Node focusNode = entry.focusNode();
       if (focusNode == null) {
@@ -81,8 +80,36 @@ final class ShapeValidationMatcher {
     return false;
   }
 
-  private static boolean isFocusNodeOfTargetClass(Model dataModel, Model ontologyModel,
-      Node focusNode, Resource targetClass) {
+  /**
+   * Reopens (marks unprocessed) any already-processed shape whose target class still has
+   * outstanding validation violations in {@code report}. Returns the names of shapes reopened.
+   * Shared by {@link Supervisor} and {@link SupervisorWorkflow}, which call this against slightly
+   * different validation snapshots but apply the same reopen-on-violation rule.
+   */
+  static List<String> reopenProcessedShapesWithViolations(
+      List<Shacl.Shape> shapes, Model dataModel, Model ontologyModel, ValidationReport report) {
+    List<String> reopened = new ArrayList<>();
+    for (Shacl.Shape shape : shapes) {
+      if (!shape.isProcessed()) {
+        continue;
+      }
+
+      String targetClassUri = getTargetClassUri(shape).orElse(null);
+      if (targetClassUri == null) {
+        continue;
+      }
+
+      Resource targetClass = dataModel.createResource(targetClassUri);
+      if (hasViolationsForTargetClass(dataModel, ontologyModel, report, targetClass)) {
+        shape.setProcessed(false);
+        reopened.add(shape.getName());
+      }
+    }
+    return reopened;
+  }
+
+  private static boolean isFocusNodeOfTargetClass(
+      Model dataModel, Model ontologyModel, Node focusNode, Resource targetClass) {
     RDFNode rdfNode = dataModel.asRDFNode(focusNode);
     if (!rdfNode.isResource()) {
       return false;
@@ -93,29 +120,29 @@ final class ShapeValidationMatcher {
       return true;
     }
 
-    return dataModel.listStatements(focusResource, RDF.type, (Resource) null)
-        .toList()
-        .stream()
+    return dataModel.listStatements(focusResource, RDF.type, (Resource) null).toList().stream()
         .map(Statement::getObject)
         .filter(RDFNode::isResource)
         .map(RDFNode::asResource)
         .anyMatch(actualType -> isClassCompatible(actualType, targetClass, ontologyModel));
   }
 
-  private static boolean isClassCompatible(Resource actualType, Resource expectedType,
-      Model ontologyModel) {
+  private static boolean isClassCompatible(
+      Resource actualType, Resource expectedType, Model ontologyModel) {
     String expectedUri = expectedType.getURI();
     String actualUri = actualType.getURI();
     if (expectedUri != null && expectedUri.equals(actualUri)) {
       return true;
     }
 
-    String expectedLocalName = expectedType.getLocalName();
-    if (expectedLocalName != null && !expectedLocalName.isBlank()
-        && expectedLocalName.equals(actualType.getLocalName())) {
-      return true;
-    }
-
+    // Deliberately NOT matching on local name alone: a generation worker that invents its own
+    // placeholder namespace (e.g. http://example.org/Installation instead of the ontology's
+    // https://example.org/ns/riepr#Installation) reliably reuses the correct local name, since
+    // that's literally the class name it was told to create instances of. Treating same-local-name
+    // as compatible here silently marked those shapes "complete" - real SHACL validation vacuously
+    // reports zero violations too, since it finds no instances of the real target class to check -
+    // so this was the one place that could have caught the mismatch and didn't. Only an exact URI
+    // match or a real subclass relationship (below) counts.
     if (ontologyModel == null) {
       return false;
     }

@@ -6,9 +6,7 @@ import be.vlaanderen.omgeving.owlsda.agent.openai.OpenAiCompatibleClient;
 import be.vlaanderen.omgeving.owlsda.config.Config;
 import java.util.Locale;
 
-/**
- * Factory for creating LLM clients based on configured provider.
- */
+/** Factory for creating LLM clients based on configured provider. */
 public final class ClientFactory {
 
   public enum Role {
@@ -17,8 +15,7 @@ public final class ClientFactory {
     REVIEWER
   }
 
-  private ClientFactory() {
-  }
+  private ClientFactory() {}
 
   public static Client create(Config config) {
     String provider = resolveProvider(config);
@@ -31,7 +28,8 @@ public final class ClientFactory {
       case "copilot" -> new CopilotSDKClient();
       case "ollama" -> new OllamaClient(config);
       case "openai-compatible" -> new OpenAiCompatibleClient(config);
-      default -> throw new IllegalArgumentException("Unsupported client provider: " + normalizedProvider);
+      default ->
+          throw new IllegalArgumentException("Unsupported client provider: " + normalizedProvider);
     };
   }
 
@@ -52,11 +50,21 @@ public final class ClientFactory {
       return "copilot";
     }
 
-    String roleProvider = switch (role) {
-      case WORKER -> config.getClient().getWorker() != null ? config.getClient().getWorker().getProvider() : null;
-      case SUPERVISOR -> config.getClient().getSupervisor() != null ? config.getClient().getSupervisor().getProvider() : null;
-      case REVIEWER -> config.getClient().getReviewer() != null ? config.getClient().getReviewer().getProvider() : null;
-    };
+    String roleProvider =
+        switch (role) {
+          case WORKER ->
+              config.getClient().getWorker() != null
+                  ? config.getClient().getWorker().getProvider()
+                  : null;
+          case SUPERVISOR ->
+              config.getClient().getSupervisor() != null
+                  ? config.getClient().getSupervisor().getProvider()
+                  : null;
+          case REVIEWER ->
+              config.getClient().getReviewer() != null
+                  ? config.getClient().getReviewer().getProvider()
+                  : null;
+        };
 
     if (roleProvider == null || roleProvider.isBlank()) {
       return resolveProvider(config);
@@ -74,4 +82,3 @@ public final class ClientFactory {
     return normalized.isBlank() ? "copilot" : normalized;
   }
 }
-

@@ -1,6 +1,6 @@
 package be.vlaanderen.omgeving.owlsda.agent.context;
 
-public class OutputContext extends Context{
+public class OutputContext extends Context {
   public OutputContext(String content) {
     super();
     this.setType("text/turtle");

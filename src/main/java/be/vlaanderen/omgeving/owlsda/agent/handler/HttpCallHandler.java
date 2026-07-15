@@ -15,14 +15,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Allows agents to make an HTTP GET or POST request to an allowlisted host. The allowlist is
- * seeded from already-trusted project configuration (external ontology mirrors, user-context
- * URLs) plus any explicit {@code tools.http.allowed-hosts} entries - see {@link
- * HttpAllowlistFactory}.
+ * Allows agents to make an HTTP GET or POST request to an allowlisted host. The allowlist is seeded
+ * from already-trusted project configuration (external ontology mirrors, user-context URLs) plus
+ * any explicit {@code tools.http.allowed-hosts} entries - see {@link HttpAllowlistFactory}.
  */
-public record HttpCallHandler(HttpAllowlist allowlist, HttpClient httpClient, int readTimeoutMs,
-                               int maxResponseBodyBytes, boolean allowPost,
-                               int maxRetries) implements SessionHandler {
+public record HttpCallHandler(
+    HttpAllowlist allowlist,
+    HttpClient httpClient,
+    int readTimeoutMs,
+    int maxResponseBodyBytes,
+    boolean allowPost,
+    int maxRetries)
+    implements SessionHandler {
 
   public static final String NAME = "http_call";
 
@@ -50,23 +54,22 @@ public record HttpCallHandler(HttpAllowlist allowlist, HttpClient httpClient, in
   public Map<String, Object> getArguments() {
     return Map.of(
         "type", "object",
-        "properties", Map.of(
-            "url", Map.of(
-                "type", "string",
-                "description", "Absolute URL to request; host must be allowlisted"
-            ),
-            "method", Map.of(
-                "type", "string",
-                "enum", List.of("GET", "POST"),
-                "description", "HTTP method (default: GET)"
-            ),
-            "body", Map.of(
-                "type", "string",
-                "description", "Request body for POST (optional)"
-            )
-        ),
-        "required", List.of("url")
-    );
+        "properties",
+            Map.of(
+                "url",
+                    Map.of(
+                        "type", "string",
+                        "description", "Absolute URL to request; host must be allowlisted"),
+                "method",
+                    Map.of(
+                        "type", "string",
+                        "enum", List.of("GET", "POST"),
+                        "description", "HTTP method (default: GET)"),
+                "body",
+                    Map.of(
+                        "type", "string",
+                        "description", "Request body for POST (optional)")),
+        "required", List.of("url"));
   }
 
   @Override
@@ -87,21 +90,19 @@ public record HttpCallHandler(HttpAllowlist allowlist, HttpClient httpClient, in
     }
 
     if (!allowlist.isAllowed(uri)) {
-      return CompletableFuture.completedFuture(Map.of(
-          "error", "Host not allowlisted: " + uri.getHost()
-      ));
+      return CompletableFuture.completedFuture(
+          Map.of("error", "Host not allowlisted: " + uri.getHost()));
     }
 
     if (!"GET".equals(method) && !"POST".equals(method)) {
-      return CompletableFuture.completedFuture(Map.of(
-          "error", "Unsupported method: " + method + ". Use GET or POST."
-      ));
+      return CompletableFuture.completedFuture(
+          Map.of("error", "Unsupported method: " + method + ". Use GET or POST."));
     }
 
     if ("POST".equals(method) && !allowPost) {
-      return CompletableFuture.completedFuture(Map.of(
-          "error", "POST requests are disabled for this tool (tools.http.allow-post=false)"
-      ));
+      return CompletableFuture.completedFuture(
+          Map.of(
+              "error", "POST requests are disabled for this tool (tools.http.allow-post=false)"));
     }
 
     return CompletableFuture.supplyAsync(() -> executeWithRetry(uri, method, body));
@@ -116,8 +117,12 @@ public record HttpCallHandler(HttpAllowlist allowlist, HttpClient httpClient, in
       } catch (RetryableHttpException e) {
         lastError = e;
         if (attempt < maxRetries) {
-          logger.warn("http_call to {} failed (attempt {}/{}): {}; retrying",
-              uri.getHost(), attempt + 1, maxRetries + 1, e.getMessage());
+          logger.warn(
+              "http_call to {} failed (attempt {}/{}): {}; retrying",
+              uri.getHost(),
+              attempt + 1,
+              maxRetries + 1,
+              e.getMessage());
           sleepBackoff(attempt);
         }
       } catch (Exception e) {
@@ -125,13 +130,17 @@ public record HttpCallHandler(HttpAllowlist allowlist, HttpClient httpClient, in
       }
     }
 
-    return Map.of("error", "Request failed after " + (maxRetries + 1) + " attempt(s): "
-        + (lastError != null ? lastError.getMessage() : "unknown error"));
+    return Map.of(
+        "error",
+        "Request failed after "
+            + (maxRetries + 1)
+            + " attempt(s): "
+            + (lastError != null ? lastError.getMessage() : "unknown error"));
   }
 
   private Map<String, Object> execute(URI uri, String method, String body) throws Exception {
-    HttpRequest.Builder requestBuilder = HttpRequest.newBuilder(uri)
-        .timeout(Duration.ofMillis(readTimeoutMs));
+    HttpRequest.Builder requestBuilder =
+        HttpRequest.newBuilder(uri).timeout(Duration.ofMillis(readTimeoutMs));
 
     if ("POST".equals(method)) {
       requestBuilder.POST(BodyPublishers.ofString(body != null ? body : ""));
@@ -159,8 +168,7 @@ public record HttpCallHandler(HttpAllowlist allowlist, HttpClient httpClient, in
     return Map.of(
         "status", response.statusCode(),
         "body", responseBody,
-        "truncated", truncated
-    );
+        "truncated", truncated);
   }
 
   private void sleepBackoff(int attempt) {

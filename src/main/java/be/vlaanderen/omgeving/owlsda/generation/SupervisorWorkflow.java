@@ -20,15 +20,15 @@ import org.apache.jena.shacl.ValidationReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Coordinates worker batches and supervisor-led output editing.
- */
-public record SupervisorWorkflow(Config config, Shacl shacl,
-                                 Supervisor supervisor,
-                                 SupervisorReviewCoordinator reviewCoordinator,
-                                 BenchmarkService benchmarkService,
-                                 WorkerTripleStore sharedTripleStore,
-                                 SessionPool workerSessionPool) {
+/** Coordinates worker batches and supervisor-led output editing. */
+public record SupervisorWorkflow(
+    Config config,
+    Shacl shacl,
+    Supervisor supervisor,
+    SupervisorReviewCoordinator reviewCoordinator,
+    BenchmarkService benchmarkService,
+    WorkerTripleStore sharedTripleStore,
+    SessionPool workerSessionPool) {
 
   private static final Logger logger = LoggerFactory.getLogger(SupervisorWorkflow.class);
   private static final int MAX_CONSECUTIVE_EMPTY_DELEGATION_ROUNDS = 3;
@@ -36,9 +36,7 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
   private static final int MAX_CONSECUTIVE_STALLED_VIOLATION_ROUNDS = 4;
   private static final int MAX_FINALIZATION_ATTEMPTS = 3;
 
-  /**
-   * Collects worker sessions from the pool for snapshotting delegation instructions.
-   */
+  /** Collects worker sessions from the pool for snapshotting delegation instructions. */
   private List<Session> getWorkerSessions() {
     if (workerSessionPool == null) {
       return List.of();
@@ -76,8 +74,32 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
     return shacl != null && shacl.getShapes() != null;
   }
 
-  private void runGenerationPhase(int shapesPerBatch, int totalShapes, int poolCount,
-      int batchSize) {
+  /**
+   * Drives the round-by-round delegation loop until every shape is processed and validation is
+   * clean, then hands off to finalization and review. Each round delegates {@code shapes} shapes
+   * (growing via {@link #calculateNextShapesTarget} as earlier shapes pass validation) and then
+   * checks progress against three independent stall detectors, each an escape hatch against a
+   * different way a round can fail to make progress:
+   *
+   * <ul>
+   *   <li>{@code consecutiveEmptyDelegationRounds} (vs {@link
+   *       #MAX_CONSECUTIVE_EMPTY_DELEGATION_ROUNDS}): the supervisor LLM delegated to zero workers
+   *       this round. Tracked in {@link #shouldAbortAfterFailedRound}.
+   *   <li>{@code consecutiveNoProgressRounds} (vs {@link #MAX_CONSECUTIVE_NO_PROGRESS_ROUNDS}):
+   *       workers ran, but neither the completed-shape count nor the violation count improved.
+   *   <li>{@code consecutiveStalledViolationRounds} (vs {@link
+   *       #MAX_CONSECUTIVE_STALLED_VIOLATION_ROUNDS}): violations exist but {@code
+   *       lastViolationSignature} (a hash of the current violation set) hasn't changed, meaning
+   *       repair attempts aren't touching the actual failing triples.
+   * </ul>
+   *
+   * {@code lastProcessedShapes} and {@code lastViolations} hold the previous round's counts so each
+   * check is a delta, not an absolute; all three counters reset to zero the moment their condition
+   * improves, so only *consecutive* stalls count against the threshold. Hitting any threshold
+   * aborts the run rather than looping indefinitely against an LLM that isn't making progress.
+   */
+  private void runGenerationPhase(
+      int shapesPerBatch, int totalShapes, int poolCount, int batchSize) {
     int shapes = shapesPerBatch;
     boolean firstPass = true;
     int consecutiveEmptyDelegationRounds = 0;
@@ -104,9 +126,10 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
           int processedDelta = processedShapes - lastProcessedShapes;
           ViolationSnapshot violationSnapshot = getCurrentViolationSnapshot();
           int currentViolations = violationSnapshot.count();
-          int violationDelta = (lastViolations == Integer.MAX_VALUE || currentViolations < 0)
-              ? 0
-              : lastViolations - currentViolations;
+          int violationDelta =
+              (lastViolations == Integer.MAX_VALUE || currentViolations < 0)
+                  ? 0
+                  : lastViolations - currentViolations;
 
           logger.info(
               "Progress: {}/{} shapes completed (delta: +{}), violations: {} (delta: {})",
@@ -114,8 +137,7 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
               totalShapes,
               Math.max(processedDelta, 0),
               currentViolations,
-              (lastViolations == Integer.MAX_VALUE ? "n/a" : String.valueOf(violationDelta))
-          );
+              (lastViolations == Integer.MAX_VALUE ? "n/a" : String.valueOf(violationDelta)));
 
           // Never finalize while validation issues remain.
           if (processedShapes >= totalShapes) {
@@ -124,10 +146,10 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
               logger.warn(
                   "All shapes were marked processed but {} validation issue(s) remain; reopened {} violating shape(s) for delegated repair",
                   currentViolations,
-                  reopenedShapes
-              );
+                  reopenedShapes);
               if (reopenedShapes == 0) {
-                logger.error("Validation issues remain but no violating shapes could be mapped; stopping to avoid infinite finalize loop");
+                logger.error(
+                    "Validation issues remain but no violating shapes could be mapped; stopping to avoid infinite finalize loop");
                 return;
               }
               // Keep full scope available for follow-up delegated repair rounds.
@@ -137,33 +159,35 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
               continue;
             }
 
-            logger.info("All {} shapes processed and validation is clean; proceeding to finalization", totalShapes);
+            logger.info(
+                "All {} shapes processed and validation is clean; proceeding to finalization",
+                totalShapes);
             runFinalizationWithBenchmark();
             runReviewWithBenchmark();
             return;
           }
 
           boolean progressedByShapes = processedDelta > 0;
-          boolean progressedByViolations = lastViolations == Integer.MAX_VALUE
-              || (currentViolations >= 0 && currentViolations < lastViolations);
+          boolean progressedByViolations =
+              lastViolations == Integer.MAX_VALUE
+                  || (currentViolations >= 0 && currentViolations < lastViolations);
 
-          boolean sameViolationSignature = currentViolations > 0
-              && violationSnapshot.hasSignature()
-              && Objects.equals(violationSnapshot.signature(), lastViolationSignature);
+          boolean sameViolationSignature =
+              currentViolations > 0
+                  && violationSnapshot.hasSignature()
+                  && Objects.equals(violationSnapshot.signature(), lastViolationSignature);
           if (!progressedByViolations && sameViolationSignature) {
             consecutiveStalledViolationRounds++;
             logger.warn(
                 "Validation stall detected: unchanged violation signature from {} for {}/{} rounds",
                 violationSnapshot.source(),
                 consecutiveStalledViolationRounds,
-                MAX_CONSECUTIVE_STALLED_VIOLATION_ROUNDS
-            );
+                MAX_CONSECUTIVE_STALLED_VIOLATION_ROUNDS);
             if (consecutiveStalledViolationRounds >= MAX_CONSECUTIVE_STALLED_VIOLATION_ROUNDS) {
               logger.error(
                   "Stopping workflow: unresolved violations are unchanged across {} consecutive rounds. Last known violation count: {}",
                   MAX_CONSECUTIVE_STALLED_VIOLATION_ROUNDS,
-                  currentViolations
-              );
+                  currentViolations);
               return;
             }
           } else {
@@ -176,16 +200,20 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
 
           if (!progressedByShapes && !progressedByViolations) {
             consecutiveNoProgressRounds++;
-            logger.warn("No progress in this round ({}/{} consecutive no-progress rounds)",
-                consecutiveNoProgressRounds, MAX_CONSECUTIVE_NO_PROGRESS_ROUNDS);
+            logger.warn(
+                "No progress in this round ({}/{} consecutive no-progress rounds)",
+                consecutiveNoProgressRounds,
+                MAX_CONSECUTIVE_NO_PROGRESS_ROUNDS);
 
             // Log remaining unprocessed shapes for diagnostics
             logUnprocessedShapeNames(processedShapes, totalShapes);
 
             if (consecutiveNoProgressRounds >= MAX_CONSECUTIVE_NO_PROGRESS_ROUNDS) {
-              logger.error("Stopping workflow: {} consecutive rounds produced no progress in shapes or validation",
+              logger.error(
+                  "Stopping workflow: {} consecutive rounds produced no progress in shapes or validation",
                   MAX_CONSECUTIVE_NO_PROGRESS_ROUNDS);
-              logger.warn("Workflow stalled with {} unprocessed shapes; attempting final delegation to all remaining shapes",
+              logger.warn(
+                  "Workflow stalled with {} unprocessed shapes; attempting final delegation to all remaining shapes",
                   totalShapes - processedShapes);
               shapes = totalShapes;
               boolean finalAttempt = supervisor.orchestrate(shapes, false);
@@ -214,8 +242,8 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
         }
 
         int delegatedWorkers = supervisor.getDelegatedWorkerCount();
-        boolean shouldAbort = shouldAbortAfterFailedRound(shapes, delegatedWorkers,
-            consecutiveEmptyDelegationRounds);
+        boolean shouldAbort =
+            shouldAbortAfterFailedRound(shapes, delegatedWorkers, consecutiveEmptyDelegationRounds);
         if (delegatedWorkers == 0) {
           consecutiveEmptyDelegationRounds++;
         } else {
@@ -233,66 +261,51 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
   }
 
   /**
-   * Reopens processed shapes that are still referenced by current validation violations.
-   * This allows supervisor delegation rounds to continue repairs before finalization.
+   * Reopens processed shapes that are still referenced by current validation violations. This
+   * allows supervisor delegation rounds to continue repairs before finalization.
    */
   private int reopenShapesWithViolations() {
     if (shacl == null || shacl.getShapes() == null || shacl.getShapes().isEmpty()) {
       return 0;
     }
 
-    Model dataModel = getCurrentDataModel();
-    if (dataModel == null) {
+    DataModelValidation validation = getCurrentDataModelValidation();
+    if (validation == null) {
       return 0;
     }
 
-    ValidationReport report = shacl.validate(dataModel);
+    Model dataModel = validation.model();
+    ValidationReport report = validation.report();
 
-    int reopened = 0;
-    for (Shacl.Shape shape : shacl.getShapes()) {
-      if (!shape.isProcessed()) {
-        continue;
-      }
-
-      String targetClassUri = ShapeValidationMatcher.getTargetClassUri(shape).orElse(null);
-      if (targetClassUri == null) {
-        continue;
-      }
-
-      Resource targetClass = dataModel.createResource(targetClassUri);
-      if (ShapeValidationMatcher.hasViolationsForTargetClass(
-          dataModel, shacl.getOntology(), report, targetClass)) {
-        shape.setProcessed(false);
-        reopened++;
-      }
-    }
-
-    return reopened;
+    return ShapeValidationMatcher.reopenProcessedShapesWithViolations(
+            shacl.getShapes(), dataModel, shacl.getOntology(), report)
+        .size();
   }
 
-  private int calculateNextShapesTarget(int currentShapes, int totalShapes, int poolCount,
-      int batchSize) {
+  private int calculateNextShapesTarget(
+      int currentShapes, int totalShapes, int poolCount, int batchSize) {
     int shapesWithNoViolations = countShapesWithNoViolations();
     if (shapesWithNoViolations > 0 && currentShapes < totalShapes) {
       int newShapesTarget = Math.min(currentShapes + (batchSize * poolCount), totalShapes);
       logger.info(
           "Adding new shapes to process: {} shapes passed validation, expanding from {} to {} shapes",
-          shapesWithNoViolations, currentShapes, newShapesTarget);
+          shapesWithNoViolations,
+          currentShapes,
+          newShapesTarget);
       return newShapesTarget;
     }
     return currentShapes;
   }
 
-  private boolean shouldAbortAfterFailedRound(int shapes, int delegatedWorkers,
-      int consecutiveEmptyDelegationRounds) {
+  private boolean shouldAbortAfterFailedRound(
+      int shapes, int delegatedWorkers, int consecutiveEmptyDelegationRounds) {
     if (delegatedWorkers == 0) {
       int nextEmptyRoundCount = consecutiveEmptyDelegationRounds + 1;
       logger.error(
           "Supervisor delegated to 0 workers in round {}. consecutive empty delegation rounds: {}/{}",
           shapes,
           nextEmptyRoundCount,
-          MAX_CONSECUTIVE_EMPTY_DELEGATION_ROUNDS
-      );
+          MAX_CONSECUTIVE_EMPTY_DELEGATION_ROUNDS);
       if (nextEmptyRoundCount >= MAX_CONSECUTIVE_EMPTY_DELEGATION_ROUNDS) {
         logger.error(
             "Stopping workflow to avoid infinite loop: supervisor repeatedly produced no worker delegations");
@@ -303,7 +316,8 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
 
     logger.error(
         "Batch processing failed after delegating to {} worker(s), retrying batch with {} shapes",
-        delegatedWorkers, shapes);
+        delegatedWorkers,
+        shapes);
     return false;
   }
 
@@ -328,10 +342,8 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
             getSupervisorSession(),
             getReviewerSession(),
             sharedTripleStore,
-            getWorkerSessions()
-        ),
-        currentViolations
-    );
+            getWorkerSessions()),
+        currentViolations);
   }
 
   private int getCurrentOutputViolations() {
@@ -346,9 +358,9 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
     // During generation, the shared store is the live source of truth.
     if (sharedTripleStore != null && sharedTripleStore.size() > 0) {
       try {
-        ValidationReport report = shacl.validate(sharedTripleStore.getModel());
-        return new ViolationSnapshot(report.getEntries().size(), buildViolationSignature(report),
-            "store");
+        ValidationReport report = sharedTripleStore.getValidationSnapshot(shacl).report();
+        return new ViolationSnapshot(
+            report.getEntries().size(), buildViolationSignature(report), "store");
       } catch (Exception e) {
         logger.debug(
             "Could not calculate shared-triple-store violations for benchmark snapshot: {}",
@@ -364,10 +376,11 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
           Model dataModel = ModelFactory.createDefaultModel();
           dataModel.read(new StringReader(turtleData), null, "TURTLE");
           ValidationReport report = shacl.validate(dataModel);
-          return new ViolationSnapshot(report.getEntries().size(), buildViolationSignature(report),
-              "file");
+          return new ViolationSnapshot(
+              report.getEntries().size(), buildViolationSignature(report), "file");
         } catch (Exception e) {
-          logger.debug("Could not calculate output-file violations for benchmark snapshot: {}",
+          logger.debug(
+              "Could not calculate output-file violations for benchmark snapshot: {}",
               e.getMessage());
         }
       }
@@ -386,15 +399,17 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
       return "";
     }
 
-    List<String> focusNodes = report.getEntries().stream()
-        .map(entry -> {
-          if (entry.focusNode() == null) {
-            return "null";
-          }
-          return entry.focusNode().isBlank() ? "_:blank" : entry.focusNode().toString();
-        })
-        .sorted()
-        .toList();
+    List<String> focusNodes =
+        report.getEntries().stream()
+            .map(
+                entry -> {
+                  if (entry.focusNode() == null) {
+                    return "null";
+                  }
+                  return entry.focusNode().isBlank() ? "_:blank" : entry.focusNode().toString();
+                })
+            .sorted()
+            .toList();
     return report.getEntries().size() + "|" + String.join("|", focusNodes);
   }
 
@@ -408,16 +423,12 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
     }
   }
 
-  /**
-   * Gets the count of shapes that have been marked as processed.
-   */
+  /** Gets the count of shapes that have been marked as processed. */
   private int getCompletedShapesCount() {
     if (shacl == null || shacl.getShapes() == null) {
       return 0;
     }
-    return (int) shacl.getShapes().stream()
-        .filter(Shacl.Shape::isProcessed)
-        .count();
+    return (int) shacl.getShapes().stream().filter(Shacl.Shape::isProcessed).count();
   }
 
   /**
@@ -430,12 +441,13 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
       return 0;
     }
 
-    Model dataModel = getCurrentDataModel();
-    if (dataModel == null) {
+    DataModelValidation validation = getCurrentDataModelValidation();
+    if (validation == null) {
       return 0;
     }
 
-    ValidationReport report = shacl.validate(dataModel);
+    Model dataModel = validation.model();
+    ValidationReport report = validation.report();
 
     int count = 0;
     for (Shacl.Shape shape : shacl.getShapes()) {
@@ -458,9 +470,32 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
     return count;
   }
 
+  private record DataModelValidation(Model model, ValidationReport report) {}
+
   /**
-   * Gets the current data model from either the shared triple store or output file.
+   * Gets the current data model together with its SHACL validation report, reusing the shared
+   * triple store's cached validation when available instead of re-validating the same unchanged
+   * model.
    */
+  private DataModelValidation getCurrentDataModelValidation() {
+    if (sharedTripleStore != null && sharedTripleStore.size() > 0) {
+      try {
+        WorkerTripleStore.ValidationSnapshot snapshot =
+            sharedTripleStore.getValidationSnapshot(shacl);
+        return new DataModelValidation(snapshot.model(), snapshot.report());
+      } catch (Exception e) {
+        logger.debug("Could not get shared triple store validation snapshot: {}", e.getMessage());
+      }
+    }
+
+    Model dataModel = getCurrentDataModel();
+    if (dataModel == null) {
+      return null;
+    }
+    return new DataModelValidation(dataModel, shacl.validate(dataModel));
+  }
+
+  /** Gets the current data model from either the shared triple store or output file. */
   private Model getCurrentDataModel() {
     // During generation, the shared store is the live source of truth
     if (sharedTripleStore != null && sharedTripleStore.size() > 0) {
@@ -504,8 +539,12 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
         captureBenchmarkSnapshot("FINALIZING", finalizationStart);
         return;
       } catch (Exception e) {
-        logger.error("Finalization error (attempt {}/{}): {}", attempt, MAX_FINALIZATION_ATTEMPTS,
-            e.getMessage(), e);
+        logger.error(
+            "Finalization error (attempt {}/{}): {}",
+            attempt,
+            MAX_FINALIZATION_ATTEMPTS,
+            e.getMessage(),
+            e);
       }
     }
 
@@ -546,14 +585,17 @@ public record SupervisorWorkflow(Config config, Shacl shacl,
       return;
     }
 
-    List<String> unprocessedNames = shacl.getShapes().stream()
-        .filter(shape -> !shape.isProcessed())
-        .map(Shacl.Shape::getName)
-        .toList();
+    List<String> unprocessedNames =
+        shacl.getShapes().stream()
+            .filter(shape -> !shape.isProcessed())
+            .map(Shacl.Shape::getName)
+            .toList();
 
     if (!unprocessedNames.isEmpty()) {
-      logger.warn("Unprocessed shapes ({}/{}): {}",
-          unprocessedNames.size(), totalShapes - processedShapes,
+      logger.warn(
+          "Unprocessed shapes ({}/{}): {}",
+          unprocessedNames.size(),
+          totalShapes - processedShapes,
           String.join(", ", unprocessedNames));
     }
   }

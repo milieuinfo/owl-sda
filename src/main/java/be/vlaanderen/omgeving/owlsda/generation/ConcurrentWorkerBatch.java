@@ -1,8 +1,8 @@
 package be.vlaanderen.omgeving.owlsda.generation;
 
-import be.vlaanderen.omgeving.owlsda.config.Config;
 import be.vlaanderen.omgeving.owlsda.agent.Session;
 import be.vlaanderen.omgeving.owlsda.agent.SessionPool;
+import be.vlaanderen.omgeving.owlsda.config.Config;
 import be.vlaanderen.omgeving.owlsda.ontology.Shacl;
 import be.vlaanderen.omgeving.owlsda.validation.OutputValidator;
 import java.util.ArrayList;
@@ -20,8 +20,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Runs worker batches concurrently across the worker session pool, using a long-lived pooled
- * executor since instances of this class are constructed once and reused across every
- * delegation round.
+ * executor since instances of this class are constructed once and reused across every delegation
+ * round.
  */
 public class ConcurrentWorkerBatch {
 
@@ -35,8 +35,8 @@ public class ConcurrentWorkerBatch {
   private final OutputValidator validator;
   private final ExecutorService executor;
 
-  public ConcurrentWorkerBatch(Config config, SessionPool workerSessionPool, Shacl shacl,
-                                OutputValidator validator) {
+  public ConcurrentWorkerBatch(
+      Config config, SessionPool workerSessionPool, Shacl shacl, OutputValidator validator) {
     this.config = config;
     this.workerSessionPool = workerSessionPool;
     this.shacl = shacl;
@@ -74,33 +74,36 @@ public class ConcurrentWorkerBatch {
       return false;
     }
 
-    int totalUnprocessedShapes = (int) shacl.getShapes().stream()
-        .filter(shape -> !shape.isProcessed())
-        .count();
+    int totalUnprocessedShapes =
+        (int) shacl.getShapes().stream().filter(shape -> !shape.isProcessed()).count();
 
     int workerCount = workerSessionPool.getSize();
     int batchSize = (config != null) ? config.getBatchSize() : 1;
-    int actualShapes = Math.min(shapes, totalUnprocessedShapes);
+    int actualShapes = totalAssignableShapes(shapes, totalUnprocessedShapes);
 
     List<Future<?>> futures = new ArrayList<>();
     List<AtomicBoolean> results = new ArrayList<>();
 
     for (int i = 0; i < workerCount; i++) {
-      int startIndex = i * batchSize;
-      int endIndex = Math.min(startIndex + batchSize, actualShapes);
+      int[] range = workerShapeRange(i, batchSize, actualShapes);
+      int startIndex = range[0];
+      int endIndex = range[1];
 
       AtomicBoolean workerSuccess = new AtomicBoolean(false);
       results.add(workerSuccess);
 
-      WorkerAgent worker = new WorkerAgent(
-          workerSessionPool, shacl,
-          i, workerCount,
-          startIndex, endIndex,
-          actualShapes,
-          instructions,
-          workerSuccess,
-          isDelegationMode
-      );
+      WorkerAgent worker =
+          new WorkerAgent(
+              workerSessionPool,
+              shacl,
+              i,
+              workerCount,
+              startIndex,
+              endIndex,
+              actualShapes,
+              instructions,
+              workerSuccess,
+              isDelegationMode);
 
       futures.add(executor.submit(worker));
     }
@@ -123,8 +126,8 @@ public class ConcurrentWorkerBatch {
 
     boolean hasUnfinishedWorkers = awaitWorkersWithTimeout(futures, STUCK_JOIN_GRACE_MS);
     if (hasUnfinishedWorkers) {
-      logger.error("One or more workers did not stop within {}ms after cancellation",
-          STUCK_JOIN_GRACE_MS);
+      logger.error(
+          "One or more workers did not stop within {}ms after cancellation", STUCK_JOIN_GRACE_MS);
       return false;
     }
 
@@ -146,7 +149,8 @@ public class ConcurrentWorkerBatch {
     // Validation remains informational here; global store validity is tracked separately.
     String validationReport = validator.validate();
     if (validationReport != null && !validationReport.isBlank()) {
-      logger.debug("Store still has validation issues after worker batch; continuing to next round");
+      logger.debug(
+          "Store still has validation issues after worker batch; continuing to next round");
     }
     return true;
   }
@@ -158,6 +162,27 @@ public class ConcurrentWorkerBatch {
 
   public int getWorkerCount() {
     return workerSessionPool.getSize();
+  }
+
+  /**
+   * Caps the requested shape count to what's actually available. Shared with {@link
+   * Supervisor#calculateOptimalDistribution} so its delegation-hint text can never diverge from
+   * what {@link #run} actually assigns to workers.
+   */
+  static int totalAssignableShapes(int requestedShapes, int availableShapes) {
+    return Math.min(requestedShapes, availableShapes);
+  }
+
+  /**
+   * Computes the {@code [start, end)} shape index range assigned to {@code workerIndex}, given
+   * {@code batchSize} shapes per worker out of {@code assignableShapes} available. Shared with
+   * {@link Supervisor#calculateOptimalDistribution} for the same reason as {@link
+   * #totalAssignableShapes}.
+   */
+  static int[] workerShapeRange(int workerIndex, int batchSize, int assignableShapes) {
+    int startIndex = workerIndex * batchSize;
+    int endIndex = Math.min(startIndex + batchSize, assignableShapes);
+    return new int[] {startIndex, endIndex};
   }
 
   /**
@@ -187,8 +212,7 @@ public class ConcurrentWorkerBatch {
       long lastActivityMs = session.getLastAssistantActivityMs();
       long elapsedMs = System.currentTimeMillis() - lastActivityMs;
       int messageCount = session.getMessageLog().size();
-      logger.debug("POOL-{}: {} messages, last activity {} ms ago",
-          i, messageCount, elapsedMs);
+      logger.debug("POOL-{}: {} messages, last activity {} ms ago", i, messageCount, elapsedMs);
     }
   }
 
@@ -239,9 +263,18 @@ public class ConcurrentWorkerBatch {
 
     List<Session> allSessions = workerSessionPool.getAllSessions();
     for (Session session : allSessions) {
+      // A session already returned to the pool has no in-progress work this round; its idle time
+      // (simply waiting for the next round) must not trigger cancellation of other sessions that
+      // are still legitimately processing.
+      if (workerSessionPool.isAvailable(session)) {
+        continue;
+      }
       if (session.isIdleSince(stuckThresholdMs)) {
-        logger.warn("Worker {} has been idle for {}ms (threshold: {}ms)",
-            workerSessionPool.getSessionId(session), stuckThresholdMs, stuckThresholdMs);
+        logger.warn(
+            "Worker {} has been idle for {}ms (threshold: {}ms)",
+            workerSessionPool.getSessionId(session),
+            stuckThresholdMs,
+            stuckThresholdMs);
         return true;
       }
     }

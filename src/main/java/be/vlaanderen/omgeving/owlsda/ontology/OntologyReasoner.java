@@ -18,9 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Applies inference to an {@link Ontology} model using a configured Jena reasoner.
- * Supports OWL, RDFS, transitive, and custom rule-based reasoners. Caches the
- * inferred model to disk to skip re-inference on subsequent runs.
+ * Applies inference to an {@link Ontology} model using a configured Jena reasoner. Supports OWL,
+ * RDFS, transitive, and custom rule-based reasoners. Caches the inferred model to disk to skip
+ * re-inference on subsequent runs.
  */
 public class OntologyReasoner {
   private static final Logger logger = LoggerFactory.getLogger(OntologyReasoner.class);
@@ -46,19 +46,22 @@ public class OntologyReasoner {
         logger.info("Using custom rules reasoner from {}", rulesFile);
         return;
       } catch (Exception e) {
-        logger.warn("Failed to load rules from {}: {}. Falling back to configured reasoner.", rulesFile, e.getMessage());
+        logger.warn(
+            "Failed to load rules from {}: {}. Falling back to configured reasoner.",
+            rulesFile,
+            e.getMessage());
       }
     }
 
     // Choose configured reasoner type to improve performance where possible
     String type = config.getReasoner().getReasonerType();
-    if (type != null && type.equalsIgnoreCase("rdfs")) {
+    if ("rdfs".equalsIgnoreCase(type)) {
       this.reasoner = ReasonerRegistry.getRDFSReasoner();
       logger.info("Using RDFS reasoner (configured) for faster, lighter-weight reasoning");
-    } else if (type != null && type.equalsIgnoreCase("owl")) {
+    } else if ("owl".equalsIgnoreCase(type)) {
       this.reasoner = ReasonerRegistry.getOWLMicroReasoner();
       logger.info("Using OWL reasoner (configured) for more complete OWL reasoning");
-    } else if (type != null && type.equalsIgnoreCase("transitive")) {
+    } else if ("transitive".equalsIgnoreCase(type)) {
       this.reasoner = ReasonerRegistry.getTransitiveReasoner();
       logger.info("Using transitive rule reasoner (configured) without rules");
     } else {
@@ -73,7 +76,9 @@ public class OntologyReasoner {
 
     if (info.getExternalModels() != null) {
       for (Model external : info.getExternalModels().values()) {
-        if (external == null) continue;
+        if (external == null) {
+          continue;
+        }
         union = ModelFactory.createUnion(union, external);
       }
     }
@@ -95,7 +100,8 @@ public class OntologyReasoner {
       logger.warn("Failed to load cached inferred model, re-running inference: {}", e.getMessage());
     }
 
-    // Create the InfModel once over the union model. This avoids copying data and speeds up reasoning.
+    // Create the InfModel once over the union model. This avoids copying data and speeds up
+    // reasoning.
     InfModel inf = ModelFactory.createInfModel(reasoner, union);
     logger.info("Preparing inferred model (this may take some time for large ontologies)...");
     inf.prepare();
@@ -119,28 +125,35 @@ public class OntologyReasoner {
         writeInferredModel(info.getInferredModel(), outPath);
       }
     } catch (Exception e) {
-      logger.warn("Failed to write inferred model to {}: {}", config.getReasoner().getInferredOutputPath(), e.getMessage());
+      logger.warn(
+          "Failed to write inferred model to {}: {}",
+          config.getReasoner().getInferredOutputPath(),
+          e.getMessage());
     }
-
   }
 
   private void writeInferredModel(Model model, String outputPath) throws Exception {
     logger.info("Writing inferred model to {}", outputPath);
     Path output = Paths.get(outputPath);
     Path dir = output.getParent();
-    if (dir != null) Files.createDirectories(dir);
+    if (dir != null) {
+      Files.createDirectories(dir);
+    }
     Path tmp = output.resolveSibling(output.getFileName().toString() + ".tmp");
     try {
       try (var out = Files.newOutputStream(tmp)) {
         model.write(out, "TURTLE");
       }
       try {
-        Files.move(tmp, output, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+        Files.move(
+            tmp, output, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
       } catch (AtomicMoveNotSupportedException amnse) {
         Files.move(tmp, output, StandardCopyOption.REPLACE_EXISTING);
       }
     } finally {
-      if (Files.exists(tmp)) Files.deleteIfExists(tmp);
+      if (Files.exists(tmp)) {
+        Files.deleteIfExists(tmp);
+      }
     }
   }
 }

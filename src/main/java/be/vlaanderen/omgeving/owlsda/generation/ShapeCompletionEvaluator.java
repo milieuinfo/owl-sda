@@ -15,8 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Evaluates whether delegated shapes produced concrete RDF instances in the shared output model
- * and do not have remaining class-related SHACL violations.
+ * Evaluates whether delegated shapes produced concrete RDF instances in the shared output model and
+ * do not have remaining class-related SHACL violations.
  */
 class ShapeCompletionEvaluator {
 
@@ -37,7 +37,8 @@ class ShapeCompletionEvaluator {
     List<String> skippedByValidationShapeNames = new ArrayList<>();
 
     Model model = getCurrentModel();
-    ValidationReport validationReport = (model != null && shacl != null) ? shacl.validate(model) : null;
+    ValidationReport validationReport =
+        (model != null && shacl != null) ? shacl.validate(model) : null;
 
     for (int i = 0; i < shapesToEvaluate; i++) {
       Shacl.Shape shape = unprocessedShapes.get(i);
@@ -49,18 +50,22 @@ class ShapeCompletionEvaluator {
         }
         case SKIPPED_VALIDATION -> skippedByValidationShapeNames.add(shape.getName());
         case SKIPPED_NO_INSTANCES -> skippedShapeNames.add(shape.getName());
+        default ->
+            throw new IllegalStateException("Unexpected completion status: " + completionStatus);
       }
     }
 
-    return new CompletionBatch(completedShapes, completedShapeNames, skippedShapeNames,
-        skippedByValidationShapeNames);
+    return new CompletionBatch(
+        completedShapes, completedShapeNames, skippedShapeNames, skippedByValidationShapeNames);
   }
 
-  private CompletionStatus evaluateShapeCompletion(Shacl.Shape shape, Model model,
-      ValidationReport validationReport) {
+  private CompletionStatus evaluateShapeCompletion(
+      Shacl.Shape shape, Model model, ValidationReport validationReport) {
     if (model == null || model.isEmpty()) {
-      logger.warn("Shape '{}': Triple store is null or empty (size={})",
-          shape.getName(), sharedTripleStore != null ? sharedTripleStore.size() : 0);
+      logger.warn(
+          "Shape '{}': Triple store is null or empty (size={})",
+          shape.getName(),
+          sharedTripleStore != null ? sharedTripleStore.size() : 0);
       return CompletionStatus.SKIPPED_NO_INSTANCES;
     }
 
@@ -74,43 +79,57 @@ class ShapeCompletionEvaluator {
       Property rdfType = RDF.type;
       Resource targetClass = model.createResource(targetClassUri);
 
-      logger.info("Checking shape '{}' for instances of target class URI: '{}'",
-          shape.getName(), targetClassUri);
+      logger.info(
+          "Checking shape '{}' for instances of target class URI: '{}'",
+          shape.getName(),
+          targetClassUri);
 
-      boolean hasInstances = ShapeValidationMatcher.hasInstancesForTargetClass(
-          model, shacl != null ? shacl.getOntology() : null, rdfType, targetClass);
+      boolean hasInstances =
+          ShapeValidationMatcher.hasInstancesForTargetClass(
+              model, shacl != null ? shacl.getOntology() : null, rdfType, targetClass);
 
       if (!hasInstances) {
-        logger.warn("Shape '{}': No instances found for target class '{}' (store size: {} triples)",
-            shape.getName(), targetClassUri, model.size());
+        logger.warn(
+            "Shape '{}': No instances found for target class '{}' (store size: {} triples)",
+            shape.getName(),
+            targetClassUri,
+            model.size());
 
         if (logger.isDebugEnabled()) {
           Map<String, Integer> typeCounts = new HashMap<>();
-          model.listStatements(null, rdfType, (Resource) null).forEachRemaining(stmt -> {
-            String type = stmt.getObject().toString();
-            typeCounts.merge(type, 1, Integer::sum);
-          });
+          model
+              .listStatements(null, rdfType, (Resource) null)
+              .forEachRemaining(
+                  stmt -> {
+                    String type = stmt.getObject().toString();
+                    typeCounts.merge(type, 1, Integer::sum);
+                  });
           typeCounts.forEach((type, count) -> logger.debug("  {} : {} instances", type, count));
-          logger.debug("Total rdf:type statements found: {}",
+          logger.debug(
+              "Total rdf:type statements found: {}",
               typeCounts.values().stream().mapToInt(Integer::intValue).sum());
         }
 
         return CompletionStatus.SKIPPED_NO_INSTANCES;
       }
 
-      if (validationReport != null && ShapeValidationMatcher.hasViolationsForTargetClass(
-          model, shacl != null ? shacl.getOntology() : null, validationReport, targetClass)) {
-        logger.warn("Shape '{}': Instances exist but class-related validation violations remain for '{}'",
-            shape.getName(), targetClassUri);
+      if (validationReport != null
+          && ShapeValidationMatcher.hasViolationsForTargetClass(
+              model, shacl != null ? shacl.getOntology() : null, validationReport, targetClass)) {
+        logger.warn(
+            "Shape '{}': Instances exist but class-related validation violations remain for '{}'",
+            shape.getName(),
+            targetClassUri);
         return CompletionStatus.SKIPPED_VALIDATION;
       }
 
-      logger.info("Shape '{}': complete (instances present and no class-related violations)",
+      logger.info(
+          "Shape '{}': complete (instances present and no class-related violations)",
           shape.getName());
       return CompletionStatus.COMPLETE;
     } catch (Exception e) {
-      logger.error("Error checking completion for shape '{}': {}", shape.getName(),
-          e.getMessage(), e);
+      logger.error(
+          "Error checking completion for shape '{}': {}", shape.getName(), e.getMessage(), e);
       return CompletionStatus.SKIPPED_NO_INSTANCES;
     }
   }
@@ -128,8 +147,9 @@ class ShapeCompletionEvaluator {
     SKIPPED_VALIDATION
   }
 
-  record CompletionBatch(List<Shacl.Shape> completedShapes, List<String> completedShapeNames,
-                         List<String> skippedShapeNames,
-                         List<String> skippedByValidationShapeNames) {
-  }
+  record CompletionBatch(
+      List<Shacl.Shape> completedShapes,
+      List<String> completedShapeNames,
+      List<String> skippedShapeNames,
+      List<String> skippedByValidationShapeNames) {}
 }

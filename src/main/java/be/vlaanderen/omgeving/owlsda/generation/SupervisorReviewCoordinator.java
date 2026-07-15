@@ -7,6 +7,7 @@ import be.vlaanderen.omgeving.owlsda.agent.context.OutputContext;
 import be.vlaanderen.omgeving.owlsda.agent.handler.WorkerTripleStore;
 import be.vlaanderen.omgeving.owlsda.benchmark.BenchmarkService;
 import be.vlaanderen.omgeving.owlsda.benchmark.DefaultBenchmarkSnapshotData;
+import be.vlaanderen.omgeving.owlsda.exception.LanguageModelException;
 import be.vlaanderen.omgeving.owlsda.ontology.Shacl;
 import be.vlaanderen.omgeving.owlsda.validation.OutputValidator;
 import java.util.List;
@@ -16,9 +17,7 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Coordinates reviewer feedback and asks Supervisor to distribute tasks to workers.
- */
+/** Coordinates reviewer feedback and asks Supervisor to distribute tasks to workers. */
 @Getter
 public class SupervisorReviewCoordinator {
   private static final Logger logger = LoggerFactory.getLogger(SupervisorReviewCoordinator.class);
@@ -32,29 +31,51 @@ public class SupervisorReviewCoordinator {
   private final WorkerTripleStore sharedTripleStore;
   private final int maxReviewIterations;
 
-  @Setter
-  private boolean ready = false;
-  @Setter
-  private boolean error = false;
+  @Setter private boolean ready = false;
+  @Setter private boolean error = false;
   private volatile String reviewerFeedbackText = "";
   private volatile boolean reviewerDecisionReceived = false;
 
-  public SupervisorReviewCoordinator(Session reviewerSession, Supervisor supervisor, OutputValidator validator,
-      BenchmarkService benchmarkService, WorkerTripleStore sharedTripleStore) {
-    this(() -> reviewerSession, supervisor, validator, benchmarkService, sharedTripleStore,
+  public SupervisorReviewCoordinator(
+      Session reviewerSession,
+      Supervisor supervisor,
+      OutputValidator validator,
+      BenchmarkService benchmarkService,
+      WorkerTripleStore sharedTripleStore) {
+    this(
+        () -> reviewerSession,
+        supervisor,
+        validator,
+        benchmarkService,
+        sharedTripleStore,
         DEFAULT_MAX_REVIEW_ITERATIONS);
   }
 
-  public SupervisorReviewCoordinator(Session reviewerSession, Supervisor supervisor, OutputValidator validator,
-      BenchmarkService benchmarkService, WorkerTripleStore sharedTripleStore, int maxReviewIterations) {
-    this(() -> reviewerSession, supervisor, validator, benchmarkService, sharedTripleStore,
+  public SupervisorReviewCoordinator(
+      Session reviewerSession,
+      Supervisor supervisor,
+      OutputValidator validator,
+      BenchmarkService benchmarkService,
+      WorkerTripleStore sharedTripleStore,
+      int maxReviewIterations) {
+    this(
+        () -> reviewerSession,
+        supervisor,
+        validator,
+        benchmarkService,
+        sharedTripleStore,
         maxReviewIterations);
   }
 
-  public SupervisorReviewCoordinator(Supplier<Session> reviewerSessionSupplier, Supervisor supervisor,
-      OutputValidator validator, BenchmarkService benchmarkService, WorkerTripleStore sharedTripleStore,
+  public SupervisorReviewCoordinator(
+      Supplier<Session> reviewerSessionSupplier,
+      Supervisor supervisor,
+      OutputValidator validator,
+      BenchmarkService benchmarkService,
+      WorkerTripleStore sharedTripleStore,
       int maxReviewIterations) {
-    this.reviewerSessionSupplier = reviewerSessionSupplier == null ? () -> null : reviewerSessionSupplier;
+    this.reviewerSessionSupplier =
+        reviewerSessionSupplier == null ? () -> null : reviewerSessionSupplier;
     this.supervisor = supervisor;
     this.validator = validator;
     this.benchmarkService = benchmarkService;
@@ -87,7 +108,7 @@ public class SupervisorReviewCoordinator {
         ResponseMessage message = requestReviewerDecision(iteration, finalAttempt);
 
         if (!consumeReviewerDecisionReceived()) {
-          throw new IllegalStateException(
+          throw new LanguageModelException(
               "Reviewer must call output_feedback with ACCEPTED, REJECTED, or REVISION_REQUESTED");
         }
 
@@ -104,17 +125,17 @@ public class SupervisorReviewCoordinator {
         }
 
         if (finalAttempt) {
-          throw new IllegalStateException(
+          throw new LanguageModelException(
               "Final review attempt must end in ACCEPTED or REJECTED; REVISION_REQUESTED is not allowed");
         }
 
         String reviewerFeedback = resolveReviewerFeedback(message);
         if (reviewerFeedback == null || reviewerFeedback.isBlank()) {
-          throw new IllegalStateException("Reviewer requested revisions without feedback");
+          throw new LanguageModelException("Reviewer requested revisions without feedback");
         }
 
         if (supervisor == null || !supervisor.handleReviewFeedback(reviewerFeedback)) {
-          throw new IllegalStateException("Supervisor could not process reviewer feedback");
+          throw new LanguageModelException("Supervisor could not process reviewer feedback");
         }
 
         if (validator != null && validator.validate() == null) {
@@ -133,8 +154,8 @@ public class SupervisorReviewCoordinator {
 
     if (!ready && !error) {
       error = true;
-      logger.error("Review stopped after {} iterations without a terminal decision",
-          maxReviewIterations);
+      logger.error(
+          "Review stopped after {} iterations without a terminal decision", maxReviewIterations);
     }
   }
 
@@ -171,26 +192,28 @@ public class SupervisorReviewCoordinator {
               supervisor != null ? supervisor.supervisorSession() : null,
               reviewerSession,
               sharedTripleStore,
-              List.of()
-          ),
-          currentViolations
-      );
+              List.of()),
+          currentViolations);
 
-      logger.debug("Review iteration {} benchmark captured: stage={}, {} ms, {} violations",
-          iteration, stage, durationMs, currentViolations);
+      logger.debug(
+          "Review iteration {} benchmark captured: stage={}, {} ms, {} violations",
+          iteration,
+          stage,
+          durationMs,
+          currentViolations);
     } catch (Exception e) {
       logger.debug("Failed to capture review iteration benchmark: {}", e.getMessage());
     }
   }
 
   private int resolveShapesProcessed() {
-    if (supervisor == null || supervisor.shacl() == null || supervisor.shacl().getShapes() == null) {
+    if (supervisor == null
+        || supervisor.shacl() == null
+        || supervisor.shacl().getShapes() == null) {
       return 0;
     }
 
-    return (int) supervisor.shacl().getShapes().stream()
-        .filter(Shacl.Shape::isProcessed)
-        .count();
+    return (int) supervisor.shacl().getShapes().stream().filter(Shacl.Shape::isProcessed).count();
   }
 
   private int countViolations() {
@@ -207,10 +230,11 @@ public class SupervisorReviewCoordinator {
     }
   }
 
-  private ResponseMessage requestReviewerDecision(int iteration, boolean finalAttempt) throws Exception {
+  private ResponseMessage requestReviewerDecision(int iteration, boolean finalAttempt)
+      throws Exception {
     Session activeReviewerSession = getOrCreateReviewerSession();
     if (activeReviewerSession == null) {
-      throw new IllegalStateException("Reviewer session is unavailable");
+      throw new LanguageModelException("Reviewer session is unavailable");
     }
 
     String outputData = validator.getOutputDataAsString();
@@ -219,36 +243,39 @@ public class SupervisorReviewCoordinator {
 
     String contextInfo = "";
     if (changed) {
-      contextInfo = String.format(
-          "\nNOTE: Updated output context (%d chars, %d lines).",
-          outputData.length(), outputData.split("\\n").length);
+      contextInfo =
+          String.format(
+              "\nNOTE: Updated output context (%d chars, %d lines).",
+              outputData.length(), outputData.split("\\n").length);
     }
 
-    String finalAttemptInstruction = finalAttempt
-        ? " This is the final review attempt ("
-        + iteration
-        + "/"
-        + maxReviewIterations
-        + "). You MUST return a final decision: ACCEPTED or REJECTED."
-        + " Do not return REVISION_REQUESTED on this attempt."
-        : " Review attempt "
-            + iteration
-            + "/"
-            + maxReviewIterations
-            + ".";
+    String finalAttemptInstruction =
+        finalAttempt
+            ? " This is the final review attempt ("
+                + iteration
+                + "/"
+                + maxReviewIterations
+                + "). You MUST return a final decision: ACCEPTED or REJECTED."
+                + " Do not return REVISION_REQUESTED on this attempt."
+            : " Review attempt " + iteration + "/" + maxReviewIterations + ".";
 
-    RequestMessage requestMessage = new RequestMessage(
-        "Review the generated output against user instructions and ontology."
-            + " Be pragmatic: request revisions only for blocking/high-impact issues;"
-            + " accept if only minor non-blocking polish remains."
-            + " You MUST call output_feedback exactly once with state=ACCEPTED,"
-            + " REJECTED, or REVISION_REQUESTED."
-            + " If you choose REVISION_REQUESTED or REJECTED, include concise concrete"
-            + " feedback (top 1-3 blockers) in output_feedback.feedback so the supervisor can apply it."
-            + finalAttemptInstruction
-            + contextInfo,
-        "reviewer-review"
-    );
+    RequestMessage requestMessage =
+        new RequestMessage(
+            "Review the generated output against user instructions and ontology."
+                + " Be pragmatic: request revisions only for blocking/high-impact issues;"
+                + " accept if only minor non-blocking polish remains."
+                + " Validate with shacl_validator(source=\"file\"); do not copy/retype the output's"
+                + " Turtle content into a \"data\" argument, since retyping risks introducing"
+                + " formatting mistakes that are not present in the actual file."
+                + " You MUST call output_feedback exactly once with state=ACCEPTED,"
+                + " REJECTED, or REVISION_REQUESTED, even if an earlier tool call in this turn"
+                + " failed or errored — a tool failure is evidence for your decision, not a reason"
+                + " to end the turn without calling output_feedback."
+                + " If you choose REVISION_REQUESTED or REJECTED, include concise concrete"
+                + " feedback (top 1-3 blockers) in output_feedback.feedback so the supervisor can apply it."
+                + finalAttemptInstruction
+                + contextInfo,
+            "reviewer-review");
 
     try {
       return activeReviewerSession.prompt(requestMessage).get();

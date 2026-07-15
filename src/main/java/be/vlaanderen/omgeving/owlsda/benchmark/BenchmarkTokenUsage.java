@@ -4,9 +4,7 @@ import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
 
-/**
- * Token usage breakdown captured for a benchmark snapshot.
- */
+/** Token usage breakdown captured for a benchmark snapshot. */
 @Getter
 @Builder
 public class BenchmarkTokenUsage {

@@ -15,30 +15,30 @@ import org.slf4j.LoggerFactory;
 /**
  * Manages a pool of generator sessions that work concurrently on different batches of shapes.
  * Sessions can be borrowed from the pool and returned after processing.
- * <p>
- * Provides detailed logging to track which session is processing what, making it easy to identify
- * concurrent execution in log files. Each session has a unique identifier (POOL-0, POOL-1, etc.)
+ *
+ * <p>Provides detailed logging to track which session is processing what, making it easy to
+ * identify concurrent execution in log files. Each session has a unique identifier (POOL-0, POOL-1,
+ * etc.)
  */
 @Getter
 public class SessionPool implements AutoCloseable {
 
   private static final Logger logger = LoggerFactory.getLogger(SessionPool.class);
+  private static final long TARGETED_BORROW_RETRY_BACKOFF_MS = 20L;
 
   private final List<Session> allSessions;
   private final BlockingQueue<SessionWithId> availableSessions;
   private final int poolSize;
   private final AtomicInteger nextSessionId = new AtomicInteger(0);
   private final Map<Session, String> sessionIdMap = new HashMap<>();
-  /**
-   * Sets a callback to be notified when sessions are returned to the pool.
-   * Useful for triggering actions like benchmark snapshots.
-   */
-  @Setter
-  private SessionReturnCallback sessionReturnCallback;
 
   /**
-   * Callback interface for notifications when a session is returned to the pool.
+   * Sets a callback to be notified when sessions are returned to the pool. Useful for triggering
+   * actions like benchmark snapshots.
    */
+  @Setter private SessionReturnCallback sessionReturnCallback;
+
+  /** Callback interface for notifications when a session is returned to the pool. */
   public interface SessionReturnCallback {
     void onSessionReturned(Session session, String sessionId);
   }
@@ -55,9 +55,7 @@ public class SessionPool implements AutoCloseable {
    * Represents a session with its unique identifier for logging purposes. This allows tracking of
    * which session is being used in concurrent scenarios.
    */
-  public record SessionWithId(Session session, String sessionId) {
-
-  }
+  public record SessionWithId(Session session, String sessionId) {}
 
   public SessionPool(int poolSize) {
     this.poolSize = Math.max(1, poolSize);
@@ -96,8 +94,11 @@ public class SessionPool implements AutoCloseable {
   public SessionWithId borrowSession() throws InterruptedException {
     SessionWithId sessionWithId = availableSessions.take();
     String threadId = Thread.currentThread().getName();
-    logger.info("[{}] Borrowed by thread [{}] ({} sessions still available)",
-        sessionWithId.sessionId, threadId, availableSessions.size());
+    logger.info(
+        "[{}] Borrowed by thread [{}] ({} sessions still available)",
+        sessionWithId.sessionId,
+        threadId,
+        availableSessions.size());
     return sessionWithId;
   }
 
@@ -125,23 +126,43 @@ public class SessionPool implements AutoCloseable {
       SessionWithId candidate = availableSessions.take();
       if (sessionId.equals(candidate.sessionId())) {
         String threadId = Thread.currentThread().getName();
-        logger.info("[{}] Borrowed by thread [{}] via targeted borrow ({} sessions still available)",
-            candidate.sessionId(), threadId, availableSessions.size());
+        logger.info(
+            "[{}] Borrowed by thread [{}] via targeted borrow ({} sessions still available)",
+            candidate.sessionId(),
+            threadId,
+            availableSessions.size());
         return candidate;
       }
 
       // Never keep non-target sessions out of the queue; other workers may need them.
       boolean requeued = availableSessions.offer(candidate);
       if (!requeued) {
-        logger.error("Failed to requeue non-target session {} while waiting for {}",
-            candidate.sessionId(), sessionId);
+        logger.error(
+            "Failed to requeue non-target session {} while waiting for {}",
+            candidate.sessionId(),
+            sessionId);
       }
       retries++;
       if (retries % 50 == 0) {
-        logger.debug("Waiting for targeted session {} (attempts: {}, available: {})",
-            sessionId, retries, availableSessions.size());
+        logger.debug(
+            "Waiting for targeted session {} (attempts: {}, available: {})",
+            sessionId,
+            retries,
+            availableSessions.size());
       }
-      Thread.yield();
+
+      if (retries % poolSize == 0) {
+        // A full lap through the pool found no match: the target session is still busy elsewhere.
+        // Back off briefly instead of spinning to avoid burning CPU while it finishes.
+        try {
+          Thread.sleep(TARGETED_BORROW_RETRY_BACKOFF_MS);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          throw e;
+        }
+      } else {
+        Thread.yield();
+      }
     }
   }
 
@@ -157,10 +178,11 @@ public class SessionPool implements AutoCloseable {
       SessionWithId sessionWithId = new SessionWithId(session, sessionId);
       boolean queued = availableSessions.offer(sessionWithId);
       if (!queued) {
-        logger.error("[{}] Failed to return session to pool; queue is unexpectedly full", sessionId);
+        logger.error(
+            "[{}] Failed to return session to pool; queue is unexpectedly full", sessionId);
       }
-      logger.info("[{}] Returned to pool ({} sessions now available)",
-          sessionId, availableSessions.size());
+      logger.info(
+          "[{}] Returned to pool ({} sessions now available)", sessionId, availableSessions.size());
 
       // Trigger callback if set (e.g., for benchmark snapshots)
       if (sessionReturnCallback != null) {
@@ -182,6 +204,18 @@ public class SessionPool implements AutoCloseable {
    */
   public int getSize() {
     return allSessions.size();
+  }
+
+  /**
+   * Checks whether a session is currently sitting in the pool unborrowed. A session that has
+   * already been returned is not part of any in-progress work, so its idle time is meaningless for
+   * "is this worker stuck" checks.
+   *
+   * @param session the session to check
+   * @return true if the session is available (not currently borrowed)
+   */
+  public boolean isAvailable(Session session) {
+    return availableSessions.stream().anyMatch(entry -> entry.session().equals(session));
   }
 
   /**

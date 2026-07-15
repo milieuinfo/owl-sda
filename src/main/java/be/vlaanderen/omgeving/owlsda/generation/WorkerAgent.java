@@ -4,21 +4,27 @@ import be.vlaanderen.omgeving.owlsda.agent.RequestMessage;
 import be.vlaanderen.omgeving.owlsda.agent.Session;
 import be.vlaanderen.omgeving.owlsda.agent.SessionPool;
 import be.vlaanderen.omgeving.owlsda.agent.SessionPool.SessionWithId;
-import be.vlaanderen.omgeving.owlsda.agent.context.ShaclContext;
 import be.vlaanderen.omgeving.owlsda.agent.context.Context;
+import be.vlaanderen.omgeving.owlsda.agent.context.ShaclContext;
 import be.vlaanderen.omgeving.owlsda.agent.handler.DelegationHandler;
 import be.vlaanderen.omgeving.owlsda.ontology.Shacl;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Represents a single worker agent handling an assigned SHACL shape range.
- */
-public record WorkerAgent(SessionPool workerSessionPool, Shacl shacl, int workerIndex,
-                          int totalWorkers, int startIndex, int endIndex, int totalShapes,
-                          String instructions, AtomicBoolean success,
-                          boolean isDelegationMode) implements Runnable {
+/** Represents a single worker agent handling an assigned SHACL shape range. */
+public record WorkerAgent(
+    SessionPool workerSessionPool,
+    Shacl shacl,
+    int workerIndex,
+    int totalWorkers,
+    int startIndex,
+    int endIndex,
+    int totalShapes,
+    String instructions,
+    AtomicBoolean success,
+    boolean isDelegationMode)
+    implements Runnable {
 
   private static final Logger logger = LoggerFactory.getLogger(WorkerAgent.class);
   private static final String DELEGATION_CONTEXT_NAME = DelegationHandler.DELEGATION_CONTEXT_NAME;
@@ -28,15 +34,19 @@ public record WorkerAgent(SessionPool workerSessionPool, Shacl shacl, int worker
     SessionWithId sessionWithId = null;
     try {
       String expectedSessionId = String.format("POOL-%d", workerIndex);
-      sessionWithId = isDelegationMode
-          ? workerSessionPool.borrowSessionById(expectedSessionId)
-          : workerSessionPool.borrowSession();
+      sessionWithId =
+          isDelegationMode
+              ? workerSessionPool.borrowSessionById(expectedSessionId)
+              : workerSessionPool.borrowSession();
 
-      logger.info("[{}] Processing shapes {}-{}", sessionWithId.sessionId(), startIndex,
-          endIndex - 1);
+      logger.info(
+          "[{}] Processing shapes {}-{}", sessionWithId.sessionId(), startIndex, endIndex - 1);
       if (isDelegationMode && !expectedSessionId.equals(sessionWithId.sessionId())) {
-        logger.warn("[{}] Delegation mode session mismatch: expected {}, got {}",
-            sessionWithId.sessionId(), expectedSessionId, sessionWithId.sessionId());
+        logger.warn(
+            "[{}] Delegation mode session mismatch: expected {}, got {}",
+            sessionWithId.sessionId(),
+            expectedSessionId,
+            sessionWithId.sessionId());
       }
 
       if (startIndex >= endIndex) {
@@ -48,7 +58,8 @@ public record WorkerAgent(SessionPool workerSessionPool, Shacl shacl, int worker
 
       // In delegation mode, only run when this worker has fresh non-empty delegation instructions.
       if (isDelegationMode && !hasActiveDelegationInstructions(session)) {
-        logger.info("[{}] No delegation instructions for this round; skipping worker execution",
+        logger.info(
+            "[{}] No delegation instructions for this round; skipping worker execution",
             sessionWithId.sessionId());
         success.set(true);
         return;
@@ -61,7 +72,9 @@ public record WorkerAgent(SessionPool workerSessionPool, Shacl shacl, int worker
       }
 
       String workerInstructions = buildWorkerInstructions(session);
-      session.prompt(new RequestMessage(workerInstructions, "worker-instructions-generation")).get();
+      session
+          .prompt(new RequestMessage(workerInstructions, "worker-instructions-generation"))
+          .get();
       success.set(true);
     } catch (Exception e) {
       String sessionId = sessionWithId != null ? sessionWithId.sessionId() : "UNKNOWN";
@@ -77,11 +90,12 @@ public record WorkerAgent(SessionPool workerSessionPool, Shacl shacl, int worker
   private String buildWorkerInstructions(Session session) {
     String workerInstructions = instructions;
     if (totalWorkers > 1) {
-      workerInstructions += String.format(
-          "\n\nAssignment context: shapes %d-%d (worker %d of %d). "
-              + "Follow your delegated task exactly (generate or fix as instructed). "
-              + "Use triplestore_add/remove/read and validation tools as needed.",
-          startIndex, endIndex - 1, workerIndex + 1, totalWorkers);
+      workerInstructions +=
+          String.format(
+              "\n\nAssignment context: shapes %d-%d (worker %d of %d). "
+                  + "Follow your delegated task exactly (generate or fix as instructed). "
+                  + "Use triplestore_add/remove/read and validation tools as needed.",
+              startIndex, endIndex - 1, workerIndex + 1, totalWorkers);
     } else {
       workerInstructions +=
           "\n\nAssignment context: single-worker run. "

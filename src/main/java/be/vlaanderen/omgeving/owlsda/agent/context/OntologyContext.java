@@ -5,15 +5,15 @@ import java.io.StringWriter;
 import org.apache.jena.rdf.model.Model;
 
 /**
- * Context that provides the ontology model to agents.
- * Contains the complete ontology in TURTLE format, including classes, properties, and relationships.
+ * Context that provides the ontology model to agents. Contains the complete ontology in TURTLE
+ * format, including classes, properties, and relationships.
  */
 public class OntologyContext extends Context {
   private final Ontology ontology;
 
   /**
-   * Create an ontology context from the given ontology.
-   * The ontology model is serialized to TURTLE format for agent consumption.
+   * Create an ontology context from the given ontology. The ontology model is serialized to TURTLE
+   * format for agent consumption.
    *
    * @param ontology The ontology to provide as context
    */
@@ -45,4 +45,3 @@ public class OntologyContext extends Context {
     return writer.toString();
   }
 }
-

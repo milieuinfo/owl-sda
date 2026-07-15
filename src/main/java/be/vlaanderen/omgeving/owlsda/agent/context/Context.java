@@ -19,8 +19,7 @@ public class Context {
   private String content;
   private int contentHash = 0; // Track content changes
 
-  public Context() {
-  }
+  public Context() {}
 
   public Context(Context context) {
     this.type = context.getType();
@@ -52,9 +51,7 @@ public class Context {
     return this.contentHash != newHash;
   }
 
-  /**
-   * Retrieves context content, lazily loading from disk only once.
-   */
+  /** Retrieves context content, lazily loading from disk only once. */
   public String getContent() {
     String currentContent = content;
     if (currentContent != null) {

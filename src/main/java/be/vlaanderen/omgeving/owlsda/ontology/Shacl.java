@@ -6,8 +6,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.jena.rdf.model.Literal;
@@ -27,15 +29,22 @@ import org.apache.jena.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * SHACL shapes for one ontology: loads shapes from a file, or {@link #generate()}s one shape per
+ * ontology class when none is supplied, and validates RDF data against them via {@link
+ * #validate(Model)}. Each shape is tracked as a {@link Shape}, whose {@link Shape#isProcessed()}
+ * flag records whether the generation workflow considers it complete; that flag is mutated from
+ * both {@code generation.Supervisor} (single-threaded, between rounds) and read by workers running
+ * in parallel during a round, so callers must not mutate it concurrently with an in-progress {@link
+ * be.vlaanderen.omgeving.owlsda.generation.ConcurrentWorkerBatch} round.
+ */
 @Getter
 public class Shacl {
 
   private static final String SH = "http://www.w3.org/ns/shacl#";
   private final Logger logger = LoggerFactory.getLogger(Shacl.class);
-  @Setter
-  private Model model;
-  @Setter
-  private Model ontology;
+  @Setter private Model model;
+  @Setter private Model ontology;
   private final List<Shape> shapes = new ArrayList<>();
   private Shapes jenaShapes;
 
@@ -57,6 +66,167 @@ public class Shacl {
     return new Shacl(ontology);
   }
 
+  /**
+   * Returns the ontology's primary (default {@code :}) namespace IRI, e.g. {@code
+   * https://example.org/ns/riepr#}. Used to remind generation workers which exact namespace new
+   * instances must be typed in, since models otherwise tend to invent an unrelated placeholder
+   * namespace (like {@code http://example.org/}) that never matches any shape's target class.
+   * Returns null if the ontology declares no default prefix.
+   */
+  public String resolvePrimaryNamespace() {
+    if (ontology == null) {
+      return null;
+    }
+    String defaultNamespace = ontology.getNsPrefixURI("");
+    return (defaultNamespace == null || defaultNamespace.isBlank()) ? null : defaultNamespace;
+  }
+
+  /**
+   * Collects every class URI this ontology/SHACL model considers legitimate: classes explicitly
+   * declared as owl:Class/rdfs:Class in the ontology, classes referenced only as an
+   * rdfs:subClassOf object (covers externally-imported vocabulary classes used purely as a
+   * parent, e.g. prov:Agent, foaf:Person), and every shape's sh:targetClass. Used by {@link
+   * #findUnknownClasses(Model)} to flag instances typed with an invented or namespace-mismatched
+   * class, which would otherwise evade every SHACL shape silently - no shape targets an unknown
+   * class, so validation never reports anything wrong with it.
+   */
+  public Set<String> collectKnownClassUris() {
+    Set<String> known = new HashSet<>();
+    if (ontology != null) {
+      ontology.listSubjectsWithProperty(RDF.type, OWL.Class).forEachRemaining(r -> addUri(known, r));
+      ontology.listSubjectsWithProperty(RDF.type, RDFS.Class).forEachRemaining(r -> addUri(known, r));
+      ontology
+          .listObjectsOfProperty(RDFS.subClassOf)
+          .forEachRemaining(
+              node -> {
+                if (node.isURIResource()) {
+                  addUri(known, node.asResource());
+                }
+              });
+    }
+    for (Shape shape : shapes) {
+      collectTargetClassUri(shape, known);
+    }
+    return known;
+  }
+
+  /**
+   * Finds distinct rdf:type values used in {@code data} that are not part of {@link
+   * #collectKnownClassUris()}. A non-empty result means some instances are typed with an invented
+   * or namespace-mismatched class - real SHACL validation reports zero violations for these
+   * instances not because they conform, but because no shape targets them at all.
+   */
+  public Set<String> findUnknownClasses(Model data) {
+    Set<String> known = collectKnownClassUris();
+    Set<String> unknown = new HashSet<>();
+    data
+        .listStatements(null, RDF.type, (RDFNode) null)
+        .forEachRemaining(
+            stmt -> {
+              RDFNode object = stmt.getObject();
+              if (object.isURIResource() && !known.contains(object.asResource().getURI())) {
+                unknown.add(object.asResource().getURI());
+              }
+            });
+    return unknown;
+  }
+
+  /**
+   * Collects every predicate URI this ontology/SHACL model considers legitimate: properties
+   * referenced via owl:onProperty in the ontology's class restrictions, every shape's sh:path
+   * value, and properties explicitly typed owl:ObjectProperty/owl:DatatypeProperty/rdf:Property.
+   * Also allows a small set of structural predicates every instance may reasonably use (rdf:type,
+   * rdfs:label, rdfs:comment). Used by {@link #findUnknownPredicates(Model)} to flag invented
+   * predicates in a placeholder namespace instead of reusing existing ontology vocabulary.
+   */
+  public Set<String> collectKnownPropertyUris() {
+    Set<String> known = new HashSet<>();
+    if (ontology != null) {
+      ontology
+          .listSubjectsWithProperty(RDF.type, OWL.ObjectProperty)
+          .forEachRemaining(r -> addUri(known, r));
+      ontology
+          .listSubjectsWithProperty(RDF.type, OWL.DatatypeProperty)
+          .forEachRemaining(r -> addUri(known, r));
+      ontology
+          .listSubjectsWithProperty(RDF.type, RDF.Property)
+          .forEachRemaining(r -> addUri(known, r));
+      ontology
+          .listObjectsOfProperty(OWL.onProperty)
+          .forEachRemaining(
+              node -> {
+                if (node.isURIResource()) {
+                  addUri(known, node.asResource());
+                }
+              });
+    }
+    for (Shape shape : shapes) {
+      collectShapePathUris(shape, known);
+    }
+    known.add(RDF.type.getURI());
+    known.add(RDFS.label.getURI());
+    known.add(RDFS.comment.getURI());
+    return known;
+  }
+
+  /**
+   * Finds distinct predicate URIs used in {@code data} that are not part of {@link
+   * #collectKnownPropertyUris()}. A non-empty result means some triples use an invented predicate
+   * instead of reusing an existing ontology/vocabulary property.
+   */
+  public Set<String> findUnknownPredicates(Model data) {
+    Set<String> known = collectKnownPropertyUris();
+    Set<String> unknown = new HashSet<>();
+    data.listStatements()
+        .forEachRemaining(
+            stmt -> {
+              String uri = stmt.getPredicate().getURI();
+              if (uri != null && !known.contains(uri)) {
+                unknown.add(uri);
+              }
+            });
+    return unknown;
+  }
+
+  private void collectShapePathUris(Shape shape, Set<String> known) {
+    Model shapeModel = shape.getModel();
+    if (shapeModel == null) {
+      return;
+    }
+    shapeModel
+        .listObjectsOfProperty(shapeModel.createProperty(SH + "path"))
+        .forEachRemaining(
+            node -> {
+              if (node.isURIResource()) {
+                addUri(known, node.asResource());
+              }
+            });
+  }
+
+  private void collectTargetClassUri(Shape shape, Set<String> known) {
+    Model shapeModel = shape.getModel();
+    if (shapeModel == null) {
+      return;
+    }
+    Resource nodeShapeType = shapeModel.createResource(SH + "NodeShape");
+    var shapeResources = shapeModel.listResourcesWithProperty(RDF.type, nodeShapeType);
+    if (!shapeResources.hasNext()) {
+      return;
+    }
+    Statement targetClassStmt =
+        shapeResources.nextResource().getProperty(shapeModel.createProperty(SH + "targetClass"));
+    if (targetClassStmt != null && targetClassStmt.getObject().isResource()) {
+      addUri(known, targetClassStmt.getResource());
+    }
+  }
+
+  private static void addUri(Set<String> set, Resource resource) {
+    String uri = resource.getURI();
+    if (uri != null && !uri.isBlank()) {
+      set.add(uri);
+    }
+  }
+
   public ValidationReport validate(Model data) {
     ValidationReport report = ShaclValidator.get().validate(getJenaShapes(), data.getGraph());
     if (report.conforms()) {
@@ -71,8 +241,8 @@ public class Shacl {
     shapes.clear();
 
     // Collect all NodeShape resources and extract each shape's model
-    Iterator<Resource> it = model.listResourcesWithProperty(RDF.type,
-        model.createResource(SH + "NodeShape"));
+    Iterator<Resource> it =
+        model.listResourcesWithProperty(RDF.type, model.createResource(SH + "NodeShape"));
     while (it.hasNext()) {
       Resource shapeRes = it.next();
       Model shapeModel = ModelFactory.createDefaultModel();
@@ -81,18 +251,19 @@ public class Shacl {
       shapes.add(new Shape(shapeModel));
     }
     // Sort shapes by constraint count (most constrained first)
-    shapes.sort((s1, s2) -> {
-      long count1 = s1.getModel().listStatements(null, null, (RDFNode) null).toList().size();
-      long count2 = s2.getModel().listStatements(null, null, (RDFNode) null).toList().size();
-      return Long.compare(count2, count1);
-    });
+    shapes.sort(
+        (s1, s2) -> {
+          long count1 = s1.getModel().listStatements(null, null, (RDFNode) null).toList().size();
+          long count2 = s2.getModel().listStatements(null, null, (RDFNode) null).toList().size();
+          return Long.compare(count2, count1);
+        });
     jenaShapes = Shapes.parse(model);
     logger.info("Loaded {} SHACL shapes", shapes.size());
   }
 
   /**
-   * Recursively extracts all statements related to a resource, including nested blank nodes.
-   * This ensures that the entire shape structure (property shapes, constraints, etc.) is captured.
+   * Recursively extracts all statements related to a resource, including nested blank nodes. This
+   * ensures that the entire shape structure (property shapes, constraints, etc.) is captured.
    */
   private void extractShapeWithBlankNodes(Resource resource, Model targetModel) {
     // Add all statements where this resource is the subject
@@ -145,9 +316,7 @@ public class Shacl {
     return stringWriter.toString();
   }
 
-  /**
-   * Generate SHACL shapes from the ontology
-   */
+  /** Generate SHACL shapes from the ontology */
   public void generate() {
     Iterator<Resource> classes = ontology.listResourcesWithProperty(RDF.type, OWL.Class);
     while (classes.hasNext()) {
@@ -157,8 +326,9 @@ public class Shacl {
       }
       logger.info("Generating SHACL shape for class {}", cls.getURI());
       Shape shape = new Shape(cls, ontology);
-      model.getNsPrefixMap().forEach((prefix, value) ->
-          shape.getModel().setNsPrefix(prefix, value));
+      model
+          .getNsPrefixMap()
+          .forEach((prefix, value) -> shape.getModel().setNsPrefix(prefix, value));
       model.add(shape.getModel());
     }
     refresh();
@@ -169,8 +339,9 @@ public class Shacl {
   }
 
   private boolean isDatatype(Resource res) {
-    return res != null && res.isURIResource() && res.getURI()
-        .startsWith("http://www.w3.org/2001/XMLSchema#");
+    return res != null
+        && res.isURIResource()
+        && res.getURI().startsWith("http://www.w3.org/2001/XMLSchema#");
   }
 
   @Getter
@@ -179,17 +350,16 @@ public class Shacl {
     private final Model model;
     private final String name;
     private final String comment;
-    @Setter
-    private boolean processed = false;
+    @Setter private boolean processed = false;
 
     public Shape(Model model) {
       this.model = model;
       Resource nodeShape = model.createResource(SH + "NodeShape");
-      Resource shape = model.listResourcesWithProperty(RDF.type,
-          nodeShape).toList().getFirst();
+      Resource shape = model.listResourcesWithProperty(RDF.type, nodeShape).toList().getFirst();
       name = shape.getLocalName();
       // Get rdfs comment from shape
-      comment = shape.hasProperty(RDFS.comment) ? shape.getProperty(RDFS.comment).getString() : null;
+      comment =
+          shape.hasProperty(RDFS.comment) ? shape.getProperty(RDFS.comment).getString() : null;
     }
 
     public Shape(Resource cls, Model ontology) {
@@ -216,9 +386,7 @@ public class Shacl {
       }
     }
 
-    /**
-     * Get this shape as TURTLE string.
-     */
+    /** Get this shape as TURTLE string. */
     public String getTurtle() {
       StringWriter stringWriter = new StringWriter();
       model.write(stringWriter, "TURTLE");
@@ -354,5 +522,4 @@ public class Shacl {
       nodeShape.addProperty(shaclProp("property"), ps);
     }
   }
-
 }

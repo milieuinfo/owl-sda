@@ -1,10 +1,5 @@
 package be.vlaanderen.omgeving.owlsda.agent;
 
-import be.vlaanderen.omgeving.owlsda.agent.handler.OutputReplaceHandler;
-import be.vlaanderen.omgeving.owlsda.config.Config;
-import be.vlaanderen.omgeving.owlsda.exception.LanguageModelException;
-import be.vlaanderen.omgeving.owlsda.generation.ShapeProcessingTracker;
-import be.vlaanderen.omgeving.owlsda.generation.SupervisorReviewCoordinator;
 import be.vlaanderen.omgeving.owlsda.agent.context.Context;
 import be.vlaanderen.omgeving.owlsda.agent.context.ContextFactory;
 import be.vlaanderen.omgeving.owlsda.agent.handler.ContextReaderHandler;
@@ -17,6 +12,7 @@ import be.vlaanderen.omgeving.owlsda.agent.handler.MemorySetHandler;
 import be.vlaanderen.omgeving.owlsda.agent.handler.OutputAppendHandler;
 import be.vlaanderen.omgeving.owlsda.agent.handler.OutputFeedbackHandler;
 import be.vlaanderen.omgeving.owlsda.agent.handler.OutputReaderHandler;
+import be.vlaanderen.omgeving.owlsda.agent.handler.OutputReplaceHandler;
 import be.vlaanderen.omgeving.owlsda.agent.handler.OutputValidatorHandler;
 import be.vlaanderen.omgeving.owlsda.agent.handler.OutputWriterHandler;
 import be.vlaanderen.omgeving.owlsda.agent.handler.RunMemoryStore;
@@ -27,8 +23,12 @@ import be.vlaanderen.omgeving.owlsda.agent.handler.TripleStoreAddHandler;
 import be.vlaanderen.omgeving.owlsda.agent.handler.TripleStoreClearHandler;
 import be.vlaanderen.omgeving.owlsda.agent.handler.TripleStoreReadHandler;
 import be.vlaanderen.omgeving.owlsda.agent.handler.TripleStoreRemoveHandler;
-import be.vlaanderen.omgeving.owlsda.agent.handler.WorkerTripleStore;
 import be.vlaanderen.omgeving.owlsda.agent.handler.WorkerProgressHandler;
+import be.vlaanderen.omgeving.owlsda.agent.handler.WorkerTripleStore;
+import be.vlaanderen.omgeving.owlsda.config.Config;
+import be.vlaanderen.omgeving.owlsda.exception.LanguageModelException;
+import be.vlaanderen.omgeving.owlsda.generation.ShapeProcessingTracker;
+import be.vlaanderen.omgeving.owlsda.generation.SupervisorReviewCoordinator;
 import be.vlaanderen.omgeving.owlsda.ontology.Shacl;
 import java.net.http.HttpClient;
 import java.time.Duration;
@@ -37,13 +37,26 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Manages all agent sessions: worker pool, supervisor, and reviewer.
+ * Owns and wires every LLM session for a run: the worker pool, the supervisor session, and the
+ * lazily-created reviewer session. Each role gets its own {@link SessionHandler} set (see the
+ * {@code initialize*Session*} methods), gated per-tool by {@link
+ * be.vlaanderen.omgeving.owlsda.agent.handler.ToolFilter} and built from the shared resources this
+ * class owns: one {@link WorkerTripleStore} all workers write into, one {@link RunMemoryStore}, and
+ * one {@link Client} per distinct provider (cached in {@link #clientsByProvider}, since a provider
+ * like Copilot may back more than one role).
+ *
+ * <p>The reviewer session is created on first use via {@link #getReviewerSession()} rather than
+ * eagerly in {@link #initialize()}, since review only starts after a full generation pass
+ * completes; {@link #reviewerServiceProvider} is wired in afterwards for the same reason (the
+ * {@link SupervisorReviewCoordinator} that owns the review loop is itself constructed using this
+ * session manager, so it cannot be known at construction time).
  */
 @Getter
 public class SessionManager {
@@ -52,19 +65,13 @@ public class SessionManager {
 
   private final Config config;
 
-  /**
-   * SHACL shapes used for validation.
-   */
-  @Setter
-  private Shacl shacl;
-  @Setter
-  private Shacl inferredShacl;
+  /** SHACL shapes used for validation. */
+  @Setter private Shacl shacl;
 
-  /**
-   * Lazy provider for the reviewer service, set after the full workflow is constructed.
-   */
-  @Setter
-  private ReviewerServiceProvider reviewerServiceProvider;
+  @Setter private Shacl inferredShacl;
+
+  /** Lazy provider for the reviewer service, set after the full workflow is constructed. */
+  @Setter private ReviewerServiceProvider reviewerServiceProvider;
 
   private final Map<String, Client> clientsByProvider = new LinkedHashMap<>();
   private SessionPool workerSessionPool;
@@ -81,18 +88,18 @@ public class SessionManager {
   public SessionManager(Config config) {
     this.config = config;
     this.sharedTripleStore = new WorkerTripleStore(config.getOutputPath());
-    this.sharedMemoryStore = new RunMemoryStore(
-        config.getTools().getMemory().getMaxEntries(),
-        config.getTools().getMemory().getMaxValueBytes());
+    this.sharedMemoryStore =
+        new RunMemoryStore(
+            config.getTools().getMemory().getMaxEntries(),
+            config.getTools().getMemory().getMaxValueBytes());
     this.httpAllowlist = HttpAllowlistFactory.build(config);
-    this.sharedHttpClient = HttpClient.newBuilder()
-        .connectTimeout(Duration.ofMillis(config.getTools().getHttp().getConnectTimeoutMs()))
-        .build();
+    this.sharedHttpClient =
+        HttpClient.newBuilder()
+            .connectTimeout(Duration.ofMillis(config.getTools().getHttp().getConnectTimeoutMs()))
+            .build();
   }
 
-  /**
-   * Functional interface for lazy ReviewerService access
-   */
+  /** Functional interface for lazy ReviewerService access */
   @FunctionalInterface
   public interface ReviewerServiceProvider {
     SupervisorReviewCoordinator get();
@@ -107,7 +114,7 @@ public class SessionManager {
       logger.info("Worker and supervisor sessions initialized successfully");
     } catch (Exception e) {
       logger.error("Failed to initialize sessions", e);
-      throw new LanguageModelException("Failed to initialize sessions: " + e.getMessage());
+      throw new LanguageModelException("Failed to initialize sessions: " + e.getMessage(), e);
     }
   }
 
@@ -118,8 +125,10 @@ public class SessionManager {
     int poolCount = config.getPoolCount();
     workerSessionPool = new SessionPool(poolCount);
 
-    logger.info("Creating worker session pool with {} sessions sharing one triple store (provider: {})",
-        poolCount, workerProvider);
+    logger.info(
+        "Creating worker session pool with {} sessions sharing one triple store (provider: {})",
+        poolCount,
+        workerProvider);
 
     for (int i = 0; i < poolCount; i++) {
       try {
@@ -132,75 +141,82 @@ public class SessionManager {
 
         // Self-referential context reader for pool sessions
         final Session[] sessionRef = new Session[1];
-        if (ToolFilter.isEnabled(workerTools, ContextReaderHandler.NAME)) {
-          handlers.add(new ContextReaderHandler(() ->
-              sessionRef[0] != null ? sessionRef[0].getContext() : List.of()
-          ));
-        }
-        if (ToolFilter.isEnabled(workerTools, WorkerProgressHandler.NAME)) {
-          handlers.add(new WorkerProgressHandler(workerId, progress -> {
-            if (sessionRef[0] != null) {
-              sessionRef[0].addContextIfChanged(progress);
-            }
-          }));
-        }
+        addIfEnabled(
+            handlers,
+            workerTools,
+            ContextReaderHandler.NAME,
+            () ->
+                new ContextReaderHandler(
+                    () -> sessionRef[0] != null ? sessionRef[0].getContext() : List.of()));
+        addIfEnabled(
+            handlers,
+            workerTools,
+            WorkerProgressHandler.NAME,
+            () ->
+                new WorkerProgressHandler(
+                    workerId,
+                    progress -> {
+                      if (sessionRef[0] != null) {
+                        sessionRef[0].addContextIfChanged(progress);
+                      }
+                    }));
 
         // Triple store handlers (shared store with unique worker ID)
-        if (ToolFilter.isEnabled(workerTools, TripleStoreAddHandler.NAME)) {
-          handlers.add(new TripleStoreAddHandler(sharedTripleStore, workerId));
-        }
-        if (ToolFilter.isEnabled(workerTools, TripleStoreRemoveHandler.NAME)) {
-          handlers.add(new TripleStoreRemoveHandler(sharedTripleStore, workerId));
-        }
-        if (ToolFilter.isEnabled(workerTools, TripleStoreReadHandler.NAME)) {
-          handlers.add(new TripleStoreReadHandler(sharedTripleStore, workerId));
-        }
-        if (ToolFilter.isEnabled(workerTools, TripleStoreClearHandler.NAME)) {
-          handlers.add(new TripleStoreClearHandler(sharedTripleStore, workerId));
-        }
+        addIfEnabled(
+            handlers,
+            workerTools,
+            TripleStoreAddHandler.NAME,
+            () -> new TripleStoreAddHandler(sharedTripleStore, workerId));
+        addIfEnabled(
+            handlers,
+            workerTools,
+            TripleStoreRemoveHandler.NAME,
+            () -> new TripleStoreRemoveHandler(sharedTripleStore, workerId));
+        addIfEnabled(
+            handlers,
+            workerTools,
+            TripleStoreReadHandler.NAME,
+            () -> new TripleStoreReadHandler(sharedTripleStore, workerId));
+        addIfEnabled(
+            handlers,
+            workerTools,
+            TripleStoreClearHandler.NAME,
+            () -> new TripleStoreClearHandler(sharedTripleStore, workerId));
 
         // Output handlers
-        if (ToolFilter.isEnabled(workerTools, OutputReaderHandler.NAME)) {
-          handlers.add(new OutputReaderHandler(config));
-        }
+        addIfEnabled(
+            handlers, workerTools, OutputReaderHandler.NAME, () -> new OutputReaderHandler(config));
 
-        if (shacl != null && ToolFilter.isEnabled(workerTools, OutputValidatorHandler.NAME)) {
+        if (shacl != null) {
           // Workers validate the shared triple store and publish validation context to all sessions
-          handlers.add(new OutputValidatorHandler(
-              shacl,
-              null,
-              sharedTripleStore,
-              this::addContextToAllSessionsIfChanged
-          ));
+          addIfEnabled(
+              handlers,
+              workerTools,
+              OutputValidatorHandler.NAME,
+              () ->
+                  new OutputValidatorHandler(
+                      shacl, null, sharedTripleStore, this::addContextToAllSessionsIfChanged));
         }
 
-        if (config.getTools().getHttp().isEnabled()
-            && ToolFilter.isEnabled(workerTools, HttpCallHandler.NAME)) {
-          handlers.add(newHttpCallHandler());
-        }
-        if (config.getTools().getMemory().isEnabled()) {
-          if (ToolFilter.isEnabled(workerTools, MemorySetHandler.NAME)) {
-            handlers.add(new MemorySetHandler(sharedMemoryStore, workerId));
-          }
-          if (ToolFilter.isEnabled(workerTools, MemoryGetHandler.NAME)) {
-            handlers.add(new MemoryGetHandler(sharedMemoryStore));
-          }
-        }
+        addHttpHandlerIfEnabled(handlers, workerTools);
+        addMemoryHandlersIfEnabled(handlers, workerTools, workerId);
 
-        SessionConfig sessionConfig = SessionConfig.builder()
-            .systemContext(ContextFactory.createWorkerContext())
-            .model(config.getClient().getWorker().getModel())
-            .timeoutMs(config.getClient().getWorker().getTimeoutMs())
-            .betweenMessageTimeoutMs(config.getClient().getWorker().getBetweenMessageTimeoutMs())
-            .handlers(handlers)
-            .build();
+        SessionConfig sessionConfig =
+            SessionConfig.builder()
+                .systemContext(ContextFactory.createWorkerContext())
+                .model(config.getClient().getWorker().getModel())
+                .timeoutMs(config.getClient().getWorker().getTimeoutMs())
+                .betweenMessageTimeoutMs(
+                    config.getClient().getWorker().getBetweenMessageTimeoutMs())
+                .handlers(handlers)
+                .build();
 
         Session workerSession = workerClient.createSession(sessionConfig);
         sessionRef[0] = workerSession;
         workerSessionPool.addSession(workerSession);
       } catch (Exception e) {
         logger.error("Failed to create worker session {}", i, e);
-        throw new LanguageModelException("Failed to create worker session: " + e.getMessage());
+        throw new LanguageModelException("Failed to create worker session: " + e.getMessage(), e);
       }
     }
 
@@ -209,80 +225,101 @@ public class SessionManager {
 
   private void initializeSupervisorSession() {
     try {
-      String supervisorProvider = ClientFactory.resolveProvider(config, ClientFactory.Role.SUPERVISOR);
+      String supervisorProvider =
+          ClientFactory.resolveProvider(config, ClientFactory.Role.SUPERVISOR);
       Client supervisorClient = getOrCreateClient(supervisorProvider);
 
       Config.RoleToolsProperties supervisorTools = config.getTools().getSupervisor();
       List<SessionHandler> handlers = new ArrayList<>();
-      if (ToolFilter.isEnabled(supervisorTools, ContextReaderHandler.NAME)) {
-        handlers.add(new ContextReaderHandler(
-            () -> supervisorSession != null ? supervisorSession.getContext() : List.of()
-        ));
-      }
-      if (ToolFilter.isEnabled(supervisorTools, DelegationHandler.NAME)) {
-        handlers.add(new DelegationHandler(this::publishDelegationContext));
-      }
-      if (ToolFilter.isEnabled(supervisorTools, OutputWriterHandler.NAME)) {
-        handlers.add(new OutputWriterHandler(config));
-      }
-      if (ToolFilter.isEnabled(supervisorTools, OutputAppendHandler.NAME)) {
-        handlers.add(new OutputAppendHandler(config));
-      }
-      if (ToolFilter.isEnabled(supervisorTools, OutputReplaceHandler.NAME)) {
-        handlers.add(new OutputReplaceHandler(config));
-      }
-      if (ToolFilter.isEnabled(supervisorTools, OutputReaderHandler.NAME)) {
-        handlers.add(new OutputReaderHandler(config));
-      }
+      addIfEnabled(
+          handlers,
+          supervisorTools,
+          ContextReaderHandler.NAME,
+          () ->
+              new ContextReaderHandler(
+                  () -> supervisorSession != null ? supervisorSession.getContext() : List.of()));
+      addIfEnabled(
+          handlers,
+          supervisorTools,
+          DelegationHandler.NAME,
+          () -> new DelegationHandler(this::publishDelegationContext));
+      addIfEnabled(
+          handlers,
+          supervisorTools,
+          OutputWriterHandler.NAME,
+          () -> new OutputWriterHandler(config));
+      addIfEnabled(
+          handlers,
+          supervisorTools,
+          OutputAppendHandler.NAME,
+          () -> new OutputAppendHandler(config));
+      addIfEnabled(
+          handlers,
+          supervisorTools,
+          OutputReplaceHandler.NAME,
+          () -> new OutputReplaceHandler(config));
+      addIfEnabled(
+          handlers,
+          supervisorTools,
+          OutputReaderHandler.NAME,
+          () -> new OutputReaderHandler(config));
 
       // Add shape status checker tool if tracker is available
-      if (shapeProcessingTracker != null
-          && ToolFilter.isEnabled(supervisorTools, ShapeStatusCheckerHandler.NAME)) {
-        handlers.add(new ShapeStatusCheckerHandler(shapeProcessingTracker));
+      if (shapeProcessingTracker != null) {
+        addIfEnabled(
+            handlers,
+            supervisorTools,
+            ShapeStatusCheckerHandler.NAME,
+            () -> new ShapeStatusCheckerHandler(shapeProcessingTracker));
       }
 
-      if (shacl != null && ToolFilter.isEnabled(supervisorTools, OutputValidatorHandler.NAME)) {
-        // Supervisor can validate both file and argument data and publish validation context to all sessions
-        handlers.add(new OutputValidatorHandler(
-            inferredShacl,
-            config,
-            null,
-            this::addContextToAllSessionsIfChanged
-        ));
+      if (shacl != null) {
+        // Supervisor can validate both file and argument data and publish validation context to all
+        // sessions
+        addIfEnabled(
+            handlers,
+            supervisorTools,
+            OutputValidatorHandler.NAME,
+            () ->
+                new OutputValidatorHandler(
+                    inferredShacl, config, null, this::addContextToAllSessionsIfChanged));
       }
 
-      if (config.getTools().getHttp().isEnabled()
-          && ToolFilter.isEnabled(supervisorTools, HttpCallHandler.NAME)) {
-        handlers.add(newHttpCallHandler());
-      }
-      if (config.getTools().getMemory().isEnabled()) {
-        if (ToolFilter.isEnabled(supervisorTools, MemorySetHandler.NAME)) {
-          handlers.add(new MemorySetHandler(sharedMemoryStore, "SUPERVISOR"));
-        }
-        if (ToolFilter.isEnabled(supervisorTools, MemoryGetHandler.NAME)) {
-          handlers.add(new MemoryGetHandler(sharedMemoryStore));
-        }
-      }
+      addHttpHandlerIfEnabled(handlers, supervisorTools);
+      addMemoryHandlersIfEnabled(handlers, supervisorTools, "SUPERVISOR");
 
-      SessionConfig supervisorConfig = SessionConfig.builder()
-          .systemContext(ContextFactory.createSupervisorContext())
-          .model(config.getClient().getSupervisor().getModel())
-          .timeoutMs(config.getClient().getSupervisor().getTimeoutMs())
-          .betweenMessageTimeoutMs(config.getClient().getSupervisor().getBetweenMessageTimeoutMs())
-          .handlers(handlers)
-          .build();
+      SessionConfig supervisorConfig =
+          SessionConfig.builder()
+              .systemContext(ContextFactory.createSupervisorContext())
+              .model(config.getClient().getSupervisor().getModel())
+              .timeoutMs(config.getClient().getSupervisor().getTimeoutMs())
+              .betweenMessageTimeoutMs(
+                  config.getClient().getSupervisor().getBetweenMessageTimeoutMs())
+              .handlers(handlers)
+              .build();
 
       supervisorSession = supervisorClient.createSession(supervisorConfig);
-      logger.info("Supervisor session created with dedicated context (provider: {}, model: {}, timeout: {}ms)",
+      logger.info(
+          "Supervisor session created with dedicated context (provider: {}, model: {}, timeout: {}ms)",
           supervisorProvider,
           config.getClient().getSupervisor().getModel(),
           config.getClient().getSupervisor().getTimeoutMs());
     } catch (Exception e) {
       logger.error("Failed to create supervisor session", e);
-      throw new LanguageModelException("Failed to create supervisor session: " + e.getMessage());
+      throw new LanguageModelException("Failed to create supervisor session: " + e.getMessage(), e);
     }
   }
 
+  /**
+   * Routes one {@code delegate_tasks} call from the supervisor to a specific worker session. {@code
+   * targetAgent} is resolved by {@link #normalizeTargetAgent} - accepting {@code POOL-N}, {@code
+   * WORKER-N}, or a bare index - to a worker pool slot. Instructions are published under both the
+   * caller-supplied {@code name} (a human-readable, per-worker label so the supervisor can see
+   * which instructions went where) and the canonical {@link #DELEGATION_CONTEXT_NAME} (the fixed
+   * name workers themselves read); this dual-write is why delegation contexts must be cleared under
+   * both names at the start of each round (see {@code
+   * Supervisor#clearWorkerDelegationInstructions}).
+   */
   private DelegationHandler.PublicationResult publishDelegationContext(
       String name, String targetAgent, String instructions) {
     if (workerSessionPool == null) {
@@ -374,60 +411,59 @@ public class SessionManager {
 
       Config.RoleToolsProperties reviewerTools = config.getTools().getReviewer();
       List<SessionHandler> handlers = new ArrayList<>();
-      if (ToolFilter.isEnabled(reviewerTools, ContextReaderHandler.NAME)) {
-        handlers.add(new ContextReaderHandler(
-            () -> reviewerSession != null ? reviewerSession.getContext() : List.of()
-        ));
-      }
-      if (ToolFilter.isEnabled(reviewerTools, OutputReaderHandler.NAME)) {
-        handlers.add(new OutputReaderHandler(config));
-      }
-      if (inferredShacl != null && ToolFilter.isEnabled(reviewerTools, OutputValidatorHandler.NAME)) {
-        // Reviewer can validate both file and argument data and publish validation context to all sessions
-        handlers.add(new OutputValidatorHandler(
-            inferredShacl,
-            config,
-            null,
-            this::addContextToAllSessionsIfChanged
-        ));
-      }
-
-      if (ToolFilter.isEnabled(reviewerTools, OutputFeedbackHandler.NAME)) {
-        // Use lazy provider for OutputFeedbackHandler (unified feedback handler)
-        handlers.add(new OutputFeedbackHandler(
-            () -> reviewerServiceProvider != null ? reviewerServiceProvider.get() : null));
+      addIfEnabled(
+          handlers,
+          reviewerTools,
+          ContextReaderHandler.NAME,
+          () ->
+              new ContextReaderHandler(
+                  () -> reviewerSession != null ? reviewerSession.getContext() : List.of()));
+      addIfEnabled(
+          handlers, reviewerTools, OutputReaderHandler.NAME, () -> new OutputReaderHandler(config));
+      if (inferredShacl != null) {
+        // Reviewer can validate both file and argument data and publish validation context to all
+        // sessions
+        addIfEnabled(
+            handlers,
+            reviewerTools,
+            OutputValidatorHandler.NAME,
+            () ->
+                new OutputValidatorHandler(
+                    inferredShacl, config, null, this::addContextToAllSessionsIfChanged));
       }
 
-      if (config.getTools().getHttp().isEnabled()
-          && ToolFilter.isEnabled(reviewerTools, HttpCallHandler.NAME)) {
-        handlers.add(newHttpCallHandler());
-      }
-      if (config.getTools().getMemory().isEnabled()) {
-        if (ToolFilter.isEnabled(reviewerTools, MemorySetHandler.NAME)) {
-          handlers.add(new MemorySetHandler(sharedMemoryStore, "REVIEWER"));
-        }
-        if (ToolFilter.isEnabled(reviewerTools, MemoryGetHandler.NAME)) {
-          handlers.add(new MemoryGetHandler(sharedMemoryStore));
-        }
-      }
+      // Use lazy provider for OutputFeedbackHandler (unified feedback handler)
+      addIfEnabled(
+          handlers,
+          reviewerTools,
+          OutputFeedbackHandler.NAME,
+          () ->
+              new OutputFeedbackHandler(
+                  () -> reviewerServiceProvider != null ? reviewerServiceProvider.get() : null));
 
-      SessionConfig reviewerConfig = SessionConfig.builder()
-          .systemContext(ContextFactory.createReviewerContext())
-          .model(config.getClient().getReviewer().getModel())
-          .timeoutMs(config.getClient().getReviewer().getTimeoutMs())
-          .betweenMessageTimeoutMs(config.getClient().getReviewer().getBetweenMessageTimeoutMs())
-          .handlers(handlers)
-          .build();
+      addHttpHandlerIfEnabled(handlers, reviewerTools);
+      addMemoryHandlersIfEnabled(handlers, reviewerTools, "REVIEWER");
+
+      SessionConfig reviewerConfig =
+          SessionConfig.builder()
+              .systemContext(ContextFactory.createReviewerContext())
+              .model(config.getClient().getReviewer().getModel())
+              .timeoutMs(config.getClient().getReviewer().getTimeoutMs())
+              .betweenMessageTimeoutMs(
+                  config.getClient().getReviewer().getBetweenMessageTimeoutMs())
+              .handlers(handlers)
+              .build();
 
       Session createdReviewerSession = reviewerClient.createSession(reviewerConfig);
-      logger.info("Reviewer session created (provider: {}, model: {}, timeout: {}ms)",
+      logger.info(
+          "Reviewer session created (provider: {}, model: {}, timeout: {}ms)",
           reviewerProvider,
           config.getClient().getReviewer().getModel(),
           config.getClient().getReviewer().getTimeoutMs());
       return createdReviewerSession;
     } catch (Exception e) {
       logger.error("Failed to create reviewer session", e);
-      throw new LanguageModelException("Failed to create reviewer session: " + e.getMessage());
+      throw new LanguageModelException("Failed to create reviewer session: " + e.getMessage(), e);
     }
   }
 
@@ -499,7 +535,6 @@ public class SessionManager {
     logger.debug("Added/updated context '{}' to all sessions (if changed)", context.getName());
   }
 
-
   public void shutdown() {
     try {
       sharedMemoryStore.clear();
@@ -523,6 +558,45 @@ public class SessionManager {
     }
   }
 
+  /**
+   * Adds a handler built by {@code handlerSupplier} if {@code toolName} is enabled for {@code
+   * tools}.
+   */
+  private void addIfEnabled(
+      List<SessionHandler> handlers,
+      Config.RoleToolsProperties tools,
+      String toolName,
+      Supplier<SessionHandler> handlerSupplier) {
+    if (ToolFilter.isEnabled(tools, toolName)) {
+      handlers.add(handlerSupplier.get());
+    }
+  }
+
+  /** Adds the shared HTTP-call handler if the HTTP tool is globally and per-role enabled. */
+  private void addHttpHandlerIfEnabled(
+      List<SessionHandler> handlers, Config.RoleToolsProperties tools) {
+    if (config.getTools().getHttp().isEnabled()) {
+      addIfEnabled(handlers, tools, HttpCallHandler.NAME, this::newHttpCallHandler);
+    }
+  }
+
+  /**
+   * Adds the shared memory get/set handlers, scoped to {@code memoryOwnerId}, if globally enabled.
+   */
+  private void addMemoryHandlersIfEnabled(
+      List<SessionHandler> handlers, Config.RoleToolsProperties tools, String memoryOwnerId) {
+    if (!config.getTools().getMemory().isEnabled()) {
+      return;
+    }
+    addIfEnabled(
+        handlers,
+        tools,
+        MemorySetHandler.NAME,
+        () -> new MemorySetHandler(sharedMemoryStore, memoryOwnerId));
+    addIfEnabled(
+        handlers, tools, MemoryGetHandler.NAME, () -> new MemoryGetHandler(sharedMemoryStore));
+  }
+
   private HttpCallHandler newHttpCallHandler() {
     Config.HttpToolProperties httpProps = config.getTools().getHttp();
     return new HttpCallHandler(
@@ -535,10 +609,12 @@ public class SessionManager {
   }
 
   private Client getOrCreateClient(String provider) {
-    return clientsByProvider.computeIfAbsent(provider, p -> {
-      logger.info("Initializing LLM client for provider '{}'", p);
-      return ClientFactory.create(config, p);
-    });
+    return clientsByProvider.computeIfAbsent(
+        provider,
+        p -> {
+          logger.info("Initializing LLM client for provider '{}'", p);
+          return ClientFactory.create(config, p);
+        });
   }
 
   private void safeCloseSession(Session session, String role) {

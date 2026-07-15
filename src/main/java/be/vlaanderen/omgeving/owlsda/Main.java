@@ -11,28 +11,21 @@ import picocli.CommandLine.Option;
 @Command(
     name = "owlsda",
     description = "OWL-SDA | OWL Synthetic Data AI-Agent",
-    version = "1.0-SNAPSHOT"
-)
+    version = "1.0-SNAPSHOT")
 public class Main implements Runnable {
 
   static {
     // Configure noisy FontBox logger before any logger backend initializes.
+    System.setProperty("org.slf4j.simpleLogger.log.org.apache.fontbox.ttf.CmapSubtable", "error");
     System.setProperty(
-        "org.slf4j.simpleLogger.log.org.apache.fontbox.ttf.CmapSubtable",
-        "error"
-    );
-    System.setProperty(
-        "org.apache.commons.logging.simplelog.log.org.apache.fontbox.ttf.CmapSubtable",
-        "error"
-    );
+        "org.apache.commons.logging.simplelog.log.org.apache.fontbox.ttf.CmapSubtable", "error");
   }
 
   @Option(
       names = {"-c", "--config"},
       description = "Configuration file path",
       required = true,
-      defaultValue = "examples/project-1/config.yml"
-  )
+      defaultValue = "examples/project-1/config.yml")
   private String configLocation;
 
   static void main(String[] args) {
@@ -50,7 +43,9 @@ public class Main implements Runnable {
       }
 
       // Set the log file if log-to-file is enabled
-      if (config.isLogToFile() && config.getLogFilePath() != null && !config.getLogFilePath().isEmpty()) {
+      if (config.isLogToFile()
+          && config.getLogFilePath() != null
+          && !config.getLogFilePath().isEmpty()) {
         System.setProperty("org.slf4j.simpleLogger.logFile", config.getLogFilePath());
       }
 

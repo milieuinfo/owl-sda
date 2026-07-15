@@ -3,9 +3,7 @@ package be.vlaanderen.omgeving.owlsda.agent;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-/**
- * Large Language Model (LLM) client interface.
- */
+/** Large Language Model (LLM) client interface. */
 public interface Client extends AutoCloseable {
   /**
    * Retrieves the name of the LLM client.

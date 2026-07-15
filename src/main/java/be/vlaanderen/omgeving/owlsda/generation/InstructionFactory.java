@@ -8,8 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Factory for loading and rendering instruction templates from resource files.
- * Supports placeholder substitution ({{key}}) for dynamic content.
+ * Factory for loading and rendering instruction templates from resource files. Supports placeholder
+ * substitution ({{key}}) for dynamic content.
  */
 public class InstructionFactory {
 
@@ -47,23 +47,27 @@ public class InstructionFactory {
    * @return Rendered instruction string
    */
   public static String render(String templateName, String placeholderKey, String placeholderValue) {
-    return render(templateName, Map.of(placeholderKey, placeholderValue != null ? placeholderValue : ""));
+    return render(
+        templateName, Map.of(placeholderKey, placeholderValue != null ? placeholderValue : ""));
   }
 
   private static String loadTemplate(String templateName) {
-    return templateCache.computeIfAbsent(templateName, key -> {
-      String resourcePath = key.endsWith(".txt") ? key : key + ".txt";
-      try (InputStream is = InstructionFactory.class.getClassLoader().getResourceAsStream(resourcePath)) {
-        if (is == null) {
-          throw new RuntimeException("Instruction template not found: " + resourcePath);
-        }
-        return new String(is.readAllBytes(), StandardCharsets.UTF_8);
-      } catch (RuntimeException e) {
-        throw e;
-      } catch (Exception e) {
-        throw new RuntimeException("Failed to load instruction template: " + resourcePath, e);
-      }
-    });
+    return templateCache.computeIfAbsent(
+        templateName,
+        key -> {
+          String resourcePath = key.endsWith(".txt") ? key : key + ".txt";
+          try (InputStream is =
+              InstructionFactory.class.getClassLoader().getResourceAsStream(resourcePath)) {
+            if (is == null) {
+              throw new RuntimeException("Instruction template not found: " + resourcePath);
+            }
+            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+          } catch (RuntimeException e) {
+            throw e;
+          } catch (Exception e) {
+            throw new RuntimeException("Failed to load instruction template: " + resourcePath, e);
+          }
+        });
   }
 
   private static String replacePlaceholders(String template, Map<String, String> placeholders) {
@@ -76,4 +80,3 @@ public class InstructionFactory {
     return result;
   }
 }
-

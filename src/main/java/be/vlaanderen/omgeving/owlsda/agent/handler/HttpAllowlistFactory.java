@@ -11,13 +11,12 @@ import java.util.Set;
 
 /**
  * Builds the {@link HttpAllowlist} used by {@code http_call}, seeding it from hosts the project
- * already trusts (external ontology mirrors, user-context URLs) before adding any explicit
- * {@code tools.http.allowed-hosts} entries.
+ * already trusts (external ontology mirrors, user-context URLs) before adding any explicit {@code
+ * tools.http.allowed-hosts} entries.
  */
 public final class HttpAllowlistFactory {
 
-  private HttpAllowlistFactory() {
-  }
+  private HttpAllowlistFactory() {}
 
   public static HttpAllowlist build(Config config) {
     Set<String> hosts = new LinkedHashSet<>();

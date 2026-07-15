@@ -13,11 +13,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Handler that appends data to the output TURTLE file.
- * Useful for incrementally building output without rewriting the entire file.
+ * Handler that appends data to the output TURTLE file. Useful for incrementally building output
+ * without rewriting the entire file.
  *
- * Automatically deduplicates @prefix and @base declarations by stripping them from the input
- * if the output file already contains prefixes, preventing duplicate declarations.
+ * <p>Automatically deduplicates @prefix and @base declarations by stripping them from the input if
+ * the output file already contains prefixes, preventing duplicate declarations.
  */
 public class OutputAppendHandler implements SessionHandler {
   public static final String NAME = "output_data_append";
@@ -48,44 +48,42 @@ public class OutputAppendHandler implements SessionHandler {
   public Map<String, Object> getArguments() {
     return Map.of(
         "type", "object",
-        "properties", Map.of(
-            "output", Map.of(
-                "type", "string",
-                "description", "Output TURTLE data to append or insert"
-            ),
-            "insert-line", Map.of(
-                "type", "integer",
-                "description", "Optional: Insert at this line number (1-based). If not provided, appends at end."
-            ),
-            "newline", Map.of(
-                "type", "boolean",
-                "description", "Add newline before appending (default: true)"
-            )
-        ),
-        "required", List.of("output")
-    );
+        "properties",
+            Map.of(
+                "output",
+                    Map.of(
+                        "type", "string",
+                        "description", "Output TURTLE data to append or insert"),
+                "insert-line",
+                    Map.of(
+                        "type", "integer",
+                        "description",
+                            "Optional: Insert at this line number (1-based). If not provided, appends at end."),
+                "newline",
+                    Map.of(
+                        "type", "boolean",
+                        "description", "Add newline before appending (default: true)")),
+        "required", List.of("output"));
   }
-
 
   @Override
   public CompletableFuture<Object> handle(Map<String, Object> arguments) {
     String output = (String) arguments.get("output");
     boolean addNewline = (boolean) arguments.getOrDefault("newline", true);
-    Integer insertLine = arguments.containsKey("insert-line") ? ((Number) arguments.get("insert-line")).intValue() : null;
+    Integer insertLine =
+        arguments.containsKey("insert-line")
+            ? ((Number) arguments.get("insert-line")).intValue()
+            : null;
     String outputFilePath = config.getOutputPath();
 
     if (outputFilePath == null) {
       logger.error("Output path is not configured");
-      return CompletableFuture.completedFuture(Map.of(
-          "error", "Output path is not configured"
-      ));
+      return CompletableFuture.completedFuture(Map.of("error", "Output path is not configured"));
     }
 
     if (output == null || output.isEmpty()) {
       logger.warn("No output provided");
-      return CompletableFuture.completedFuture(Map.of(
-          "error", "No output provided"
-      ));
+      return CompletableFuture.completedFuture(Map.of("error", "No output provided"));
     }
 
     try {
@@ -103,13 +101,19 @@ public class OutputAppendHandler implements SessionHandler {
         String syntaxError = TurtleSyntaxValidator.validate(newFullContent);
         if (syntaxError != null) {
           logger.warn("Rejected output_data_append insert with invalid Turtle: {}", syntaxError);
-          return CompletableFuture.completedFuture(Map.of(
-              "error", "Resulting output would not be valid Turtle and was not written: " + syntaxError
-          ));
+          return CompletableFuture.completedFuture(
+              Map.of(
+                  "error",
+                  "Resulting output would not be valid Turtle and was not written: "
+                      + syntaxError));
         }
-        Files.writeString(path, newFullContent, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-        logger.info("Inserted {} characters at line {} ({} prefixes removed)",
-            processedOutput.length(), insertLine, prefixesRemoved);
+        Files.writeString(
+            path, newFullContent, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        logger.info(
+            "Inserted {} characters at line {} ({} prefixes removed)",
+            processedOutput.length(),
+            insertLine,
+            prefixesRemoved);
       } else {
         // Append at end
         String contentToAppend = processedOutput;
@@ -120,13 +124,18 @@ public class OutputAppendHandler implements SessionHandler {
         String syntaxError = TurtleSyntaxValidator.validate(newFullContent);
         if (syntaxError != null) {
           logger.warn("Rejected output_data_append with invalid Turtle: {}", syntaxError);
-          return CompletableFuture.completedFuture(Map.of(
-              "error", "Resulting output would not be valid Turtle and was not written: " + syntaxError
-          ));
+          return CompletableFuture.completedFuture(
+              Map.of(
+                  "error",
+                  "Resulting output would not be valid Turtle and was not written: "
+                      + syntaxError));
         }
-        Files.writeString(path, contentToAppend, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-        logger.info("Appended {} characters ({} prefixes removed)",
-            processedOutput.length(), prefixesRemoved);
+        Files.writeString(
+            path, contentToAppend, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+        logger.info(
+            "Appended {} characters ({} prefixes removed)",
+            processedOutput.length(),
+            prefixesRemoved);
       }
 
       long sizeAfter = Files.exists(path) ? Files.size(path) : 0;
@@ -134,29 +143,34 @@ public class OutputAppendHandler implements SessionHandler {
       int linesAdded = processedOutput.split("\n").length;
 
       String operation = (insertLine != null && insertLine > 0) ? "insert" : "append";
-      return CompletableFuture.completedFuture(Map.of(
-          "status", "success",
-          "operation", operation,
-          "message", "Output " + operation + "ed to file" + (prefixesRemoved > 0 ? " (" + prefixesRemoved + " duplicate prefixes removed)" : ""),
-          "file_path", outputFilePath,
-          "line_number", insertLine != null ? insertLine : -1,
-          "characters_added", processedOutput.length(),
-          "lines_added", linesAdded,
-          "bytes_added", bytesAdded,
-          "total_size", sizeAfter,
-          "prefixes_deduplicated", prefixesRemoved
-      ));
+      return CompletableFuture.completedFuture(
+          Map.of(
+              "status", "success",
+              "operation", operation,
+              "message",
+                  "Output "
+                      + operation
+                      + "ed to file"
+                      + (prefixesRemoved > 0
+                          ? " (" + prefixesRemoved + " duplicate prefixes removed)"
+                          : ""),
+              "file_path", outputFilePath,
+              "line_number", insertLine != null ? insertLine : -1,
+              "characters_added", processedOutput.length(),
+              "lines_added", linesAdded,
+              "bytes_added", bytesAdded,
+              "total_size", sizeAfter,
+              "prefixes_deduplicated", prefixesRemoved));
     } catch (IOException e) {
       logger.error("Failed to modify output file: {}", outputFilePath, e);
-      return CompletableFuture.completedFuture(Map.of(
-          "error", "Failed to modify output: " + e.getMessage()
-      ));
+      return CompletableFuture.completedFuture(
+          Map.of("error", "Failed to modify output: " + e.getMessage()));
     }
   }
 
   /**
-   * Removes @prefix and @base declarations from output if the file already contains them.
-   * This prevents duplicate prefix declarations when workers append data independently.
+   * Removes @prefix and @base declarations from output if the file already contains them. This
+   * prevents duplicate prefix declarations when workers append data independently.
    */
   private String deduplicatePrefixes(String filePath, String output) throws IOException {
     try {
@@ -175,9 +189,7 @@ public class OutputAppendHandler implements SessionHandler {
     return output;
   }
 
-  /**
-   * Check if content contains any @prefix or @base declarations.
-   */
+  /** Check if content contains any @prefix or @base declarations. */
   private boolean hasPrefixes(String content) {
     if (content == null || content.isEmpty()) {
       return false;
@@ -193,9 +205,7 @@ public class OutputAppendHandler implements SessionHandler {
     return false;
   }
 
-  /**
-   * Removes @prefix and @base declarations from content.
-   */
+  /** Removes @prefix and @base declarations from content. */
   private String stripPrefixes(String content) {
     String[] lines = content.split("\n");
     List<String> dataLines = new ArrayList<>();
@@ -224,9 +234,7 @@ public class OutputAppendHandler implements SessionHandler {
     return String.join("\n", dataLines).trim();
   }
 
-  /**
-   * Counts @prefix and @base lines in content.
-   */
+  /** Counts @prefix and @base lines in content. */
   private int countPrefixLines(String content) {
     if (content == null || content.isEmpty()) {
       return 0;
@@ -246,15 +254,17 @@ public class OutputAppendHandler implements SessionHandler {
   }
 
   /**
-   * Build the file content that results from inserting output at a specific line.
-   * Line numbers are 1-based (line 1 is the first line).
+   * Build the file content that results from inserting output at a specific line. Line numbers are
+   * 1-based (line 1 is the first line).
    */
-  private String buildInsertedContent(String existingContent, String output, int lineNumber) throws IOException {
-    String[] lines = existingContent.split("\n", -1);  // -1 keeps trailing empty strings
+  private String buildInsertedContent(String existingContent, String output, int lineNumber)
+      throws IOException {
+    String[] lines = existingContent.split("\n", -1); // -1 keeps trailing empty strings
 
     // Validate line number
     if (lineNumber < 1 || lineNumber > lines.length + 1) {
-      throw new IOException("Line number " + lineNumber + " is out of range (1-" + (lines.length + 1) + ")");
+      throw new IOException(
+          "Line number " + lineNumber + " is out of range (1-" + (lines.length + 1) + ")");
     }
 
     // Build new content

@@ -1,5 +1,6 @@
 package be.vlaanderen.omgeving.owlsda.agent.context;
 
+import be.vlaanderen.omgeving.owlsda.exception.LanguageModelException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
@@ -7,7 +8,7 @@ import java.nio.charset.StandardCharsets;
  * Factory for creating pre-loaded system contexts for worker, reviewer, and supervisor agents.
  * Contexts are loaded once from classpath resources and cached for reuse.
  */
-public class ContextFactory {
+public final class ContextFactory {
   private static volatile Context workerContext;
   private static volatile Context reviewerContext;
   private static volatile Context supervisorContext;
@@ -55,15 +56,17 @@ public class ContextFactory {
   private static Context loadFromClasspath(String path) {
     try (InputStream is = ContextFactory.class.getClassLoader().getResourceAsStream(path)) {
       if (is == null) {
-        throw new RuntimeException("Context file not found: " + path);
+        throw new LanguageModelException("Context file not found: " + path);
       }
       String content = new String(is.readAllBytes(), StandardCharsets.UTF_8);
       Context context = new Context();
       context.setType("text/plain");
       context.setContent(content);
       return context;
+    } catch (LanguageModelException e) {
+      throw e;
     } catch (Exception e) {
-      throw new RuntimeException("Failed to load context from: " + path, e);
+      throw new LanguageModelException("Failed to load context from: " + path, e);
     }
   }
 }

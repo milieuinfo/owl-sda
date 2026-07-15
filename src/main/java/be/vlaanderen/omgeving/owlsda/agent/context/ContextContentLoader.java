@@ -14,22 +14,20 @@ import java.util.Locale;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
-/**
- * Loads context files with support for plain text and PDF inputs.
- */
+/** Loads context files with support for plain text and PDF inputs. */
 public final class ContextContentLoader {
   public static final String PDF_MIME_TYPE = "application/pdf";
   public static final String TEXT_MIME_TYPE = "text/plain";
   private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(5);
   private static final Duration READ_TIMEOUT = Duration.ofSeconds(30);
 
-  private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
-      .connectTimeout(CONNECT_TIMEOUT)
-      .followRedirects(HttpClient.Redirect.NORMAL)
-      .build();
+  private static final HttpClient HTTP_CLIENT =
+      HttpClient.newBuilder()
+          .connectTimeout(CONNECT_TIMEOUT)
+          .followRedirects(HttpClient.Redirect.NORMAL)
+          .build();
 
-  private ContextContentLoader() {
-  }
+  private ContextContentLoader() {}
 
   public static String load(String filePath, String declaredType) throws IOException {
     if (isHttpUrl(filePath)) {
@@ -52,17 +50,20 @@ public final class ContextContentLoader {
   }
 
   private static String loadFromUrl(String sourceUrl, String declaredType) throws IOException {
-    HttpRequest request = HttpRequest.newBuilder()
-        .uri(URI.create(sourceUrl))
-        .timeout(READ_TIMEOUT)
-        .header("User-Agent", "owlsda-context-loader/1.0")
-        .GET()
-        .build();
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(URI.create(sourceUrl))
+            .timeout(READ_TIMEOUT)
+            .header("User-Agent", "owlsda-context-loader/1.0")
+            .GET()
+            .build();
 
     try {
-      HttpResponse<byte[]> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofByteArray());
+      HttpResponse<byte[]> response =
+          HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofByteArray());
       if (response.statusCode() < 200 || response.statusCode() >= 300) {
-        throw new IOException("Failed to fetch URL context " + sourceUrl + ": HTTP " + response.statusCode());
+        throw new IOException(
+            "Failed to fetch URL context " + sourceUrl + ": HTTP " + response.statusCode());
       }
 
       byte[] body = response.body();
@@ -112,4 +113,3 @@ public final class ContextContentLoader {
     }
   }
 }
-

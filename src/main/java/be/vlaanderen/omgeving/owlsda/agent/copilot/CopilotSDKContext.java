@@ -1,6 +1,7 @@
 package be.vlaanderen.omgeving.owlsda.agent.copilot;
 
 import be.vlaanderen.omgeving.owlsda.agent.context.Context;
+import be.vlaanderen.omgeving.owlsda.exception.LanguageModelException;
 import com.github.copilot.sdk.json.Attachment;
 import java.io.File;
 import java.io.IOException;
@@ -19,10 +20,9 @@ public class CopilotSDKContext extends Context {
   }
 
   /**
-   * Returns a valid file path for the given context.
-   * If the context already has a file path pointing to an existing file, that path is returned
-   * directly. Otherwise the in-memory content is written to a temp file so that the Copilot SDK
-   * can attach it.
+   * Returns a valid file path for the given context. If the context already has a file path
+   * pointing to an existing file, that path is returned directly. Otherwise the in-memory content
+   * is written to a temp file so that the Copilot SDK can attach it.
    */
   private static String resolveFilePath(Context context) {
     String existingPath = context.getFilePath();
@@ -32,8 +32,10 @@ public class CopilotSDKContext extends Context {
 
     String content = context.getContent();
     if (content == null) {
-      throw new IllegalArgumentException(
-          "Context '" + context.getName() + "' has neither a valid file path nor in-memory content");
+      throw new LanguageModelException(
+          "Context '"
+              + context.getName()
+              + "' has neither a valid file path nor in-memory content");
     }
 
     try {
@@ -44,7 +46,7 @@ public class CopilotSDKContext extends Context {
       context.setFilePath(tempFile.getAbsolutePath());
       return tempFile.getAbsolutePath();
     } catch (IOException e) {
-      throw new IllegalStateException(
+      throw new LanguageModelException(
           "Failed to create temp file for context '" + context.getName() + "'", e);
     }
   }
@@ -59,5 +61,3 @@ public class CopilotSDKContext extends Context {
     return super.hashCode();
   }
 }
-
-

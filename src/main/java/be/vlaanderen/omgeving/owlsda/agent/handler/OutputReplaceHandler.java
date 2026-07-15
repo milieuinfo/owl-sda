@@ -12,8 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Handler that replaces specific line ranges in the output TURTLE file.
- * Preserves content outside the specified range while replacing the target lines.
+ * Handler that replaces specific line ranges in the output TURTLE file. Preserves content outside
+ * the specified range while replacing the target lines.
  */
 public class OutputReplaceHandler implements SessionHandler {
   public static final String NAME = "output_data_replace";
@@ -46,22 +46,23 @@ public class OutputReplaceHandler implements SessionHandler {
   public Map<String, Object> getArguments() {
     return Map.of(
         "type", "object",
-        "properties", Map.of(
-            "output", Map.of(
-                "type", "string",
-                "description", "Replacement TURTLE data"
-            ),
-            "start_line", Map.of(
-                "type", "integer",
-                "description", "Start line number to replace (1-based, inclusive). Default: 1"
-            ),
-            "end_line", Map.of(
-                "type", "integer",
-                "description", "End line number to replace (1-based, inclusive). Default: last line"
-            )
-        ),
-        "required", List.of("output")
-    );
+        "properties",
+            Map.of(
+                "output",
+                    Map.of(
+                        "type", "string",
+                        "description", "Replacement TURTLE data"),
+                "start_line",
+                    Map.of(
+                        "type", "integer",
+                        "description",
+                            "Start line number to replace (1-based, inclusive). Default: 1"),
+                "end_line",
+                    Map.of(
+                        "type", "integer",
+                        "description",
+                            "End line number to replace (1-based, inclusive). Default: last line")),
+        "required", List.of("output"));
   }
 
   @Override
@@ -71,16 +72,12 @@ public class OutputReplaceHandler implements SessionHandler {
 
     if (outputFilePath == null) {
       logger.error("Output path is not configured");
-      return CompletableFuture.completedFuture(Map.of(
-          "error", "Output path is not configured"
-      ));
+      return CompletableFuture.completedFuture(Map.of("error", "Output path is not configured"));
     }
 
     if (output == null) {
       logger.warn("No output provided to replace");
-      return CompletableFuture.completedFuture(Map.of(
-          "error", "No output provided"
-      ));
+      return CompletableFuture.completedFuture(Map.of("error", "No output provided"));
     }
 
     try {
@@ -100,10 +97,14 @@ public class OutputReplaceHandler implements SessionHandler {
 
       // Parse line range (convert to 0-based for array indexing)
       // Default: replace entire file if no range specified
-      int startLine = arguments.containsKey("start_line") ?
-          ((Number) arguments.get("start_line")).intValue() - 1 : 0; // Convert to 0-based
-      int endLine = arguments.containsKey("end_line") ?
-          ((Number) arguments.get("end_line")).intValue() - 1 : totalLines - 1; // Convert to 0-based, inclusive
+      int startLine =
+          arguments.containsKey("start_line")
+              ? ((Number) arguments.get("start_line")).intValue() - 1
+              : 0; // Convert to 0-based
+      int endLine =
+          arguments.containsKey("end_line")
+              ? ((Number) arguments.get("end_line")).intValue() - 1
+              : totalLines - 1; // Convert to 0-based, inclusive
 
       // Validate and bound line numbers
       startLine = Math.max(0, Math.min(startLine, totalLines - 1));
@@ -147,45 +148,52 @@ public class OutputReplaceHandler implements SessionHandler {
       String syntaxError = TurtleSyntaxValidator.validate(newData.toString());
       if (syntaxError != null) {
         logger.warn("Rejected output_data_replace with invalid Turtle: {}", syntaxError);
-        return CompletableFuture.completedFuture(Map.of(
-            "error", "Resulting output would not be valid Turtle and was not written: " + syntaxError
-        ));
+        return CompletableFuture.completedFuture(
+            Map.of(
+                "error",
+                "Resulting output would not be valid Turtle and was not written: " + syntaxError));
       }
 
       // Write to file
-      Files.writeString(path, newData.toString(),
-          StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+      Files.writeString(
+          path,
+          newData.toString(),
+          StandardOpenOption.CREATE,
+          StandardOpenOption.TRUNCATE_EXISTING);
 
       int linesReplaced = endLine - startLine + 1;
       int newLines = output.split("\n", -1).length;
       long fileSize = Files.size(path);
       int finalTotalLines = newData.toString().split("\n", -1).length;
 
-      logger.info("Replaced lines {}-{} ({} lines) with new content ({} lines) in output file: {}",
-          startLine + 1, endLine + 1, linesReplaced, newLines, outputFilePath);
+      logger.info(
+          "Replaced lines {}-{} ({} lines) with new content ({} lines) in output file: {}",
+          startLine + 1,
+          endLine + 1,
+          linesReplaced,
+          newLines,
+          outputFilePath);
 
-      return CompletableFuture.completedFuture(Map.of(
-          "status", "success",
-          "message", "Lines replaced in output file",
-          "file_path", outputFilePath,
-          "start_line", startLine + 1, // Return 1-based line numbers
-          "end_line", endLine + 1,     // Return 1-based line numbers
-          "lines_replaced", linesReplaced,
-          "new_lines", newLines,
-          "total_lines_before", totalLines,
-          "total_lines_after", finalTotalLines,
-          "file_size", fileSize
-      ));
+      return CompletableFuture.completedFuture(
+          Map.of(
+              "status", "success",
+              "message", "Lines replaced in output file",
+              "file_path", outputFilePath,
+              "start_line", startLine + 1, // Return 1-based line numbers
+              "end_line", endLine + 1, // Return 1-based line numbers
+              "lines_replaced", linesReplaced,
+              "new_lines", newLines,
+              "total_lines_before", totalLines,
+              "total_lines_after", finalTotalLines,
+              "file_size", fileSize));
     } catch (IOException e) {
       logger.error("Failed to replace output in file: {}", outputFilePath, e);
-      return CompletableFuture.completedFuture(Map.of(
-          "error", "Failed to replace output: " + e.getMessage()
-      ));
+      return CompletableFuture.completedFuture(
+          Map.of("error", "Failed to replace output: " + e.getMessage()));
     } catch (Exception e) {
       logger.error("Error processing output replacement: {}", e.getMessage(), e);
-      return CompletableFuture.completedFuture(Map.of(
-          "error", "Error processing replacement: " + e.getMessage()
-      ));
+      return CompletableFuture.completedFuture(
+          Map.of("error", "Error processing replacement: " + e.getMessage()));
     }
   }
 }

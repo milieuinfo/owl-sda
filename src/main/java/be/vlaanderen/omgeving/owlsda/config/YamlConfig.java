@@ -6,9 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation indicating that a class can be loaded from a YAML resource.
- * resource: path to the YAML file on the classpath (e.g. "config/app.yml").
- * required: whether the file must be present.
+ * Annotation indicating that a class can be loaded from a YAML resource. resource: path to the YAML
+ * file on the classpath (e.g. "config/app.yml"). required: whether the file must be present.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
