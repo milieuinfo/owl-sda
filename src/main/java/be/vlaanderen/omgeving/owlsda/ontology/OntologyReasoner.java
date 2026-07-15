@@ -1,11 +1,9 @@
 package be.vlaanderen.omgeving.owlsda.ontology;
 
 import be.vlaanderen.omgeving.owlsda.config.Config;
-import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import org.apache.jena.rdf.model.InfModel;
 import org.apache.jena.rdf.model.Model;
@@ -139,21 +137,6 @@ public class OntologyReasoner {
     if (dir != null) {
       Files.createDirectories(dir);
     }
-    Path tmp = output.resolveSibling(output.getFileName().toString() + ".tmp");
-    try {
-      try (var out = Files.newOutputStream(tmp)) {
-        model.write(out, "TURTLE");
-      }
-      try {
-        Files.move(
-            tmp, output, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-      } catch (AtomicMoveNotSupportedException amnse) {
-        Files.move(tmp, output, StandardCopyOption.REPLACE_EXISTING);
-      }
-    } finally {
-      if (Files.exists(tmp)) {
-        Files.deleteIfExists(tmp);
-      }
-    }
+    FileUtil.writeAtomically(output, out -> model.write(out, "TURTLE"));
   }
 }

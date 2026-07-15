@@ -9,11 +9,9 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.FileTime;
 import java.security.MessageDigest;
 import java.time.Duration;
@@ -263,29 +261,11 @@ public class OntologyExtractor {
       return;
     }
     var file = cacheFileFor(reference);
-    var tmp = cacheDir.resolve(file.getFileName().toString() + ".tmp");
+    FileUtil.writeAtomically(file, out -> model.write(out, config.getExtract().getCacheFormat()));
     try {
-      try (var out = Files.newOutputStream(tmp)) {
-        model.write(out, config.getExtract().getCacheFormat());
-      }
-      try {
-        Files.move(tmp, file, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-      } catch (AtomicMoveNotSupportedException amnse) {
-        Files.move(tmp, file, StandardCopyOption.REPLACE_EXISTING);
-      }
-      try {
-        Files.setLastModifiedTime(file, FileTime.fromMillis(System.currentTimeMillis()));
-      } catch (Exception e) {
-        /* ignore */
-      }
-    } finally {
-      try {
-        if (Files.exists(tmp)) {
-          Files.deleteIfExists(tmp);
-        }
-      } catch (Exception e) {
-        /* ignore */
-      }
+      Files.setLastModifiedTime(file, FileTime.fromMillis(System.currentTimeMillis()));
+    } catch (Exception e) {
+      /* ignore */
     }
   }
 
@@ -378,63 +358,14 @@ public class OntologyExtractor {
     final int maxRedirects = 5;
 
     for (int attempt = 1; attempt <= maxAttempts; attempt++) {
-      String current = reference;
-      int redirects = 0;
       try {
-        while (true) {
-          var request =
-              HttpRequest.newBuilder()
-                  .uri(URI.create(current))
-                  .timeout(Duration.ofMillis(config.getExtract().getReadTimeoutMs()))
-                  .header("User-Agent", config.getExtract().getUserAgent())
-                  .GET()
-                  .build();
-
-          HttpResponse<byte[]> response =
-              httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
-          int status = response.statusCode();
-
-          if (status >= 200 && status < 300) {
-            var body = response.body();
-            var contentType = response.headers().firstValue("content-type");
-            var model = parseModelFromBytes(reference, body, contentType.orElse(null));
-            if (model != null) {
-              return model;
-            }
-            lastError =
-                String.format(
-                    "Unable to parse external ontology content from %s (content-type=%s)",
-                    current, contentType.orElse("<none>"));
-            break; // parsing failed, don't retry this candidate further
-          }
-
-          if (status >= 300 && status < 400) {
-            if (redirects >= maxRedirects) {
-              lastError = "Too many redirects";
-              break;
-            }
-            var loc = response.headers().firstValue("location");
-            if (loc.isPresent()) {
-              try {
-                current = URI.create(current).resolve(loc.get()).toString();
-                redirects++;
-                // debug log only for redirects
-                logger.debug("Redirecting to {} ({} of {})", current, redirects, maxRedirects);
-                continue; // follow redirect
-              } catch (Exception ex) {
-                lastError = "Invalid redirect location: " + ex.getMessage();
-                break;
-              }
-            } else {
-              lastError = "Redirect response with no Location header";
-              break;
-            }
-          }
-
-          // other non-success status -> don't retry
-          lastError = "Non-success HTTP status " + status;
-          break;
+        RedirectOutcome outcome = followRedirects(reference, maxRedirects);
+        if (outcome.model() != null) {
+          return outcome.model();
         }
+        // parsing or redirect-handling failed in a way retrying won't fix; give up.
+        lastError = outcome.error();
+        break;
       } catch (InterruptedException ie) {
         Thread.currentThread().interrupt();
         logger.warn("Interrupted while fetching {}", reference);
@@ -450,8 +381,6 @@ public class OntologyExtractor {
           continue;
         }
       }
-      // if we reach here without returning, parsing or redirects failed => don't retry further
-      break;
     }
 
     logger.warn(
@@ -459,6 +388,63 @@ public class OntologyExtractor {
         reference,
         lastError == null ? "unknown error" : lastError);
     return null;
+  }
+
+  private record RedirectOutcome(Model model, String error) {}
+
+  /** Follows redirects (up to {@code maxRedirects}) for a single fetch attempt of {@code reference}. */
+  private RedirectOutcome followRedirects(String reference, int maxRedirects)
+      throws IOException, InterruptedException {
+    String current = reference;
+    int redirects = 0;
+    while (true) {
+      var request =
+          HttpRequest.newBuilder()
+              .uri(URI.create(current))
+              .timeout(Duration.ofMillis(config.getExtract().getReadTimeoutMs()))
+              .header("User-Agent", config.getExtract().getUserAgent())
+              .GET()
+              .build();
+
+      HttpResponse<byte[]> response =
+          httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
+      int status = response.statusCode();
+
+      if (status >= 200 && status < 300) {
+        var body = response.body();
+        var contentType = response.headers().firstValue("content-type");
+        var model = parseModelFromBytes(reference, body, contentType.orElse(null));
+        if (model != null) {
+          return new RedirectOutcome(model, null);
+        }
+        return new RedirectOutcome(
+            null,
+            String.format(
+                "Unable to parse external ontology content from %s (content-type=%s)",
+                current, contentType.orElse("<none>")));
+      }
+
+      if (status >= 300 && status < 400) {
+        if (redirects >= maxRedirects) {
+          return new RedirectOutcome(null, "Too many redirects");
+        }
+        var loc = response.headers().firstValue("location");
+        if (loc.isEmpty()) {
+          return new RedirectOutcome(null, "Redirect response with no Location header");
+        }
+        try {
+          current = URI.create(current).resolve(loc.get()).toString();
+          redirects++;
+          logger.debug("Redirecting to {} ({} of {})", current, redirects, maxRedirects);
+          continue; // follow redirect
+        } catch (Exception ex) {
+          return new RedirectOutcome(null, "Invalid redirect location: " + ex.getMessage());
+        }
+      }
+
+      // other non-success status -> don't retry
+      return new RedirectOutcome(null, "Non-success HTTP status " + status);
+    }
   }
 
   private Model parseModelFromBytes(String reference, byte[] body, String contentType) {
