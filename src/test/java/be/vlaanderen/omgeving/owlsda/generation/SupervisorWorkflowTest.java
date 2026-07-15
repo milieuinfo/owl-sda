@@ -200,6 +200,42 @@ public class SupervisorWorkflowTest {
   }
 
   @Test
+  public void run_ShapesPerBatchExceedsTotalShapes_StillRunsAtLeastOneRound() throws Exception {
+    // A configured batch (batch-size * pool-count) larger than the shape count must not make the
+    // "shapes <= totalShapes" loop guard false on its very first check - that would silently skip
+    // generation entirely (0 orchestrate() calls, clean return, no error) instead of running one
+    // round covering everything.
+    Shacl shacl = shaclWithClasses("Widget", "Gadget", "Thing");
+    SessionPool workerPool = poolOf(new FakeWorkerSession());
+
+    ConcurrentWorkerBatch batch = mock(ConcurrentWorkerBatch.class);
+    when(batch.getWorkerCount()).thenReturn(1);
+    when(batch.workerSessionPool()).thenReturn(workerPool);
+    when(batch.config()).thenReturn(null);
+
+    AtomicInteger promptCount = new AtomicInteger();
+    Session silentSupervisorSession = new SilentSupervisorSession(promptCount);
+
+    OutputValidator validator = mock(OutputValidator.class);
+    when(validator.validate()).thenReturn(null);
+
+    Supervisor supervisor =
+        new Supervisor(silentSupervisorSession, validator, batch, shacl, null, null);
+
+    Config config = new Config();
+    BenchmarkService benchmarkService = new BenchmarkService(config);
+    SupervisorWorkflow workflow =
+        new SupervisorWorkflow(config, shacl, supervisor, null, benchmarkService, null, null);
+
+    // shapesPerBatch=10 exceeds totalShapes=3.
+    workflow.run(10);
+
+    assertTrue(
+        "workflow must attempt at least one round instead of silently doing nothing",
+        promptCount.get() > 0);
+  }
+
+  @Test
   public void run_DelegationSucceedsButNoShapesEverComplete_AbortsAfterNoProgressThreshold()
       throws Exception {
     // Single, always-unconstrained shape whose target class never appears in the shared store, so

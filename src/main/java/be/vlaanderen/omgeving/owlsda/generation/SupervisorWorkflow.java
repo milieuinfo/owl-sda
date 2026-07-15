@@ -100,7 +100,10 @@ public record SupervisorWorkflow(
    */
   private void runGenerationPhase(
       int shapesPerBatch, int totalShapes, int poolCount, int batchSize) {
-    int shapes = shapesPerBatch;
+    // Clamp to totalShapes: a configured batch (batch-size * pool-count) larger than the shape
+    // count must still run one (final) round covering everything, rather than making the initial
+    // "shapes <= totalShapes" loop guard false and silently skipping generation entirely.
+    int shapes = Math.min(shapesPerBatch, totalShapes);
     boolean firstPass = true;
     int consecutiveEmptyDelegationRounds = 0;
     int consecutiveNoProgressRounds = 0;
