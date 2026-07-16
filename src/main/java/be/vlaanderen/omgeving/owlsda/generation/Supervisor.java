@@ -206,7 +206,8 @@ public record Supervisor(
 
   private Map<String, String> getPlaceholders(
       int shapes, String validationContextHint, String iterationGuidance) {
-    String shapeDistribution = ShapeDistributionFormatter.format(shacl, concurrentWorkerBatch, shapes);
+    String shapeDistribution =
+        ShapeDistributionFormatter.format(shacl, concurrentWorkerBatch, shapes);
 
     Map<String, String> placeholders = new HashMap<>();
     placeholders.put("targetAgents", getTargetAgentRange());
@@ -248,7 +249,9 @@ public record Supervisor(
         + namespace
         + ">. Type every new instance's rdf:type with an IRI in this EXACT namespace (e.g. <"
         + namespace
-        + "YourClass>, or declare `@prefix : <" + namespace + ">` yourself and use `:YourClass`)."
+        + "YourClass>, or declare `@prefix : <"
+        + namespace
+        + ">` yourself and use `:YourClass`)."
         + " Do NOT bind `:`/`ex:` or any other prefix to a different namespace, and do NOT invent"
         + " any other namespace either - not a generic placeholder, not a variant of this one, not"
         + " a per-topic or per-class namespace of your own. Every class lives in the ONE namespace"
@@ -526,5 +529,4 @@ public record Supervisor(
         "Call delegate_tasks at least once with non-empty instructions, one target_agent per call.");
     return instruction.toString();
   }
-
 }

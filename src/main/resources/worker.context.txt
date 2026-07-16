@@ -55,7 +55,9 @@ VALIDATION LOOP (REQUIRED):
 TOOL USAGE EXPECTATIONS:
 - triplestore_read: query before writing to avoid duplicates.
 - triplestore_add: add missing triples for generation/fixes.
-- triplestore_remove: only for targeted corrective removals.
+- triplestore_remove: only for targeted corrective removals, always scoped to a single subject
+  URI you are responsible for (subject is required by the tool). This store is SHARED across all
+  workers - never remove triples for a subject/class outside your own delegated scope.
 - shacl_validator: verify conformance of your delegated scope.
 - worker_progress: submit structured completion status (mandatory).
 

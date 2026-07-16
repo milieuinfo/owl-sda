@@ -83,7 +83,7 @@ public class BenchmarkServiceTest {
             2);
 
     assertNotNull(snapshotId);
-    Path metadataFile = tempDir.resolve(snapshotId).resolve("metadata.txt");
+    Path metadataFile = tempDir.resolve("metadata.txt");
     assertTrue(Files.exists(metadataFile));
 
     String metadata = Files.readString(metadataFile);
@@ -106,11 +106,11 @@ public class BenchmarkServiceTest {
                 "GENERATE", 0, 1, 10L, null, null, tripleStore, List.of()),
             0);
 
-    Path ttlFile = tempDir.resolve(snapshotId).resolve("triplestore.ttl");
+    Path ttlFile = tempDir.resolve("triplestore.ttl");
     assertTrue(Files.exists(ttlFile));
     assertTrue(Files.readString(ttlFile).contains("Alice"));
 
-    Path summaryFile = tempDir.resolve(snapshotId).resolve("triplestore-summary.txt");
+    Path summaryFile = tempDir.resolve("triplestore-summary.txt");
     assertTrue(Files.exists(summaryFile));
     assertTrue(Files.readString(summaryFile).contains("Total Triples: 1"));
   }
@@ -126,7 +126,7 @@ public class BenchmarkServiceTest {
                 "GENERATE", 0, 1, 10L, null, null, emptyStore, List.of()),
             0);
 
-    Path ttlFile = tempDir.resolve(snapshotId).resolve("triplestore.ttl");
+    Path ttlFile = tempDir.resolve("triplestore.ttl");
     assertTrue(Files.exists(ttlFile));
     assertTrue(Files.readString(ttlFile).contains("empty"));
   }
@@ -145,13 +145,11 @@ public class BenchmarkServiceTest {
                 "GENERATE", 0, 1, 10L, generator, null, null, List.of()),
             0);
 
-    Path contextFile =
-        tempDir.resolve(snapshotId).resolve("supervisor_context").resolve("delegation.txt");
+    Path contextFile = tempDir.resolve("supervisor_context").resolve("delegation.txt");
     assertTrue(Files.exists(contextFile));
     assertEquals("do the work", Files.readString(contextFile));
 
-    Path messageLog =
-        tempDir.resolve(snapshotId).resolve("message_logs").resolve("supervisor-messages.json");
+    Path messageLog = tempDir.resolve("message_logs").resolve("supervisor-messages.json");
     assertTrue(Files.exists(messageLog));
     String content = Files.readString(messageLog);
     assertTrue(content.contains("hello"));
@@ -170,7 +168,7 @@ public class BenchmarkServiceTest {
   }
 
   @Test
-  public void createBatchSnapshot_DifferentStage_AlwaysCreatesNewSnapshot() throws Exception {
+  public void createBatchSnapshot_DifferentStage_AlwaysWritesAndAppendsHistory() throws Exception {
     DefaultBenchmarkSnapshotData generate =
         new DefaultBenchmarkSnapshotData("GENERATE", 0, 1, 10L, null, null, null, List.of());
     DefaultBenchmarkSnapshotData review =
@@ -181,6 +179,16 @@ public class BenchmarkServiceTest {
 
     assertNotNull(first);
     assertNotNull(second);
+
+    // Both stages land in the same run directory - metadata.txt reflects only the latest write -
+    // but each is preserved as its own entry in the history file.
+    assertTrue(Files.exists(tempDir.resolve("metadata.txt")));
+    String metadata = Files.readString(tempDir.resolve("metadata.txt"));
+    assertTrue(metadata.contains("stage=REVIEW"));
+
+    String history = Files.readString(tempDir.resolve("benchmark-summary.json"));
+    assertTrue(history.contains("GENERATE"));
+    assertTrue(history.contains("REVIEW"));
   }
 
   @Test

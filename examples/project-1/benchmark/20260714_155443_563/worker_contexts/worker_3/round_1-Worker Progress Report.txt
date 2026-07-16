@@ -1,8 +1,0 @@
-worker_id=POOL-3
-status=BLOCKED
-target_shape=MeasurementPointShape
-target_class=MeasurementPoint
-changed_triples_count=8
-created_or_updated_subjects=m:SensorPoint1
-validation_result=NON_CONFORMS
-remaining_issues=BLOCKED: Vocabulary/Predicates used do not align with the validation context provided by the SHACL validator, making conformance verification impossible. Unable to proceed without the authoritative ontology/vocabulary definitions.

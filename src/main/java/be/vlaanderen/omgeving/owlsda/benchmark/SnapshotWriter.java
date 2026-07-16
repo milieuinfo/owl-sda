@@ -27,7 +27,10 @@ class SnapshotWriter {
 
   /** Writes every part of a snapshot into an already-created {@code snapshotDir}. */
   void writeSnapshot(
-      Path snapshotDir, BenchmarkSnapshotData snapshotData, String snapshotId, int currentViolations)
+      Path snapshotDir,
+      BenchmarkSnapshotData snapshotData,
+      String snapshotId,
+      int currentViolations)
       throws IOException {
     writeMetadata(
         snapshotDir,

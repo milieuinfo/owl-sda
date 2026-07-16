@@ -1,8 +1,0 @@
-worker_id=POOL-4
-status=VERIFIED_NO_CHANGE
-target_shape=ProcessShape
-target_class=m:Process
-changed_triples_count=0
-created_or_updated_subjects=N/A
-validation_result=NON_CONFORMS
-remaining_issues=Global violations remain (25+). The most critical remaining issues involve adhering strictly to the provided ontology/SHACL vocabulary, as many predicates and classes used are unrecognized. The specific status-typing issue for m:process1 has been addressed.

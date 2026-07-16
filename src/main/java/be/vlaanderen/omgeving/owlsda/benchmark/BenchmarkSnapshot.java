@@ -14,6 +14,5 @@ public class BenchmarkSnapshot {
   private long triplestoreSize;
   private boolean triplestoreEmpty;
   private int currentViolations;
-  private String snapshotDirectory;
   private BenchmarkTokenUsage tokens;
 }

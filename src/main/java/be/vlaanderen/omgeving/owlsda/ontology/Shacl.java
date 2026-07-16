@@ -83,18 +83,22 @@ public class Shacl {
 
   /**
    * Collects every class URI this ontology/SHACL model considers legitimate: classes explicitly
-   * declared as owl:Class/rdfs:Class in the ontology, classes referenced only as an
-   * rdfs:subClassOf object (covers externally-imported vocabulary classes used purely as a
-   * parent, e.g. prov:Agent, foaf:Person), and every shape's sh:targetClass. Used by {@link
-   * #findUnknownClasses(Model)} to flag instances typed with an invented or namespace-mismatched
-   * class, which would otherwise evade every SHACL shape silently - no shape targets an unknown
-   * class, so validation never reports anything wrong with it.
+   * declared as owl:Class/rdfs:Class in the ontology, classes referenced only as an rdfs:subClassOf
+   * object (covers externally-imported vocabulary classes used purely as a parent, e.g. prov:Agent,
+   * foaf:Person), and every shape's sh:targetClass. Used by {@link #findUnknownClasses(Model)} to
+   * flag instances typed with an invented or namespace-mismatched class, which would otherwise
+   * evade every SHACL shape silently - no shape targets an unknown class, so validation never
+   * reports anything wrong with it.
    */
   public Set<String> collectKnownClassUris() {
     Set<String> known = new HashSet<>();
     if (ontology != null) {
-      ontology.listSubjectsWithProperty(RDF.type, OWL.Class).forEachRemaining(r -> addUri(known, r));
-      ontology.listSubjectsWithProperty(RDF.type, RDFS.Class).forEachRemaining(r -> addUri(known, r));
+      ontology
+          .listSubjectsWithProperty(RDF.type, OWL.Class)
+          .forEachRemaining(r -> addUri(known, r));
+      ontology
+          .listSubjectsWithProperty(RDF.type, RDFS.Class)
+          .forEachRemaining(r -> addUri(known, r));
       ontology
           .listObjectsOfProperty(RDFS.subClassOf)
           .forEachRemaining(
@@ -119,8 +123,7 @@ public class Shacl {
   public Set<String> findUnknownClasses(Model data) {
     Set<String> known = collectKnownClassUris();
     Set<String> unknown = new HashSet<>();
-    data
-        .listStatements(null, RDF.type, (RDFNode) null)
+    data.listStatements(null, RDF.type, (RDFNode) null)
         .forEachRemaining(
             stmt -> {
               RDFNode object = stmt.getObject();

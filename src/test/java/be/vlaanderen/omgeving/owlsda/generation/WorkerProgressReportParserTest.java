@@ -18,7 +18,8 @@ public class WorkerProgressReportParserTest {
   @Test
   public void isAcceptableWorkerStatus_AcceptsOnlyNonBlockedKnownStatuses() throws Exception {
     Method method =
-        WorkerProgressReportParser.class.getDeclaredMethod("isAcceptableWorkerStatus", String.class);
+        WorkerProgressReportParser.class.getDeclaredMethod(
+            "isAcceptableWorkerStatus", String.class);
     method.setAccessible(true);
 
     assertTrue((Boolean) method.invoke(null, "CREATED"));

@@ -26,22 +26,23 @@ public record TripleStoreRemoveHandler(WorkerTripleStore tripleStore, String wor
   @Override
   public String getDescription() {
     return """
-        Remove RDF triples from the SHARED triple store.
-        Specify patterns using subject, predicate, and/or object.
-        Use null or omit parameters to match any value (wildcard).
+        Remove RDF triples from the SHARED triple store - this store is written to by ALL workers
+        in the pool, not just you. A subject URI is REQUIRED so removal is always scoped to one
+        entity; predicate and/or object narrow it further within that subject. There is no
+        wildcard-subject or store-wide removal: you cannot pass a bare predicate/object to sweep
+        every subject that uses it, because that would delete other workers' unrelated data too.
 
         IMPORTANT:
-        - The store is shared across all workers
-        - Removing triples affects all workers
+        - The store is shared across all workers - only remove subjects YOU are responsible for
+          fixing, never another worker's target class/shapes
         - Blank nodes linked to removed triples are automatically cleaned up
         - Orphaned blank nodes (no longer referenced by named resources) are removed recursively
-        - Be careful when removing - coordinate with other workers
         - Use triplestore_read to verify what exists before removing
 
         Examples:
         - Remove all triples about a subject: {subject: "http://example.org/Person1"}
         - Remove specific property: {subject: "http://example.org/Person1", predicate: "http://example.org/age"}
-        - Remove all triples with a predicate: {predicate: "http://example.org/age"}
+        - Remove specific value: {subject: "http://example.org/Person1", predicate: "http://example.org/age", object: "30"}
         """;
   }
 
@@ -53,8 +54,11 @@ public record TripleStoreRemoveHandler(WorkerTripleStore tripleStore, String wor
             Map.of(
                 "subject",
                     Map.of(
-                        "type", "string",
-                        "description", "Subject URI to match (optional, null = wildcard)"),
+                        "type",
+                        "string",
+                        "description",
+                        "Subject URI to match (REQUIRED - removal cannot be unscoped since the"
+                            + " store is shared across workers)"),
                 "predicate",
                     Map.of(
                         "type", "string",
@@ -64,7 +68,7 @@ public record TripleStoreRemoveHandler(WorkerTripleStore tripleStore, String wor
                         "type", "string",
                         "description",
                             "Object URI or literal to match (optional, null = wildcard)")),
-        "required", List.of());
+        "required", List.of("subject"));
   }
 
   @Override
@@ -72,6 +76,13 @@ public record TripleStoreRemoveHandler(WorkerTripleStore tripleStore, String wor
     String subject = (String) arguments.get("subject");
     String predicate = (String) arguments.get("predicate");
     String object = (String) arguments.get("object");
+
+    if (subject == null || subject.isBlank()) {
+      return errorResult(
+          "A subject URI is required: this triple store is SHARED across all workers, so"
+              + " removing by predicate/object alone (or with no pattern at all) would delete"
+              + " other workers' data too. Scope this call to the one subject you are fixing.");
+    }
 
     try {
       int triplesRemoved =
@@ -88,8 +99,7 @@ public record TripleStoreRemoveHandler(WorkerTripleStore tripleStore, String wor
       response.put("triples_removed", triplesRemoved);
       response.put("total_triples", totalTriples);
 
-      boolean gaveAnyPattern = subject != null || predicate != null || object != null;
-      if (triplesRemoved == 0 && gaveAnyPattern) {
+      if (triplesRemoved == 0) {
         response.put(
             "warning",
             "⚠️ No triples matched this pattern, so nothing was removed. Common causes: the"

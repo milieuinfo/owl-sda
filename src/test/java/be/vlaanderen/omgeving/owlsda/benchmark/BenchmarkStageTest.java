@@ -96,8 +96,7 @@ public class BenchmarkStageTest {
     assertNotNull("Snapshot should be created", snapshotId);
 
     // Find the metadata file
-    Path snapshotDir = tempDir.resolve(snapshotId);
-    Path metadataFile = snapshotDir.resolve("metadata.txt");
+    Path metadataFile = tempDir.resolve("metadata.txt");
     assertTrue("Metadata file should exist", Files.exists(metadataFile));
 
     // Verify metadata contains stage
@@ -108,23 +107,7 @@ public class BenchmarkStageTest {
   }
 
   @Test
-  public void testBackwardCompatibilityWithMissingStage() throws Exception {
-    // Create a metadata file without stage field (simulating old format)
-    Path snapshotDir = tempDir.resolve("20260304_120000_000");
-    Files.createDirectories(snapshotDir);
-
-    Path metadataFile = snapshotDir.resolve("metadata.txt");
-    String oldFormatMetadata =
-        """
-        shapes_processed=10
-        duration_ms=2000
-        timestamp=20260304_120000_000
-        triplestore_size=100
-        triplestore_empty=false
-        current_violations=2
-        """;
-    Files.writeString(metadataFile, oldFormatMetadata);
-
+  public void testMissingStageDefaultsToGenerate() throws Exception {
     // Create config and service
     be.vlaanderen.omgeving.owlsda.config.Config config =
         new be.vlaanderen.omgeving.owlsda.config.Config();
@@ -138,13 +121,17 @@ public class BenchmarkStageTest {
 
     benchmarkService = new BenchmarkService(config);
 
-    // Generate JSON summary - should default to GENERATE for backward compatibility
+    // A null stage should fall back to GENERATE rather than propagate as "null" in metadata.txt.
+    DefaultBenchmarkSnapshotData snapshot =
+        new DefaultBenchmarkSnapshotData(null, 0, 10, 2000L, null, null, null, List.of());
+    benchmarkService.createBatchSnapshot(snapshot, 2);
+
     Path jsonFile = benchmarkService.generateJsonSummary();
     assertNotNull("JSON summary should be generated", jsonFile);
 
     String jsonContent = Files.readString(jsonFile);
     assertTrue(
-        "Should default to GENERATE stage for old snapshots", jsonContent.contains("GENERATE"));
+        "Should default to GENERATE stage for a null stage", jsonContent.contains("GENERATE"));
   }
 
   @Test
@@ -242,8 +229,7 @@ public class BenchmarkStageTest {
 
     assertNotNull("Snapshot should still be created", snapshotId);
 
-    Path contextFile =
-        tempDir.resolve(snapshotId).resolve("supervisor_context").resolve("invalid-surrogate.txt");
+    Path contextFile = tempDir.resolve("supervisor_context").resolve("invalid-surrogate.txt");
     assertTrue("Context file should exist", Files.exists(contextFile));
 
     String storedContent = Files.readString(contextFile);

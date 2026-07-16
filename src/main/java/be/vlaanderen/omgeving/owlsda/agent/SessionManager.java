@@ -109,6 +109,7 @@ public class SessionManager {
     logger.info("Initializing LLM clients and sessions...");
 
     try {
+      seedSharedTripleStorePrefixes();
       initializeWorkerSessionPool();
       initializeSupervisorSession();
       logger.info("Worker and supervisor sessions initialized successfully");
@@ -116,6 +117,26 @@ public class SessionManager {
       logger.error("Failed to initialize sessions", e);
       throw new LanguageModelException("Failed to initialize sessions: " + e.getMessage(), e);
     }
+  }
+
+  /**
+   * Registers every prefix declared in the ontology/SHACL models with the shared triple store, so
+   * {@code triplestore_add} calls that use a well-known prefix (rdf, prov, skos, ...) without
+   * declaring it themselves still parse - each call is otherwise an independent Turtle document,
+   * and smaller models routinely forget to redeclare less common prefixes from a large ontology.
+   */
+  private void seedSharedTripleStorePrefixes() {
+    if (shacl == null) {
+      return;
+    }
+    Map<String, String> prefixes = new LinkedHashMap<>();
+    if (shacl.getOntology() != null) {
+      prefixes.putAll(shacl.getOntology().getNsPrefixMap());
+    }
+    if (shacl.getModel() != null) {
+      prefixes.putAll(shacl.getModel().getNsPrefixMap());
+    }
+    sharedTripleStore.setKnownPrefixes(prefixes);
   }
 
   private void initializeWorkerSessionPool() {

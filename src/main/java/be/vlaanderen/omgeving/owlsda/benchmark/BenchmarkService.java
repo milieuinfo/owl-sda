@@ -35,8 +35,11 @@ public class BenchmarkService {
   }
 
   /**
-   * Creates a snapshot for a batch with timing information. Only creates snapshot if state has
-   * changed since last snapshot.
+   * Updates the run's benchmark snapshot in place with timing information, and appends a history
+   * entry to {@code benchmark-summary.json}. Only writes if state has changed since the last
+   * snapshot. Unlike a versioned history, message logs, contexts, and the triple store are
+   * overwritten in {@code output-dir} directly (one directory per run, not per snapshot) so the
+   * run's live state can be inspected on disk while it's still in progress.
    */
   public String createBatchSnapshot(BenchmarkSnapshotData snapshotData, int currentViolations) {
     if (!isEnabled()) {
@@ -52,26 +55,16 @@ public class BenchmarkService {
     }
 
     try {
-      long now = System.currentTimeMillis();
-      String timestamp =
+      String snapshotId =
           DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_SSS")
               .withLocale(Locale.US)
               .withZone(ZoneId.systemDefault())
-              .format(Instant.ofEpochMilli(now));
+              .format(Instant.ofEpochMilli(System.currentTimeMillis()));
 
-      String baseOutput = config.getBenchmark().getOutputDir();
-      String snapshotId = timestamp;
-      Path snapshotDir = Path.of(baseOutput, snapshotId);
-      // Millisecond-resolution timestamps can collide when snapshots are created in rapid
-      // succession (e.g. back-to-back stage transitions); disambiguate instead of silently
-      // overwriting an earlier snapshot's directory.
-      for (int suffix = 1; Files.exists(snapshotDir); suffix++) {
-        snapshotId = timestamp + "-" + suffix;
-        snapshotDir = Path.of(baseOutput, snapshotId);
-      }
-      Files.createDirectories(snapshotDir);
+      Path runDir = Path.of(config.getBenchmark().getOutputDir());
+      Files.createDirectories(runDir);
 
-      snapshotWriter.writeSnapshot(snapshotDir, snapshotData, snapshotId, currentViolations);
+      snapshotWriter.writeSnapshot(runDir, snapshotData, snapshotId, currentViolations);
 
       changeDetector.recordSnapshot(
           snapshotData.stage(),
@@ -81,18 +74,18 @@ public class BenchmarkService {
           snapshotData.workerSessions());
 
       log.info(
-          "Benchmark snapshot created: {} (triple store: {} triples, violations: {})",
-          snapshotId,
+          "Benchmark snapshot updated: stage={} (triple store: {} triples, violations: {})",
+          snapshotData.stage(),
           snapshotData.tripleStore() != null ? snapshotData.tripleStore().size() : 0,
           currentViolations);
 
-      Path jsonFile = generateJsonSummary();
+      Path jsonFile = snapshotReader.recordSnapshot(runDir);
       if (jsonFile != null) {
-        log.info("Benchmark JSON summary saved to: {}", jsonFile);
+        log.info("Benchmark JSON summary updated: {}", jsonFile);
       }
       return snapshotId;
     } catch (IOException e) {
-      log.error("Error creating benchmark snapshot", e);
+      log.error("Error updating benchmark snapshot", e);
       return null;
     }
   }
@@ -120,12 +113,15 @@ public class BenchmarkService {
   }
 
   /**
-   * Scans all benchmark snapshots in the configured output directory and generates a JSON summary.
-   * The JSON file contains an array of all snapshots with their metadata.
-   *
-   * @return Path to the generated JSON file, or null if generation failed
+   * Returns the path to this run's {@code benchmark-summary.json} history file (an array of every
+   * snapshot captured so far, appended to by {@link #createBatchSnapshot}), or null if benchmarking
+   * is disabled or no snapshot has been captured yet.
    */
   public Path generateJsonSummary() {
-    return snapshotReader.generateJsonSummary();
+    if (!isEnabled()) {
+      return null;
+    }
+    Path jsonFile = Path.of(config.getBenchmark().getOutputDir()).resolve("benchmark-summary.json");
+    return Files.exists(jsonFile) ? jsonFile : null;
   }
 }

@@ -23,15 +23,18 @@ client:
     between-message-timeout-ms: 200000
     batch-size: 5
     pool-count: 5
+    context-window-tokens: 131072
   supervisor:
     provider: "openai-compatible"
     model: "qwen3.6:35b"
     timeout-ms: 360000
+    context-window-tokens: 131072
   reviewer:
     provider: "openai-compatible"
     model: "qwen3-coder-next:80b"
     timeout-ms: 360000
     max-review-attempts: 3
+    context-window-tokens: 131072
 
 benchmark:
   enabled: true

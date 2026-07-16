@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import lombok.Getter;
 import org.apache.jena.graph.Node;
@@ -38,6 +39,13 @@ public class WorkerTripleStore {
   // re-run validation.
   private long version;
   private ValidationSnapshot cachedValidation;
+  // Prefix -> namespace URI, sourced from the ontology/SHACL models once loaded (see
+  // #setKnownPrefixes). Workers submit each triplestore_add call as an independent, self-contained
+  // Turtle document, so a call that uses a well-known prefix (rdf, prov, skos, ...) without
+  // declaring it would otherwise fail to parse; smaller models routinely forget declarations for
+  // less common prefixes buried in a large ontology, so known prefixes missing from a submission
+  // are injected automatically instead of rejecting the whole call.
+  private volatile Map<String, String> knownPrefixes = Map.of();
 
   /**
    * Create a triple store that writes triples to an output file as they are added.
@@ -48,6 +56,39 @@ public class WorkerTripleStore {
     this.model = ModelFactory.createDefaultModel();
     this.outputPath = outputPath;
     this.dirty = false;
+  }
+
+  /**
+   * Supplies the prefix -> namespace map to auto-inject into future {@link #addTriples} calls (see
+   * {@link #knownPrefixes}). Safe to call once ontology/SHACL loading completes, before any worker
+   * session starts submitting data.
+   */
+  public synchronized void setKnownPrefixes(Map<String, String> prefixes) {
+    this.knownPrefixes = prefixes != null ? Map.copyOf(prefixes) : Map.of();
+    // Also seed the store's own prefix mapping so CURIE resolution in remove/query (see
+    // #resolveUri) works immediately, without waiting for a matching @prefix to appear in some
+    // worker's add call first.
+    model.setNsPrefixes(this.knownPrefixes);
+  }
+
+  /**
+   * Prepends {@code @prefix} declarations for any {@link #knownPrefixes} entry the submission
+   * doesn't already declare itself, so a call using e.g. {@code prov:} without its own {@code
+   * @prefix prov: ...} line still parses instead of failing with "Undefined prefix". A submission
+   * that already declares a given prefix (even to a different URI) is left alone.
+   */
+  private String withMissingKnownPrefixes(String turtleData) {
+    if (knownPrefixes.isEmpty()) {
+      return turtleData;
+    }
+    StringBuilder header = new StringBuilder();
+    for (Map.Entry<String, String> entry : knownPrefixes.entrySet()) {
+      String declaration = "@prefix " + entry.getKey() + ":";
+      if (!turtleData.contains(declaration)) {
+        header.append(declaration).append(" <").append(entry.getValue()).append("> .\n");
+      }
+    }
+    return header.isEmpty() ? turtleData : header + turtleData;
   }
 
   /**
@@ -62,7 +103,8 @@ public class WorkerTripleStore {
   public synchronized AddResult addTriples(String turtleData, String workerId) {
     try {
       Model tempModel = ModelFactory.createDefaultModel();
-      RDFDataMgr.read(tempModel, new StringReader(turtleData), null, Lang.TURTLE);
+      RDFDataMgr.read(
+          tempModel, new StringReader(withMissingKnownPrefixes(turtleData)), null, Lang.TURTLE);
 
       int sizeBefore = (int) model.size();
 

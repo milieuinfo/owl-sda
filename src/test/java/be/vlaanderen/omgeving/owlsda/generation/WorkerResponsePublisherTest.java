@@ -93,7 +93,8 @@ public class WorkerResponsePublisherTest {
 
     @Override
     public void addContext(Context context) {
-      contexts.removeIf(existing -> java.util.Objects.equals(existing.getName(), context.getName()));
+      contexts.removeIf(
+          existing -> java.util.Objects.equals(existing.getName(), context.getName()));
       contexts.add(context);
     }
 

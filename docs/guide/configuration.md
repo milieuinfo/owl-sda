@@ -142,7 +142,7 @@ See the [External Ontologies](./external-ontologies) page for details.
 
 ## `benchmark`
 
-Enables benchmark snapshots captured after each generation round.
+Enables benchmark snapshots captured after each generation round, plus periodic `LIVE` snapshots while a round is still in progress.
 
 See the [Benchmarking](./benchmarking) page for details.
 

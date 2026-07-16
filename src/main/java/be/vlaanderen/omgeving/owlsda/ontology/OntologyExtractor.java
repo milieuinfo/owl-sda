@@ -392,7 +392,9 @@ public class OntologyExtractor {
 
   private record RedirectOutcome(Model model, String error) {}
 
-  /** Follows redirects (up to {@code maxRedirects}) for a single fetch attempt of {@code reference}. */
+  /**
+   * Follows redirects (up to {@code maxRedirects}) for a single fetch attempt of {@code reference}.
+   */
   private RedirectOutcome followRedirects(String reference, int maxRedirects)
       throws IOException, InterruptedException {
     String current = reference;

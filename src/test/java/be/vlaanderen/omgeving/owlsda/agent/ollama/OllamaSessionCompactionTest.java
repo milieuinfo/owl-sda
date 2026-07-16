@@ -79,6 +79,11 @@ public class OllamaSessionCompactionTest {
   }
 
   private OllamaSession newSession(Config.CompactionProperties compactionProperties) {
+    return newSession(compactionProperties, 0);
+  }
+
+  private OllamaSession newSession(
+      Config.CompactionProperties compactionProperties, int contextWindowTokens) {
     Context systemContext = new Context();
     systemContext.setContent("You are a helpful assistant.");
 
@@ -87,6 +92,7 @@ public class OllamaSessionCompactionTest {
             .model("test-model")
             .systemContext(systemContext)
             .timeoutMs(5000)
+            .contextWindowTokens(contextWindowTokens)
             .build();
 
     return new OllamaSession(
@@ -135,6 +141,50 @@ public class OllamaSessionCompactionTest {
     }
 
     assertFalse(hasCompactionLogEntry(session));
+  }
+
+  @Test
+  public void prompt_ContextWindowConfigured_IgnoresFixedTokenThreshold() {
+    // A fixed tokenThreshold of 5 would trigger compaction on the very first response (the mock
+    // server always reports prompt_eval_count=10), but contextWindowTokens>0 must switch the
+    // trigger to the ratio-based check against the real window instead of this guessed constant:
+    // 1000 tokens * default 0.75 ratio = 750, well above the reported 10, so no compaction.
+    Config.CompactionProperties compaction = new Config.CompactionProperties();
+    compaction.setEnabled(true);
+    compaction.setTokenThreshold(5);
+    compaction.setMessageCountThreshold(0);
+
+    OllamaSession session = newSession(compaction, 1000);
+
+    for (int i = 0; i < 3; i++) {
+      session.prompt(new RequestMessage("message " + i)).join();
+    }
+
+    assertFalse(
+        "contextWindowTokens must override the fixed tokenThreshold, not add to it",
+        hasCompactionLogEntry(session));
+  }
+
+  @Test
+  public void prompt_ContextWindowRatioExceeded_Compacts() {
+    // contextWindowTokens=10 * default ratio 0.75 = 7.5; the mock server's reported
+    // prompt_eval_count=10 exceeds that, so compaction must trigger via the ratio path even
+    // though the fixed tokenThreshold below is set high enough to never fire on its own.
+    Config.CompactionProperties compaction = new Config.CompactionProperties();
+    compaction.setEnabled(true);
+    compaction.setTokenThreshold(100_000);
+    compaction.setMessageCountThreshold(0);
+    compaction.setKeepRecentMessages(0);
+
+    OllamaSession session = newSession(compaction, 10);
+
+    for (int i = 0; i < 3; i++) {
+      session.prompt(new RequestMessage("message " + i)).join();
+    }
+
+    assertTrue(
+        "Expected ratio-based compaction once reported usage crossed the window ratio",
+        hasCompactionLogEntry(session));
   }
 
   @Test

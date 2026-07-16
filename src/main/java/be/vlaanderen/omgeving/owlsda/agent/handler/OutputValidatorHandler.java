@@ -235,7 +235,8 @@ public class OutputValidatorHandler implements SessionHandler {
 
     if (formatOnError) {
       String reportString =
-          formatValidationReport(report) + formatVocabularyWarning(unknownClasses, unknownPredicates);
+          formatValidationReport(report)
+              + formatVocabularyWarning(unknownClasses, unknownPredicates);
       Map<String, Object> response = new HashMap<>();
       response.put("status", "invalid");
       response.put("message", "Data does NOT conform to SHACL shapes");
@@ -277,13 +278,16 @@ public class OutputValidatorHandler implements SessionHandler {
               + "'), but this is misleading: "
               + formatVocabularyWarning(unknownClasses, unknownPredicates);
     } else {
-      content = formatValidationReport(report) + formatVocabularyWarning(unknownClasses, unknownPredicates);
+      content =
+          formatValidationReport(report)
+              + formatVocabularyWarning(unknownClasses, unknownPredicates);
     }
 
     validationContextPublisher.accept(new ValidationContext(content));
   }
 
-  private String formatVocabularyWarning(Set<String> unknownClasses, Set<String> unknownPredicates) {
+  private String formatVocabularyWarning(
+      Set<String> unknownClasses, Set<String> unknownPredicates) {
     if (unknownClasses.isEmpty() && unknownPredicates.isEmpty()) {
       return "";
     }

@@ -34,9 +34,9 @@ public class TripleStoreRemoveHandlerTest {
   }
 
   @Test
-  public void getArguments_HasNoRequiredFields() {
+  public void getArguments_RequiresSubject() {
     Map<String, Object> args = handler.getArguments();
-    assertEquals(List.of(), args.get("required"));
+    assertEquals(List.of("subject"), args.get("required"));
     @SuppressWarnings("unchecked")
     Map<String, Object> properties = (Map<String, Object>) args.get("properties");
     assertTrue(properties.containsKey("subject"));
@@ -117,5 +117,44 @@ public class TripleStoreRemoveHandlerTest {
 
     assertTrue(result.containsKey("warning"));
     assertTrue(((String) result.get("warning")).contains("triplestore_read"));
+  }
+
+  @Test
+  public void handle_NoSubject_RejectsWithoutTouchingStore() {
+    tripleStore.addTriples(
+        """
+        @prefix ex: <http://example.org/> .
+        ex:Person1 ex:name "Alice" .
+        ex:Person2 ex:name "Bob" .
+        """,
+        "worker-0");
+    assertEquals(2L, tripleStore.size());
+
+    @SuppressWarnings("unchecked")
+    Map<String, Object> result = (Map<String, Object>) handler.handle(Map.of()).join();
+
+    assertTrue("missing subject must be rejected as an error", result.containsKey("error"));
+    assertEquals(
+        "an unscoped call must not remove anything from the shared store", 2L, tripleStore.size());
+  }
+
+  @Test
+  public void handle_PredicateOnly_RejectsWithoutErasingOtherWorkersData() {
+    // A predicate shared across unrelated subjects (e.g. rdf:type/rdfs:label) must not be usable
+    // to wipe every subject that has it - that would delete other workers' data too.
+    tripleStore.addTriples(
+        """
+        @prefix ex: <http://example.org/> .
+        ex:Person1 ex:name "Alice" .
+        ex:Person2 ex:name "Bob" .
+        """,
+        "worker-0");
+
+    @SuppressWarnings("unchecked")
+    Map<String, Object> result =
+        (Map<String, Object>) handler.handle(Map.of("predicate", "http://example.org/name")).join();
+
+    assertTrue(result.containsKey("error"));
+    assertEquals(2L, tripleStore.size());
   }
 }

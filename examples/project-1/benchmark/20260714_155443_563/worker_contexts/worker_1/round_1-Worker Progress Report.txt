@@ -1,8 +1,0 @@
-worker_id=POOL-1
-status=BLOCKED
-target_shape=EmissionPointShape
-target_class=<https://example.org/ns/riepr#EmissionPoint>
-changed_triples_count=0
-created_or_updated_subjects=None
-validation_result=NON_CONFORMS
-remaining_issues=Unable to construct syntactically valid TURTLE data for the instance due to recurring "Undefined prefix" errors during triplestore_add, despite the validator report suggesting these prefixes are available. This is an environmental/context limitation preventing further conformance testing against EmissionPointShape.

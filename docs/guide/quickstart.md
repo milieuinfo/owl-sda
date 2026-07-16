@@ -71,5 +71,5 @@ cat output.ttl
 
 - Run full, ready-to-use [Examples](./examples) (including benchmark visuals).
 - Read the full [Configuration Reference](./configuration) to tune model selection, timeouts, and pool sizes.
-- Enable [Benchmarking](./benchmarking) to track token usage and violation counts per round.
+- Enable [Benchmarking](./benchmarking) to track token usage and violation counts per round, and add `--web-ui` to watch it live in a browser.
 - Add [External Ontologies](./external-ontologies) to resolve `owl:imports` automatically.

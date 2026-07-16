@@ -1,8 +1,0 @@
-worker_id=POOL-0
-status=BLOCKED
-target_shape=InstallationShape
-target_class=Installation
-changed_triples_count=0
-created_or_updated_subjects=N/A
-validation_result=NON_CONFORMS
-remaining_issues=Cannot resolve remaining 36 violations due to uncommitted changes to m:Installation1 in the triplestore and ambiguity in SHACL schema expectations regarding ADMS classes.

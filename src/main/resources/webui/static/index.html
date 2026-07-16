@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OWL-SDA | Run Dashboard</title>
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">OWL-SDA</span>
+      <span class="brand-sub">Run Dashboard</span>
+    </div>
+    <div class="topbar-status">
+      <span id="stage-badge" class="badge badge-muted">no data yet</span>
+      <span id="conn-indicator" class="conn-dot" title="Live updates"></span>
+      <span id="last-updated" class="muted"></span>
+    </div>
+  </header>
+
+  <div id="empty-state" class="empty-state hidden">
+    <h2>Waiting for benchmark data&hellip;</h2>
+    <p>
+      No benchmark output found yet. Make sure <code>benchmark.enabled: true</code> is set in
+      your config, then start (or continue) a run &mdash; this page updates automatically.
+    </p>
+  </div>
+
+  <main id="main-content" class="main-content hidden">
+    <aside class="sidebar">
+      <h3>Stages</h3>
+      <div id="stage-list" class="stage-list"></div>
+    </aside>
+
+    <section class="content">
+      <div class="stat-row" id="stat-row"></div>
+
+      <nav class="tabs">
+        <button class="tab-btn active" data-tab="messages">Messages</button>
+        <button class="tab-btn" data-tab="output">Output</button>
+        <button class="tab-btn" data-tab="triplestore">Triple Store</button>
+      </nav>
+
+      <div id="tab-messages" class="tab-panel active">
+        <div class="role-tabs" id="role-tabs"></div>
+        <div class="messages" id="messages"></div>
+      </div>
+
+      <div id="tab-output" class="tab-panel">
+        <div class="file-meta" id="output-meta"></div>
+        <pre class="file-view" id="output-view"></pre>
+      </div>
+
+      <div id="tab-triplestore" class="tab-panel">
+        <div class="file-meta" id="triplestore-meta"></div>
+        <pre class="file-view" id="triplestore-view"></pre>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>

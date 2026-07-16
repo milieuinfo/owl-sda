@@ -164,6 +164,10 @@ public class Config {
       private int betweenMessageTimeoutMs = 0;
       private int batchSize = 5;
       private int poolCount = 1;
+      // This model's real context window in tokens, as configured on the inference server (e.g.
+      // llama.cpp/llama-swap --ctx-size). 0 means unset: compaction falls back to
+      // CompactionProperties' fixed token-count threshold instead of a window-relative ratio.
+      private int contextWindowTokens = 0;
     }
 
     @Setter
@@ -177,6 +181,8 @@ public class Config {
       private int timeoutMs = 120000; // Supervisor may need more time for orchestration
       // Max idle time between assistant events (messages/tool requests). 0 disables this guard.
       private int betweenMessageTimeoutMs = 0;
+      // This model's real context window in tokens; see WorkerProperties#contextWindowTokens.
+      private int contextWindowTokens = 0;
     }
 
     @Setter
@@ -193,6 +199,8 @@ public class Config {
       // Soft limit for review iterations; on the last attempt reviewer must choose ACCEPTED or
       // REJECTED.
       private int maxReviewAttempts = 3;
+      // This model's real context window in tokens; see WorkerProperties#contextWindowTokens.
+      private int contextWindowTokens = 0;
     }
   }
 
@@ -285,6 +293,10 @@ public class Config {
   public static class BenchmarkProperties {
     private boolean enabled = false;
     private String outputDir = "target/benchmarks";
+    // How often (in seconds) a live snapshot is captured while a round/review iteration is in
+    // progress, so message logs and other benchmark output update during a run instead of only
+    // at round/iteration boundaries.
+    private long liveIntervalSeconds = 15;
   }
 
   @Getter
@@ -347,8 +359,15 @@ public class Config {
   @YamlConfig
   public static class CompactionProperties {
     private boolean enabled = true;
-    // Primary trigger: estimated tokens currently in a session's message history.
+    // Fallback trigger used only when a session's SessionConfig#contextWindowTokens is unset (0):
+    // estimated tokens currently in a session's message history. Prefer configuring each role's
+    // context-window-tokens instead, so compaction triggers relative to the model's real context
+    // window (see #contextWindowThresholdRatio) rather than this guessed absolute count.
     private int tokenThreshold = 6000;
+    // Primary trigger when a role's context-window-tokens is configured (>0): compaction fires
+    // once the last reported prompt token usage reaches this fraction of the model's real context
+    // window, e.g. 0.75 = compact once 75% of the actual context window is used.
+    private double contextWindowThresholdRatio = 0.75;
     // Secondary OR-trigger: raw message count. 0 disables this trigger.
     private int messageCountThreshold = 40;
     // Number of most-recent messages (after the system message) preserved verbatim.

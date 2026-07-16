@@ -121,8 +121,7 @@ public record HttpCallHandler(
           () -> execute(uri, method, body));
     } catch (RetryableHttpException e) {
       return Map.of(
-          "error",
-          "Request failed after " + (maxRetries + 1) + " attempt(s): " + e.getMessage());
+          "error", "Request failed after " + (maxRetries + 1) + " attempt(s): " + e.getMessage());
     } catch (Exception e) {
       return Map.of("error", "Request failed: " + e.getMessage());
     }

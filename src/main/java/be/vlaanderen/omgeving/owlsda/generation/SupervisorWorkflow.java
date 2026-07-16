@@ -13,6 +13,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
@@ -67,7 +70,65 @@ public record SupervisorWorkflow(
     int poolCount = (config != null) ? config.getPoolCount() : 1;
     int batchSize = (config != null) ? config.getBatchSize() : 1;
 
-    runGenerationPhase(shapesPerBatch, totalShapes, poolCount, batchSize);
+    ScheduledExecutorService liveSnapshotTicker = startLiveSnapshotTicker();
+    try {
+      runGenerationPhase(shapesPerBatch, totalShapes, poolCount, batchSize);
+    } finally {
+      stopLiveSnapshotTicker(liveSnapshotTicker);
+    }
+  }
+
+  /**
+   * Starts a background ticker that periodically flushes a benchmark snapshot of the currently-live
+   * session state (message logs, contexts, triple store) while a round or review iteration is still
+   * in progress. Without this, benchmark output only updates at round/review boundaries, which can
+   * be minutes apart, making a running benchmark look frozen. Returns {@code null} when
+   * benchmarking is disabled so {@link #stopLiveSnapshotTicker} is a no-op.
+   */
+  private ScheduledExecutorService startLiveSnapshotTicker() {
+    if (benchmarkService == null || !benchmarkService.isEnabled()) {
+      return null;
+    }
+
+    long intervalSeconds =
+        config != null && config.getBenchmark() != null
+            ? Math.max(1, config.getBenchmark().getLiveIntervalSeconds())
+            : 15;
+
+    ScheduledExecutorService executor =
+        Executors.newSingleThreadScheduledExecutor(
+            runnable -> {
+              Thread thread = new Thread(runnable, "benchmark-live-snapshot");
+              thread.setDaemon(true);
+              return thread;
+            });
+    executor.scheduleWithFixedDelay(
+        this::captureLiveSnapshot, intervalSeconds, intervalSeconds, TimeUnit.SECONDS);
+    return executor;
+  }
+
+  private void stopLiveSnapshotTicker(ScheduledExecutorService executor) {
+    if (executor == null) {
+      return;
+    }
+    executor.shutdown();
+    try {
+      if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+        executor.shutdownNow();
+      }
+    } catch (InterruptedException e) {
+      executor.shutdownNow();
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  private void captureLiveSnapshot() {
+    try {
+      captureBenchmarkSnapshot("LIVE", System.currentTimeMillis());
+    } catch (Exception e) {
+      // A scheduled task that throws stops running entirely, so swallow and keep ticking.
+      logger.debug("Live benchmark snapshot failed: {}", e.getMessage());
+    }
   }
 
   private boolean hasValidShaclShapes() {

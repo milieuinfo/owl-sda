@@ -32,6 +32,14 @@ public record TripleStoreAddHandler(WorkerTripleStore tripleStore, String worker
         Add RDF triples to the SHARED triple store.
         All workers contribute to the same store, enabling collaboration.
 
+        SYNTAX: `data` must be a complete, self-contained Turtle document - every call is parsed on
+        its own, so prefixes declared in an earlier call are NOT remembered. Well-known prefixes
+        used anywhere in the ontology (rdf, rdfs, owl, dc, xsd, prov, skos, sosa, ssn, ssn-system,
+        ...) are auto-declared for you if you omit them, but any prefix you invent yourself still
+        needs its own `@prefix` line. If a call is rejected, the error names the exact problem
+        (undefined prefix, malformed IRI, wrong term position); fix that one thing and resubmit -
+        don't guess at a different rewrite.
+
         IMPORTANT:
         - The store is shared across all workers
         - Duplicate triples will be detected and reported

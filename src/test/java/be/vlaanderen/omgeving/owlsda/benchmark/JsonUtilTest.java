@@ -33,7 +33,6 @@ public class JsonUtilTest {
             .triplestoreSize(42L)
             .triplestoreEmpty(false)
             .currentViolations(1)
-            .snapshotDirectory("20260713_120000_000")
             .build();
 
     String json = JsonUtil.toJson(List.of(snapshot));

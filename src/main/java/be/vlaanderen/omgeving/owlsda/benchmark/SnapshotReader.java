@@ -3,7 +3,6 @@ package be.vlaanderen.omgeving.owlsda.benchmark;
 import be.vlaanderen.omgeving.owlsda.config.Config;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -13,7 +12,13 @@ import java.util.Map;
 import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 
-/** Scans benchmark snapshot directories on disk and assembles a JSON summary of all of them. */
+/**
+ * Reads a run's current {@code metadata.txt} and appends it as one entry to {@code
+ * benchmark-summary.json}, the growing history of every snapshot captured during the run. Unlike
+ * the rest of a snapshot (message logs, contexts, triple store), this history file is additive
+ * rather than overwritten in place, since it's what {@code scripts/plot_benchmark.py} reads to
+ * chart progress over time.
+ */
 @Slf4j
 class SnapshotReader {
 
@@ -24,83 +29,62 @@ class SnapshotReader {
   }
 
   /**
-   * Scans all benchmark snapshots in the configured output directory and generates a JSON summary.
-   * The JSON file contains an array of all snapshots with their metadata.
+   * Reads {@code runDir/metadata.txt} (just written by {@link SnapshotWriter}) and appends it to
+   * {@code runDir/benchmark-summary.json}.
    *
-   * @return Path to the generated JSON file, or null if generation failed
+   * @return Path to the updated JSON file, or null if benchmarking is disabled or no metadata
+   *     exists yet.
    */
-  Path generateJsonSummary() {
+  Path recordSnapshot(Path runDir) {
     if (config.getBenchmark() == null || !config.getBenchmark().isEnabled()) {
-      log.warn("Benchmarking is not enabled, cannot generate JSON summary");
+      log.warn("Benchmarking is not enabled, cannot record snapshot history");
+      return null;
+    }
+
+    Path metadataFile = runDir.resolve("metadata.txt");
+    if (!Files.exists(metadataFile)) {
+      log.warn("No metadata.txt found in {}, cannot record snapshot history", runDir);
+      return null;
+    }
+
+    BenchmarkSnapshot latest = readSnapshotMetadata(metadataFile);
+    if (latest == null) {
       return null;
     }
 
     try {
-      String baseOutput = config.getBenchmark().getOutputDir();
-      Path outputDir = Path.of(baseOutput);
+      Path jsonFile = runDir.resolve("benchmark-summary.json");
+      List<BenchmarkSnapshot> history = readExistingHistory(jsonFile);
+      history.add(latest);
 
-      if (!Files.exists(outputDir)) {
-        log.warn("Benchmark output directory does not exist: {}", outputDir);
-        return null;
-      }
-
-      List<BenchmarkSnapshot> snapshots = scanSnapshots(outputDir);
-
-      if (snapshots.isEmpty()) {
-        log.info("No benchmark snapshots found in {}", outputDir);
-        return null;
-      }
-
-      Path jsonFile = outputDir.resolve("benchmark-summary.json");
-      String jsonContent = JsonUtil.toJson(snapshots);
-      Files.writeString(jsonFile, jsonContent);
-
+      Files.writeString(jsonFile, JsonUtil.toJson(history));
       log.info(
-          "Generated benchmark summary JSON with {} snapshots at: {}", snapshots.size(), jsonFile);
+          "Appended benchmark snapshot to summary ({} total) at: {}", history.size(), jsonFile);
       return jsonFile;
     } catch (IOException e) {
-      log.error("Error generating benchmark JSON summary", e);
+      log.error("Error recording benchmark snapshot history", e);
       return null;
     }
   }
 
-  /**
-   * Scans the benchmark output directory for all snapshot folders and reads their metadata.
-   *
-   * @param outputDir The benchmark output directory to scan
-   * @return List of BenchmarkSnapshot objects
-   */
-  private List<BenchmarkSnapshot> scanSnapshots(Path outputDir) throws IOException {
-    List<BenchmarkSnapshot> snapshots = new ArrayList<>();
-
-    try (DirectoryStream<Path> stream = Files.newDirectoryStream(outputDir)) {
-      for (Path entry : stream) {
-        if (Files.isDirectory(entry)) {
-          Path metadataFile = entry.resolve("metadata.txt");
-          if (Files.exists(metadataFile)) {
-            BenchmarkSnapshot snapshot = readSnapshotMetadata(entry, metadataFile);
-            if (snapshot != null) {
-              snapshots.add(snapshot);
-            }
-          }
-        }
-      }
+  private List<BenchmarkSnapshot> readExistingHistory(Path jsonFile) {
+    if (!Files.exists(jsonFile)) {
+      return new ArrayList<>();
     }
-
-    // Sort by timestamp
-    snapshots.sort((a, b) -> a.getTimestamp().compareTo(b.getTimestamp()));
-
-    return snapshots;
+    try {
+      String content = Files.readString(jsonFile);
+      return new ArrayList<>(JsonUtil.fromJsonSnapshotList(content));
+    } catch (Exception e) {
+      log.warn(
+          "Failed to read existing benchmark summary at {}, starting a new history: {}",
+          jsonFile,
+          e.getMessage());
+      return new ArrayList<>();
+    }
   }
 
-  /**
-   * Reads metadata from a benchmark snapshot directory.
-   *
-   * @param snapshotDir The snapshot directory
-   * @param metadataFile The metadata.txt file
-   * @return BenchmarkSnapshot object or null if reading failed
-   */
-  private BenchmarkSnapshot readSnapshotMetadata(Path snapshotDir, Path metadataFile) {
+  /** Reads metadata from a {@code metadata.txt} file. */
+  private BenchmarkSnapshot readSnapshotMetadata(Path metadataFile) {
     try {
       Properties props = new Properties();
       try (BufferedReader reader = Files.newBufferedReader(metadataFile)) {
@@ -110,7 +94,6 @@ class SnapshotReader {
       return BenchmarkSnapshot.builder()
           .timestamp(props.getProperty("timestamp", "unknown"))
           .stage(props.getProperty("stage", "GENERATE"))
-          .snapshotDirectory(snapshotDir.getFileName().toString())
           .shapesProcessed(parseInt(props.getProperty("shapes_processed"), 0))
           .durationMs(parseLong(props.getProperty("duration_ms")))
           .triplestoreSize(parseLong(props.getProperty("triplestore_size")))
