@@ -206,6 +206,54 @@ public class SessionManagerTest {
   }
 
   // ---------------------------------------------------------------------
+  // addContextToSupervisorAndReviewer
+  // ---------------------------------------------------------------------
+
+  @Test
+  public void addContextToSupervisorAndReviewer_SkipsWorkerSessions() throws Exception {
+    FakeSession worker0 = new FakeSession();
+    FakeSession worker1 = new FakeSession();
+    setField(manager, "workerSessionPool", poolOf(worker0, worker1));
+    FakeSession supervisorSession = new FakeSession();
+    setField(manager, "supervisorSession", supervisorSession);
+    FakeSession reviewerSession = new FakeSession();
+    setField(manager, "reviewerSession", reviewerSession);
+
+    Context context = new Context();
+    context.setName("Ontology");
+    context.setType("text/turtle");
+    context.setContent("ex:Thing a owl:Class .");
+
+    manager.addContextToSupervisorAndReviewer(context);
+
+    assertEquals("ex:Thing a owl:Class .", contentOf(supervisorSession, "Ontology"));
+    assertEquals("ex:Thing a owl:Class .", contentOf(reviewerSession, "Ontology"));
+    assertTrue("workers must not receive the context", worker0.contexts.isEmpty());
+    assertTrue("workers must not receive the context", worker1.contexts.isEmpty());
+  }
+
+  @Test
+  public void
+      addContextToSupervisorAndReviewer_ReviewerNotYetInitialized_SkipsReviewerWithoutError()
+          throws Exception {
+    FakeSession worker0 = new FakeSession();
+    setField(manager, "workerSessionPool", poolOf(worker0));
+    FakeSession supervisorSession = new FakeSession();
+    setField(manager, "supervisorSession", supervisorSession);
+    // reviewerSession left null - simulates a run where review has not started yet.
+
+    Context context = new Context();
+    context.setName("Ontology");
+    context.setContent("ex:Thing a owl:Class .");
+
+    manager.addContextToSupervisorAndReviewer(context);
+
+    assertEquals("ex:Thing a owl:Class .", contentOf(supervisorSession, "Ontology"));
+    assertTrue(worker0.contexts.isEmpty());
+    assertNull(manager.getReviewerSessionIfInitialized());
+  }
+
+  // ---------------------------------------------------------------------
   // shutdown()
   // ---------------------------------------------------------------------
 

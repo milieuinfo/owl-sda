@@ -1,12 +1,19 @@
 POOL-0 [STRUCTURED_PROGRESS]:
 worker_id=POOL-0
-status=VERIFIED_NO_CHANGE
+status=FIXED
 target_shape=InstallationShape
 target_class=https://example.org/ns/riepr#Installation
-changed_triples_count=5
-created_or_updated_subjects=https://example.org/ns/riepr#actief
+changed_triples_count=53
+created_or_updated_subjects=:Installation_1, :Installation_2, :OperationLocation_1, :OperationLocation_2, :Operator_1, :Operator_2, :Address_Operator1, :Address_Operator2, :RoleType_Operator, :actief
 validation_result=CONFORMS
-remaining_issues=NONE - Installation instances already existed and conform. Added :actief status resource to fix ClassConstraint violation. No violations on :Installation focus nodes.
+remaining_issues=None. All Installation instances conform to InstallationShape constraints. The validator reports 0 violations for the store. Some unrecognized classes/predicates warnings are from vocabulary not constrained by any SHACL shape (e.g., ogc:Geometry, locn:Address) - these are valid ontology terms used correctly but not part of SHACL validation rules.
 
-POOL-1 [INBOUND]:
-Now I have a clear picture. Let me check the SHACL context for EmissionPoint and OperationLocation shapes:
+POOL-1 [STRUCTURED_PROGRESS]:
+worker_id=POOL-1
+status=VERIFIED_NO_CHANGE
+target_shape=EmissionPointShape
+target_class=https://example.org/ns/riepr#EmissionPoint
+changed_triples_count=14
+created_or_updated_subjects=:EmissionPoint_1, :EmissionPoint_2
+validation_result=CONFORMS
+remaining_issues=None. Both EmissionPoint instances conform to their SHACL shape. The 0 violations reported by the validator confirm conformance. Systemic vocabulary warnings (unrecognized_classes: adms:Status, DCMIType, Geometry, Address; unrecognized_predicates: asWKT, streetAddress, prefLabel) are present in other workers' data and are outside the EmissionPoint scope.

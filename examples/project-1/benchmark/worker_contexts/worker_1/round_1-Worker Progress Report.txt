@@ -1,0 +1,8 @@
+worker_id=POOL-1
+status=VERIFIED_NO_CHANGE
+target_shape=EmissionPointShape
+target_class=https://example.org/ns/riepr#EmissionPoint
+changed_triples_count=14
+created_or_updated_subjects=:EmissionPoint_1, :EmissionPoint_2
+validation_result=CONFORMS
+remaining_issues=None. Both EmissionPoint instances conform to their SHACL shape. The 0 violations reported by the validator confirm conformance. Systemic vocabulary warnings (unrecognized_classes: adms:Status, DCMIType, Geometry, Address; unrecognized_predicates: asWKT, streetAddress, prefLabel) are present in other workers' data and are outside the EmissionPoint scope.

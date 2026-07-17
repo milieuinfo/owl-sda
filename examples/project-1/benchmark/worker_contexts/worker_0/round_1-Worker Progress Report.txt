@@ -1,8 +1,8 @@
 worker_id=POOL-0
-status=VERIFIED_NO_CHANGE
+status=FIXED
 target_shape=InstallationShape
 target_class=https://example.org/ns/riepr#Installation
-changed_triples_count=5
-created_or_updated_subjects=https://example.org/ns/riepr#actief
+changed_triples_count=53
+created_or_updated_subjects=:Installation_1, :Installation_2, :OperationLocation_1, :OperationLocation_2, :Operator_1, :Operator_2, :Address_Operator1, :Address_Operator2, :RoleType_Operator, :actief
 validation_result=CONFORMS
-remaining_issues=NONE - Installation instances already existed and conform. Added :actief status resource to fix ClassConstraint violation. No violations on :Installation focus nodes.
+remaining_issues=None. All Installation instances conform to InstallationShape constraints. The validator reports 0 violations for the store. Some unrecognized classes/predicates warnings are from vocabulary not constrained by any SHACL shape (e.g., ogc:Geometry, locn:Address) - these are valid ontology terms used correctly but not part of SHACL validation rules.

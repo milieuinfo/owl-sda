@@ -24,72 +24,80 @@
 @prefix vann:       <http://purl.org/vocab/vann/> .
 @prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
 
-:OperationLocation-002
-        rdf:type              :OperationLocation ;
-        rdfs:label            "Chemical Plant Ghent Site"@en ;
-        dc:created            "2024-02-01T09:00:00"^^xsd:dateTime ;
-        dc:issued             "2024-02-01"^^xsd:date ;
-        dc:modified           "2024-06-20T14:30:00"^^xsd:dateTime ;
+:OperationLocation_2  rdf:type  :OperationLocation ;
+        rdfs:label            "MyGlass factory Ghent"@en ;
+        dc:created            "2020-11-01T00:00:00"^^xsd:dateTime ;
+        dc:issued             "2020-11-01"^^xsd:date ;
+        dc:modified           "2024-07-20T14:00:00"^^xsd:dateTime ;
         ogc:hasGeometry       [ rdf:type   ogc:Geometry ;
-                                ogc:asWKT  "POINT(3.7174 51.0543)"^^ogc:wktLiteral
+                                ogc:asWKT  "POINT(3.7259 51.0543)"^^ogc:wktLiteral
                               ] ;
-        prov:wasAttributedTo  :Installation-002 .
+        prov:wasAttributedTo  :Operator_2 .
 
-:Installation-002  rdf:type  :Installation ;
-        rdfs:label       "Chemical Processing Installation 1"@en ;
-        dc:created       "2023-06-15T08:00:00"^^xsd:dateTime ;
-        dc:issued        "2023-07-01"^^xsd:date ;
-        dc:modified      "2024-06-20T14:30:00"^^xsd:dateTime ;
+:Address_Operator1  rdf:type  locn:Address ;
+        rdfs:label          "Central Control Office, Amsterdam"@en ;
+        locn:streetAddress  "Hoofdstraat 1"@en .
+
+:EmissionPoint_2  rdf:type  :EmissionPoint ;
+        rdfs:label       "Wastewater discharge point"@en ;
+        dc:created       "2021-03-15T08:00:00"^^xsd:dateTime ;
+        dc:issued        "2021-03-15"^^xsd:date ;
+        dc:modified      "2024-07-20T14:00:00"^^xsd:dateTime ;
         adms:status      :actief ;
-        sosa:isHostedBy  :OperationLocation-002 .
+        sosa:isHostedBy  :OperationLocation_2 .
 
-:EmissionPoint-001  rdf:type  :EmissionPoint ;
-        rdfs:label       "Stack 1 Glass Factory"@en ;
-        dbo:diameter     2.5 ;
-        dbo:height       "30"^^xsd:decimal ;
-        dc:created       "2024-01-15T10:00:00"^^xsd:dateTime ;
-        dc:issued        "2024-01-01"^^xsd:date ;
-        dc:modified      "2024-01-15T10:00:00"^^xsd:dateTime ;
-        dc:type          concept:stack ;
-        ogc:hasGeometry  [ rdf:type   ogc:Geometry ;
-                           ogc:asWKT  "POINT(4.4026 51.2195)"^^ogc:wktLiteral
-                         ] ;
+:Installation_2  rdf:type  :Installation ;
+        rdfs:label       "Glass melting furnace MyGlass"@en ;
+        dc:created       "2021-03-15T09:00:00"^^xsd:dateTime ;
+        dc:issued        "2021-03-15"^^xsd:date ;
+        dc:modified      "2024-07-20T14:00:00"^^xsd:dateTime ;
         adms:status      :actief ;
-        sosa:isHostedBy  :OperationLocation-001 .
+        sosa:isHostedBy  :OperationLocation_2 .
 
-:actief  rdf:type       adms:Status , skos:Concept ;
+:Operator_2  rdf:type  :Operator ;
+        rdfs:label    "Maintenance Supervisor"@en ;
+        dc:type       :RoleType_Operator ;
+        locn:address  :Address_Operator2 .
+
+:actief  rdf:type       skos:Concept , adms:Status ;
         rdfs:comment    "The active status indicates that an entity is currently in use."@en ;
         rdfs:label      "Active"@en ;
         skos:prefLabel  "Active"@en .
 
-:OperationLocation-001
-        rdf:type              :OperationLocation ;
-        rdfs:label            "Glass Factory Antwerp Site"@en ;
-        dc:created            "2024-01-15T10:00:00"^^xsd:dateTime ;
-        dc:issued             "2024-01-01"^^xsd:date ;
-        dc:modified           "2024-01-15T10:00:00"^^xsd:dateTime ;
+:RoleType_Operator  rdf:type  dc:DCMIType ;
+        rdfs:label  "Operator Role"@en .
+
+:Address_Operator2  rdf:type  locn:Address ;
+        rdfs:label          "Maintenance Workshop, Rotterdam"@en ;
+        locn:streetAddress  "Industrieweg 42"@en .
+
+:OperationLocation_1  rdf:type  :OperationLocation ;
+        rdfs:label            "Cement factory Antwerp site"@en ;
+        dc:created            "2019-12-01T00:00:00"^^xsd:dateTime ;
+        dc:issued             "2019-12-01"^^xsd:date ;
+        dc:modified           "2024-06-15T10:30:00"^^xsd:dateTime ;
         ogc:hasGeometry       [ rdf:type   ogc:Geometry ;
                                 ogc:asWKT  "POINT(4.4025 51.2194)"^^ogc:wktLiteral
                               ] ;
-        prov:wasAttributedTo  :Installation-001 .
+        prov:wasAttributedTo  :Operator_1 .
 
-:EmissionPoint-002  rdf:type  :EmissionPoint ;
-        rdfs:label       "Discharge Point 1 Chemical Plant"@en ;
-        dbo:depth        "5"^^xsd:decimal ;
-        dc:created       "2024-02-01T09:00:00"^^xsd:dateTime ;
-        dc:issued        "2024-02-01"^^xsd:date ;
-        dc:modified      "2024-02-01T09:00:00"^^xsd:dateTime ;
-        dc:type          concept:discharge_point ;
-        ogc:hasGeometry  [ rdf:type   ogc:Geometry ;
-                           ogc:asWKT  "POINT(3.7175 51.0544)"^^ogc:wktLiteral
-                         ] ;
+:EmissionPoint_1  rdf:type  :EmissionPoint ;
+        rdfs:label       "Stack 1 - Cement kiln flue gas"@en ;
+        dc:created       "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued        "2020-01-01"^^xsd:date ;
+        dc:modified      "2024-06-15T10:30:00"^^xsd:dateTime ;
         adms:status      :actief ;
-        sosa:isHostedBy  :OperationLocation-002 .
+        sosa:isHostedBy  :OperationLocation_1 .
 
-:Installation-001  rdf:type  :Installation ;
-        rdfs:label       "Glass Production Installation 1"@en ;
-        dc:created       "2024-01-15T10:00:00"^^xsd:dateTime ;
-        dc:issued        "2024-01-01"^^xsd:date ;
-        dc:modified      "2024-01-15T10:00:00"^^xsd:dateTime ;
+:Installation_1  rdf:type  :Installation ;
+        rdfs:label       "Cement production line Antwerp"@en ;
+        dc:created       "2020-01-01T08:00:00"^^xsd:dateTime ;
+        dc:issued        "2020-01-01"^^xsd:date ;
+        dc:modified      "2024-06-15T10:30:00"^^xsd:dateTime ;
         adms:status      :actief ;
-        sosa:isHostedBy  :OperationLocation-001 .
+        sosa:isHostedBy  :OperationLocation_1 .
+
+:Operator_1  rdf:type  :Operator ;
+        rdfs:label    "Central Control Operator"@en ;
+        dc:type       :RoleType_Operator ;
+        locn:address  :Address_Operator1 .

@@ -1,0 +1,35 @@
+[
+  {
+    "timestamp": "20260717_091655_480",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 15004,
+    "triplestoreSize": 0,
+    "triplestoreEmpty": true,
+    "currentViolations": -1,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        },
+        "worker_1": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      }
+    }
+  }
+]

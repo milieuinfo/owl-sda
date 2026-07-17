@@ -3,6 +3,7 @@ package be.vlaanderen.omgeving.owlsda.benchmark;
 import be.vlaanderen.omgeving.owlsda.agent.Session;
 import be.vlaanderen.omgeving.owlsda.agent.handler.WorkerTripleStore;
 import be.vlaanderen.omgeving.owlsda.config.Config;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,6 +12,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 
 /** Service for managing benchmark snapshots and timing measurements. */
@@ -38,10 +40,15 @@ public class BenchmarkService {
    * Updates the run's benchmark snapshot in place with timing information, and appends a history
    * entry to {@code benchmark-summary.json}. Only writes if state has changed since the last
    * snapshot. Unlike a versioned history, message logs, contexts, and the triple store are
-   * overwritten in {@code output-dir} directly (one directory per run, not per snapshot) so the
-   * run's live state can be inspected on disk while it's still in progress.
+   * overwritten in {@code output-dir/live} directly (one directory per run, not per snapshot) so
+   * the run's live state can be inspected on disk while it's still in progress. Callers include
+   * both the workflow thread (at round/review boundaries) and a periodic live-snapshot ticker
+   * running on its own thread, so every read-modify-write against {@code metadata.txt} and {@code
+   * benchmark-summary.json} - and the {@link ChangeDetector} state driving it - must happen under
+   * this single lock, or interleaved writes can corrupt/drop history entries.
    */
-  public String createBatchSnapshot(BenchmarkSnapshotData snapshotData, int currentViolations) {
+  public synchronized String createBatchSnapshot(
+      BenchmarkSnapshotData snapshotData, int currentViolations) {
     if (!isEnabled()) {
       return null;
     }
@@ -61,7 +68,7 @@ public class BenchmarkService {
               .withZone(ZoneId.systemDefault())
               .format(Instant.ofEpochMilli(System.currentTimeMillis()));
 
-      Path runDir = Path.of(config.getBenchmark().getOutputDir());
+      Path runDir = liveDir();
       Files.createDirectories(runDir);
 
       snapshotWriter.writeSnapshot(runDir, snapshotData, snapshotId, currentViolations);
@@ -121,7 +128,67 @@ public class BenchmarkService {
     if (!isEnabled()) {
       return null;
     }
-    Path jsonFile = Path.of(config.getBenchmark().getOutputDir()).resolve("benchmark-summary.json");
+    Path jsonFile = liveDir().resolve("benchmark-summary.json");
     return Files.exists(jsonFile) ? jsonFile : null;
+  }
+
+  /**
+   * Moves a previous run's live snapshot (if one exists in {@code output-dir/live}) into {@code
+   * output-dir/archive/<timestamp>}, so starting a new run doesn't silently overwrite the last
+   * completed run's data. Called once, before a run starts capturing its own snapshots. No-op if
+   * benchmarking is disabled or no previous run left anything behind.
+   */
+  public synchronized Path archivePreviousRunIfPresent() {
+    if (!isEnabled()) {
+      return null;
+    }
+
+    Path liveDir = liveDir();
+    Path metadataFile = liveDir.resolve("metadata.txt");
+    if (!Files.exists(metadataFile)) {
+      return null;
+    }
+
+    try {
+      Path archiveRoot = Path.of(config.getBenchmark().getOutputDir()).resolve("archive");
+      Files.createDirectories(archiveRoot);
+
+      String archiveId = readLastSnapshotTimestamp(metadataFile);
+      Path archiveDir = archiveRoot.resolve(archiveId);
+      for (int suffix = 1; Files.exists(archiveDir); suffix++) {
+        archiveDir = archiveRoot.resolve(archiveId + "-" + suffix);
+      }
+
+      Files.move(liveDir, archiveDir);
+      log.info("Archived previous benchmark run to: {}", archiveDir);
+      return archiveDir;
+    } catch (IOException e) {
+      log.error("Error archiving previous benchmark run", e);
+      return null;
+    }
+  }
+
+  private Path liveDir() {
+    return Path.of(config.getBenchmark().getOutputDir()).resolve("live");
+  }
+
+  /** Reads the {@code timestamp} field out of a run's last-written metadata.txt. */
+  private String readLastSnapshotTimestamp(Path metadataFile) {
+    try {
+      Properties props = new Properties();
+      try (BufferedReader reader = Files.newBufferedReader(metadataFile)) {
+        props.load(reader);
+      }
+      String timestamp = props.getProperty("timestamp");
+      if (timestamp != null && !timestamp.isBlank()) {
+        return timestamp;
+      }
+    } catch (IOException e) {
+      log.warn("Failed to read timestamp from {}: {}", metadataFile, e.getMessage());
+    }
+    return DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_SSS")
+        .withLocale(Locale.US)
+        .withZone(ZoneId.systemDefault())
+        .format(Instant.ofEpochMilli(System.currentTimeMillis()));
   }
 }

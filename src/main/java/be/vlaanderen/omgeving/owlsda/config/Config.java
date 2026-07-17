@@ -32,6 +32,7 @@ public class Config {
 
   private BenchmarkProperties benchmark = new BenchmarkProperties();
   private GenerationProperties generation = new GenerationProperties();
+  private OntologyProperties ontology = new OntologyProperties();
 
   public DataRichness getDataRichness() {
     return DataRichness.from(generation != null ? generation.getDataRichness() : null);
@@ -285,6 +286,21 @@ public class Config {
   public static class GenerationProperties {
     // Supported values: minimal, balanced, rich
     private String dataRichness = "minimal";
+  }
+
+  /**
+   * A short, always-on summary of the ontology (class/property counts and a capped name sample) is
+   * generated for every session regardless of this setting. {@code provideFullToWorkers}
+   * additionally controls whether workers also receive the complete ontology, serialized to Turtle
+   * - the supervisor and reviewer always receive it. Ontologies can run to hundreds of KB, so
+   * disabling this saves worker context budget when the summary plus tool-based lookups
+   * (context_reader, triplestore_read) are enough.
+   */
+  @Getter
+  @Setter
+  @YamlConfig
+  public static class OntologyProperties {
+    private boolean provideFullToWorkers = true;
   }
 
   @Getter

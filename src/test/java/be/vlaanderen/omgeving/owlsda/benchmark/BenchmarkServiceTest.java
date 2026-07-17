@@ -22,12 +22,14 @@ import org.junit.Test;
 public class BenchmarkServiceTest {
 
   private Path tempDir;
+  private Path liveDir;
   private Config config;
   private BenchmarkService benchmarkService;
 
   @Before
   public void setUp() throws Exception {
     tempDir = Files.createTempDirectory("benchmark-service-test");
+    liveDir = tempDir.resolve("live");
     config = new Config();
     config.setOutputPath(tempDir.resolve("output.ttl").toString());
 
@@ -83,7 +85,7 @@ public class BenchmarkServiceTest {
             2);
 
     assertNotNull(snapshotId);
-    Path metadataFile = tempDir.resolve("metadata.txt");
+    Path metadataFile = liveDir.resolve("metadata.txt");
     assertTrue(Files.exists(metadataFile));
 
     String metadata = Files.readString(metadataFile);
@@ -106,11 +108,11 @@ public class BenchmarkServiceTest {
                 "GENERATE", 0, 1, 10L, null, null, tripleStore, List.of()),
             0);
 
-    Path ttlFile = tempDir.resolve("triplestore.ttl");
+    Path ttlFile = liveDir.resolve("triplestore.ttl");
     assertTrue(Files.exists(ttlFile));
     assertTrue(Files.readString(ttlFile).contains("Alice"));
 
-    Path summaryFile = tempDir.resolve("triplestore-summary.txt");
+    Path summaryFile = liveDir.resolve("triplestore-summary.txt");
     assertTrue(Files.exists(summaryFile));
     assertTrue(Files.readString(summaryFile).contains("Total Triples: 1"));
   }
@@ -126,7 +128,7 @@ public class BenchmarkServiceTest {
                 "GENERATE", 0, 1, 10L, null, null, emptyStore, List.of()),
             0);
 
-    Path ttlFile = tempDir.resolve("triplestore.ttl");
+    Path ttlFile = liveDir.resolve("triplestore.ttl");
     assertTrue(Files.exists(ttlFile));
     assertTrue(Files.readString(ttlFile).contains("empty"));
   }
@@ -145,11 +147,11 @@ public class BenchmarkServiceTest {
                 "GENERATE", 0, 1, 10L, generator, null, null, List.of()),
             0);
 
-    Path contextFile = tempDir.resolve("supervisor_context").resolve("delegation.txt");
+    Path contextFile = liveDir.resolve("supervisor_context").resolve("delegation.txt");
     assertTrue(Files.exists(contextFile));
     assertEquals("do the work", Files.readString(contextFile));
 
-    Path messageLog = tempDir.resolve("message_logs").resolve("supervisor-messages.json");
+    Path messageLog = liveDir.resolve("message_logs").resolve("supervisor-messages.json");
     assertTrue(Files.exists(messageLog));
     String content = Files.readString(messageLog);
     assertTrue(content.contains("hello"));
@@ -182,11 +184,11 @@ public class BenchmarkServiceTest {
 
     // Both stages land in the same run directory - metadata.txt reflects only the latest write -
     // but each is preserved as its own entry in the history file.
-    assertTrue(Files.exists(tempDir.resolve("metadata.txt")));
-    String metadata = Files.readString(tempDir.resolve("metadata.txt"));
+    assertTrue(Files.exists(liveDir.resolve("metadata.txt")));
+    String metadata = Files.readString(liveDir.resolve("metadata.txt"));
     assertTrue(metadata.contains("stage=REVIEW"));
 
-    String history = Files.readString(tempDir.resolve("benchmark-summary.json"));
+    String history = Files.readString(liveDir.resolve("benchmark-summary.json"));
     assertTrue(history.contains("GENERATE"));
     assertTrue(history.contains("REVIEW"));
   }
@@ -224,6 +226,67 @@ public class BenchmarkServiceTest {
     String content = Files.readString(jsonFile);
     assertTrue(content.contains("GENERATE"));
     assertTrue(content.contains("REVIEW"));
+  }
+
+  @Test
+  public void archivePreviousRunIfPresent_NoLiveData_ReturnsNullAndCreatesNoFiles()
+      throws Exception {
+    assertNull(benchmarkService.archivePreviousRunIfPresent());
+    try (var stream = Files.list(tempDir)) {
+      assertEquals(0, stream.count());
+    }
+  }
+
+  @Test
+  public void archivePreviousRunIfPresent_Disabled_ReturnsNull() {
+    Config.BenchmarkProperties disabledProps = new Config.BenchmarkProperties();
+    disabledProps.setEnabled(false);
+    disabledProps.setOutputDir(tempDir.toString());
+    config.setBenchmark(disabledProps);
+
+    assertNull(new BenchmarkService(config).archivePreviousRunIfPresent());
+  }
+
+  @Test
+  public void archivePreviousRunIfPresent_MovesLiveDataOutOfTheWay() throws Exception {
+    benchmarkService.createBatchSnapshot(
+        new DefaultBenchmarkSnapshotData("GENERATE", 0, 3, 100L, null, null, null, List.of()), 0);
+    assertTrue(Files.exists(liveDir.resolve("metadata.txt")));
+
+    Path archiveDir = benchmarkService.archivePreviousRunIfPresent();
+
+    assertNotNull(archiveDir);
+    assertTrue(
+        "Archive directory should live under output-dir/archive",
+        archiveDir.startsWith(tempDir.resolve("archive")));
+    assertTrue(Files.exists(archiveDir.resolve("metadata.txt")));
+    assertTrue(Files.readString(archiveDir.resolve("metadata.txt")).contains("shapes_processed=3"));
+
+    // The live directory is gone - a fresh run can start clean without clobbering the archive.
+    assertFalse(
+        "live/ should no longer exist after archiving", Files.exists(liveDir));
+  }
+
+  @Test
+  public void archivePreviousRunIfPresent_NextRunStartsFreshAfterArchiving() throws Exception {
+    benchmarkService.createBatchSnapshot(
+        new DefaultBenchmarkSnapshotData("GENERATE", 0, 1, 10L, null, null, null, List.of()), 0);
+
+    // Simulate a brand new process/run: archiving is always followed by a freshly constructed
+    // BenchmarkService in production (OWLSDA builds one per run), not a reused instance whose
+    // ChangeDetector still remembers the old run's last-written state.
+    BenchmarkService nextRunService = new BenchmarkService(config);
+    nextRunService.archivePreviousRunIfPresent();
+
+    String snapshotId =
+        nextRunService.createBatchSnapshot(
+            new DefaultBenchmarkSnapshotData("GENERATE", 0, 1, 10L, null, null, null, List.of()),
+            0);
+
+    assertNotNull("New run's first snapshot should not be blocked by the archived one", snapshotId);
+    assertTrue(Files.exists(liveDir.resolve("metadata.txt")));
+    String history = Files.readString(liveDir.resolve("benchmark-summary.json"));
+    assertEquals(1, history.split("\"stage\"").length - 1);
   }
 
   private static final class FakeSession implements Session {

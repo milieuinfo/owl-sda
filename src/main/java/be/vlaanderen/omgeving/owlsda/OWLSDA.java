@@ -14,12 +14,11 @@ import be.vlaanderen.omgeving.owlsda.generation.SupervisorWorkflow;
 import be.vlaanderen.omgeving.owlsda.ontology.Ontology;
 import be.vlaanderen.omgeving.owlsda.ontology.OntologyExtractor;
 import be.vlaanderen.omgeving.owlsda.ontology.OntologyReasoner;
+import be.vlaanderen.omgeving.owlsda.ontology.OntologySummaryFormatter;
 import be.vlaanderen.omgeving.owlsda.ontology.Shacl;
 import be.vlaanderen.omgeving.owlsda.validation.OutputValidator;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -28,7 +27,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,7 +112,7 @@ public class OWLSDA {
     deleteOutputFile(config.getOutputPath());
 
     if (config.getBenchmark() != null && config.getBenchmark().isEnabled()) {
-      deleteBenchmarkDirectory(config.getBenchmark().getOutputDir());
+      benchmarkService.archivePreviousRunIfPresent();
     }
   }
 
@@ -130,33 +128,6 @@ public class OWLSDA {
       }
     } catch (Exception e) {
       logger.warn("Could not delete output file '{}': {}", filePath, e.getMessage());
-    }
-  }
-
-  private void deleteBenchmarkDirectory(String dirPath) {
-    if (dirPath == null || dirPath.isBlank()) {
-      return;
-    }
-
-    Path dir = Path.of(dirPath);
-    if (!Files.exists(dir)) {
-      return;
-    }
-
-    try (Stream<Path> paths = Files.walk(dir)) {
-      paths
-          .sorted(Comparator.reverseOrder())
-          .forEach(
-              path -> {
-                try {
-                  Files.deleteIfExists(path);
-                } catch (IOException e) {
-                  throw new RuntimeException(e);
-                }
-              });
-      logger.info("Deleted previous benchmark directory: {}", dir);
-    } catch (Exception e) {
-      logger.warn("Could not delete benchmark directory '{}': {}", dirPath, e.getMessage());
     }
   }
 
@@ -228,9 +199,24 @@ public class OWLSDA {
     sessionManager.setInferredShacl(inferredShacl);
     sessionManager.initialize();
 
+    Context ontologySummaryContext = new Context();
+    ontologySummaryContext.setName("Ontology Summary");
+    ontologySummaryContext.setType("text/plain");
+    ontologySummaryContext.setContent(OntologySummaryFormatter.summarize(ontology));
+    sessionManager.addContextToAllSessions(ontologySummaryContext);
+    logger.info("Added ontology summary context to all sessions");
+
     OntologyContext ontologyContext = new OntologyContext(ontology);
-    sessionManager.addContextToAllSessions(ontologyContext);
-    logger.info("Added ontology context to all sessions");
+    if (config.getOntology().isProvideFullToWorkers()) {
+      sessionManager.addContextToAllSessions(ontologyContext);
+      logger.info("Added full ontology context to all sessions");
+    } else {
+      sessionManager.addContextToSupervisorAndReviewer(ontologyContext);
+      logger.info(
+          "Full ontology context withheld from workers (ontology.provide-full-to-workers=false);"
+              + " workers get the summary only, supervisor/reviewer still receive the full"
+              + " ontology");
+    }
 
     // Add user-defined contexts if provided
     if (config.getUserContext() != null && !config.getUserContext().isEmpty()) {

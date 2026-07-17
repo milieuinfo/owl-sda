@@ -531,6 +531,27 @@ public class SessionManager {
     logger.debug("Added/updated context '{}' to all sessions (if changed)", context.getName());
   }
 
+  /**
+   * Adds a context to the supervisor and reviewer sessions only, skipping the worker pool. Used to
+   * withhold a context (e.g. the full ontology) from workers while still making it available to the
+   * roles that plan delegation and validate against it; the reviewer receives it automatically on
+   * creation via the same {@link #sharedContexts} replay {@link #addContextToAllSessions} relies
+   * on.
+   */
+  public void addContextToSupervisorAndReviewer(Context context) {
+    rememberSharedContext(context);
+    if (supervisorSession != null) {
+      supervisorSession.addContext(new Context(context));
+    }
+    Session initializedReviewer = getReviewerSessionIfInitialized();
+    if (initializedReviewer != null) {
+      initializedReviewer.addContext(new Context(context));
+    }
+    logger.debug(
+        "Added context '{}' to supervisor/reviewer sessions only (workers excluded)",
+        context.getName());
+  }
+
   private void addContextToAllSessionsInternal(Context context, boolean onlyIfChanged) {
     rememberSharedContext(context);
 

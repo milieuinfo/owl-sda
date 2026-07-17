@@ -1,35 +1,20 @@
-TARGET SHAPE: InstallationShape | TARGET CLASS: :Installation
+TARGET SHAPE: InstallationShape | TARGET CLASS: :Installation (owl:Class)
 
-GOAL: CREATE new :Installation instances (none exist in output yet). Create-and-fix: create valid instances that conform to InstallationShape SHACL constraints.
+TASK: CREATE new :Installation instances from scratch. No instances exist yet.
 
-IURI PATTERN: Use prefix `@prefix : <https://example.org/ns/riepr#>` and create instances with IRIs like `:Installation-001`, `:Installation-002` etc. Do NOT mix prefixes or invent casing.
+CONSTRAINTS (from SHACL):
+MUST HAVE (minCount=1): rdfs:label, dc:issued (xsd:date), dc:created (xsd:dateTime), dc:modified (xsd:dateTime), adms:status (:adms:Status — use :actief, :inactief, :gesloten, or :voorgesteld), sosa:isHostedBy (:OperationLocation)
+OPTIONAL: dc:type (max 1), ssn:hasProperty (:InstallationProperty), ogc:hasGeometry, ssn:implements (:Process), prov:wasRevisionOf (ssn:System), :section (:Section), adms:identifier (adms:Identifier), ssn:hasDeployment (:Operation), ssn:hasSubSystem (ssn:System), inverse ssn:hasSubSystem
 
-MANDATORY properties (SHACL minCount=1, must include):
-- rdfs:label (string, min 1) — use English label like "Glass Production Installation 1"
-- dc:created (xsd:dateTime) — e.g., "2024-01-15T10:00:00"^^xsd:dateTime
-- dc:issued (xsd:date) — e.g., "2024-01-01"^^xsd:date
-- adms:status (adms:Status class) — use :actief (defined in ontology)
-- sosa:isHostedBy (:OperationLocation) — create a blank node or separate instance for the location
-- dc:modified (xsd:dateTime) — e.g., "2024-01-15T10:00:00"^^xsd:dateTime
+URI PATTERN: Use prefix `@prefix : <https://example.org/ns/riepr#>` and create instances like :Installation_1, :Installation_2 etc. with local names following PascalCase numbering.
 
-OPTIONAL properties you may include:
-- ogc:hasGeometry (max 1) — use blank node with ogc:asWKT
-- dc:type (max 1)
-- adms:identifier (adms:Identifier)
-- ssn:hasSubSystem (:InstallationProperty or ssn:System)
-- :section (:Section)
-- ssn:implements (:Process)
-- ssn:hasProperty (:InstallationProperty)
-- prov:wasRevisionOf (ssn:System, max 1)
-- dc:valid (xsd:date, max 1)
+PREDICATES/CLASSES: Use ONLY from the ontology/SHACL context. Never invent predicates or classes. Each triplestore_add call is validated as standalone Turtle.
 
-CRITICAL RULES:
-1. ALL predicates/classes MUST come from the Ontology/SHACL context — NEVER invent new ones.
-2. Each triplestore_add call is validated as a standalone Turtle document — include @prefix declarations.
-3. For sosa:isHostedBy, create an :OperationLocation instance with its own mandatory properties (rdfs:label, dc:created, dc:issued, dc:modified, ogc:hasGeometry).
-4. Use only status values defined in ontology: :actief, :inactief, :voorgesteld, :gesloten.
+REQUIREMENTS:
+- Create at least 2 representative :Installation instances
+- Include an inline :OperationLocation for sosa:isHostedBy (must have rdfs:label, dc:issued, dc:created, dc:modified)
+- Use adms:status from defined concepts (:actief recommended)
+- Ensure all mandatory constraints are satisfied
+- After adding data, validate with shacl_validator (source='store') and report results
 
-DELIVERABLE: Create at least 2 representative :Installation instances with their host :OperationLocation instances. Include rdf:type :Installation on each.
-
-REQUIRED worker_progress call after completion:
-worker_progress(status="COMPLETED" or "FAILED", target_shape="InstallationShape", target_class=":Installation", changed_triples_count=N, validation_result=VALID/INVALID/NONE, remaining_issues="none" or description)
+SUBMIT worker_progress(status, target_shape="InstallationShape", target_class=":Installation", changed_triples_count, validation_result, remaining_issues).

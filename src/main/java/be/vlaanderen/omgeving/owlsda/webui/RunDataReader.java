@@ -38,7 +38,7 @@ class RunDataReader {
 
   Path benchmarkDir() {
     String outputDir = config.getBenchmark() != null ? config.getBenchmark().getOutputDir() : null;
-    return outputDir == null || outputDir.isBlank() ? null : Path.of(outputDir);
+    return outputDir == null || outputDir.isBlank() ? null : Path.of(outputDir).resolve("live");
   }
 
   /** Reads {@code metadata.txt} as an ordered map, or an empty map if it doesn't exist yet. */

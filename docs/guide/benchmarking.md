@@ -1,6 +1,11 @@
 # Benchmarking
 
-OWL-SDA can capture a live snapshot of a run's state - message logs, contexts, triple store - as it happens, giving you full visibility into how the run is progressing without waiting for it to finish. There is exactly **one** benchmark folder per run: its files are overwritten in place every time a snapshot is captured, so you can watch `output-dir` while a run is in progress instead of finding results only after it completes. While a round or review iteration is still in progress, a background ticker captures a snapshot (stage `LIVE`) every `live-interval-seconds`, in addition to the snapshot captured at each round/review boundary.
+OWL-SDA can capture a live snapshot of a run's state - message logs, contexts, triple store - as it happens, giving you full visibility into how the run is progressing without waiting for it to finish. Layout under `output-dir`:
+
+- `output-dir/live/` - the currently in-progress (or most recently finished) run. Its files are overwritten in place every time a snapshot is captured, so you can watch this one folder while a run is happening instead of finding results only after it completes.
+- `output-dir/archive/<timestamp>/` - previous runs, moved here (not deleted) the next time a run starts, so history across multiple runs is preserved instead of being silently overwritten.
+
+While a round or review iteration is still in progress, a background ticker captures a snapshot (stage `LIVE`) into `live/` every `live-interval-seconds`, in addition to the snapshot captured at each round/review boundary.
 
 ## Enabling Benchmarking
 
@@ -14,12 +19,14 @@ benchmark:
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | `enabled` | boolean | `false` | Enable benchmark snapshot collection. |
-| `output-dir` | string | `target/benchmarks` | Directory where the run's live snapshot and JSON summary are written. Cleared at the start of each run. |
+| `output-dir` | string | `target/benchmarks` | Parent directory holding `live/` (the current run) and `archive/` (previous runs). |
 | `live-interval-seconds` | long | `15` | How often, in seconds, a `LIVE` snapshot is captured while a round/review iteration is still running. |
+
+At the start of each run, if `output-dir/live/` holds data from a previous run, it's moved to `output-dir/archive/<timestamp>/` (named after that run's last snapshot) before the new run starts writing to a fresh `live/`.
 
 ## What Is Captured
 
-All of the current run's state lives directly under `output-dir` (no per-round sub-directories) and is overwritten in place on every snapshot:
+All of a run's state lives directly under `live/` (no per-round sub-directories within it) and is overwritten in place on every snapshot:
 
 | File | Description |
 |------|-------------|
@@ -34,11 +41,11 @@ All of the current run's state lives directly under `output-dir` (no per-round s
 | `owlsda.log` | Copy of the log file (only when `log-to-file: true`). |
 | `benchmark-summary.json` | The one file that is *not* overwritten - see below. |
 
-A snapshot is skipped (nothing is written) when nothing has changed since the previous one - by content hash of the message logs, contexts, triple store, and token counts - so a quiet run doesn't waste writes.
+A snapshot is skipped (nothing is written) when nothing has changed since the previous one - by content hash of the message logs, contexts, triple store, and token counts - so a quiet run doesn't waste writes. Both the round/review-boundary snapshot and the periodic `LIVE` ticker call into the same synchronized write path, so a tick landing right as a round finishes can't corrupt or drop the round's own entry.
 
 ## JSON Summary
 
-Every snapshot appends one entry to `benchmark-summary.json` in `output-dir` - this is the one file in the run that grows over time rather than being overwritten, because it's what preserves progress-over-time history for plotting even though the rest of the run directory only ever shows the latest state:
+Every snapshot appends one entry to `live/benchmark-summary.json` - this is the one file in the run that grows over time rather than being overwritten, because it's what preserves progress-over-time history for plotting even though the rest of the run directory only ever shows the latest state:
 
 ```json
 [
@@ -85,14 +92,14 @@ java -jar target/owlsda.jar --config config.yml --web-ui
 java -jar target/owlsda.jar --config config.yml --web-ui --web-ui-port 9090  # default: 8080
 ```
 
-The dashboard reads `benchmark.output-dir` straight from disk on every request (no caching), so it reflects the run as it happens - it polls automatically every few seconds. It requires `benchmark.enabled: true`; without it there's nothing to show. It shows:
+The dashboard reads `benchmark.output-dir/live` straight from disk on every request (no caching), so it reflects the run as it happens - it polls automatically every few seconds. It requires `benchmark.enabled: true`; without it there's nothing to show. It shows:
 
 - **Stages** - the `benchmark-summary.json` history in the sidebar, newest first.
 - **Messages** - the full transcript per role (supervisor, reviewer, each worker), with `TOOL_INVOCATION` entries parsed into a tool name and arguments where the format allows it.
 - **Output** - the run's configured `output-path`.
 - **Triple Store** - the live `triplestore.ttl`.
 
-The server keeps running after the pipeline finishes so you can review the completed run; stop it with Ctrl+C.
+The server keeps running after the pipeline finishes so you can review the completed run; stop it with Ctrl+C. It currently only shows `live/` (the most recent run) - archived runs under `output-dir/archive/` aren't browsable from the dashboard yet, only from disk or via `scripts/plot_benchmark.py`.
 
 ## Visualising Results
 

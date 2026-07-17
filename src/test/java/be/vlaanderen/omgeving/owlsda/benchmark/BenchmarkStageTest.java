@@ -96,7 +96,7 @@ public class BenchmarkStageTest {
     assertNotNull("Snapshot should be created", snapshotId);
 
     // Find the metadata file
-    Path metadataFile = tempDir.resolve("metadata.txt");
+    Path metadataFile = tempDir.resolve("live").resolve("metadata.txt");
     assertTrue("Metadata file should exist", Files.exists(metadataFile));
 
     // Verify metadata contains stage
@@ -229,7 +229,8 @@ public class BenchmarkStageTest {
 
     assertNotNull("Snapshot should still be created", snapshotId);
 
-    Path contextFile = tempDir.resolve("supervisor_context").resolve("invalid-surrogate.txt");
+    Path contextFile =
+        tempDir.resolve("live").resolve("supervisor_context").resolve("invalid-surrogate.txt");
     assertTrue("Context file should exist", Files.exists(contextFile));
 
     String storedContent = Files.readString(contextFile);
