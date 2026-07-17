@@ -15,7 +15,8 @@
     </div>
     <div class="topbar-status">
       <span id="stage-badge" class="badge badge-muted">no data yet</span>
-      <span id="conn-indicator" class="conn-dot" title="Live updates"></span>
+      <span id="run-indicator" class="badge badge-muted">idle</span>
+      <span id="conn-indicator" class="conn-dot" title="Server connection"></span>
       <span id="last-updated" class="muted"></span>
     </div>
   </header>
@@ -45,6 +46,10 @@
 
       <div id="tab-messages" class="tab-panel active">
         <div class="role-tabs" id="role-tabs"></div>
+        <label class="autoscroll-toggle">
+          <input type="checkbox" id="autoscroll-toggle" checked />
+          Auto-scroll to latest
+        </label>
         <div class="messages" id="messages"></div>
       </div>
 

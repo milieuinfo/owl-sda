@@ -1,0 +1,35 @@
+TARGET SHAPE: EmissionPointShape | TARGET CLASS: :EmissionPoint
+
+GOAL: CREATE new :EmissionPoint instances (none exist in output yet). Create-and-fix: create valid instances that conform to EmissionPointShape SHACL constraints.
+
+URI PATTERN: Use prefix `@prefix : <https://example.org/ns/riepr#>` and create instances with IRIs like `:EmissionPoint-001`, `:EmissionPoint-002` etc. Do NOT mix prefixes or invent casing.
+
+MANDATORY properties (SHACL minCount=1, must include):
+- rdfs:label (string, min 1) — e.g., "Stack 1 Glass Factory"
+- dc:created (xsd:dateTime) — e.g., "2024-01-15T10:00:00"^^xsd:dateTime
+- dc:issued (xsd:date) — e.g., "2024-01-01"^^xsd:date
+- adms:status (adms:Status class) — use :actief (defined in ontology)
+- sosa:isHostedBy (:OperationLocation) — create host location instance
+- dc:modified (xsd:dateTime) — e.g., "2024-01-15T10:00:00"^^xsd:dateTime
+
+OPTIONAL properties you may include:
+- ogc:hasGeometry (max 1) — blank node with ogc:asWKT
+- dc:type (max 1)
+- adms:identifier (adms:Identifier)
+- ssn:hasSubSystem (ssn/System, min 0)
+- prov:wasRevisionOf (ssn:System, max 1)
+- dc:valid (xsd:date, max 1)
+- dbo:diameter (max 1) — for stack type emission points
+- dbo:height (max 1) — for stack type emission points
+- dbo:depth (max 1) — for discharge point type
+
+CRITICAL RULES:
+1. ALL predicates/classes MUST come from the Ontology/SHACL context — NEVER invent new ones.
+2. Each triplestore_add call is validated as a standalone Turtle document — include @prefix declarations.
+3. For sosa:isHostedBy, create an :OperationLocation instance with mandatory properties (rdfs:label, dc:created, dc:issued, dc:modified, ogc:hasGeometry).
+4. Use only status values defined in ontology: :actief, :inactief, :voorgesteld, :gesloten.
+
+DELIVERABLE: Create at least 2 representative :EmissionPoint instances with their host :OperationLocation instances. Include rdf:type :EmissionPoint on each.
+
+REQUIRED worker_progress call after completion:
+worker_progress(status="COMPLETED" or "FAILED", target_shape="EmissionPointShape", target_class=":EmissionPoint", changed_triples_count=N, validation_result=VALID/INVALID/NONE, remaining_issues="none" or description)

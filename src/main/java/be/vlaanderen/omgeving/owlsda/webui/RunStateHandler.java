@@ -25,6 +25,7 @@ class RunStateHandler implements HttpHandler {
     response.addProperty("benchmarkEnabled", reader.benchmarkEnabled());
     response.addProperty(
         "benchmarkDirExists", reader.benchmarkDir() != null && Files.exists(reader.benchmarkDir()));
+    response.addProperty("liveIntervalSeconds", reader.liveIntervalSeconds());
 
     JsonObject metadata = new JsonObject();
     reader.readMetadata().forEach(metadata::addProperty);

@@ -18,11 +18,11 @@ client:
     api-key: "sk-local-placeholder"
   worker:
     provider: "openai-compatible"
-    model: "qwen3.5:9b"
+    model: "qwen3.6:35b"
     timeout-ms: 350000
     between-message-timeout-ms: 200000
-    batch-size: 5
-    pool-count: 5
+    batch-size: 1
+    pool-count: 2
     context-window-tokens: 131072
   supervisor:
     provider: "openai-compatible"

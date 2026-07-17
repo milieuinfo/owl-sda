@@ -1,0 +1,7 @@
+Triple Store Summary
+===================
+
+Total Triples: 62
+Snapshot Time: 2026-07-16T14:55:30.602267Z
+
+Full data available in: triplestore.ttl

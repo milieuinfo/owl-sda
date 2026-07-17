@@ -13,10 +13,8 @@ Delegate immediately:
 - Include unresolved focus node/property details when available from Validation Report.
 - Require worker tool call: worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues).
 - In every assignment, restate the exact IRI pattern new instances must use: the ontology's default
-  prefix (the one shown as `@prefix : <...>` or `@prefix m: <...>` in the Ontology/SHACL context -
-  pick ONE and tell every worker to use that SAME one, not a mix), followed by the exact
-  PascalCase class local name and a sequential number, e.g. `:MeasurementPoint1`,
-  `:MeasurementPoint2`. Workers across different rounds/pools must not invent their own casing or
+  prefix (the one shown as `@prefix : <...>` or `@prefix ontologynamehere: <...>` in the Ontology/SHACL context -
+  pick ONE and tell every worker to use that SAME one, not a mix), followed by the exact class local name with a logical and consistent URI. Workers across different rounds/pools must not invent their own casing or
   numbering convention for the same class.
 - Remind workers that predicates/classes must come only from the ontology/SHACL context - never
   invented - and that each triplestore_add call is validated as a standalone Turtle document.

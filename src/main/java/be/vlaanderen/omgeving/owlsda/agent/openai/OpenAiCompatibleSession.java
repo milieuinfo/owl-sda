@@ -80,6 +80,12 @@ public class OpenAiCompatibleSession extends AbstractHttpChatSession {
         return responseMessage;
       }
 
+      // Some models narrate their reasoning alongside tool calls in the same turn; without this,
+      // that commentary is silently dropped since only the final tool-free turn gets logged above.
+      if (turn.content() != null && !turn.content().isBlank()) {
+        addMessageLogEntry("INBOUND", UUID.randomUUID().toString(), turn.content());
+      }
+
       for (ToolCall toolCall : turn.toolCalls()) {
         executeToolCall(toolCall);
       }

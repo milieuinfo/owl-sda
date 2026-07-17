@@ -1,0 +1,35 @@
+TARGET SHAPE: InstallationShape | TARGET CLASS: :Installation
+
+GOAL: CREATE new :Installation instances (none exist in output yet). Create-and-fix: create valid instances that conform to InstallationShape SHACL constraints.
+
+IURI PATTERN: Use prefix `@prefix : <https://example.org/ns/riepr#>` and create instances with IRIs like `:Installation-001`, `:Installation-002` etc. Do NOT mix prefixes or invent casing.
+
+MANDATORY properties (SHACL minCount=1, must include):
+- rdfs:label (string, min 1) — use English label like "Glass Production Installation 1"
+- dc:created (xsd:dateTime) — e.g., "2024-01-15T10:00:00"^^xsd:dateTime
+- dc:issued (xsd:date) — e.g., "2024-01-01"^^xsd:date
+- adms:status (adms:Status class) — use :actief (defined in ontology)
+- sosa:isHostedBy (:OperationLocation) — create a blank node or separate instance for the location
+- dc:modified (xsd:dateTime) — e.g., "2024-01-15T10:00:00"^^xsd:dateTime
+
+OPTIONAL properties you may include:
+- ogc:hasGeometry (max 1) — use blank node with ogc:asWKT
+- dc:type (max 1)
+- adms:identifier (adms:Identifier)
+- ssn:hasSubSystem (:InstallationProperty or ssn:System)
+- :section (:Section)
+- ssn:implements (:Process)
+- ssn:hasProperty (:InstallationProperty)
+- prov:wasRevisionOf (ssn:System, max 1)
+- dc:valid (xsd:date, max 1)
+
+CRITICAL RULES:
+1. ALL predicates/classes MUST come from the Ontology/SHACL context — NEVER invent new ones.
+2. Each triplestore_add call is validated as a standalone Turtle document — include @prefix declarations.
+3. For sosa:isHostedBy, create an :OperationLocation instance with its own mandatory properties (rdfs:label, dc:created, dc:issued, dc:modified, ogc:hasGeometry).
+4. Use only status values defined in ontology: :actief, :inactief, :voorgesteld, :gesloten.
+
+DELIVERABLE: Create at least 2 representative :Installation instances with their host :OperationLocation instances. Include rdf:type :Installation on each.
+
+REQUIRED worker_progress call after completion:
+worker_progress(status="COMPLETED" or "FAILED", target_shape="InstallationShape", target_class=":Installation", changed_triples_count=N, validation_result=VALID/INVALID/NONE, remaining_issues="none" or description)

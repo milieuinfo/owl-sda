@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
@@ -31,13 +32,38 @@ public record SupervisorWorkflow(
     SupervisorReviewCoordinator reviewCoordinator,
     BenchmarkService benchmarkService,
     WorkerTripleStore sharedTripleStore,
-    SessionPool workerSessionPool) {
+    SessionPool workerSessionPool,
+    AtomicLong currentStageStartMs) {
 
   private static final Logger logger = LoggerFactory.getLogger(SupervisorWorkflow.class);
   private static final int MAX_CONSECUTIVE_EMPTY_DELEGATION_ROUNDS = 3;
   private static final int MAX_CONSECUTIVE_NO_PROGRESS_ROUNDS = 5;
   private static final int MAX_CONSECUTIVE_STALLED_VIOLATION_ROUNDS = 4;
   private static final int MAX_FINALIZATION_ATTEMPTS = 3;
+
+  /**
+   * Convenience constructor for the common case: seeds {@link #currentStageStartMs} with the
+   * current time so a {@code LIVE} snapshot taken before any stage officially starts still reports
+   * a sane (near-zero) duration rather than needing a separate null-check everywhere it's read.
+   */
+  public SupervisorWorkflow(
+      Config config,
+      Shacl shacl,
+      Supervisor supervisor,
+      SupervisorReviewCoordinator reviewCoordinator,
+      BenchmarkService benchmarkService,
+      WorkerTripleStore sharedTripleStore,
+      SessionPool workerSessionPool) {
+    this(
+        config,
+        shacl,
+        supervisor,
+        reviewCoordinator,
+        benchmarkService,
+        sharedTripleStore,
+        workerSessionPool,
+        new AtomicLong(System.currentTimeMillis()));
+  }
 
   /** Collects worker sessions from the pool for snapshotting delegation instructions. */
   private List<Session> getWorkerSessions() {
@@ -124,7 +150,7 @@ public record SupervisorWorkflow(
 
   private void captureLiveSnapshot() {
     try {
-      captureBenchmarkSnapshot("LIVE", System.currentTimeMillis());
+      captureBenchmarkSnapshot("LIVE", currentStageStartMs.get());
     } catch (Exception e) {
       // A scheduled task that throws stops running entirely, so swallow and keep ticking.
       logger.debug("Live benchmark snapshot failed: {}", e.getMessage());
@@ -177,6 +203,7 @@ public record SupervisorWorkflow(
     while (shapes <= totalShapes) {
       round++;
       long batchStart = System.currentTimeMillis();
+      currentStageStartMs.set(batchStart);
       try {
         boolean success = supervisor.orchestrate(shapes, firstPass);
         firstPass = false;
@@ -550,6 +577,7 @@ public record SupervisorWorkflow(
     for (int attempt = 1; attempt <= MAX_FINALIZATION_ATTEMPTS; attempt++) {
       try {
         long finalizationStart = System.currentTimeMillis();
+        currentStageStartMs.set(finalizationStart);
         supervisor.finalizeOutput();
         captureBenchmarkSnapshot("FINALIZING", finalizationStart);
         return;
@@ -574,6 +602,7 @@ public record SupervisorWorkflow(
     logger.info("Running final review on finalized output");
 
     long reviewStart = System.currentTimeMillis();
+    currentStageStartMs.set(reviewStart);
     try {
       reviewCoordinator.review();
 

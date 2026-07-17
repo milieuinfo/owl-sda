@@ -31,6 +31,11 @@ class RunDataReader {
     return config.getBenchmark() != null && config.getBenchmark().isEnabled();
   }
 
+  /** How often, in seconds, a {@code LIVE} snapshot is captured while a run is in progress. */
+  long liveIntervalSeconds() {
+    return config.getBenchmark() != null ? config.getBenchmark().getLiveIntervalSeconds() : 15;
+  }
+
   Path benchmarkDir() {
     String outputDir = config.getBenchmark() != null ? config.getBenchmark().getOutputDir() : null;
     return outputDir == null || outputDir.isBlank() ? null : Path.of(outputDir);
