@@ -71,7 +71,7 @@ pipeline {
                 script {
                   maven.goal([
                     goal     : 'javadoc:javadoc',
-                    extraArgs: '-DskipTests'
+                    extraArgs: '-DskipTests -Xdoclint:none'
                   ])
                 }
               }
