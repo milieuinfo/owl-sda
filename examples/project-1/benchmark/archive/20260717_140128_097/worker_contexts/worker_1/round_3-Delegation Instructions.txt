@@ -1,0 +1,28 @@
+TARGET SHAPE: FilterShape | TARGET CLASS: :Filter
+
+TASK: CREATE 2 new :Filter instances.
+
+IURI PATTERN: Use exactly `@prefix : <https://example.org/ns/riepr#>` as prefix. URIs must be: `:Filter/filter-001` and `:Filter/filter-002`
+
+REQUIRED PROPERTIES (from Ontology/SHACL system pattern):
+- dc:created (xsd:dateTime, min=1)
+- dc:issued (xsd:date, min=1)
+- adms:status (:actief, min=1)
+- rdfs:label (string, min=1)
+- dc:modified (xsd:dateTime, min=1)
+- sosa:isHostedBy (:OperationLocation, min=1) -> CREATE inline OperationLocation with ALL required props to avoid validation errors: dc:created, dc:issued, dc:modified, ogc:hasGeometry, prov:wasAttributedTo(:Operator), rdfs:label
+
+OPTIONAL PROPERTIES (include if relevant):
+- ssn:hasSubSystem (:Filter or ssn/System, min=0)
+- adms:identifier (adms:Identifier, min=0)
+- dc:type (max=1)
+- prov:wasRevisionOf (ssn:System, max=1)
+- ssn:hasDeployment (:Operation, min=0)
+- ogc:hasGeometry (ogc:Geometry, max=1)
+
+CONSTRAINTS:
+- Use ONLY predicates/classes from the Ontology/SHACL context - NEVER invent new ones.
+- Each triplestore_add call must be valid standalone Turtle.
+- Include rdf:type :Filter for each instance.
+
+SUBMIT: worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues)

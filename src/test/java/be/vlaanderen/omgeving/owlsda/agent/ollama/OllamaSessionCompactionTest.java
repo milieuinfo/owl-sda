@@ -128,6 +128,36 @@ public class OllamaSessionCompactionTest {
   }
 
   @Test
+  public void prompt_PastMessageCountThreshold_LogsTheActualSummaryText() {
+    // The COMPACTION log entry must carry the model's actual summary, not just a terse "N
+    // messages compacted" marker - that summary IS the model's memory of everything before it, so
+    // omitting it left the web UI's transcript silently skipping what the model now believes
+    // happened earlier.
+    Config.CompactionProperties compaction = new Config.CompactionProperties();
+    compaction.setEnabled(true);
+    compaction.setTokenThreshold(0);
+    compaction.setMessageCountThreshold(5);
+    compaction.setKeepRecentMessages(2);
+
+    OllamaSession session = newSession(compaction);
+
+    for (int i = 0; i < 3; i++) {
+      session.prompt(new RequestMessage("message " + i)).join();
+    }
+
+    String compactionContent =
+        session.getMessageLog().stream()
+            .filter(entry -> "COMPACTION".equals(entry.direction()))
+            .map(SessionMessageLogEntry::content)
+            .findFirst()
+            .orElse("");
+
+    assertTrue(
+        "Expected the logged COMPACTION entry to include the actual summary text",
+        compactionContent.contains("SUMMARY: earlier triples and decisions"));
+  }
+
+  @Test
   public void prompt_BelowThresholds_NeverCompacts() {
     Config.CompactionProperties compaction = new Config.CompactionProperties();
     compaction.setEnabled(true);
@@ -184,6 +214,32 @@ public class OllamaSessionCompactionTest {
 
     assertTrue(
         "Expected ratio-based compaction once reported usage crossed the window ratio",
+        hasCompactionLogEntry(session));
+  }
+
+  @Test
+  public void prompt_ContextWindowConfigured_IgnoresMessageCountThreshold() {
+    // Tool-call-heavy sessions rack up message count far faster than actual token usage; once a
+    // real context-window-tokens is configured, the ratio-based check is authoritative and the
+    // message-count fallback must NOT also apply - otherwise a low message count threshold (like
+    // the default of 40) fires long before the session is anywhere near its real context window,
+    // which is exactly the "compacting quite early" bug this guards against.
+    Config.CompactionProperties compaction = new Config.CompactionProperties();
+    compaction.setEnabled(true);
+    compaction.setTokenThreshold(100_000); // irrelevant once contextWindowTokens>0
+    compaction.setMessageCountThreshold(1); // would fire on the very first message if consulted
+    compaction.setContextWindowThresholdRatio(0.75);
+
+    // contextWindowTokens=1000 * 0.75 = 750, well above the mock server's reported
+    // prompt_eval_count=10, so the ratio check alone must not trigger either.
+    OllamaSession session = newSession(compaction, 1000);
+
+    for (int i = 0; i < 3; i++) {
+      session.prompt(new RequestMessage("message " + i)).join();
+    }
+
+    assertFalse(
+        "messageCountThreshold must be ignored once context-window-tokens is configured",
         hasCompactionLogEntry(session));
   }
 

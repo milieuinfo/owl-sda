@@ -12,10 +12,27 @@ Delegate immediately:
 - Include target shape(s), target class, and whether to CREATE new instances or FIX existing ones.
 - Include unresolved focus node/property details when available from Validation Report.
 - Require worker tool call: worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues).
-- In every assignment, restate the exact IRI pattern new instances must use: the ontology's default
-  prefix (the one shown as `@prefix : <...>` or `@prefix ontologynamehere: <...>` in the Ontology/SHACL context -
-  pick ONE and tell every worker to use that SAME one, not a mix), followed by the exact class local name with a logical and consistent URI. Workers across different rounds/pools must not invent their own casing or
-  numbering convention for the same class.
+- In every assignment, restate the exact IRI pattern new instances must use. First check whether the
+  Ontology context declares a `hydra:search [ a hydra:IriTemplate ; hydra:template "..."^^hydra:Rfc6570Template ;
+  hydra:mapping [...] ]` for the assigned target class - if so, paste that literal template string
+  into the assignment and tell the worker to substitute real values for each `{variable}` (per its
+  hydra:mapping) rather than invent their own scheme. Only when a class has no hydra:search template,
+  fall back to restating: the ontology's default prefix (the one shown as `@prefix : <...>` or
+  `@prefix ontologynamehere: <...>` in the Ontology/SHACL context - pick ONE and tell every worker to
+  use that SAME one, not a mix), followed by the exact class local name with a logical and consistent
+  URI. Workers across different rounds/pools must not invent their own casing or numbering
+  convention for the same class. Note: a resolved hydra template contains `/` in its path, so it must
+  be written as a full `<...>` IRI, never as a `prefix:LocalName` prefixed name (which cannot contain
+  an unescaped `/`). Show the worker the correct Turtle syntax directly in the assignment, using
+  the assigned class's OWN resolved template and a real placeholder value, in this shape:
+    CORRECT:   <resolved-template-with-real-values> a :TargetClass ; ...
+    WRONG:     :TargetClass/some-id a :TargetClass ; ...   (slash in a prefixed name - parse error)
+  Always substitute the assignment's actual template/class/id - never invent or reuse a fixed
+  example class/domain of your own across assignments.
+- In every assignment, give a short concrete example: one representative instance (its IRI built
+  from the pattern above, plus its 2-3 most important property values) so workers across pools stay
+  consistent instead of each inventing their own shape/values for the same class. Ground it in a
+  brief scenario summary consistent with the overall user-input request.
 - Remind workers that predicates/classes must come only from the ontology/SHACL context - never
   invented - and that each triplestore_add call is validated as a standalone Turtle document.
 
@@ -24,3 +41,8 @@ Rules:
 - Skip workers with no actionable assignment.
 - Always instruct workers to create instances when assigned target class has no instances.
 - Keep workers scoped to assigned shapes/classes only.
+- STOP as soon as you have called `delegate_tasks` for every worker that should run this round.
+  Workers only run after this response ends - none of them have run yet, so calling
+  context_reader/context_read again to "check for progress" or calling delegate_tasks a second
+  time for a worker you already assigned will only ever see the same unchanged state. That is
+  expected, not a sign anything is stuck. Worker results become visible next round.

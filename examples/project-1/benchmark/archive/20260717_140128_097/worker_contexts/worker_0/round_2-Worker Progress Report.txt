@@ -1,0 +1,8 @@
+worker_id=POOL-0
+status=CREATED
+target_shape=WithdrawalPointShape
+target_class=:WithdrawalPoint
+changed_triples_count=54
+created_or_updated_subjects=:WithdrawalPoint/wp-001, :WithdrawalPoint/wp-002, :Operator/antwerp-operator, :Operator/liege-operator, :OperationLocation/antwerp-intake, :OperationLocation/liege-intake
+validation_result=CONFORMS
+remaining_issues=All 10 SHACL violations are on pre-existing :OperationLocation instances (loc-001, loc-002) from earlier rounds — outside this delegation scope. Zero violations on WithdrawalPoint or its supporting resources.

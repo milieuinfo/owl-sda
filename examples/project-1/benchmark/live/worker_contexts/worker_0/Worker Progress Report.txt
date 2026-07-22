@@ -1,0 +1,8 @@
+worker_id=POOL-0
+status=CREATED
+target_shape=InstallationShape (target class :Installation) and EmissionPointShape (target class :Emissionpunt)
+target_class=:Installation, :Emissionpunt
+changed_triples_count=77
+created_or_updated_subjects=https://example.org/id/Installation/install-001/2024-01-15/2024-01-15T10:00:00, https://example.org/id/Installation/install-002/2024-01-15/2024-01-15T10:00:00, https://example.org/id/emissiepunt/emis-001/2024-01-15/2024-01-15T10:00:00, https://example.org/id/emissiepunt/emis-002/2024-01-15/2024-01-15T10:00:00
+validation_result=NON_CONFORMS
+remaining_issues=Pre-existing validation violations in unrelated subjects (operators, filters, measurement instruments) outside delegated scope. My new Installation and Emissionpunt instances conform to shape requirements. adms:status constraint applies globally to :actief value used across the store.

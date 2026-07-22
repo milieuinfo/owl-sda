@@ -304,6 +304,9 @@ body {
 }
 
 .role-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   border: 1px solid var(--border);
   background: var(--bg-elevated);
   color: var(--text-muted);
@@ -317,6 +320,30 @@ body {
   background: var(--accent-soft);
   color: var(--accent);
   border-color: var(--accent);
+}
+
+.role-busy-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.role-tab.role-busy .role-busy-dot {
+  background: var(--good);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.role-context {
+  font-size: 10px;
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
+.role-tab.role-busy .role-context {
+  color: var(--good);
 }
 
 .autoscroll-toggle {
@@ -387,6 +414,11 @@ body {
 .dir-ERROR {
   background: rgba(214, 69, 69, 0.14);
   color: var(--bad);
+}
+
+.dir-COMPACTION {
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 .msg-content {
@@ -481,4 +513,100 @@ body {
 
 .ttl-punct {
   color: var(--text-muted);
+}
+
+.chart-card {
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  border-radius: 10px;
+  padding: 16px 18px 8px;
+  margin-bottom: 16px;
+  max-width: 900px;
+}
+
+.chart-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.chart-wrap {
+  position: relative;
+}
+
+.chart-wrap svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.chart-grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.chart-axis-label {
+  fill: var(--text-muted);
+  font-size: 10px;
+  font-family: var(--sans);
+}
+
+.chart-line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chart-dot {
+  stroke: var(--bg-elevated);
+  stroke-width: 2;
+}
+
+.chart-crosshair {
+  stroke: var(--text-muted);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.chart-hover-target {
+  fill: transparent;
+  cursor: crosshair;
+}
+
+.chart-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 11px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  opacity: 0;
+  transform: translate(-50%, -100%);
+  white-space: nowrap;
+  z-index: 5;
+}
+
+.chart-tooltip .tt-value {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.chart-tooltip .tt-time {
+  color: var(--text-muted);
+}
+
+.chart-empty-hint {
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 30px 0;
+  text-align: center;
 }

@@ -1,0 +1,18 @@
+TARGET SHAPE: OperatorContactPersonShape
+TARGET CLASS: :OperatorContactPerson (IRI: https://example.org/ns/riepr#OperatorContactPerson)
+
+TASK: CREATE instances of :OperatorContactPerson.
+
+REQUIRED constraints (minCount=1, maxCount=1):
+- rdfs:label → string literal
+- dc:created → xsd:dateTime
+- dc:issued → xsd:date
+- dc:modified → xsd:dateTime
+- foaf:name → string literal
+
+OPTIONAL: org:hasRole (string or concept), rdfs:comment, dc:valid (xsd:date), foaf:mbox, org:memberOf (:Operation or :Operator), foaf:phone
+
+URI PATTERN: @prefix : <https://example.org/ns/riepr#> . Use :OperatorContactPerson_001, :OperatorContactPerson_002...
+
+PREDICATES/CLASSES FROM ONTOLOGY ONLY. Each triplestore_add validated standalone.
+Submit worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues).

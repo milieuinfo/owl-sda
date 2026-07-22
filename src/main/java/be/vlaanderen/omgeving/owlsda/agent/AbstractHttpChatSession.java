@@ -96,6 +96,7 @@ public abstract class AbstractHttpChatSession extends AbstractSession {
   public CompletableFuture<ResponseMessage> prompt(RequestMessage input, List<Context> contexts) {
     CompletableFuture<ResponseMessage> future = new CompletableFuture<>();
     synchronized (conversationLock) {
+      markPromptStarted();
       try {
         String prompt = input.getMessage();
         addMessageLogEntry("OUTBOUND", null, prompt);
@@ -107,9 +108,16 @@ public abstract class AbstractHttpChatSession extends AbstractSession {
       } catch (Exception e) {
         addMessageLogEntry("ERROR", null, e.getMessage());
         future.completeExceptionally(e);
+      } finally {
+        markPromptFinished();
       }
     }
     return future;
+  }
+
+  @Override
+  public long getLastPromptTokens() {
+    return lastPromptTokens.get();
   }
 
   @Override
@@ -389,16 +397,20 @@ public abstract class AbstractHttpChatSession extends AbstractSession {
     int contextWindowTokens = config.getContextWindowTokens();
     if (contextWindowTokens > 0) {
       // Ratio-based trigger against the model's real, configured context window rather than a
-      // guessed absolute token count - see SessionConfig#contextWindowTokens.
+      // guessed absolute token count - see SessionConfig#contextWindowTokens. This is the
+      // authoritative signal once a real context window is known, so the message-count
+      // fallback below is deliberately NOT also applied in this branch: tool-call-heavy
+      // sessions (workers doing many small triplestore_read/add/validate round trips) rack up
+      // message count far faster than actual token usage, and previously hit
+      // messageCountThreshold and compacted well before ever approaching the real context
+      // window - "compacting quite early" despite a properly configured context-window-tokens.
       double ratio = compactionProperties.getContextWindowThresholdRatio();
-      if (ratio > 0 && lastPromptTokens.get() >= contextWindowTokens * ratio) {
-        return true;
-      }
-    } else {
-      int tokenThreshold = compactionProperties.getTokenThreshold();
-      if (tokenThreshold > 0 && lastPromptTokens.get() >= tokenThreshold) {
-        return true;
-      }
+      return ratio > 0 && lastPromptTokens.get() >= contextWindowTokens * ratio;
+    }
+
+    int tokenThreshold = compactionProperties.getTokenThreshold();
+    if (tokenThreshold > 0 && lastPromptTokens.get() >= tokenThreshold) {
+      return true;
     }
 
     int messageCountThreshold = compactionProperties.getMessageCountThreshold();
@@ -433,12 +445,39 @@ public abstract class AbstractHttpChatSession extends AbstractSession {
 
     messageHistory.clear();
     messageHistory.addAll(newHistory);
-    // Unknown until the next request; conservative reset so a stale large value doesn't
-    // suppress the next legitimate compaction check.
-    lastPromptTokens.set(0);
+    // The real prompt token count is unknown until the next request completes, but setting this
+    // to a hard 0 (as before) is actively misleading to anything reading it meanwhile - e.g. the
+    // web UI's per-agent context-usage gauge would show "0% used" right after compaction, as if
+    // the conversation had been wiped rather than shrunk. Use a rough char/4 estimate of the
+    // now-compacted history instead: still comfortably below the ratio/token threshold (so it
+    // won't cause an immediate re-compaction before the next real number arrives), but a much
+    // more honest approximation than zero.
+    lastPromptTokens.set(estimateTokens(newHistory));
 
+    // Log the actual summary text, not just a terse "N messages compacted" marker - the summary
+    // IS the model's memory of everything that came before it from this point on, so leaving it
+    // out of the message log made the web UI's transcript silently skip a real (if synthetic)
+    // conversation turn instead of showing what the model now believes happened earlier.
     addMessageLogEntry(
-        "COMPACTION", null, "Compacted " + toSummarize.size() + " messages into a summary");
+        "COMPACTION",
+        null,
+        "Compacted " + toSummarize.size() + " messages into a summary:\n" + summary);
+  }
+
+  /**
+   * Rough token estimate (~4 characters per token, a common ballpark for English/JSON text) used
+   * only to give {@link #lastPromptTokens} a plausible value right after compaction, before the
+   * next real API response reports an exact prompt token count.
+   */
+  private static long estimateTokens(List<JsonObject> messages) {
+    long chars = 0;
+    for (JsonObject message : messages) {
+      String content = readString(message, "content");
+      if (content != null) {
+        chars += content.length();
+      }
+    }
+    return chars / 4;
   }
 
   private String requestSummary(List<JsonObject> messagesToSummarize)

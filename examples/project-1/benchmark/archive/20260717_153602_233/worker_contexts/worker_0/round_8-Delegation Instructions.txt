@@ -1,0 +1,18 @@
+TARGET SHAPE: ObservationResultShape
+TARGET CLASS: :ObservationResult (IRI: https://example.org/ns/riepr#ObservationResult)
+
+TASK: CREATE instances of :ObservationResult.
+
+REQUIRED constraints (minCount=1, maxCount=1):
+- rdfs:label → string literal
+- adms:status → type adms:Status (use existing :actief)
+- dc:created → xsd:dateTime
+- dc:modified → xsd:dateTime
+- dc:issued → xsd:date
+
+OPTIONAL: sosa:hasFeatureOfInterest (sosa:FeatureOfInterest), sosa:resultTime (xsd:dateTime), qudt:numericValue, qudt:hasUnit (qudt:Unit)
+
+URI PATTERN: @prefix : <https://example.org/ns/riepr#> . Use :ObservationResult_001, :ObservationResult_002...
+
+PREDICATES/CLASSES FROM ONTOLOGY ONLY. Each triplestore_add validated standalone.
+Submit worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues).

@@ -1,0 +1,19 @@
+POOL-0 [STRUCTURED_PROGRESS]:
+worker_id=POOL-0
+status=CREATED
+target_shape=ProcessShape
+target_class=https://example.org/ns/riepr#Process
+changed_triples_count=36
+created_or_updated_subjects=https://example.org/id/proces/cement-prod-001/2024-01-01/2024-01-01T08:00:00,https://example.org/id/proces/raw-mat-proc-001/2024-01-01/2024-01-01T07:00:00,https://example.org/id/proces/cement-prod-001/input/raw-materials,https://example.org/id/proces/cement-prod-001/output/clinker,https://example.org/id/proces/raw-mat-proc-001/input/limestone,https://example.org/id/proces/raw-mat-proc-001/output/crushed-material
+validation_result=CONFORMS
+remaining_issues=NONE
+
+POOL-1 [STRUCTURED_PROGRESS]:
+worker_id=POOL-1
+status=CREATED
+target_shape=FilterShape
+target_class=:Filter
+changed_triples_count=21
+created_or_updated_subjects=https://example.org/id/filter/dust-filter-001,https://example.org/id/filter/air-filtration-001
+validation_result=CONFORMS
+remaining_issues=NONE - FilterShape scope conforms. Remaining 2 violations are on OperationLocation (outside scope).

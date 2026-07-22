@@ -20,7 +20,6 @@ import be.vlaanderen.omgeving.owlsda.agent.handler.SessionHandler;
 import be.vlaanderen.omgeving.owlsda.agent.handler.ShapeStatusCheckerHandler;
 import be.vlaanderen.omgeving.owlsda.agent.handler.ToolFilter;
 import be.vlaanderen.omgeving.owlsda.agent.handler.TripleStoreAddHandler;
-import be.vlaanderen.omgeving.owlsda.agent.handler.TripleStoreClearHandler;
 import be.vlaanderen.omgeving.owlsda.agent.handler.TripleStoreReadHandler;
 import be.vlaanderen.omgeving.owlsda.agent.handler.TripleStoreRemoveHandler;
 import be.vlaanderen.omgeving.owlsda.agent.handler.WorkerProgressHandler;
@@ -198,11 +197,6 @@ public class SessionManager {
             workerTools,
             TripleStoreReadHandler.NAME,
             () -> new TripleStoreReadHandler(sharedTripleStore, workerId));
-        addIfEnabled(
-            handlers,
-            workerTools,
-            TripleStoreClearHandler.NAME,
-            () -> new TripleStoreClearHandler(sharedTripleStore, workerId));
 
         // Output handlers
         addIfEnabled(
@@ -370,7 +364,7 @@ public class SessionManager {
 
     if (supervisorSession != null) {
       Context supervisorDelegationView = new Context();
-      supervisorDelegationView.setName(name + " [" + resolvedTargetAgent + "]");
+      supervisorDelegationView.setName(withResolvedAgentSuffix(name, resolvedTargetAgent));
       supervisorDelegationView.setType("text/plain");
       supervisorDelegationView.setContent(instructions);
       supervisorSession.addContextIfChanged(supervisorDelegationView);
@@ -381,6 +375,19 @@ public class SessionManager {
     logger.info("Delegation '{}' routed to {}", name, resolvedTargetAgent);
 
     return DelegationHandler.PublicationResult.success(resolvedTargetAgent);
+  }
+
+  /**
+   * Appends {@code " [<resolvedTargetAgent>]"} to {@code name} for the supervisor-facing view,
+   * unless it's already there. The supervisor sometimes echoes back a context name it saw in an
+   * earlier {@code context_reader} result (e.g. re-delegating to the same agent) as this call's
+   * {@code context_name} argument - that echoed name already carries the suffix from the first
+   * publish, so appending it unconditionally would compound into "name [POOL-0] [POOL-0]" and keep
+   * growing on every further re-delegation to the same agent.
+   */
+  private static String withResolvedAgentSuffix(String name, String resolvedTargetAgent) {
+    String suffix = " [" + resolvedTargetAgent + "]";
+    return name.endsWith(suffix) ? name : name + suffix;
   }
 
   private Session resolveTargetSession(String targetAgent) {

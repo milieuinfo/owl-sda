@@ -1,0 +1,34 @@
+TARGET: InstallationShape (class :Installation), EmissionPointShape (class :EmissionPoint)
+
+IRI PATTERNS:
+- Installation: <https://example.org/id/Installation/{uuid}/{issued}/{created}> — substitute {uuid} with localId, {issued} with dc:date, {created} with dc:dateTime
+- EmissionPoint: <https://example.org/id/emissiepunt/{uuid}/{issued}/{created}> — same variable substitution
+
+TASK: CREATE 2 instances per class (4 total). Each must be SHACL-conformant per the shape definitions.
+
+SHACL CONSTRAINTS (from shapes):
+Installation: rdfs:label (min 1), dc:issued (date, min 1), dc:created (dateTime, min 1), dc:modified (dateTime, min 1), adms:status (adms:Status, min 1), sosa:isHostedBy (:OperationLocation, min 1), ogc:hasGeometry (max 1), dc:type (max 1), adms:identifier (max *), prov:wasRevisionOf (max 1), ssn:hasSubSystem (max *), [inverse ssn:hasSubSystem] (max *), ssn:implements (:Process, max *), :section (:Section, max *), ssn:hasProperty (:InstallationProperty, max *), ssn:hasDeployment (:Operation, max *)
+
+EmissionPoint: rdfs:label (min 1), dc:issued (date, min 1), dc:created (dateTime, min 1), dc:modified (dateTime, min 1), adms:status (adms:Status, min 1), sosa:isHostedBy (:OperationLocation, min 1), ogc:hasGeometry (max 1), dbo:diameter (max 1), dbo:height (max 1), dbo:depth (max 1), dc:type (max 1), adms:identifier (max *), prov:wasRevisionOf (max 1), ssn:hasSubSystem (max *), [inverse ssn:hasSubSystem] (max *), ssn:hasDeployment (:Operation, max *), dc:valid (date, max 1)
+
+EXAMPLE instances:
+<https://example.org/id/Installation/INST-001/2024-01-15/2024-01-15T10:00:00> a :Installation ;
+  rdfs:label "Cement Production Line A"@en ;
+  dc:issued "2024-01-15"^^xsd:date ;
+  dc:created "2024-01-15T10:00:00"^^xsd:dateTime ;
+  dc:modified "2024-01-15T10:00:00"^^xsd:dateTime ;
+  adms:status :actief ;
+  sosa:isHostedBy <https://example.org/id/exploitatielocatie/geo-antwerp-001/2024-01-15/2024-01-15T10:00:00> .
+
+<https://example.org/id/emissiepunt/EMP-001/2024-01-15/2024-01-15T10:00:00> a :EmissionPoint ;
+  rdfs:label "Stack 1 - Cement Kiln"@en ;
+  dc:issued "2024-01-15"^^xsd:date ;
+  dc:created "2024-01-15T10:00:00"^^xsd:dateTime ;
+  dc:modified "2024-01-15T10:00:00"^^xsd:dateTime ;
+  adms:status :actief ;
+  sosa:isHostedBy <https://example.org/id/exploitatielocatie/geo-antwerp-001/2024-01-15/2024-01-15T10:00:00> ;
+  dbo:height "45"^^xsd:decimal ;
+  ogc:hasGeometry [ a ogc:Geometry ; ogc:asWKT "POINT(4.4025 51.2194)"^^ogc:wktLiteral ] .
+
+PREDICATES/CLASSES: Only from ontology/SHACL context. Each triplestore_add is validated as standalone Turtle.
+REPORT: worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues)

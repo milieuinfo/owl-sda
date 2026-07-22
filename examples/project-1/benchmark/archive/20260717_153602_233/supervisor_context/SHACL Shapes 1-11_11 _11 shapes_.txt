@@ -1,0 +1,118 @@
+@prefix :           <https://example.org/ns/riepr#> .
+@prefix adms:       <http://www.w3.org/ns/adms#> .
+@prefix concept:    <https://example.org/id/concept/> .
+@prefix dbo:        <http://dbpedia.org/ontology/> .
+@prefix dc:         <http://purl.org/dc/terms/> .
+@prefix dct:        <http://purl.org/dc/terms/> .
+@prefix foaf:       <http://xmlns.com/foaf/0.1/> .
+@prefix hydra:      <http://www.w3.org/ns/hydra/core#> .
+@prefix locn:       <http://www.w3.org/ns/locn#> .
+@prefix nace:       <http://data.europa.eu/ux2/nace2.1/> .
+@prefix ogc:        <http://www.opengis.net/ont/geosparql#> .
+@prefix org:        <http://www.w3.org/ns/org#> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix pplan:      <http://purl.org/net/p-plan#> .
+@prefix prov:       <http://www.w3.org/ns/prov#> .
+@prefix qudt:       <http://qudt.org/schema/qudt/> .
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:         <http://www.w3.org/ns/shacl#> .
+@prefix skos:       <http://www.w3.org/2004/02/skos/core#> .
+@prefix sosa:       <http://www.w3.org/ns/sosa/> .
+@prefix ssn:        <http://www.w3.org/ns/ssn/> .
+@prefix ssn-system: <http://www.w3.org/ns/ssn/systems/> .
+@prefix vann:       <http://purl.org/vocab/vann/> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+
+:EmissionProcedureShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  :EmissionProcedure .
+
+:SectionShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:description  "A section must have a code"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         skos:notation
+                        ] ;
+        sh:property     [ sh:description  "A section can have a description"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         skos:definition
+                        ] ;
+        sh:property     [ sh:description  "A section can have a type via dct:type"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dc:type
+                        ] ;
+        sh:targetClass  :Section .
+
+:ConsumptionProcedureShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  :ConsumptionProcedure .
+
+:MeasurementProcedureShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  :MeasurementProcedure .
+
+:AbstractEmissionPointShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  :AbstractEmissionPoint .
+
+:InstallationPropertyShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:description  "An installation property must have a type"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dc:type
+                        ] ;
+        sh:property     [ sh:description  "An installation property must have a value"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         qudt:numericValue
+                        ] ;
+        sh:property     [ sh:description  "An installation property must have a unit"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         qudt:hasUnit
+                        ] ;
+        sh:property     [ sh:class        :Installation ;
+                          sh:description  "An installation property must be linked to exactly one installation"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         ssn:isPropertyOf
+                        ] ;
+        sh:targetClass  :InstallationProperty .
+
+:EmissionShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:class     sosa:Observation ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      sosa:isResultOf
+                        ] ;
+        sh:targetClass  :Emission .
+
+:ObservationResultShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  :ObservationResult .
+
+:TransportProcedureShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  :TransportProcedure .
+
+:ObservationShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:class        :Emission ;
+                          sh:description  "An observation must be linked to exactly one measurement point or installation"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         sosa:hasFeatureOfInterest
+                        ] ;
+        sh:property     [ sh:class        sosa:Result ;
+                          sh:description  "An observation must have a result."@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         sosa:hasResult
+                        ] ;
+        sh:targetClass  :Observation .
+
+:ProcessingProcedureShape
+        rdf:type        sh:NodeShape ;
+        sh:targetClass  :ProcessingProcedure .

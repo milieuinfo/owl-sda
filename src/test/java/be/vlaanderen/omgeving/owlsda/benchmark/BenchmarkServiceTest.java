@@ -263,8 +263,7 @@ public class BenchmarkServiceTest {
     assertTrue(Files.readString(archiveDir.resolve("metadata.txt")).contains("shapes_processed=3"));
 
     // The live directory is gone - a fresh run can start clean without clobbering the archive.
-    assertFalse(
-        "live/ should no longer exist after archiving", Files.exists(liveDir));
+    assertFalse("live/ should no longer exist after archiving", Files.exists(liveDir));
   }
 
   @Test

@@ -1,0 +1,209 @@
+@prefix :           <https://example.org/ns/riepr#> .
+@prefix adms:       <http://www.w3.org/ns/adms#> .
+@prefix concept:    <https://example.org/id/concept/> .
+@prefix dbo:        <http://dbpedia.org/ontology/> .
+@prefix dc:         <http://purl.org/dc/terms/> .
+@prefix dct:        <http://purl.org/dc/terms/> .
+@prefix foaf:       <http://xmlns.com/foaf/0.1/> .
+@prefix hydra:      <http://www.w3.org/ns/hydra/core#> .
+@prefix locn:       <http://www.w3.org/ns/locn#> .
+@prefix nace:       <http://data.europa.eu/ux2/nace2.1/> .
+@prefix ogc:        <http://www.opengis.net/ont/geosparql#> .
+@prefix org:        <http://www.w3.org/ns/org#> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix pplan:      <http://purl.org/net/p-plan#> .
+@prefix prov:       <http://www.w3.org/ns/prov#> .
+@prefix qudt:       <http://qudt.org/schema/qudt/> .
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:         <http://www.w3.org/ns/shacl#> .
+@prefix skos:       <http://www.w3.org/2004/02/skos/core#> .
+@prefix sosa:       <http://www.w3.org/ns/sosa/> .
+@prefix ssn:        <http://www.w3.org/ns/ssn/> .
+@prefix ssn-system: <http://www.w3.org/ns/ssn/systems/> .
+@prefix vann:       <http://purl.org/vocab/vann/> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+
+:InstallationShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:class        ssn:System ;
+                          sh:description  "A system can contain multiple objects."@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         ssn:hasSubSystem
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "A system must have a creation date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dc:created
+                        ] ;
+        sh:property     [ sh:class        adms:Status ;
+                          sh:description  "A system must have a single status"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         adms:status
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "A system can have a validity end"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dc:valid
+                        ] ;
+        sh:property     [ sh:class        ssn:System ;
+                          sh:description  "A system can be a revision of other systems (optional)"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         prov:wasRevisionOf
+                        ] ;
+        sh:property     [ sh:description  "A system must have a label"@en ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         rdfs:label
+                        ] ;
+        sh:property     [ sh:class        :Section ;
+                          sh:description  "An installation can have multiple sections"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         :section
+                        ] ;
+        sh:property     [ sh:class     ssn:System ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn:hasSubSystem ]
+                        ] ;
+        sh:property     [ sh:class        :InstallationProperty ;
+                          sh:description  "An installation can have multiple installation properties"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         ssn:hasProperty
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "A system must have a validity start"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dc:issued
+                        ] ;
+        sh:property     [ sh:class        :Process ;
+                          sh:description  "An installation can also contain processes that this installation implements"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         ssn:implements
+                        ] ;
+        sh:property     [ sh:class        :OperationLocation ;
+                          sh:description  "A system must be part of a location"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         sosa:isHostedBy
+                        ] ;
+        sh:property     [ sh:class        adms:Identifier ;
+                          sh:description  "A system has external identifiers (optional)"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         adms:identifier
+                        ] ;
+        sh:property     [ sh:description  "A system can have a type via dct:type"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dc:type
+                        ] ;
+        sh:property     [ sh:description  "A system can have at most 1 geometry"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         ogc:hasGeometry
+                        ] ;
+        sh:property     [ sh:class     :Operation ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      ssn:hasDeployment
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "A system must have a modification date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dc:modified
+                        ] ;
+        sh:targetClass  :Installation .
+
+:EmissionPointShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:class        ssn:System ;
+                          sh:description  "A system can be a revision of other systems (optional)"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         prov:wasRevisionOf
+                        ] ;
+        sh:property     [ sh:class        ssn:System ;
+                          sh:description  "A system can contain multiple objects."@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         ssn:hasSubSystem
+                        ] ;
+        sh:property     [ sh:class     :Operation ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      ssn:hasDeployment
+                        ] ;
+        sh:property     [ sh:description  "A system must have a label"@en ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         rdfs:label
+                        ] ;
+        sh:property     [ sh:description  "An emission point of type stack has a diameter"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dbo:diameter
+                        ] ;
+        sh:property     [ sh:description  "An emission point of type stack has a height"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dbo:height
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "A system must have a creation date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dc:created
+                        ] ;
+        sh:property     [ sh:class        adms:Identifier ;
+                          sh:description  "A system has external identifiers (optional)"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         adms:identifier
+                        ] ;
+        sh:property     [ sh:class     ssn:System ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      [ sh:inversePath  ssn:hasSubSystem ]
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "A system can have a validity end"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dc:valid
+                        ] ;
+        sh:property     [ sh:description  "A system can have at most 1 geometry"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         ogc:hasGeometry
+                        ] ;
+        sh:property     [ sh:class        adms:Status ;
+                          sh:description  "A system must have a single status"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         adms:status
+                        ] ;
+        sh:property     [ sh:class        :OperationLocation ;
+                          sh:description  "A system must be part of a location"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         sosa:isHostedBy
+                        ] ;
+        sh:property     [ sh:description  "An emission point of type discharge point can have a depth"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dbo:depth
+                        ] ;
+        sh:property     [ sh:description  "A system can have a type via dct:type"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dc:type
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "A system must have a validity start"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dc:issued
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "A system must have a modification date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dc:modified
+                        ] ;
+        sh:targetClass  :EmissionPoint .

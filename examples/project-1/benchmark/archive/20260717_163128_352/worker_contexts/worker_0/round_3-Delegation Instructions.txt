@@ -1,0 +1,31 @@
+TASK: Create :Process instances conforming to ProcessShape.
+
+TARGET SHAPE: ProcessShape
+TARGET CLASS: :Process (https://example.org/ns/riepr#Process)
+IRI TEMPLATE: <https://example.org/id/proces/{localId}/{issued}/{created}>
+  - Substitute {localId} with a unique identifier, {issued} with an xsd:date, {created} with an xsd:dateTime.
+  - Example IRI: <https://example.org/id/proces/cement-prod-001/2024-01-01/2024-01-01T08:00:00>
+
+REQUIRED PROPERTIES (from SHACL):
+  - a :Process
+  - rdfs:label "..."@en (required, min 1)
+  - adms:status :actief (required, max 1; use :actief, :inactief, :voorgesteld, or :gesloten)
+  - dc:created "YYYY-MM-DDThh:mm:ss"^^xsd:dateTime (required)
+  - dc:modified "YYYY-MM-DDThh:mm:ss"^^xsd:dateTime (required)
+
+OPTIONAL PROPERTIES (include for richness):
+  - dc:issued "YYYY-MM-DD"^^xsd:date
+  - dc:valid "YYYY-MM-DD"^^xsd:date
+  - ssn:implementedBy <...> a :Installation or ssn:System
+  - pplan:hasInputVar <...> a pplan:Variable (with qudt:numericValue, qudt:hasUnit)
+  - pplan:hasOutputVar <...> a pplan:Variable
+  - dc:type <...> a sosa:Procedure (e.g., :VerwerkingProcedure)
+  - :section <...> a :Section (with skos:notation, dc:type)
+  - prov:wasRevisionOf <...> a :Process
+
+SCENARIO: Create 2 Process instances for the cement factory — one "Cement Production" process and one "Raw Material Processing" process. Include input/output variables and sections.
+
+PREDICATES/CLASSES MUST come from ontology/SHACL context only — never invent.
+Each triplestore_add call is validated as standalone Turtle.
+
+DELIVERABLE: Call worker_progress(status="CREATED", target_shape="ProcessShape", target_class=":Process", changed_triples_count=N, validation_result=REPORT, remaining_issues="none" or details).

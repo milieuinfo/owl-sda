@@ -1,0 +1,10 @@
+MyGlassFactory is a glass factory that produces glass. They have a factory (Operation) that deploys
+multiple systems. This Operation is located on a location (platform).
+
+The factory implements a process that is subdivided into multiple steps that describe the process of producing glass. A process
+can be subdivided into other processes.
+
+An emission point is a point where emissions are released into the environment. A proces may be implemented by an
+emission point (or other system).
+
+Multiple versions of the factory (operation) exist. Versions may have an overlap in systems, processes but also differences.

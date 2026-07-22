@@ -1,0 +1,8 @@
+worker_id=POOL-1
+status=CREATED
+target_shape=FilterShape
+target_class=https://example.org/ns/riepr#Filter
+changed_triples_count=32
+created_or_updated_subjects=:Filter/filter-001, :Filter/filter-002, :OperationLocation/filter-loc-001, :OperationLocation/filter-loc-002
+validation_result=CONFORMS
+remaining_issues=Pre-existing OperationLocation/loc-001 and loc-002 SHACL violations (out of scope)

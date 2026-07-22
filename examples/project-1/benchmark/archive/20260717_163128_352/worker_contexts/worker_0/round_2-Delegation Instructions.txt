@@ -1,0 +1,30 @@
+TASK: Create :WithdrawalPoint instances conforming to WithdrawalPointShape.
+
+TARGET SHAPE: WithdrawalPointShape
+TARGET CLASS: :WithdrawalPoint (https://example.org/ns/riepr#WithdrawalPoint)
+IRI TEMPLATE: <https://example.org/id/onttrekkingspunt/{uuid}/{issued}/{created}>
+  - Substitute {uuid} with a unique localId, {issued} with an xsd:date, {created} with an xsd:dateTime.
+  - Example IRI: <https://example.org/id/onttrekkingspunt/withdrawal-001/2024-01-01/2024-01-01T00:00:00>
+
+REQUIRED PROPERTIES (from SHACL):
+  - a :WithdrawalPoint
+  - rdfs:label "..."@en (required, min 1)
+  - adms:status :actief (required, max 1; use :actief, :inactief, :voorgesteld, or :gesloten)
+  - dc:created "YYYY-MM-DDThh:mm:ss"^^xsd:dateTime (required)
+  - dc:issued "YYYY-MM-DD"^^xsd:date (required)
+  - dc:modified "YYYY-MM-DDThh:mm:ss"^^xsd:dateTime (required)
+  - sosa:isHostedBy <...> a :OperationLocation; rdfs:label "..."@en (required, max 1 — reuse existing or create inline)
+
+OPTIONAL PROPERTIES (include for richness):
+  - dc:valid "YYYY-MM-DD"^^xsd:date
+  - dbo:depth <number>^^xsd:decimal
+  - ssn:hasSubSystem <...> a :Filter (with required properties: label, status, dates, hosted location)
+  - ogc:hasGeometry <...> a ogc:Geometry; ogc:asWKT "POINT(...)^^ogc:wktLiteral"
+  - dc:type <...>
+
+SCENARIO: Create 2 WithdrawalPoint instances for groundwater extraction at the cement factory — one main well and one backup well, both with depth values. Hosted at an existing OperationLocation.
+
+PREDICATES/CLASSES MUST come from ontology/SHACL context only — never invent.
+Each triplestore_add call is validated as standalone Turtle.
+
+DELIVERABLE: Call worker_progress(status="CREATED", target_shape="WithdrawalPointShape", target_class=":WithdrawalPoint", changed_triples_count=N, validation_result=REPORT, remaining_issues="none" or details).

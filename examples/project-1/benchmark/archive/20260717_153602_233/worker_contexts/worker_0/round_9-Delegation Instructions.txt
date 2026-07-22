@@ -1,0 +1,18 @@
+TARGET SHAPE: MeasurementProcedureShape
+TARGET CLASS: :MeasurementProcedure (IRI: https://example.org/ns/riepr#MeasurementProcedure)
+
+TASK: CREATE instances of :MeasurementProcedure.
+
+REQUIRED constraints (minCount=1, maxCount=1):
+- rdfs:label → string literal
+- adms:status → type adms:Status (use existing :actief)
+- dc:created → xsd:dateTime
+- dc:modified → xsd:dateTime
+- dc:issued → xsd:date
+
+OPTIONAL: prov:wasRevisionOf (ssn:System), ssn:hasSubSystem (ssn:System), ssn:hasDeployment (:Operation), adms:identifier, dc:type, dc:valid (xsd:date)
+
+URI PATTERN: @prefix : <https://example.org/ns/riepr#> . Use :MeasurementProcedure_001, :MeasurementProcedure_002...
+
+PREDICATES/CLASSES FROM ONTOLOGY ONLY. Each triplestore_add validated standalone.
+Submit worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues).

@@ -1,0 +1,32 @@
+TARGET: FilterShape (class :Filter), OperationLocationShape (class :OperationLocation)
+
+IRI PATTERNS:
+- Filter: NO hydra:search template. Use default prefix : = <https://example.org/ns/riepr#>. Generate IRIs as :Filter-{uuid} (e.g., :Filter-F001). Be consistent with casing and numbering across all workers.
+- OperationLocation: <https://example.org/id/exploitatielocatie/{geoId}/{issued}/{created}> — substitute {geoId} with owl:sameAs identifier, {issued} with dc:date, {created} with dc:dateTime
+
+TASK: CREATE 2 instances per class (4 total). Each must be SHACL-conformant per the shape definitions.
+
+SHACL CONSTRAINTS (from shapes):
+Filter: rdfs:label (min 1), dc:issued (date, min 1), dc:created (dateTime, min 1), dc:modified (dateTime, min 1), adms:status (adms:Status, min 1), sosa:isHostedBy (:OperationLocation, min 1), ogc:hasGeometry (max 1), dc:type (max 1), adms:identifier (max *), prov:wasRevisionOf (ssn:System, max 1), ssn:hasSubSystem (ssn:System, max *), [inverse ssn:hasSubSystem] (max *), ssn:hasDeployment (:Operation, max *), dc:valid (date, max 1)
+
+OperationLocation: rdfs:label (min 1), dc:issued (date, min 1), dc:created (dateTime, min 1), dc:modified (dateTime, min 1), ogc:hasGeometry (exactly 1), prov:wasAttributedTo (:Operator, min 1), locn:address (max 1), prov:hadPrimarySource (org:Site, max 1), prov:wasInfluencedBy (max 1), prov:wasRevisionOf (:OperationLocation, max 1), adms:identifier (max *), ssn:inDeployment (:Operation, max *), dc:valid (date, max 1)
+
+EXAMPLE instances:
+:Filter-F001 a :Filter ;
+  rdfs:label "Baghouse Filter Unit A"@en ;
+  dc:issued "2024-01-15"^^xsd:date ;
+  dc:created "2024-01-15T10:00:00"^^xsd:dateTime ;
+  dc:modified "2024-01-15T10:00:00"^^xsd:dateTime ;
+  adms:status :actief ;
+  sosa:isHostedBy <https://example.org/id/exploitatielocatie/geo-antwerp-001/2024-01-15/2024-01-15T10:00:00> .
+
+<https://example.org/id/exploitatielocatie/geo-antwerp-001/2024-01-15/2024-01-15T10:00:00> a :OperationLocation ;
+  rdfs:label "Cement Factory Antwerp"@en ;
+  dc:issued "2024-01-15"^^xsd:date ;
+  dc:created "2024-01-15T10:00:00"^^xsd:dateTime ;
+  dc:modified "2024-01-15T10:00:00"^^xsd:dateTime ;
+  ogc:hasGeometry [ a ogc:Geometry ; ogc:asWKT "POINT(4.4025 51.2194)"^^ogc:wktLiteral ] ;
+  prov:wasAttributedTo <https://example.org/id/exploitant/OP-001/2024-01-15/2024-01-15T10:00:00> .
+
+PREDICATES/CLASSES: Only from ontology/SHACL context. Each triplestore_add is validated as standalone Turtle.
+REPORT: worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues)

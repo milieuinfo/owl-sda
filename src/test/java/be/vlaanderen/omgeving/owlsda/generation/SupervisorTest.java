@@ -297,6 +297,65 @@ public class SupervisorTest {
   }
 
   // ---------------------------------------------------------------------
+  // finalizeOutput() - convergence gate must use finalizationValidator, not validator
+  // ---------------------------------------------------------------------
+
+  @Test
+  public void finalizeOutput_IgnoresValidatorAndTrustsFinalizationValidator() {
+    // validator (worker-facing) reports violations forever; finalizationValidator (matching what
+    // the supervisor's own shacl_validator tool sees) reports clean immediately. If finalizeOutput
+    // consulted the wrong one, this would loop until MAX_FINALIZATION_ITERATIONS instead of
+    // finishing after the single initial finalization prompt.
+    OutputValidator validator = mock(OutputValidator.class);
+    when(validator.validate()).thenReturn("Data does NOT conform to SHACL shapes. Violations:\n");
+
+    OutputValidator finalizationValidator = mock(OutputValidator.class);
+    when(finalizationValidator.validate()).thenReturn(null);
+
+    AtomicInteger promptCount = new AtomicInteger();
+    Supervisor supervisor =
+        new Supervisor(
+            new CountingNoOpSession(promptCount),
+            validator,
+            null,
+            null,
+            null,
+            null,
+            finalizationValidator);
+
+    supervisor.finalizeOutput();
+
+    assertEquals(
+        "only the initial finalization prompt should run when finalizationValidator is clean",
+        1,
+        promptCount.get());
+  }
+
+  @Test
+  public void finalizeOutput_StopsAfterMaxIterationsInsteadOfLoopingForever() {
+    OutputValidator finalizationValidator = mock(OutputValidator.class);
+    when(finalizationValidator.validate())
+        .thenReturn("Data does NOT conform to SHACL shapes. Violations:\n");
+
+    AtomicInteger promptCount = new AtomicInteger();
+    Supervisor supervisor =
+        new Supervisor(
+            new CountingNoOpSession(promptCount),
+            mock(OutputValidator.class),
+            null,
+            null,
+            null,
+            null,
+            finalizationValidator);
+
+    supervisor.finalizeOutput();
+
+    // 1 initial finalization prompt + MAX_FINALIZATION_ITERATIONS iteration prompts, then it must
+    // give up rather than keep prompting forever.
+    assertEquals(6, promptCount.get());
+  }
+
+  // ---------------------------------------------------------------------
   // Fixtures / helpers
   // ---------------------------------------------------------------------
 

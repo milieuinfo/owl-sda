@@ -1,0 +1,8 @@
+worker_id=POOL-0
+status=CREATED
+target_shape=WithdrawalPointShape
+target_class=https://example.org/ns/riepr#WithdrawalPoint
+changed_triples_count=14
+created_or_updated_subjects=https://example.org/ns/riepr#WithdrawalPoint_001, https://example.org/ns/riepr#WithdrawalPoint_002
+validation_result=CONFORMS
+remaining_issues=NONE

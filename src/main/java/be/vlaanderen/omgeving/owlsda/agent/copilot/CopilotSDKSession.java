@@ -212,6 +212,7 @@ public class CopilotSDKSession extends AbstractSession {
 
     addMessageLogEntry("OUTBOUND", null, input.getMessage());
     markAssistantActivity();
+    markPromptStarted();
 
     long betweenMessageTimeoutMs = Math.max(0, config.getBetweenMessageTimeoutMs());
     ScheduledFuture<?> inactivityMonitor = null;
@@ -292,6 +293,7 @@ public class CopilotSDKSession extends AbstractSession {
           if (finalInactivityMonitor != null) {
             finalInactivityMonitor.cancel(true);
           }
+          markPromptFinished();
         });
     return future;
   }
@@ -299,6 +301,16 @@ public class CopilotSDKSession extends AbstractSession {
   @Override
   public CompletableFuture<ResponseMessage> prompt(RequestMessage input) {
     return prompt(input, getContext());
+  }
+
+  /**
+   * Copilot's usage callback tracks {@link #inputTokensUsed} as a running max of the latest
+   * reported value (see the {@code usage} handler above), not a cumulative sum like the HTTP-chat
+   * providers - so it already approximates current context occupancy reasonably well.
+   */
+  @Override
+  public long getLastPromptTokens() {
+    return inputTokensUsed.get();
   }
 
   @Override

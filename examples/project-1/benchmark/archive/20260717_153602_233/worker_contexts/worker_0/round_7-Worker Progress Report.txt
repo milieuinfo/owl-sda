@@ -1,0 +1,8 @@
+worker_id=POOL-0
+status=VERIFIED_NO_CHANGE
+target_shape=InstallationPropertyShape
+target_class=https://example.org/ns/riepr#InstallationProperty
+changed_triples_count=0
+created_or_updated_subjects=None in this round - instances were created in prior rounds and verified conformant.
+validation_result=CONFORMS
+remaining_issues=None - InstallationPropertyShape has 0 SHACL violations. Two instances (:InstallationProperty_001 and :InstallationProperty_002) are fully compliant with all required properties (rdfs:label, sosa:isHostedBy, ssn:isPropertyOf, dct dates, adms#status, dct:type, qudt:numericValue/hasUnit).

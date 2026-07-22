@@ -1,0 +1,8 @@
+worker_id=POOL-0
+status=CREATED
+target_shape=ProcessShape
+target_class=:Process
+changed_triples_count=13
+created_or_updated_subjects=:Process/process-001, :Process/process-002
+validation_result=CONFORMS
+remaining_issues=All 10 remaining SHACL violations are on pre-existing :OperationLocation instances (loc-001, loc-002) from earlier rounds — outside this delegation scope. Zero violations on Process instances.

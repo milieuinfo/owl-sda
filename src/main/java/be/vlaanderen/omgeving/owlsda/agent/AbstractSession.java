@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -22,6 +23,7 @@ public abstract class AbstractSession implements Session {
   protected final AtomicLong inputTokensUsed = new AtomicLong(0L);
   protected final AtomicLong outputTokensUsed = new AtomicLong(0L);
   private final AtomicLong lastAssistantActivityMs = new AtomicLong(System.currentTimeMillis());
+  private final AtomicBoolean busy = new AtomicBoolean(false);
 
   /** Wraps a context before it is stored; override to store a {@link Context} subclass. */
   protected Context wrapContext(Context context) {
@@ -114,5 +116,20 @@ public abstract class AbstractSession implements Session {
 
   protected void markAssistantActivity() {
     lastAssistantActivityMs.set(System.currentTimeMillis());
+  }
+
+  @Override
+  public boolean isBusy() {
+    return busy.get();
+  }
+
+  /** Marks a prompt as in flight; pair with {@link #markPromptFinished()} in a try/finally. */
+  protected void markPromptStarted() {
+    busy.set(true);
+  }
+
+  /** Clears the in-flight flag set by {@link #markPromptStarted()}. */
+  protected void markPromptFinished() {
+    busy.set(false);
   }
 }

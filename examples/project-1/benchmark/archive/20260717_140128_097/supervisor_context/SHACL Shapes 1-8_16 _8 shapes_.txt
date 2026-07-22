@@ -1,0 +1,364 @@
+@prefix :           <https://example.org/ns/riepr#> .
+@prefix adms:       <http://www.w3.org/ns/adms#> .
+@prefix concept:    <https://example.org/id/concept/> .
+@prefix dbo:        <http://dbpedia.org/ontology/> .
+@prefix dc:         <http://purl.org/dc/terms/> .
+@prefix dct:        <http://purl.org/dc/terms/> .
+@prefix foaf:       <http://xmlns.com/foaf/0.1/> .
+@prefix hydra:      <http://www.w3.org/ns/hydra/core#> .
+@prefix locn:       <http://www.w3.org/ns/locn#> .
+@prefix nace:       <http://data.europa.eu/ux2/nace2.1/> .
+@prefix ogc:        <http://www.opengis.net/ont/geosparql#> .
+@prefix org:        <http://www.w3.org/ns/org#> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix pplan:      <http://purl.org/net/p-plan#> .
+@prefix prov:       <http://www.w3.org/ns/prov#> .
+@prefix qudt:       <http://qudt.org/schema/qudt/> .
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:         <http://www.w3.org/ns/shacl#> .
+@prefix skos:       <http://www.w3.org/2004/02/skos/core#> .
+@prefix sosa:       <http://www.w3.org/ns/sosa/> .
+@prefix ssn:        <http://www.w3.org/ns/ssn/> .
+@prefix ssn-system: <http://www.w3.org/ns/ssn/systems/> .
+@prefix vann:       <http://purl.org/vocab/vann/> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+
+:ProcessVariableShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class     :Process ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      [ sh:inversePath  pplan:hasOutputVar ]
+                        ] ;
+        sh:property     [ sh:description  "A process variable can have a unit"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         qudt:hasUnit
+                        ] ;
+        sh:property     [ sh:description  "A process variable can have a label"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         rdfs:label
+                        ] ;
+        sh:property     [ sh:description  "A process variable can have a value"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         qudt:numericValue
+                        ] ;
+        sh:property     [ sh:class     :Process ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      pplan:isInputVarOf
+                        ] ;
+        sh:property     [ sh:description  "A process variable can have a type via dct:type"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dc:type
+                        ] ;
+        sh:targetClass  :ProcessVariable .
+
+:OperationShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:description  "An operation must have a label"@en ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         rdfs:label
+                        ] ;
+        sh:property     [ sh:class        adms:Status ;
+                          sh:description  "An operation has a status"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         adms:status
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "An operation must have a modification date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dc:modified
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "An operation must have a creation date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dc:created
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "An operation must have a validity start"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dc:issued
+                        ] ;
+        sh:property     [ sh:class        :OperationLocation ;
+                          sh:description  "An operation is performed at a specific operation location"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         ssn:deployedOnPlatform
+                        ] ;
+        sh:property     [ sh:class        :Process ;
+                          sh:description  "An operation implements a process"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         ssn:implements
+                        ] ;
+        sh:property     [ sh:class        ssn:System ;
+                          sh:description  "An operation deploys systems"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         ssn:deployedSystem
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "An operation can have a validity end"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dc:valid
+                        ] ;
+        sh:property     [ sh:class        :Contactpersoon ;
+                          sh:description  "An operation can have multiple contact persons"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         org:hasMember
+                        ] ;
+        sh:property     [ sh:class        adms:Identifier ;
+                          sh:description  "An operation can have external identifiers (optional)"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         adms:identifier
+                        ] ;
+        sh:targetClass  :Operation .
+
+:InstallationPropertyShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:description  "An installation property must have a type"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dc:type
+                        ] ;
+        sh:property     [ sh:description  "An installation property must have a value"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         qudt:numericValue
+                        ] ;
+        sh:property     [ sh:description  "An installation property must have a unit"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         qudt:hasUnit
+                        ] ;
+        sh:property     [ sh:class        :Installation ;
+                          sh:description  "An installation property must be linked to exactly one installation"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         ssn:isPropertyOf
+                        ] ;
+        sh:targetClass  :InstallationProperty .
+
+:SectionShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:description  "A section must have a code"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         skos:notation
+                        ] ;
+        sh:property     [ sh:description  "A section can have a description"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         skos:definition
+                        ] ;
+        sh:property     [ sh:description  "A section can have a type via dct:type"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dc:type
+                        ] ;
+        sh:targetClass  :Section .
+
+:OperatorContactPersonShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:description  "An operator contact person can have a phone number"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         foaf:phone
+                        ] ;
+        sh:property     [ sh:description  "An operator contact person must have a label"@en ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         rdfs:label
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "An operator contact person can have a creation date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dc:created
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "An operator contact person can have a validity end"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dc:valid
+                        ] ;
+        sh:property     [ sh:description  "An operator contact person must have a name"@en ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         foaf:name
+                        ] ;
+        sh:property     [ sh:class     :Operation ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      org:memberOf
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "An operator contact person can have a modification date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dc:modified
+                        ] ;
+        sh:property     [ sh:description  "An operator contact person can have a comment"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         rdfs:comment
+                        ] ;
+        sh:property     [ sh:description  "An operator contact person can have an email address"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         foaf:mbox
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "An operator contact person can have a validity start"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dc:issued
+                        ] ;
+        sh:property     [ sh:description  "An operator contact person must have a role within the organization"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         org:hasRole
+                        ] ;
+        sh:targetClass  :OperatorContactPerson .
+
+:OperationLocationShape
+        rdf:type        sh:NodeShape ;
+        sh:property     [ sh:class        :OperationLocation ;
+                          sh:description  "An operation location can be a revision of another operation location (optional)"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         prov:wasRevisionOf
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "An operation location must have a modification date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dc:modified
+                        ] ;
+        sh:property     [ sh:description  "An operation location must have exactly 1 geometry"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         ogc:hasGeometry
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "An operation location must have a validity start"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dc:issued
+                        ] ;
+        sh:property     [ sh:class        adms:Identifier ;
+                          sh:description  "An operation location has external identifiers (optional)"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         adms:identifier
+                        ] ;
+        sh:property     [ sh:class        :Operator ;
+                          sh:description  "An operation location must be linked to exactly one operator"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         prov:wasAttributedTo
+                        ] ;
+        sh:property     [ sh:class        org:Site ;
+                          sh:description  "An operation location can match one location (VKBO)"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         prov:hadPrimarySource
+                        ] ;
+        sh:property     [ sh:class        locn:Address ;
+                          sh:description  "An operation location can have an address"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         locn:address
+                        ] ;
+        sh:property     [ sh:description  "An operation location can optionally be influenced by an org:Site or another type"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         prov:wasInfluencedBy
+                        ] ;
+        sh:property     [ sh:description  "An operation location must have a label"@en ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         rdfs:label
+                        ] ;
+        sh:property     [ sh:class     :Operation ;
+                          sh:minCount  "0"^^xsd:int ;
+                          sh:path      ssn:inDeployment
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "An operation location must have a creation date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dc:created
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "An operation location can have a validity end"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dc:valid
+                        ] ;
+        sh:targetClass  :OperationLocation .
+
+:OperatorShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "An operator can have a modification date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dc:modified
+                        ] ;
+        sh:property     [ sh:datatype     xsd:dateTime ;
+                          sh:description  "An operator can have a creation date"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dc:created
+                        ] ;
+        sh:property     [ sh:description  "An operator must have a main activity"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         org:classification
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "An operator can have a validity start"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dc:issued
+                        ] ;
+        sh:property     [ sh:class        locn:Address ;
+                          sh:description  "An operator must have an address"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         locn:address
+                        ] ;
+        sh:property     [ sh:description  "An operator must have a label"@en ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         rdfs:label
+                        ] ;
+        sh:property     [ sh:datatype     xsd:date ;
+                          sh:description  "An operator can have a validity end"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         dc:valid
+                        ] ;
+        sh:property     [ sh:description  "An operator must be either an organization or a person but not both at the same time"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         dc:type
+                        ] ;
+        sh:property     [ sh:class        :Contactpersoon ;
+                          sh:description  "An operator can have multiple contact persons"@en ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         org:hasMember
+                        ] ;
+        sh:targetClass  :Operator .
+
+:ObservationShape  rdf:type  sh:NodeShape ;
+        sh:property     [ sh:class        :Emission ;
+                          sh:description  "An observation must be linked to exactly one measurement point or installation"@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "1"^^xsd:int ;
+                          sh:path         sosa:hasFeatureOfInterest
+                        ] ;
+        sh:property     [ sh:class        sosa:Result ;
+                          sh:description  "An observation must have a result."@en ;
+                          sh:maxCount     "1"^^xsd:int ;
+                          sh:minCount     "0"^^xsd:int ;
+                          sh:path         sosa:hasResult
+                        ] ;
+        sh:targetClass  :Observation .

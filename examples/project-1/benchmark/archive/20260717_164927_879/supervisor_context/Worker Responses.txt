@@ -1,0 +1,11 @@
+POOL-0 [ERROR]:
+OpenAI-compatible chat request failed: HTTP 404 - {"error":"no router for requested model","src":"llama-swap"}
+
+POOL-1 [ERROR]:
+OpenAI-compatible chat request failed: HTTP 404 - {"error":"no router for requested model","src":"llama-swap"}
+
+POOL-2 [ERROR]:
+OpenAI-compatible chat request failed: HTTP 404 - {"error":"no router for requested model","src":"llama-swap"}
+
+POOL-3 [ERROR]:
+OpenAI-compatible chat request failed: HTTP 404 - {"error":"no router for requested model","src":"llama-swap"}

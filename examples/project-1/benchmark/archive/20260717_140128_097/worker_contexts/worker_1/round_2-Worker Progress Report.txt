@@ -1,0 +1,8 @@
+worker_id=POOL-1
+status=CREATED
+target_shape=MeasurementPointShape
+target_class=https://example.org/ns/riepr#MeasurementPoint
+changed_triples_count=52
+created_or_updated_subjects=:Operator/mp-operator-001, :Operator/mp-operator-002, :OperationLocation/mp-loc-001, :OperationLocation/mp-loc-002, :MeasurementPoint/mp-001, :MeasurementPoint/mp-002
+validation_result=CONFORMS
+remaining_issues=Pre-existing OperationLocation/loc-001 and loc-002 SHACL violations remain (out of scope)

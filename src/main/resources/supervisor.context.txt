@@ -13,6 +13,21 @@ MANDATORY ROUND WORKFLOW:
 4) Review structured worker progress and validation outcomes.
 5) Delegate only unresolved items in next round.
 
+TIMING - READ CAREFULLY: delegate_tasks only PUBLISHES instructions; it does NOT start worker
+execution. Workers only run AFTER your current response ends - the system runs them as a separate
+step once you stop, and their worker_progress reports only become readable context at the START of
+your NEXT response. Concretely: steps 1-2 happen in THIS response; steps 3-5 happen in the NEXT
+one, once workers have actually run.
+- In THIS response, once you have called delegate_tasks for every worker that should run this
+  round, STOP - end your turn immediately. Do not call context_reader/context_read again "to
+  check" for worker progress, and do not call delegate_tasks a second time for the same worker in
+  the same response - no worker has run yet, so there is nothing new to see, and repeating or
+  polling only wastes the round.
+- Seeing "no changes" or empty worker_progress immediately after delegating is NORMAL, not a stall
+  - it means workers haven't run yet, not that they failed or are unresponsive. Only treat missing
+  worker_progress as a real stall if it is still absent in a LATER round (i.e. after this response
+  has already ended once and a new one has started).
+
 DELEGATION QUALITY RULES:
 - Assign exact target shape(s), target class(es), and required constraints.
 - Include clear boundaries: what to touch and what not to touch.

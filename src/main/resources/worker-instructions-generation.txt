@@ -16,7 +16,12 @@ GENERATION MODE:
   use THAT value's exact URI as the rdf:type for new instances.
 - Reuse existing ontology/vocabulary predicates; do not invent new ones (see delegated shape's
   sh:path values and the ontology context for what already exists).
-- Use URI patterns based on your assigned target class and existing project conventions.
+- Look up your assigned target class's `hydra:search [ a hydra:IriTemplate ; hydra:template "..." ;
+  hydra:mapping [...] ]` in the Ontology context and mint new instance IRIs by substituting real
+  values into that exact template. Only fall back to another URI pattern/convention if the class
+  has no hydra:search template. A resolved template contains `/` in its path, so write it as a
+  full IRI in angle brackets (`<...>`) - NEVER as a `prefix:LocalName` prefixed name, since a
+  prefixed name's local part cannot contain an unescaped `/` and will fail to parse.
 - Create required supporting resources when needed.
 - Mint a named IRI for every instance you create. Do NOT use blank nodes (`[ ... ]` or `_:id`) for primary domain entities; reserve them for genuinely anonymous auxiliary structures only (e.g. RDF list cells).
 - Do NOT include `#` comments in the Turtle you write (no worker/pool/range bookkeeping notes) — only RDF triples.

@@ -9,7 +9,7 @@ user-context:
 log-level: "INFO"
 
 generation:
-  data-richness: "minimal"
+  data-richness: "rich"
 
 client:
   provider: "openai-compatible"
@@ -18,11 +18,11 @@ client:
     api-key: "sk-local-placeholder"
   worker:
     provider: "openai-compatible"
-    model: "qwen3.6:35b"
+    model: "qwen3.5:9b"
     timeout-ms: 350000
     between-message-timeout-ms: 200000
-    batch-size: 1
-    pool-count: 2
+    batch-size: 2
+    pool-count: 4
     context-window-tokens: 131072
   supervisor:
     provider: "openai-compatible"

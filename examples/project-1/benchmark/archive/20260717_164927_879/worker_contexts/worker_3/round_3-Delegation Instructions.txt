@@ -1,0 +1,40 @@
+TASK: Create 2 instances each for Filter and OperationLocation classes.
+
+CLASS 1 - Filter:
+- IRI template: No hydra:search declaration for :Filter. Use default prefix : <https://example.org/ns/riepr#> with consistent local name convention, e.g., <https://example.org/ns/riepr#Filter-{uuid}>
+- Required SHACL properties (FilterShape): rdfs:label (min 1), adms:status (min 1, max 1, class adms:Status), dc:created (min 1, xsd:dateTime), dc:issued (min 1, xsd:date), dc:modified (min 1, xsd:dateTime), sosa:isHostedBy (min 1, max 1, class :OperationLocation)
+- Optional: dc:valid, ogc:hasGeometry, ssn:hasSubSystem (ssn:System), prov:wasRevisionOf (ssn:System), adms:identifier, dc:type, ssn:hasDeployment (:Operation)
+
+CLASS 2 - OperationLocation:
+- IRI template: <https://example.org/id/exploitatielocatie/{geoId}/{issued}/{created}> — substitute real values for {geoId}, {issued}, {created}
+- Required SHACL properties (OperationLocationShape): rdfs:label (min 1), dc:created (min 1, xsd:dateTime), dc:issued (min 1, xsd:date), dc:modified (min 1, xsd:dateTime), ogc:hasGeometry (min 1, max 1), prov:wasAttributedTo (min 1, max 1, class :Operator)
+- Optional: dc:valid, org:Site (:prov:hadPrimarySource), locn:Address, adms:identifier, prov:wasRevisionOf (:OperationLocation), ssn:inDeployment (:Operation), prov:wasInfluencedBy
+
+SCENARIO: Cement factory in Antwerp. Create 2 operation locations (e.g., "Cement Factory Antwerp Main Site", "Antwerp Logistics Hub") and 2 filters (e.g., "Baghouse Filter Unit 1", "Electrostatic Precipitator"). Each filter hosted by an OperationLocation instance you create inline. Use status :actief. For geometry, use WKT POINT values like "POINT(4.4025 51.2194)".
+
+EXAMPLE for OperationLocation:
+@prefix : <https://example.org/ns/riepr#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix ogc: <http://www.opengis.net/ont/geosparql#> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://example.org/id/exploitatielocatie/geo123/2020-01-01/2020-01-01T00:00:00> a :OperationLocation ;
+    rdfs:label "Cement Factory Antwerp Main Site"@en ;
+    dc:created "2020-01-01T00:00:00"^^xsd:dateTime ;
+    dc:issued "2020-01-01"^^xsd:date ;
+    dc:modified "2024-06-01T12:00:00"^^xsd:dateTime ;
+    ogc:hasGeometry [ a ogc:Geometry ; ogc:asWKT "POINT(4.4025 51.2194)"^^ogc:wktLiteral ] ;
+    prov:wasAttributedTo <https://example.org/ns/riepr#Operator-Antwerp-Cement> .
+
+EXAMPLE for Filter (no hydra template - use default prefix):
+<https://example.org/ns/riepr#Filter-Baghouse-001> a :Filter ;
+    rdfs:label "Baghouse Filter Unit 1"@en ;
+    adms:status :actief ;
+    dc:created "2020-01-01T00:00:00"^^xsd:dateTime ;
+    dc:issued "2020-01-01"^^xsd:date ;
+    dc:modified "2024-06-01T12:00:00"^^xsd:dateTime ;
+    sosa:isHostedBy <https://example.org/id/exploitatielocatie/geo123/2020-01-01/2020-01-01T00:00:00> .
+
+NOTE: Predicates/classes must come only from the ontology/SHACL context. Each triplestore_add call is validated as standalone Turtle. Create instances (no existing ones to fix).

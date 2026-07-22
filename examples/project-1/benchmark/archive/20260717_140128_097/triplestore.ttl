@@ -1,0 +1,333 @@
+@prefix :           <https://example.org/ns/riepr#> .
+@prefix adms:       <http://www.w3.org/ns/adms#> .
+@prefix concept:    <https://example.org/id/concept/> .
+@prefix dbo:        <http://dbpedia.org/ontology/> .
+@prefix dc:         <http://purl.org/dc/terms/> .
+@prefix dct:        <http://purl.org/dc/terms/> .
+@prefix foaf:       <http://xmlns.com/foaf/0.1/> .
+@prefix hydra:      <http://www.w3.org/ns/hydra/core#> .
+@prefix locn:       <http://www.w3.org/ns/locn#> .
+@prefix nace:       <http://data.europa.eu/ux2/nace2.1/> .
+@prefix ogc:        <http://www.opengis.net/ont/geosparql#> .
+@prefix org:        <http://www.w3.org/ns/org#> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix pplan:      <http://purl.org/net/p-plan#> .
+@prefix prov:       <http://www.w3.org/ns/prov#> .
+@prefix qudt:       <http://qudt.org/schema/qudt/> .
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:         <http://www.w3.org/ns/shacl#> .
+@prefix skos:       <http://www.w3.org/2004/02/skos/core#> .
+@prefix sosa:       <http://www.w3.org/ns/sosa/> .
+@prefix ssn:        <http://www.w3.org/ns/ssn/> .
+@prefix ssn-system: <http://www.w3.org/ns/ssn/systems/> .
+@prefix vann:       <http://purl.org/vocab/vann/> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+
+<https://example.org/ns/riepr#Process/process-002>
+        rdf:type     :Process , ssn:System ;
+        rdfs:label   "Steel production process"@en ;
+        dc:created   "2018-05-15T08:00:00"^^xsd:dateTime ;
+        dc:modified  "2024-03-20T14:45:00"^^xsd:dateTime ;
+        adms:status  :actief .
+
+<https://example.org/ns/riepr#WithdrawalPoint/wp-002>
+        rdf:type         ogc:SpatialObject , ssn:System , :WithdrawalPoint ;
+        rdfs:label       "River water intake Liege"@en ;
+        dbo:depth        8.2 ;
+        dc:created       "2017-05-01T08:00:00"^^xsd:dateTime ;
+        dc:issued        "2017-05-15"^^xsd:date ;
+        dc:modified      "2024-02-20T11:00:00"^^xsd:dateTime ;
+        dc:valid         "2035-12-31"^^xsd:date ;
+        adms:status      :actief ;
+        sosa:isHostedBy  <https://example.org/ns/riepr#OperationLocation/liege-intake> .
+
+<https://example.org/ns/riepr#OperationLocation/loc-001>
+        rdf:type    :OperationLocation ;
+        rdfs:label  "Cement factory Antwerp"@en .
+
+:EmissionPoint_002  rdf:type  :EmissionPoint ;
+        rdfs:label       "Discharge Point West River"@en ;
+        dbo:depth        3.2 ;
+        dc:created       "2021-03-15T08:00:00"^^xsd:dateTime ;
+        dc:issued        "2021-03-15"^^xsd:date ;
+        dc:modified      "2024-07-01T14:00:00"^^xsd:dateTime ;
+        adms:status      :actief ;
+        sosa:isHostedBy  <https://example.org/ns/riepr#OperationLocation/loc-001> .
+
+<https://example.org/ns/riepr#Operator/mp-operator-001>
+        rdf:type      foaf:Organization , :Operator ;
+        rdfs:label    "Environmental Agency Flanders"@en ;
+        dc:type       foaf:Organization ;
+        locn:address  [ rdf:type    locn:Address ;
+                        rdfs:label  "Leuven"
+                      ] .
+
+<https://example.org/ns/riepr#Operator/rotterdam-op-001>
+        rdf:type    :Operator ;
+        rdfs:label  "Pieter de Vries" .
+
+<https://example.org/ns/riepr#OperationLocation/liege-intake>
+        rdf:type              :OperationLocation ;
+        rdfs:label            "Water intake point Liege"@en ;
+        dc:created            "2017-03-15T00:00:00"^^xsd:dateTime ;
+        dc:issued             "2017-04-01"^^xsd:date ;
+        dc:modified           "2024-02-10T09:30:00"^^xsd:dateTime ;
+        ogc:hasGeometry       [ rdf:type   ogc:Geometry ;
+                                ogc:asWKT  "POINT(5.5729 50.6326)"^^ogc:wktLiteral
+                              ] ;
+        prov:wasAttributedTo  <https://example.org/ns/riepr#Operator/liege-operator> .
+
+<https://example.org/ns/riepr#Process/process-001>
+        rdf:type     ssn:System , :Process ;
+        rdfs:label   "Cement kiln operation"@en ;
+        dc:created   "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:modified  "2024-06-15T10:30:00"^^xsd:dateTime ;
+        adms:status  :actief .
+
+<https://example.org/ns/riepr#Operator/antwerp-operator>
+        rdf:type      :Operator , foaf:Organization ;
+        rdfs:label    "Antwerp Industrial Group"@en ;
+        dc:type       foaf:Organization ;
+        locn:address  [ rdf:type    locn:Address ;
+                        rdfs:label  "Industrial zone Antwerp"@en
+                      ] .
+
+<https://example.org/ns/riepr#WithdrawalPoint/wp-001>
+        rdf:type         ssn:System , ogc:SpatialObject , :WithdrawalPoint ;
+        rdfs:label       "Groundwater intake Antwerp"@en ;
+        dbo:depth        15.5 ;
+        dc:created       "2019-07-01T08:00:00"^^xsd:dateTime ;
+        dc:issued        "2019-07-01"^^xsd:date ;
+        dc:modified      "2024-01-15T10:00:00"^^xsd:dateTime ;
+        dc:valid         "2030-12-31"^^xsd:date ;
+        adms:status      :actief ;
+        sosa:isHostedBy  <https://example.org/ns/riepr#OperationLocation/antwerp-intake> .
+
+:EmissionPoint_001  rdf:type  :EmissionPoint ;
+        rdfs:label       "Stack 1"@en ;
+        dbo:diameter     2.5 ;
+        dbo:height       45.0 ;
+        dc:created       "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued        "2020-01-01"^^xsd:date ;
+        dc:modified      "2024-06-15T10:30:00"^^xsd:dateTime ;
+        adms:status      :actief ;
+        sosa:isHostedBy  <https://example.org/ns/riepr#OperationLocation/loc-001> .
+
+<https://example.org/ns/riepr#Operator/operator-loc003>
+        rdf:type    :Operator ;
+        rdfs:label  "Brussels Environmental Agency" .
+
+<https://example.org/ns/riepr#OperationLocation/mp-loc-002>
+        rdf:type              :OperationLocation ;
+        rdfs:label            "Monitoring Station South"@en ;
+        dc:created            "2022-03-20T11:30:00"^^xsd:dateTime ;
+        dc:issued             "2022-03-20"^^xsd:date ;
+        dc:modified           "2024-09-15T14:00:00"^^xsd:dateTime ;
+        ogc:hasGeometry       [ rdf:type   ogc:Geometry ;
+                                ogc:asWKT  "POINT(50.6326 3.7972)"^^ogc:wktLiteral
+                              ] ;
+        prov:wasAttributedTo  <https://example.org/ns/riepr#Operator/mp-operator-002> .
+
+<https://example.org/ns/riepr#OperationLocation/filter-loc-002>
+        rdf:type              :OperationLocation ;
+        rdfs:label            "Filter Station Liege"@en ;
+        dc:created            "2023-02-15T10:00:00"^^xsd:dateTime ;
+        dc:issued             "2023-02-15"^^xsd:date ;
+        dc:modified           "2024-07-20T09:15:00"^^xsd:dateTime ;
+        ogc:hasGeometry       [ rdf:type   ogc:Geometry ;
+                                ogc:asWKT  "POINT(50.6326 5.5729)"^^ogc:wktLiteral
+                              ] ;
+        prov:wasAttributedTo  <https://example.org/ns/riepr#Operator/mp-operator-002> .
+
+<https://example.org/ns/riepr#Installation/installation-002>
+        rdf:type         :Installation ;
+        rdfs:label       "Steel plant Liège Installation 1"@en ;
+        dc:created       "2018-05-15T08:00:00"^^xsd:dateTime ;
+        dc:issued        "2018-06-01"^^xsd:date ;
+        dc:modified      "2024-03-20T14:45:00"^^xsd:dateTime ;
+        adms:status      :actief ;
+        sosa:isHostedBy  <https://example.org/ns/riepr#OperationLocation/loc-002> .
+
+<https://example.org/ns/riepr#OperationLocation/loc-004>
+        rdf:type              :OperationLocation ;
+        rdfs:label            "Rotterdam treatment plant" ;
+        <http://purl.org/dc/terms#created>
+                "2022-06-20T09:30:00" ;
+        <http://purl.org/dc/terms#issued>
+                "2022-06-20" ;
+        <http://purl.org/dc/terms#modified>
+                "2025-01-10T14:00:00" ;
+        ogc:hasGeometry       [ rdf:type   ogc:Feature ;
+                                ogc:asWKT  "POINT(4.4778 51.9225)"^^ogc:wktLiteral
+                              ] ;
+        prov:wasAttributedTo  <https://example.org/ns/riepr#Operator/rotterdam-op-001> .
+
+<https://example.org/ns/riepr#OperationLocation/mp-loc-001>
+        rdf:type              :OperationLocation ;
+        rdfs:label            "Monitoring Station North"@en ;
+        dc:created            "2022-01-15T09:00:00"^^xsd:dateTime ;
+        dc:issued             "2022-01-15"^^xsd:date ;
+        dc:modified           "2024-08-01T10:00:00"^^xsd:dateTime ;
+        ogc:hasGeometry       [ rdf:type   ogc:Geometry ;
+                                ogc:asWKT  "POINT(51.2194 4.4025)"^^ogc:wktLiteral
+                              ] ;
+        prov:wasAttributedTo  <https://example.org/ns/riepr#Operator/mp-operator-001> .
+
+<https://example.org/ns/riepr#OperationLocation/filter-loc-001>
+        rdf:type              :OperationLocation ;
+        rdfs:label            "Filter House Antwerp"@en ;
+        dc:created            "2022-11-01T09:00:00"^^xsd:dateTime ;
+        dc:issued             "2022-11-01"^^xsd:date ;
+        dc:modified           "2024-05-10T14:30:00"^^xsd:dateTime ;
+        ogc:hasGeometry       [ rdf:type   ogc:Geometry ;
+                                ogc:asWKT  "POINT(51.2194 4.4025)"^^ogc:wktLiteral
+                              ] ;
+        prov:wasAttributedTo  <https://example.org/ns/riepr#Operator/mp-operator-001> .
+
+:actief  rdf:type   adms:Status ;
+        rdfs:label  "Active"@en .
+
+<https://example.org/ns/riepr#Filter/filter-002>
+        rdf:type         :Filter ;
+        rdfs:label       "Carbon Filtration System"@en ;
+        dc:created       "2023-04-20T09:30:00"^^xsd:dateTime ;
+        dc:issued        "2023-04-25"^^xsd:date ;
+        dc:modified      "2024-08-15T11:00:00"^^xsd:dateTime ;
+        adms:status      :actief ;
+        sosa:isHostedBy  <https://example.org/ns/riepr#OperationLocation/filter-loc-002> .
+
+<https://example.org/ns/riepr#MeasurementPoint/mp-002>
+        rdf:type         :MeasurementPoint ;
+        rdfs:label       "Water Quality Sensor Beta"@en ;
+        dc:created       "2023-09-15T10:30:00"^^xsd:dateTime ;
+        dc:issued        "2023-09-15"^^xsd:date ;
+        dc:modified      "2024-11-01T09:00:00"^^xsd:dateTime ;
+        ogc:hasGeometry  [ rdf:type   ogc:Geometry ;
+                           ogc:asWKT  "POINT(50.6330 3.7980)"^^ogc:wktLiteral
+                         ] ;
+        adms:status      :actief ;
+        sosa:isHostedBy  <https://example.org/ns/riepr#OperationLocation/mp-loc-002> .
+
+<https://example.org/ns/riepr#Operation/oper-004>
+        rdf:type                :Operation ;
+        rdfs:label              "Chemical Neutralization Operation"@en ;
+        dc:created              "2023-08-10T09:00:00"^^xsd:dateTime ;
+        dc:issued               "2023-08-15"^^xsd:date ;
+        dc:modified             "2024-10-05T16:30:00"^^xsd:dateTime ;
+        adms:status             :actief ;
+        ssn:deployedOnPlatform  [ rdf:type              :OperationLocation ;
+                                  rdfs:label            "Chemical Processing Unit B"@en ;
+                                  dc:created            "2023-08-10T09:00:00"^^xsd:dateTime ;
+                                  dc:issued             "2023-08-15"^^xsd:date ;
+                                  dc:modified           "2024-10-05T16:30:00"^^xsd:dateTime ;
+                                  ogc:hasGeometry       [ rdf:type   ogc:Geometry ;
+                                                          ogc:asWKT  "POINT(50.6330 3.7985)"^^ogc:wktLiteral
+                                                        ] ;
+                                  prov:wasAttributedTo  <https://example.org/ns/riepr#Operator/mp-operator-002>
+                                ] ;
+        ssn:implements          [ rdf:type     :Process , ssn:System ;
+                                  rdfs:label   "pH Adjustment Process"@en ;
+                                  dc:created   "2023-08-10T09:00:00"^^xsd:dateTime ;
+                                  dc:modified  "2024-10-05T16:30:00"^^xsd:dateTime ;
+                                  adms:status  :actief
+                                ] .
+
+<https://example.org/ns/riepr#Installation/installation-001>
+        rdf:type         :Installation ;
+        rdfs:label       "Cement factory Antwerp Installation 1"@en ;
+        dc:created       "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued        "2020-01-01"^^xsd:date ;
+        dc:modified      "2024-06-15T10:30:00"^^xsd:dateTime ;
+        adms:status      :actief ;
+        sosa:isHostedBy  <https://example.org/ns/riepr#OperationLocation/loc-001> .
+
+<https://example.org/ns/riepr#OperationLocation/loc-003>
+        rdf:type              :OperationLocation ;
+        rdfs:label            "Brussels treatment plant" ;
+        <http://purl.org/dc/terms#created>
+                "2021-03-15T08:00:00"^^xsd:dateTime ;
+        <http://purl.org/dc/terms#issued>
+                "2021-03-15"^^xsd:date ;
+        <http://purl.org/dc/terms#modified>
+                "2024-07-01T12:00:00"^^xsd:dateTime ;
+        ogc:hasGeometry       [ rdf:type   ogc:Feature ;
+                                ogc:asWKT  "POINT(4.3578 50.8504)"^^ogc:wktLiteral
+                              ] ;
+        prov:wasAttributedTo  <https://example.org/ns/riepr#Operator/mp-operator-001> .
+
+<https://example.org/ns/riepr#Filter/filter-001>
+        rdf:type         :Filter ;
+        rdfs:label       "Particulate Matter Filter Unit"@en ;
+        dc:created       "2023-01-10T08:00:00"^^xsd:dateTime ;
+        dc:issued        "2023-01-15"^^xsd:date ;
+        dc:modified      "2024-06-20T10:00:00"^^xsd:dateTime ;
+        adms:status      :actief ;
+        sosa:isHostedBy  <https://example.org/ns/riepr#OperationLocation/filter-loc-001> .
+
+<https://example.org/ns/riepr#OperationLocation/antwerp-intake>
+        rdf:type              :OperationLocation ;
+        rdfs:label            "Water intake point Antwerp"@en ;
+        dc:created            "2019-06-01T00:00:00"^^xsd:dateTime ;
+        dc:issued             "2019-06-01"^^xsd:date ;
+        dc:modified           "2024-01-01T00:00:00"^^xsd:dateTime ;
+        ogc:hasGeometry       [ rdf:type   ogc:Geometry ;
+                                ogc:asWKT  "POINT(4.4025 51.2194)"^^ogc:wktLiteral
+                              ] ;
+        prov:wasAttributedTo  <https://example.org/ns/riepr#Operator/antwerp-operator> .
+
+<https://example.org/ns/riepr#MeasurementPoint/mp-001>
+        rdf:type         :MeasurementPoint ;
+        rdfs:label       "Air Quality Sensor Alpha"@en ;
+        dc:created       "2023-06-01T08:00:00"^^xsd:dateTime ;
+        dc:issued        "2023-06-01"^^xsd:date ;
+        dc:modified      "2024-10-01T12:00:00"^^xsd:dateTime ;
+        ogc:hasGeometry  [ rdf:type   ogc:Geometry ;
+                           ogc:asWKT  "POINT(51.2200 4.4030)"^^ogc:wktLiteral
+                         ] ;
+        adms:status      :actief ;
+        sosa:isHostedBy  <https://example.org/ns/riepr#OperationLocation/mp-loc-001> .
+
+<https://example.org/ns/riepr#Operation/oper-003>
+        rdf:type                :Operation ;
+        rdfs:label              "Thermal Oxidation Operation"@en ;
+        dc:created              "2023-06-15T08:00:00"^^xsd:dateTime ;
+        dc:issued               "2023-06-20"^^xsd:date ;
+        dc:modified             "2024-09-10T14:00:00"^^xsd:dateTime ;
+        adms:status             :actief ;
+        ssn:deployedOnPlatform  [ rdf:type              :OperationLocation ;
+                                  rdfs:label            "Thermal Treatment Zone A"@en ;
+                                  dc:created            "2023-06-15T08:00:00"^^xsd:dateTime ;
+                                  dc:issued             "2023-06-20"^^xsd:date ;
+                                  dc:modified           "2024-09-10T14:00:00"^^xsd:dateTime ;
+                                  ogc:hasGeometry       [ rdf:type   ogc:Geometry ;
+                                                          ogc:asWKT  "POINT(51.2200 4.4035)"^^ogc:wktLiteral
+                                                        ] ;
+                                  prov:wasAttributedTo  <https://example.org/ns/riepr#Operator/mp-operator-001>
+                                ] ;
+        ssn:implements          [ rdf:type     :Process , ssn:System ;
+                                  rdfs:label   "Thermal Decomposition"@en ;
+                                  dc:created   "2023-06-15T08:00:00"^^xsd:dateTime ;
+                                  dc:modified  "2024-09-10T14:00:00"^^xsd:dateTime ;
+                                  adms:status  :actief
+                                ] .
+
+<https://example.org/ns/riepr#OperationLocation/loc-002>
+        rdf:type    :OperationLocation ;
+        rdfs:label  "Steel plant Liège"@en .
+
+<https://example.org/ns/riepr#Operator/liege-operator>
+        rdf:type      :Operator , foaf:Organization ;
+        rdfs:label    "Liege Water Authority"@en ;
+        dc:type       foaf:Organization ;
+        locn:address  [ rdf:type    locn:Address ;
+                        rdfs:label  "Port area Liege"@en
+                      ] .
+
+<https://example.org/ns/riepr#Operator/mp-operator-002>
+        rdf:type      :Operator , foaf:Organization ;
+        rdfs:label    "Regional Monitoring Service"@en ;
+        dc:type       foaf:Organization ;
+        locn:address  [ rdf:type    locn:Address ;
+                        rdfs:label  "Brussel"
+                      ] .

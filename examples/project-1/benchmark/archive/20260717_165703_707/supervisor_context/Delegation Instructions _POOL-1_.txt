@@ -1,0 +1,34 @@
+TARGET: WithdrawalPointShape (class :WithdrawalPoint), MeasurementPointShape (class :MeasurementPoint)
+
+IRI PATTERNS:
+- WithdrawalPoint: <https://example.org/id/onttrekkingspunt/{uuid}/{issued}/{created}> — substitute {uuid} with localId, {issued} with dc:date, {created} with dc:dateTime
+- MeasurementPoint: <https://example.org/id/meetpunt/{uuid}/{issued}/{created}> — same variable substitution
+
+TASK: CREATE 2 instances per class (4 total). Each must be SHACL-conformant per the shape definitions.
+
+SHACL CONSTRAINTS (from shapes):
+WithdrawalPoint: rdfs:label (min 1), dc:issued (date, min 1), dc:created (dateTime, min 1), dc:modified (dateTime, min 1), adms:status (adms:Status, min 1), sosa:isHostedBy (:OperationLocation, min 1), dbo:depth (max 1), dc:type (max 1), adms:identifier (max *), prov:wasRevisionOf (max 1), ssn:hasSubSystem (ssn:System, max *; also :Filter subtype), [inverse ssn:hasSubSystem] (max *), ssn:hasDeployment (:Operation, max *), dc:valid (date, max 1), ogc:hasGeometry (max 1)
+
+MeasurementPoint: rdfs:label (min 1), dc:issued (date, min 1), dc:created (dateTime, min 1), dc:modified (dateTime, min 1), adms:status (adms:Status, min 1), sosa:isHostedBy (:OperationLocation, min 1), :section (:Section, max *), dc:type (max 1), adms:identifier (max *), prov:wasRevisionOf (max 1), ssn:hasSubSystem (ssn:System, max *; also :MeasurementInstrument subtype), [inverse ssn:hasSubSystem] (max *), ssn:hasDeployment (:Operation, max *), dc:valid (date, max 1), ogc:hasGeometry (max 1)
+
+EXAMPLE instances:
+<https://example.org/id/onttrekkingspunt/WP-001/2024-01-15/2024-01-15T10:00:00> a :WithdrawalPoint ;
+  rdfs:label "Groundwater Extraction Well 1"@en ;
+  dc:issued "2024-01-15"^^xsd:date ;
+  dc:created "2024-01-15T10:00:00"^^xsd:dateTime ;
+  dc:modified "2024-01-15T10:00:00"^^xsd:dateTime ;
+  adms:status :actief ;
+  sosa:isHostedBy <https://example.org/id/exploitatielocatie/geo-antwerp-001/2024-01-15/2024-01-15T10:00:00> ;
+  dbo:depth "25.5"^^xsd:decimal .
+
+<https://example.org/id/meetpunt/MP-001/2024-01-15/2024-01-15T10:00:00> a :MeasurementPoint ;
+  rdfs:label "Air Quality Monitor Stack 1"@en ;
+  dc:issued "2024-01-15"^^xsd:date ;
+  dc:created "2024-01-15T10:00:00"^^xsd:dateTime ;
+  dc:modified "2024-01-15T10:00:00"^^xsd:dateTime ;
+  adms:status :actief ;
+  sosa:isHostedBy <https://example.org/id/exploitatielocatie/geo-antwerp-001/2024-01-15/2024-01-15T10:00:00> ;
+  ogc:hasGeometry [ a ogc:Geometry ; ogc:asWKT "POINT(4.4026 51.2195)"^^ogc:wktLiteral ] .
+
+PREDICATES/CLASSES: Only from ontology/SHACL context. Each triplestore_add is validated as standalone Turtle.
+REPORT: worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues)

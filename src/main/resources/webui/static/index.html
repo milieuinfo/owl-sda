@@ -42,6 +42,7 @@
         <button class="tab-btn active" data-tab="messages">Messages</button>
         <button class="tab-btn" data-tab="output">Output</button>
         <button class="tab-btn" data-tab="triplestore">Triple Store</button>
+        <button class="tab-btn" data-tab="trends">Trends</button>
       </nav>
 
       <div id="tab-messages" class="tab-panel active">
@@ -61,6 +62,17 @@
       <div id="tab-triplestore" class="tab-panel">
         <div class="file-meta" id="triplestore-meta"></div>
         <pre class="file-view" id="triplestore-view"></pre>
+      </div>
+
+      <div id="tab-trends" class="tab-panel">
+        <div class="chart-card">
+          <div class="chart-title">Triples in store</div>
+          <div class="chart-wrap" id="chart-triples"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">SHACL violations</div>
+          <div class="chart-wrap" id="chart-violations"></div>
+        </div>
       </div>
     </section>
   </main>

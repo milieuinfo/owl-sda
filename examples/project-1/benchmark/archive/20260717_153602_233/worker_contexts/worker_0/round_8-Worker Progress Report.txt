@@ -1,0 +1,8 @@
+worker_id=POOL-0
+status=FIXED
+target_shape=ObservationResultShape
+target_class=https://example.org/ns/riepr#ObservationResult
+changed_triples_count=20
+created_or_updated_subjects=https://example.org/ns/riepr#ObservationResult_001, https://example.org/ns/riepr#ObservationResult_002
+validation_result=CONFORMS
+remaining_issues=None - both ObservationResult_001 and ObservationResult_002 conform to ObservationResultShape. Unrecognized class/predicate warnings originate from other workers' data (geosparql, locn, adms#Status, prov wasDerivedFrom, sosa resultTime/hasResultFeature, skos prefLabel) and are outside delegated scope.

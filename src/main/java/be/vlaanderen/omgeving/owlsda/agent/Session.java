@@ -79,6 +79,25 @@ public interface Session extends AutoCloseable {
     return System.currentTimeMillis();
   }
 
+  /**
+   * Returns the prompt/input token count reported for this session's most recent completed call -
+   * an approximation of how much of the model's context window is currently occupied, as opposed to
+   * {@link #getInputTokensUsed()} which is a cumulative sum across every call this session has ever
+   * made. Implementations that cannot provide this can keep the default value.
+   */
+  default long getLastPromptTokens() {
+    return 0L;
+  }
+
+  /**
+   * Whether this session currently has a prompt in flight (between {@link #prompt} being called and
+   * its result/error being delivered). Implementations that cannot track this can keep the default
+   * value.
+   */
+  default boolean isBusy() {
+    return false;
+  }
+
   /** Indicates whether this session has been idle for at least {@code idleThresholdMs}. */
   default boolean isIdleSince(long idleThresholdMs) {
     long elapsedMs = System.currentTimeMillis() - getLastAssistantActivityMs();

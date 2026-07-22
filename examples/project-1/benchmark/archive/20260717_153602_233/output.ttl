@@ -1,0 +1,245 @@
+@prefix : <https://example.org/ns/riepr#> .
+@prefix adms: <http://www.w3.org/ns/adms#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix hydra: <http://www.w3.org/ns/hydra/core#> .
+@prefix locn: <http://www.w3.org/ns/locn#> .
+@prefix nace: <http://data.europa.eu/ux2/nace2.1/> .
+@prefix ogc: <http://www.opengis.net/ont/geosparql#> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix owl: <http://www.w3.org/ns/owl#> .
+@prefix pplan: <http://purl.org/net/p-plan#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/ns/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/4/02/skos/core#> .
+@prefix sosa: <http://www.w3.org/ns/sosa/> .
+@prefix ssn: <http://www.w3.org/ns/ssn/> .
+@prefix ssn-system: <http://www.w3.org/ns/ssn/systems/> .
+@prefix vann: <http://purl.org/vocab/vann/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Locations & Operators
+# =============================================================================
+
+:OperationLocation_001  rdf:type              :OperationLocation ;
+        rdfs:label            "Cement factory Antwerp"@en ;
+        dc:created            "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued             "2020-01-01"^^xsd:date ;
+        dc:modified           "2024-06-15T10:30:00"^^xsd:dateTime ;
+        ogc:hasGeometry       [ rdf:type   ogc:Geometry ] ;
+        prov:wasAttributedTo  :Operator_001 .
+
+:Operator_001  rdf:type  :Operator ;
+        rdfs:label    "Cement Group Antwerp"@en ;
+        dc:type       <http://purl.org/linked-data/cube#SocialAccount> ;
+        locn:address  [ rdf:type    locn:Address ;
+                        rdfs:label  "Industriepark 1, 2000 Antwerpen"@en
+                      ] .
+
+:actief  rdf:type  skos:Concept , adms:Status ;
+        rdfs:label      "Active"@en ;
+        skos:prefLabel  "Active"@en .
+
+# =============================================================================
+# Installations (with required adms:status and sosa:isHostedBy)
+# =============================================================================
+
+:Installation_001  rdf:type              :Installation ;
+        ssn:implementedBy           :Process_001 ;
+        rdfs:label                  "Line 1"@en ;
+        dc:created                  "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued                   "2020-01-01"^^xsd:date ;
+        dc:modified                 "2024-06-15T10:30:00"^^xsd:dateTime ;
+        prov:wasAttributedTo        :Operator_001 ;
+        adms:status                 :actief ;
+        sosa:isHostedBy             :OperationLocation_001 .
+
+:Installation_002  rdf:type              :Installation ;
+        ssn:hasProperty             :InstallationProperty_001 ;
+        rdfs:label                  "Line 2"@en ;
+        dc:created                  "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued                   "2020-01-01"^^xsd:date ;
+        dc:modified                 "2024-06-15T10:30:00"^^xsd:dateTime ;
+        prov:wasAttributedTo        :Operator_001 ;
+        adms:status                 :actief ;
+        sosa:isHostedBy             :OperationLocation_001 .
+
+:Installation_003  rdf:type              :Installation ;
+        ssn:hasProperty             :InstallationProperty_002 ;
+        rdfs:label                  "Line 3"@en ;
+        dc:created                  "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued                   "2020-01-01"^^xsd:date ;
+        dc:modified                 "2024-06-15T10:30:00"^^xsd:dateTime ;
+        prov:wasAttributedTo        :Operator_001 ;
+        adms:status                 :actief ;
+        sosa:isHostedBy             :OperationLocation_001 .
+
+# =============================================================================
+# Installation Properties (with required dc:type, qudt:numericValue, qudt:hasUnit, ssn:isPropertyOf)
+# =============================================================================
+
+:InstallationProperty_001  rdf:type           :InstallationProperty ;
+        dc:type                        :CapacityQuantity ;
+        qudt:numericValue              "100"^^xsd:decimal ;
+        qudt:hasUnit                   <http://qudt.org/vocab/unit/T> ;
+        ssn:isPropertyOf               :Installation_002 .
+
+:InstallationProperty_002  rdf:type           :InstallationProperty ;
+        dc:type                        :CapacityQuantity ;
+        qudt:numericValue              "150"^^xsd:decimal ;
+        qudt:hasUnit                   <http://qudt.org/vocab/unit/T> ;
+        ssn:isPropertyOf               :Installation_003 .
+
+# =============================================================================
+# Operation & Processes (with required adms:status and ssn:deployedOnPlatform)
+# =============================================================================
+
+:Operation_001  rdf:type              :Operation ;
+        ssn:implementedBy           :Process_001 ;
+        rdfs:label                  "Cement production"@en ;
+        dc:created                  "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued                   "2020-01-01"^^xsd:date ;
+        dc:modified                 "2024-06-15T10:30:00"^^xsd:dateTime ;
+        prov:wasAttributedTo        :Operator_001 ;
+        adms:status                 :actief ;
+        ssn:deployedOnPlatform      :OperationLocation_001 .
+
+:Process_001  rdf:type              :Process ;
+        ssn:implements              :Operation_001 ;
+        rdfs:label                  "Cement production process"@en ;
+        dc:created                  "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued                   "2020-01-01"^^xsd:date ;
+        dc:modified                 "2024-06-15T10:30:00"^^xsd:dateTime ;
+        prov:wasAttributedTo        :Operator_001 ;
+        adms:status                 :actief .
+
+# =============================================================================
+# Emission & Process Variables (with required adms:status)
+# =============================================================================
+
+:Emission_001  rdf:type              :Emission ;
+        sosa:isFeatureOfInterestOf  :Observation_001 ;
+        rdfs:label                  "CO2 emission"@en ;
+        dc:created                  "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued                   "2020-01-01"^^xsd:date ;
+        dc:modified                 "2024-06-15T10:30:00"^^xsd:dateTime ;
+        adms:status                 :actief .
+
+:Emission_002  rdf:type              :Emission ;
+        sosa:isFeatureOfInterestOf  :Observation_002 ;
+        rdfs:label                  "NOx emission"@en ;
+        dc:created                  "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued                   "2020-01-01"^^xsd:date ;
+        dc:modified                 "2024-06-15T10:30:00"^^xsd:dateTime ;
+        adms:status                 :actief .
+
+:ProcessVariable_001  rdf:type              :ProcessVariable ;
+        rdfs:label                  "Temperature"@en ;
+        dc:created                  "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued                   "2020-01-01"^^xsd:date ;
+        dc:modified                 "2024-06-15T10:30:00"^^xsd:dateTime ;
+        adms:status                 :actief .
+
+# =============================================================================
+# Observation & MeasurementPoint (with required adms:status and sosa:isHostedBy)
+# =============================================================================
+
+:Observation_001  rdf:type              :Observation ;
+        sosa:hasFeatureOfInterest   :Emission_001 ;
+        sosa:hasResult              [ rdf:type  sosa:Result ] .
+
+:Observation_002  rdf:type              :Observation ;
+        sosa:hasFeatureOfInterest   :Emission_002 ;
+        sosa:hasResult              [ rdf:type  sosa:Result ] .
+
+:MeasurementPoint_001  rdf:type              :MeasurementPoint ;
+        rdfs:label                  "Stack 1"@en ;
+        dc:created                  "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued                   "2020-01-01"^^xsd:date ;
+        dc:modified                 "2024-06-15T10:30:00"^^xsd:dateTime ;
+        adms:status                 :actief ;
+        sosa:isHostedBy             :OperationLocation_001 .
+
+# =============================================================================
+# EmissionPoint, WithdrawalPoint & Filter (with required adms:status and sosa:isHostedBy)
+# =============================================================================
+
+:EmissionPoint_001  rdf:type              :EmissionPoint ;
+        rdfs:label                  "Main stack"@en ;
+        dc:created                  "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued                   "2020-01-01"^^xsd:date ;
+        dc:modified                 "2024-06-15T10:30:00"^^xsd:dateTime ;
+        adms:status                 :actief ;
+        sosa:isHostedBy             :OperationLocation_001 .
+
+:WithdrawalPoint_001  rdf:type              :WithdrawalPoint ;
+        rdfs:label                  "Raw material intake"@en ;
+        dc:created                  "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued                   "2020-01-01"^^xsd:date ;
+        dc:modified                 "2024-06-15T10:30:00"^^xsd:dateTime ;
+        adms:status                 :actief ;
+        sosa:isHostedBy             :OperationLocation_001 .
+
+:WithdrawalPoint_002  rdf:type              :WithdrawalPoint ;
+        rdfs:label                  "Product output"@en ;
+        dc:created                  "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued                   "2020-01-01"^^xsd:date ;
+        dc:modified                 "2024-06-15T10:30:00"^^xsd:dateTime ;
+        adms:status                 :actief ;
+        sosa:isHostedBy             :OperationLocation_001 .
+
+:Filter_001  rdf:type              :Filter ;
+        rdfs:label                  "Bag filter 1"@en ;
+        dc:created                  "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued                   "2020-01-01"^^xsd:date ;
+        dc:modified                 "2024-06-15T10:30:00"^^xsd:dateTime ;
+        adms:status                 :actief ;
+        sosa:isHostedBy             :OperationLocation_001 .
+
+:Filter_002  rdf:type              :Filter ;
+        rdfs:label                  "Bag filter 2"@en ;
+        dc:created                  "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued                   "2020-01-01"^^xsd:date ;
+        dc:modified                 "2024-06-15T10:30:00"^^xsd:dateTime ;
+        adms:status                 :actief ;
+        sosa:isHostedBy             :OperationLocation_001 .
+
+# =============================================================================
+# MeasurementInstrument (with required adms:status and sosa:isHostedBy)
+# =============================================================================
+
+:MeasurementInstrument_001  rdf:type              :MeasurementInstrument ;
+        rdfs:label                  "CO2 analyzer"@en ;
+        dc:created                  "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued                   "2020-01-01"^^xsd:date ;
+        dc:modified                 "2024-06-15T10:30:00"^^xsd:dateTime ;
+        adms:status                 :actief ;
+        sosa:isHostedBy             :OperationLocation_001 .
+
+# =============================================================================
+# Relationships between entities (sosa:hosts on location, inverse of isHostedBy)
+# =============================================================================
+
+:OperationLocation_001  sosa:hosts          :Installation_001 , :Installation_002 , :Installation_003 , :EmissionPoint_001 , :WithdrawalPoint_001 , :WithdrawalPoint_002 , :Filter_001 , :Filter_002 , :MeasurementInstrument_001 , :MeasurementPoint_001 ;
+        ssn:inDeployment            :Operation_001 .
+
+:Installation_001  ssn:implementedBy  :Process_001 .
+
+:Installation_002  ssn:hasProperty    :InstallationProperty_001 .
+
+:Installation_003  ssn:hasProperty    :InstallationProperty_002 .
+
+:Emission_001  sosa:isFeatureOfInterestOf  :Observation_001 .
+
+:Emission_002  sosa:isFeatureOfInterestOf  :Observation_002 .
+
+# =============================================================================
+# Additional inverse relationship for Operation validation
+# =============================================================================
+
+:Process_001  ssn:implementedBy  :Operation_001 .

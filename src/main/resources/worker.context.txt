@@ -35,6 +35,16 @@ QUALITY RULES:
 - Keep URI style, prefixes, and naming conventions consistent with existing data.
 - Avoid placeholders/dummy literals; prefer realistic, well-typed values.
 - Satisfy required properties, datatypes, class constraints, and cardinalities.
+- IRI MINTING RULE: before inventing a URI pattern yourself, check whether the ontology declares a
+  `hydra:search [ a hydra:IriTemplate ; hydra:template "..."^^hydra:Rfc6570Template ; hydra:mapping [...] ]`
+  for your target class. If it does, mint every new instance's IRI by substituting real values into
+  that exact template's `{variable}` placeholders (per its hydra:mapping) - do not shorten the
+  template, reorder its segments, or fall back to your own `ClassName_001`-style numbering instead.
+  Only invent your own URI style when no `hydra:search` template exists for that class.
+- A resolved hydra template IRI commonly contains `/` in its path. Write it as a full IRI in angle
+  brackets (`<...>`), NEVER as a `prefix:LocalName` prefixed name - a prefixed name's local part
+  cannot contain an unescaped `/` and will be rejected by the Turtle parser ("Not a valid token for
+  an RDF term: [SLASH]").
 - Mint a named IRI for every domain instance you create; do not use blank nodes for primary entities.
 - Write only RDF triples — do not add `#` comments (no worker/pool/range bookkeeping notes) to the Turtle data.
 

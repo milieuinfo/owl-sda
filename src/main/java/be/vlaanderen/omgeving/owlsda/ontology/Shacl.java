@@ -32,10 +32,11 @@ import org.slf4j.LoggerFactory;
 /**
  * SHACL shapes for one ontology: loads shapes from a file, or {@link #generate()}s one shape per
  * ontology class when none is supplied, and validates RDF data against them via {@link
- * #validate(Model)}. Each shape is tracked as a {@link Shacl.Shape}, whose {@link Shacl.Shape#isProcessed()}
- * flag records whether the generation workflow considers it complete; that flag is mutated from
- * both {@code generation.Supervisor} (single-threaded, between rounds) and read by workers running
- * in parallel during a round, so callers must not mutate it concurrently with an in-progress {@link
+ * #validate(Model)}. Each shape is tracked as a {@link Shacl.Shape}, whose {@link
+ * Shacl.Shape#isProcessed()} flag records whether the generation workflow considers it complete;
+ * that flag is mutated from both {@code generation.Supervisor} (single-threaded, between rounds)
+ * and read by workers running in parallel during a round, so callers must not mutate it
+ * concurrently with an in-progress {@link
  * be.vlaanderen.omgeving.owlsda.generation.ConcurrentWorkerBatch} round.
  */
 @Getter

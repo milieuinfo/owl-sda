@@ -1,0 +1,114 @@
+Data does NOT conform to SHACL shapes. Violations:
+
+@prefix :           <https://example.org/ns/riepr#> .
+@prefix adms:       <http://www.w3.org/ns/adms#> .
+@prefix concept:    <https://example.org/id/concept/> .
+@prefix dbo:        <http://dbpedia.org/ontology/> .
+@prefix dc:         <http://purl.org/dc/terms/> .
+@prefix dct:        <http://purl.org/dc/terms/> .
+@prefix foaf:       <http://xmlns.com/foaf/0.1/> .
+@prefix hydra:      <http://www.w3.org/ns/hydra/core#> .
+@prefix locn:       <http://www.w3.org/ns/locn#> .
+@prefix nace:       <http://data.europa.eu/ux2/nace2.1/> .
+@prefix ogc:        <http://www.opengis.net/ont/geosparql#> .
+@prefix org:        <http://www.w3.org/ns/org#> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix pplan:      <http://purl.org/net/p-plan#> .
+@prefix prov:       <http://www.w3.org/ns/prov#> .
+@prefix qudt:       <http://qudt.org/schema/qudt/> .
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:         <http://www.w3.org/ns/shacl#> .
+@prefix skos:       <http://www.w3.org/2004/02/skos/core#> .
+@prefix sosa:       <http://www.w3.org/ns/sosa/> .
+@prefix ssn:        <http://www.w3.org/ns/ssn/> .
+@prefix ssn-system: <http://www.w3.org/ns/ssn/systems/> .
+@prefix vann:       <http://purl.org/vocab/vann/> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+
+[ rdf:type     sh:ValidationReport ;
+  sh:conforms  false ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  <https://example.org/ns/riepr#OperationLocation/loc-001> ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 dc:issued ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                _:b0
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  <https://example.org/ns/riepr#OperationLocation/loc-001> ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 ogc:hasGeometry ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                _:b1
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  <https://example.org/ns/riepr#OperationLocation/loc-002> ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 prov:wasAttributedTo ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                _:b2
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  <https://example.org/ns/riepr#OperationLocation/loc-002> ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 ogc:hasGeometry ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                _:b1
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  <https://example.org/ns/riepr#OperationLocation/loc-002> ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 dc:issued ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                _:b0
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  <https://example.org/ns/riepr#OperationLocation/loc-002> ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 dc:modified ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                _:b3
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  <https://example.org/ns/riepr#OperationLocation/loc-001> ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 dc:created ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                _:b4
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  <https://example.org/ns/riepr#OperationLocation/loc-001> ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 dc:modified ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                _:b3
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  <https://example.org/ns/riepr#OperationLocation/loc-001> ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 prov:wasAttributedTo ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                _:b2
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  <https://example.org/ns/riepr#OperationLocation/loc-002> ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 dc:created ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                _:b4
+               ]
+] .
+
+
+VOCABULARY CHECK: 4 instance(s) are typed with class(es) not part of the ontology/SHACL vocabulary (no shape targets them, so they are never actually validated): http://www.w3.org/ns/adms#Status, http://xmlns.com/foaf/0.1/Organization, http://www.opengis.net/ont/geosparql#Geometry, http://www.w3.org/ns/locn#Address. 1 predicate(s) are not part of the ontology/SHACL vocabulary (invented rather than reused): http://www.opengis.net/ont/geosparql#asWKT. Reuse the EXACT class/predicate URIs from the ontology/SHACL context instead of inventing new ones.

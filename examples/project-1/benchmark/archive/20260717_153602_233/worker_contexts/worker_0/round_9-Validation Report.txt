@@ -1,0 +1,3 @@
+SHACL reports 0 violations (source='store'), but this is misleading: 
+
+VOCABULARY CHECK: 3 instance(s) are typed with class(es) not part of the ontology/SHACL vocabulary (no shape targets them, so they are never actually validated): http://www.w3.org/ns/adms#Status, http://www.opengis.net/ont/geosparql#Geometry, http://www.w3.org/ns/locn#Address. 5 predicate(s) are not part of the ontology/SHACL vocabulary (invented rather than reused): http://www.opengis.net/ont/geosparql#asWKT, http://www.w3.org/ns/prov#wasDerivedFrom, http://www.w3.org/ns/sosa/resultTime, http://www.w3.org/ns/sosa/hasResultFeature, http://www.w3.org/2004/02/skos/core#prefLabel. Reuse the EXACT class/predicate URIs from the ontology/SHACL context instead of inventing new ones.

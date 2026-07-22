@@ -1,0 +1,19 @@
+POOL-0 [STRUCTURED_PROGRESS]:
+worker_id=POOL-0
+status=CREATED
+target_shape=ProcessShape
+target_class=:Process
+changed_triples_count=13
+created_or_updated_subjects=:Process/process-001, :Process/process-002
+validation_result=CONFORMS
+remaining_issues=All 10 remaining SHACL violations are on pre-existing :OperationLocation instances (loc-001, loc-002) from earlier rounds — outside this delegation scope. Zero violations on Process instances.
+
+POOL-1 [STRUCTURED_PROGRESS]:
+worker_id=POOL-1
+status=CREATED
+target_shape=FilterShape
+target_class=https://example.org/ns/riepr#Filter
+changed_triples_count=32
+created_or_updated_subjects=:Filter/filter-001, :Filter/filter-002, :OperationLocation/filter-loc-001, :OperationLocation/filter-loc-002
+validation_result=CONFORMS
+remaining_issues=Pre-existing OperationLocation/loc-001 and loc-002 SHACL violations (out of scope)

@@ -34,17 +34,22 @@
         rdfs:label       "Filter"@en ;
         rdfs:subClassOf  ogc:SpatialObject , ssn:System ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system must have a single status"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      adms:status ;
-                           owl:someValuesFrom  adms:Status
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      ssn:hasDeployment ;
+                           owl:someValuesFrom  :Operation
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "A system has external identifiers (optional)"@en ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
                            owl:onProperty      adms:identifier ;
                            owl:someValuesFrom  adms:Identifier
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system must have a modification date"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      dc:modified ;
+                           owl:someValuesFrom  xsd:dateTime
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "A system must be part of a location"@en ;
@@ -54,9 +59,17 @@
                            owl:someValuesFrom  :OperationLocation
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system must have a label"@en ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      rdfs:label
+                           rdfs:comment        "A system can be a revision of other systems (optional)"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      prov:wasRevisionOf ;
+                           owl:someValuesFrom  ssn:System
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system can have a type via dct:type"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      dc:type
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "A system can contain multiple objects."@en ;
@@ -72,11 +85,15 @@
                            owl:someValuesFrom  xsd:dateTime
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system must have a label"@en ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      rdfs:label
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system can have at most 1 geometry"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      [ rdf:type       owl:ObjectProperty ;
-                                                 owl:inverseOf  ssn:hasSubSystem
-                                               ] ;
-                           owl:someValuesFrom  ssn:System
+                           owl:onProperty      ogc:hasGeometry
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "A system can have a validity end"@en ;
@@ -86,11 +103,11 @@
                            owl:someValuesFrom  xsd:date
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system must have a modification date"@en ;
+                           rdfs:comment        "A system must have a single status"@en ;
                            owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dc:modified ;
-                           owl:someValuesFrom  xsd:dateTime
+                           owl:onProperty      adms:status ;
+                           owl:someValuesFrom  adms:Status
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "A system must have a validity start"@en ;
@@ -100,27 +117,10 @@
                            owl:someValuesFrom  xsd:date
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system can have a type via dct:type"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dc:type
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system can have at most 1 geometry"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      ogc:hasGeometry
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      ssn:hasDeployment ;
-                           owl:someValuesFrom  :Operation
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system can be a revision of other systems (optional)"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      prov:wasRevisionOf ;
+                           owl:onProperty      [ rdf:type       owl:ObjectProperty ;
+                                                 owl:inverseOf  ssn:hasSubSystem
+                                               ] ;
                            owl:someValuesFrom  ssn:System
                          ] .
 
@@ -129,37 +129,11 @@
         rdfs:label       "Emission Procedure"@en ;
         rdfs:subClassOf  :TransportProcedure .
 
-[ rdf:type            owl:Class ;
-  rdfs:comment        "A process with a measurement procedure must perform measurements at a measurement point"@en ;
-  rdfs:subClassOf     [ rdf:type            owl:Restriction ;
-                        owl:onProperty      ssn:implementedBy ;
-                        owl:someValuesFrom  :MeasurementPoint
-                      ] ;
-  owl:intersectionOf  ( :Process
-                        [ rdf:type            owl:Restriction ;
-                          owl:someValuesFrom  :MeetProcedure
-                        ]
-                      )
-] .
-
 :ConsumptionProcedure
         rdf:type         skos:Concept , owl:Class ;
         rdfs:comment     "A consumption procedure is a specific procedure that relates to the transport of raw materials within a process."@en ;
         rdfs:label       "Consumption Procedure"@en ;
         rdfs:subClassOf  :TransportProcedure .
-
-[ rdf:type            owl:Class ;
-  rdfs:comment        "A process with an emission procedure must release or discharge substances at an emission point"@en ;
-  rdfs:subClassOf     [ rdf:type            owl:Restriction ;
-                        owl:onProperty      ssn:implementedBy ;
-                        owl:someValuesFrom  :Emissionpunt
-                      ] ;
-  owl:intersectionOf  ( :Process
-                        [ rdf:type            owl:Restriction ;
-                          owl:someValuesFrom  :EmissionProcedure
-                        ]
-                      )
-] .
 
 :voorgesteld  rdf:type        skos:Concept , adms:Status ;
         rdfs:comment          "The proposed status indicates that an entity has been proposed by the government but has not yet been confirmed."@en ;
@@ -172,43 +146,9 @@
         rdfs:label       "Withdrawal Point"@en ;
         rdfs:subClassOf  ogc:SpatialObject , ssn:System ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A withdrawal point can have filters"@en ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      ssn:hasSubSystem ;
-                           owl:someValuesFrom  :Filter
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system can have a type via dct:type"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dc:type
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A withdrawal point can have a depth"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dbo:depth
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      [ rdf:type       owl:ObjectProperty ;
-                                                 owl:inverseOf  ssn:hasSubSystem
-                                               ] ;
-                           owl:someValuesFrom  ssn:System
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system must have a creation date"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dc:created ;
-                           owl:someValuesFrom  xsd:dateTime
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system must have a validity start"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dc:issued ;
-                           owl:someValuesFrom  xsd:date
+                           owl:onProperty      ssn:hasDeployment ;
+                           owl:someValuesFrom  :Operation
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "A system must be part of a location"@en ;
@@ -218,16 +158,60 @@
                            owl:someValuesFrom  :OperationLocation
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      ssn:hasDeployment ;
-                           owl:someValuesFrom  :Operation
+                           rdfs:comment        "A system must have a creation date"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      dc:created ;
+                           owl:someValuesFrom  xsd:dateTime
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system can be a revision of other systems (optional)"@en ;
+                           rdfs:comment        "A system can contain multiple objects."@en ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      ssn:hasSubSystem ;
+                           owl:someValuesFrom  ssn:System
+                         ] ;
+        rdfs:subClassOf  [ rdf:type          owl:Restriction ;
+                           rdfs:comment      "A withdrawal point is different from an emission point (disjoint)"@en ;
+                           owl:disjointWith  :Emissionpunt
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system must have a modification date"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      dc:modified ;
+                           owl:someValuesFrom  xsd:dateTime
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system can have a type via dct:type"@en ;
                            owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      prov:wasRevisionOf ;
+                           owl:onProperty      dc:type
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      [ rdf:type       owl:ObjectProperty ;
+                                                 owl:inverseOf  ssn:hasSubSystem
+                                               ] ;
                            owl:someValuesFrom  ssn:System
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system must have a validity start"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      dc:issued ;
+                           owl:someValuesFrom  xsd:date
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A withdrawal point can have filters"@en ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      ssn:hasSubSystem ;
+                           owl:someValuesFrom  :Filter
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A withdrawal point can have a depth"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      dbo:depth
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "A system can have a validity end"@en ;
@@ -235,6 +219,19 @@
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
                            owl:onProperty      dc:valid ;
                            owl:someValuesFrom  xsd:date
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system has external identifiers (optional)"@en ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      adms:identifier ;
+                           owl:someValuesFrom  adms:Identifier
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system can be a revision of other systems (optional)"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      prov:wasRevisionOf ;
+                           owl:someValuesFrom  ssn:System
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "A system must have a label"@en ;
@@ -246,29 +243,6 @@
                            owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
                            owl:onProperty      ogc:hasGeometry
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system can contain multiple objects."@en ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      ssn:hasSubSystem ;
-                           owl:someValuesFrom  ssn:System
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system must have a modification date"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dc:modified ;
-                           owl:someValuesFrom  xsd:dateTime
-                         ] ;
-        rdfs:subClassOf  [ rdf:type          owl:Restriction ;
-                           rdfs:comment      "A withdrawal point is different from an emission point (disjoint)"@en ;
-                           owl:disjointWith  :Emissionpunt
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system has external identifiers (optional)"@en ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      adms:identifier ;
-                           owl:someValuesFrom  adms:Identifier
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "A system must have a single status"@en ;
@@ -343,6 +317,64 @@
         rdfs:label       "Operation"@en ;
         rdfs:subClassOf  ssn:Deployment ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operation can have multiple contact persons"@en ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      org:hasMember ;
+                           owl:someValuesFrom  :Contactpersoon
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operation can have external identifiers (optional)"@en ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      adms:identifier ;
+                           owl:someValuesFrom  adms:Identifier
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operation can have a validity end"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      dc:valid ;
+                           owl:someValuesFrom  xsd:date
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operation must have a creation date"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      dc:created ;
+                           owl:someValuesFrom  xsd:dateTime
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operation implements a process"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      ssn:implements ;
+                           owl:someValuesFrom  :Process
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operation has a status"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      adms:status ;
+                           owl:someValuesFrom  adms:Status
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operation deploys systems"@en ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      ssn:deployedSystem ;
+                           owl:someValuesFrom  ssn:System
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operation must have a label"@en ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      rdfs:label
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operation must have a modification date"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      dc:modified ;
+                           owl:someValuesFrom  xsd:dateTime
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "An operation must have a validity start"@en ;
                            owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
@@ -355,64 +387,6 @@
                            owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:onProperty      ssn:deployedOnPlatform ;
                            owl:someValuesFrom  :OperationLocation
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operation can have a validity end"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dc:valid ;
-                           owl:someValuesFrom  xsd:date
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operation has a status"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      adms:status ;
-                           owl:someValuesFrom  adms:Status
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operation must have a creation date"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dc:created ;
-                           owl:someValuesFrom  xsd:dateTime
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operation can have external identifiers (optional)"@en ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      adms:identifier ;
-                           owl:someValuesFrom  adms:Identifier
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operation deploys systems"@en ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      ssn:deployedSystem ;
-                           owl:someValuesFrom  ssn:System
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operation must have a modification date"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dc:modified ;
-                           owl:someValuesFrom  xsd:dateTime
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operation must have a label"@en ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      rdfs:label
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operation implements a process"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      ssn:implements ;
-                           owl:someValuesFrom  :Process
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operation can have multiple contact persons"@en ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      org:hasMember ;
-                           owl:someValuesFrom  :Contactpersoon
                          ] ;
         hydra:search     [ rdf:type        hydra:IriTemplate ;
                            hydra:mapping   [ hydra:property  dc:created ;
@@ -435,22 +409,10 @@
         rdfs:label       "Installation"@en ;
         rdfs:subClassOf  ssn:System , ogc:SpatialObject ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system can contain multiple objects."@en ;
+                           rdfs:comment        "An installation can have multiple installation properties"@en ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      ssn:hasSubSystem ;
-                           owl:someValuesFrom  ssn:System
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An installation can also contain processes that this installation implements"@en ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      ssn:implements ;
-                           owl:someValuesFrom  :Process
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system has external identifiers (optional)"@en ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      adms:identifier ;
-                           owl:someValuesFrom  adms:Identifier
+                           owl:onProperty      ssn:hasProperty ;
+                           owl:someValuesFrom  :InstallationProperty
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
@@ -467,28 +429,27 @@
                            owl:someValuesFrom  xsd:date
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system must be part of a location"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           rdfs:comment        "A system can contain multiple objects."@en ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      ssn:hasSubSystem ;
+                           owl:someValuesFrom  ssn:System
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system must have a label"@en ;
                            owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      sosa:isHostedBy ;
-                           owl:someValuesFrom  :OperationLocation
+                           owl:onProperty      rdfs:label
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An installation can have multiple installation properties"@en ;
+                           rdfs:comment        "An installation can also contain processes that this installation implements"@en ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      ssn:hasProperty ;
-                           owl:someValuesFrom  :InstallationProperty
+                           owl:onProperty      ssn:implements ;
+                           owl:someValuesFrom  :Process
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system can have a type via dct:type"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      ssn:hasDeployment ;
-                           owl:someValuesFrom  :Operation
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An installation can have multiple sections"@en ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      :section ;
-                           owl:someValuesFrom  :Section
+                           owl:onProperty      dc:type
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "A system can have at most 1 geometry"@en ;
@@ -497,11 +458,23 @@
                            owl:onProperty      ogc:hasGeometry
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An installation can have multiple sections"@en ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      :section ;
+                           owl:someValuesFrom  :Section
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "A system can be a revision of other systems (optional)"@en ;
                            owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
                            owl:onProperty      prov:wasRevisionOf ;
                            owl:someValuesFrom  ssn:System
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system has external identifiers (optional)"@en ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      adms:identifier ;
+                           owl:someValuesFrom  adms:Identifier
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "A system must have a single status"@en ;
@@ -518,15 +491,23 @@
                            owl:someValuesFrom  xsd:dateTime
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system can have a type via dct:type"@en ;
+                           rdfs:comment        "A system must have a modification date"@en ;
                            owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dc:type
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      dc:modified ;
+                           owl:someValuesFrom  xsd:dateTime
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system must have a label"@en ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      ssn:hasDeployment ;
+                           owl:someValuesFrom  :Operation
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system must be part of a location"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      rdfs:label
+                           owl:onProperty      sosa:isHostedBy ;
+                           owl:someValuesFrom  :OperationLocation
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "A system can have a validity end"@en ;
@@ -534,13 +515,6 @@
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
                            owl:onProperty      dc:valid ;
                            owl:someValuesFrom  xsd:date
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system must have a modification date"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dc:modified ;
-                           owl:someValuesFrom  xsd:dateTime
                          ] ;
         skos:example     [ rdf:type         :Installation ;
                            rdfs:label       "Cement factory Antwerp Installation 1"@en ;
@@ -568,6 +542,19 @@
                            hydra:template  "https://example.org/id/Installation/{uuid}/{issued}/{created}"^^hydra:Rfc6570Template
                          ] .
 
+[ rdf:type            owl:Class ;
+  rdfs:comment        "A process with a measurement procedure must perform measurements at a measurement point"@en ;
+  rdfs:subClassOf     [ rdf:type            owl:Restriction ;
+                        owl:onProperty      ssn:implementedBy ;
+                        owl:someValuesFrom  :MeasurementPoint
+                      ] ;
+  owl:intersectionOf  ( :Process
+                        [ rdf:type            owl:Restriction ;
+                          owl:someValuesFrom  :MeetProcedure
+                        ]
+                      )
+] .
+
 :ObservationResult  rdf:type  owl:Class ;
         rdfs:comment     "An observation result is a specific result obtained from an observation."@en ;
         rdfs:label       "Observation Result"@en ;
@@ -586,14 +573,27 @@
         rdfs:label       "Emission Point"@en ;
         rdfs:subClassOf  ssn:System , ogc:SpatialObject ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system can have at most 1 geometry"@en ;
+                           rdfs:comment        "An emission point of type discharge point can have a depth"@en ;
                            owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      ogc:hasGeometry
+                           owl:onProperty      dbo:depth
                          ] ;
-        rdfs:subClassOf  [ rdf:type          owl:Restriction ;
-                           rdfs:comment      "An emission point is different from a withdrawal point (disjoint)"@en ;
-                           owl:disjointWith  :WithdrawalPoint
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      [ rdf:type       owl:ObjectProperty ;
+                                                 owl:inverseOf  ssn:hasSubSystem
+                                               ] ;
+                           owl:someValuesFrom  ssn:System
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      ssn:hasDeployment ;
+                           owl:someValuesFrom  :Operation
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system must have a label"@en ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      rdfs:label
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "A system must have a single status"@en ;
@@ -601,6 +601,57 @@
                            owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:onProperty      adms:status ;
                            owl:someValuesFrom  adms:Status
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system must be part of a location"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      sosa:isHostedBy ;
+                           owl:someValuesFrom  :OperationLocation
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system can be a revision of other systems (optional)"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      prov:wasRevisionOf ;
+                           owl:someValuesFrom  ssn:System
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system has external identifiers (optional)"@en ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      adms:identifier ;
+                           owl:someValuesFrom  adms:Identifier
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system can contain multiple objects."@en ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      ssn:hasSubSystem ;
+                           owl:someValuesFrom  ssn:System
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system can have at most 1 geometry"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      ogc:hasGeometry
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system must have a modification date"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      dc:modified ;
+                           owl:someValuesFrom  xsd:dateTime
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An emission point of type stack has a diameter"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      dbo:diameter
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An emission point of type stack has a height"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      dbo:height
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "A system must have a validity start"@en ;
@@ -616,30 +667,9 @@
                            owl:onProperty      dc:valid ;
                            owl:someValuesFrom  xsd:date
                          ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An emission point of type discharge point can have a depth"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dbo:depth
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An emission point of type stack has a height"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dbo:height
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An emission point of type stack has a diameter"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dbo:diameter
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system must be part of a location"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      sosa:isHostedBy ;
-                           owl:someValuesFrom  :OperationLocation
+        rdfs:subClassOf  [ rdf:type          owl:Restriction ;
+                           rdfs:comment      "An emission point is different from a withdrawal point (disjoint)"@en ;
+                           owl:disjointWith  :WithdrawalPoint
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "A system can have a type via dct:type"@en ;
@@ -653,49 +683,6 @@
                            owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:onProperty      dc:created ;
                            owl:someValuesFrom  xsd:dateTime
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system must have a modification date"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dc:modified ;
-                           owl:someValuesFrom  xsd:dateTime
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system has external identifiers (optional)"@en ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      adms:identifier ;
-                           owl:someValuesFrom  adms:Identifier
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system can contain multiple objects."@en ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      ssn:hasSubSystem ;
-                           owl:someValuesFrom  ssn:System
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      ssn:hasDeployment ;
-                           owl:someValuesFrom  :Operation
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      [ rdf:type       owl:ObjectProperty ;
-                                                 owl:inverseOf  ssn:hasSubSystem
-                                               ] ;
-                           owl:someValuesFrom  ssn:System
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system can be a revision of other systems (optional)"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      prov:wasRevisionOf ;
-                           owl:someValuesFrom  ssn:System
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system must have a label"@en ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      rdfs:label
                          ] ;
         skos:example     [ rdf:type         :Emissionpunt ;
                            rdfs:label       "Stack 1 Cement factory Antwerp"@en ;
@@ -733,6 +720,19 @@
         rdfs:label       "Operator"@en ;
         rdfs:subClassOf  prov:Agent ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operator can have a creation date"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      dc:created ;
+                           owl:someValuesFrom  xsd:dateTime
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operator must have a main activity"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      org:classification
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "An operator must have an address"@en ;
                            owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
@@ -746,35 +746,11 @@
                            owl:onProperty      dc:type
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operator can have multiple contact persons"@en ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      org:hasMember ;
-                           owl:someValuesFrom  :Contactpersoon
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "An operator can have a validity start"@en ;
                            owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
                            owl:onProperty      dc:issued ;
                            owl:someValuesFrom  xsd:date
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operator can have a modification date"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dc:modified ;
-                           owl:someValuesFrom  xsd:dateTime
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operator must have a main activity"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      org:classification
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operator must have a label"@en ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      rdfs:label
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "An operator can have a validity end"@en ;
@@ -784,10 +760,21 @@
                            owl:someValuesFrom  xsd:date
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operator can have a creation date"@en ;
+                           rdfs:comment        "An operator can have multiple contact persons"@en ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      org:hasMember ;
+                           owl:someValuesFrom  :Contactpersoon
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operator must have a label"@en ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      rdfs:label
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operator can have a modification date"@en ;
                            owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dc:created ;
+                           owl:onProperty      dc:modified ;
                            owl:someValuesFrom  xsd:dateTime
                          ] ;
         hydra:search     [ rdf:type        hydra:IriTemplate ;
@@ -822,6 +809,17 @@
                                owl:someValuesFrom  :Section
                              ] ;
         rdfs:subClassOf      [ rdf:type            owl:Restriction ;
+                               rdfs:comment        "A process can be part of one or more other processes"@en ;
+                               owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                               owl:onProperty      pplan:isStepOfPlan ;
+                               owl:someValuesFrom  :Process
+                             ] ;
+        rdfs:subClassOf      [ rdf:type            owl:Restriction ;
+                               rdfs:comment        "A process must have a label"@en ;
+                               owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                               owl:onProperty      rdfs:label
+                             ] ;
+        rdfs:subClassOf      [ rdf:type            owl:Restriction ;
                                rdfs:comment        "A process can be derived from a (generic) procedure (optional). Max 1 because a process can only be derived from 1 procedure and this procedure would need to be a collection of other procedures."@en ;
                                owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                                owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
@@ -829,11 +827,11 @@
                                owl:someValuesFrom  sosa:Procedure
                              ] ;
         rdfs:subClassOf      [ rdf:type            owl:Restriction ;
-                               rdfs:comment        "A process must have a single status"@en ;
+                               rdfs:comment        "A process can be a revision of another process (optional)"@en ;
                                owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                               owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                               owl:onProperty      adms:status ;
-                               owl:someValuesFrom  adms:Status
+                               owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                               owl:onProperty      prov:wasRevisionOf ;
+                               owl:someValuesFrom  :Process
                              ] ;
         rdfs:subClassOf      [ rdf:type            owl:Restriction ;
                                rdfs:comment        "A process can have a validity start"@en ;
@@ -841,25 +839,6 @@
                                owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
                                owl:onProperty      dc:issued ;
                                owl:someValuesFrom  xsd:date
-                             ] ;
-        rdfs:subClassOf      [ rdf:type            owl:Restriction ;
-                               rdfs:comment        "A process can be part of one or more other processes"@en ;
-                               owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                               owl:onProperty      pplan:isStepOfPlan ;
-                               owl:someValuesFrom  :Process
-                             ] ;
-        rdfs:subClassOf      [ rdf:type            owl:Restriction ;
-                               rdfs:comment        "A process can have at least one output variable (substance)"@en ;
-                               owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                               owl:onProperty      pplan:hasOutputVar ;
-                               owl:someValuesFrom  pplan:Variable
-                             ] ;
-        rdfs:subClassOf      [ rdf:type            owl:Restriction ;
-                               rdfs:comment        "A process can be a revision of another process (optional)"@en ;
-                               owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                               owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                               owl:onProperty      prov:wasRevisionOf ;
-                               owl:someValuesFrom  :Process
                              ] ;
         rdfs:subClassOf      [ rdf:type            owl:Restriction ;
                                owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
@@ -871,18 +850,6 @@
                                owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
                                owl:onProperty      pplan:hasInputVar ;
                                owl:someValuesFrom  pplan:Variable
-                             ] ;
-        rdfs:subClassOf      [ rdf:type            owl:Restriction ;
-                               rdfs:comment        "A process must have a label"@en ;
-                               owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                               owl:onProperty      rdfs:label
-                             ] ;
-        rdfs:subClassOf      [ rdf:type            owl:Restriction ;
-                               rdfs:comment        "A process can have a validity end"@en ;
-                               owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                               owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                               owl:onProperty      dc:valid ;
-                               owl:someValuesFrom  xsd:date
                              ] ;
         rdfs:subClassOf      [ rdf:type            owl:Restriction ;
                                rdfs:comment        "A process can optionally use a variable that represents a system"@en ;
@@ -899,11 +866,31 @@
                                owl:someValuesFrom  xsd:dateTime
                              ] ;
         rdfs:subClassOf      [ rdf:type            owl:Restriction ;
+                               rdfs:comment        "A process must have a single status"@en ;
+                               owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                               owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                               owl:onProperty      adms:status ;
+                               owl:someValuesFrom  adms:Status
+                             ] ;
+        rdfs:subClassOf      [ rdf:type            owl:Restriction ;
+                               rdfs:comment        "A process can have a validity end"@en ;
+                               owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                               owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                               owl:onProperty      dc:valid ;
+                               owl:someValuesFrom  xsd:date
+                             ] ;
+        rdfs:subClassOf      [ rdf:type            owl:Restriction ;
                                rdfs:comment        "A process must have a creation date"@en ;
                                owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                                owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
                                owl:onProperty      dc:created ;
                                owl:someValuesFrom  xsd:dateTime
+                             ] ;
+        rdfs:subClassOf      [ rdf:type            owl:Restriction ;
+                               rdfs:comment        "A process can have at least one output variable (substance)"@en ;
+                               owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                               owl:onProperty      pplan:hasOutputVar ;
+                               owl:someValuesFrom  pplan:Variable
                              ] ;
         owl:equivalentClass  [ rdf:type      owl:Class ;
                                rdfs:comment  "Process can be a plan on its own (multi step)"@en ;
@@ -937,6 +924,19 @@
                              ] .
 
 pplan:isOutputVarOf  owl:inverseOf  pplan:hasOutputVar .
+
+[ rdf:type            owl:Class ;
+  rdfs:comment        "A process with a ProcessingProcedure must process substances within an installation"@en ;
+  rdfs:subClassOf     [ rdf:type            owl:Restriction ;
+                        owl:onProperty      ssn:implementedBy ;
+                        owl:someValuesFrom  :Installation
+                      ] ;
+  owl:intersectionOf  ( :Process
+                        [ rdf:type            owl:Restriction ;
+                          owl:someValuesFrom  :VerwerkingProcedure
+                        ]
+                      )
+] .
 
 :actief  rdf:type             skos:Concept , adms:Status ;
         rdfs:comment          "The active status indicates that an entity is currently in use."@en ;
@@ -991,11 +991,57 @@ pplan:isOutputVarOf  owl:inverseOf  pplan:hasOutputVar .
         rdfs:label       "Operation Location"@en ;
         rdfs:subClassOf  ogc:Feature , sosa:Platform , prov:Entity ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operation location must have a validity start"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      dc:issued ;
+                           owl:someValuesFrom  xsd:date
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      ssn:inDeployment ;
+                           owl:someValuesFrom  :Operation
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "An operation location can have a validity end"@en ;
                            owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
                            owl:onProperty      dc:valid ;
                            owl:someValuesFrom  xsd:date
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operation location must have a modification date"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      dc:modified ;
+                           owl:someValuesFrom  xsd:dateTime
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operation location can have an address"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      locn:address ;
+                           owl:someValuesFrom  locn:Address
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operation location can be a revision of another operation location (optional)"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      prov:wasRevisionOf ;
+                           owl:someValuesFrom  :OperationLocation
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operation location must have exactly 1 geometry"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      ogc:hasGeometry
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operation location can match one location (VKBO)"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      prov:hadPrimarySource ;
+                           owl:someValuesFrom  org:Site
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "An operation location can optionally be influenced by an org:Site or another type"@en ;
@@ -1010,36 +1056,6 @@ pplan:isOutputVarOf  owl:inverseOf  pplan:hasOutputVar .
                            owl:someValuesFrom  adms:Identifier
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operation location must have a validity start"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dc:issued ;
-                           owl:someValuesFrom  xsd:date
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operation location must have exactly 1 geometry"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      ogc:hasGeometry
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operation location must have a label"@en ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      rdfs:label
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      ssn:inDeployment ;
-                           owl:someValuesFrom  :Operation
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operation location can have an address"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      locn:address ;
-                           owl:someValuesFrom  locn:Address
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "An operation location must have a creation date"@en ;
                            owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
@@ -1047,11 +1063,9 @@ pplan:isOutputVarOf  owl:inverseOf  pplan:hasOutputVar .
                            owl:someValuesFrom  xsd:dateTime
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operation location can match one location (VKBO)"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      prov:hadPrimarySource ;
-                           owl:someValuesFrom  org:Site
+                           rdfs:comment        "An operation location must have a label"@en ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      rdfs:label
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "An operation location must be linked to exactly one operator"@en ;
@@ -1059,20 +1073,6 @@ pplan:isOutputVarOf  owl:inverseOf  pplan:hasOutputVar .
                            owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:onProperty      prov:wasAttributedTo ;
                            owl:someValuesFrom  :Operator
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operation location can be a revision of another operation location (optional)"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      prov:wasRevisionOf ;
-                           owl:someValuesFrom  :OperationLocation
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operation location must have a modification date"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dc:modified ;
-                           owl:someValuesFrom  xsd:dateTime
                          ] ;
         skos:example     [ rdf:type               :OperationLocation ;
                            rdfs:label             "Cement factory Antwerp"@en ;
@@ -1101,48 +1101,6 @@ pplan:isOutputVarOf  owl:inverseOf  pplan:hasOutputVar .
         rdfs:label       "Measurement Point"@en ;
         rdfs:subClassOf  ogc:SpatialObject , ssn:System ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system must have a modification date"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dc:modified ;
-                           owl:someValuesFrom  xsd:dateTime
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A measurement point can have measuring instruments"@en ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      ssn:hasSubSystem ;
-                           owl:someValuesFrom  :MeasurementInstrument
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      ssn:hasDeployment ;
-                           owl:someValuesFrom  :Operation
-                         ] ;
-        rdfs:subClassOf  [ rdf:type          owl:Restriction ;
-                           rdfs:comment      "A measurement point is different from a withdrawal point (disjoint)"@en ;
-                           owl:disjointWith  :WithdrawalPoint
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system must have a validity start"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dc:issued ;
-                           owl:someValuesFrom  xsd:date
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system can be a revision of other systems (optional)"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      prov:wasRevisionOf ;
-                           owl:someValuesFrom  ssn:System
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system can have a type via dct:type"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dc:type
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "A system can have a validity end"@en ;
                            owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
@@ -1157,31 +1115,86 @@ pplan:isOutputVarOf  owl:inverseOf  pplan:hasOutputVar .
                            owl:someValuesFrom  xsd:dateTime
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system must have a label"@en ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      rdfs:label
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system can be a revision of other systems (optional)"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      prov:wasRevisionOf ;
+                           owl:someValuesFrom  ssn:System
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "A measurement point can have multiple sections"@en ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
                            owl:onProperty      :section ;
                            owl:someValuesFrom  :Section
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system can contain multiple objects."@en ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      [ rdf:type       owl:ObjectProperty ;
-                                                 owl:inverseOf  ssn:hasSubSystem
-                                               ] ;
+                           owl:onProperty      ssn:hasSubSystem ;
                            owl:someValuesFrom  ssn:System
                          ] ;
+        rdfs:subClassOf  [ rdf:type          owl:Restriction ;
+                           rdfs:comment      "A measurement point is different from a withdrawal point (disjoint)"@en ;
+                           owl:disjointWith  :WithdrawalPoint
+                         ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system must have a label"@en ;
+                           rdfs:comment        "A measurement point can have measuring instruments"@en ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      ssn:hasSubSystem ;
+                           owl:someValuesFrom  :MeasurementInstrument
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      ssn:hasDeployment ;
+                           owl:someValuesFrom  :Operation
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system must be part of a location"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      rdfs:label
+                           owl:onProperty      sosa:isHostedBy ;
+                           owl:someValuesFrom  :OperationLocation
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system must have a modification date"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      dc:modified ;
+                           owl:someValuesFrom  xsd:dateTime
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system can have a type via dct:type"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      dc:type
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system must have a validity start"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      dc:issued ;
+                           owl:someValuesFrom  xsd:date
                          ] ;
         rdfs:subClassOf  [ rdf:type          owl:Restriction ;
                            rdfs:comment      "A measurement point is different from an emission point (disjoint)"@en ;
                            owl:disjointWith  :Emissionpunt
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system can contain multiple objects."@en ;
+                           rdfs:comment        "A system can have at most 1 geometry"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      ssn:hasSubSystem ;
+                           owl:onProperty      ogc:hasGeometry
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      [ rdf:type       owl:ObjectProperty ;
+                                                 owl:inverseOf  ssn:hasSubSystem
+                                               ] ;
                            owl:someValuesFrom  ssn:System
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
@@ -1196,19 +1209,6 @@ pplan:isOutputVarOf  owl:inverseOf  pplan:hasOutputVar .
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
                            owl:onProperty      adms:identifier ;
                            owl:someValuesFrom  adms:Identifier
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system can have at most 1 geometry"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      ogc:hasGeometry
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system must be part of a location"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      sosa:isHostedBy ;
-                           owl:someValuesFrom  :OperationLocation
                          ] ;
         skos:example     [ rdf:type         :MeasurementPoint ;
                            rdfs:label       "Air Quality Measurement Point Stack 1"@en ;
@@ -1241,23 +1241,17 @@ pplan:isOutputVarOf  owl:inverseOf  pplan:hasOutputVar .
         rdfs:label       "Measurement Instrument"@en ;
         rdfs:subClassOf  ssn:System , ogc:SpatialObject ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system must be part of a location"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      sosa:isHostedBy ;
+                           owl:someValuesFrom  :OperationLocation
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "A system can have a type via dct:type"@en ;
                            owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
                            owl:onProperty      dc:type
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system can have at most 1 geometry"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      ogc:hasGeometry
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system can be a revision of other systems (optional)"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      prov:wasRevisionOf ;
-                           owl:someValuesFrom  ssn:System
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "A system must have a label"@en ;
@@ -1265,11 +1259,15 @@ pplan:isOutputVarOf  owl:inverseOf  pplan:hasOutputVar .
                            owl:onProperty      rdfs:label
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system can have a validity end"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dc:valid ;
-                           owl:someValuesFrom  xsd:date
+                           owl:onProperty      ssn:hasDeployment ;
+                           owl:someValuesFrom  :Operation
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system can contain multiple objects."@en ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      ssn:hasSubSystem ;
+                           owl:someValuesFrom  ssn:System
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
@@ -1279,17 +1277,10 @@ pplan:isOutputVarOf  owl:inverseOf  pplan:hasOutputVar .
                            owl:someValuesFrom  ssn:System
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system must have a creation date"@en ;
+                           rdfs:comment        "A system can have at most 1 geometry"@en ;
                            owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dc:created ;
-                           owl:someValuesFrom  xsd:dateTime
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system has external identifiers (optional)"@en ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      adms:identifier ;
-                           owl:someValuesFrom  adms:Identifier
+                           owl:onProperty      ogc:hasGeometry
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "A system must have a validity start"@en ;
@@ -1306,17 +1297,24 @@ pplan:isOutputVarOf  owl:inverseOf  pplan:hasOutputVar .
                            owl:someValuesFrom  xsd:dateTime
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system must be part of a location"@en ;
+                           rdfs:comment        "A system can be a revision of other systems (optional)"@en ;
                            owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      sosa:isHostedBy ;
-                           owl:someValuesFrom  :OperationLocation
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      prov:wasRevisionOf ;
+                           owl:someValuesFrom  ssn:System
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A system can contain multiple objects."@en ;
+                           rdfs:comment        "A system has external identifiers (optional)"@en ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      ssn:hasSubSystem ;
-                           owl:someValuesFrom  ssn:System
+                           owl:onProperty      adms:identifier ;
+                           owl:someValuesFrom  adms:Identifier
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system must have a creation date"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      dc:created ;
+                           owl:someValuesFrom  xsd:dateTime
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "A system must have a single status"@en ;
@@ -1326,9 +1324,11 @@ pplan:isOutputVarOf  owl:inverseOf  pplan:hasOutputVar .
                            owl:someValuesFrom  adms:Status
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A system can have a validity end"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      ssn:hasDeployment ;
-                           owl:someValuesFrom  :Operation
+                           owl:onProperty      dc:valid ;
+                           owl:someValuesFrom  xsd:date
                          ] .
 
 :Observation  rdf:type   owl:Class ;
@@ -1371,19 +1371,6 @@ pplan:isOutputVarOf  owl:inverseOf  pplan:hasOutputVar .
         rdfs:label       "Transport Procedure"@en ;
         rdfs:subClassOf  sosa:Procedure .
 
-[ rdf:type            owl:Class ;
-  rdfs:comment        "A process with a ProcessingProcedure must process substances within an installation"@en ;
-  rdfs:subClassOf     [ rdf:type            owl:Restriction ;
-                        owl:onProperty      ssn:implementedBy ;
-                        owl:someValuesFrom  :Installation
-                      ] ;
-  owl:intersectionOf  ( :Process
-                        [ rdf:type            owl:Restriction ;
-                          owl:someValuesFrom  :VerwerkingProcedure
-                        ]
-                      )
-] .
-
 :gesloten  rdf:type           skos:Concept , adms:Status ;
         rdfs:comment          "The closed status indicates that an entity has been permanently taken out of service."@en ;
         rdfs:equivalentClass  <http://purl.org/adms/status/Withdrawn> ;
@@ -1396,19 +1383,8 @@ pplan:isOutputVarOf  owl:inverseOf  pplan:hasOutputVar .
         rdfs:subClassOf  pplan:Variable ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      pplan:isInputVarOf ;
-                           owl:someValuesFrom  :Process
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
                            owl:onProperty      pplan:isOutputVarOf ;
                            owl:someValuesFrom  :Process
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "A process variable can have a unit"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      qudt:hasUnit
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "A process variable can have a type via dct:type"@en ;
@@ -1426,6 +1402,17 @@ pplan:isOutputVarOf  owl:inverseOf  pplan:hasOutputVar .
                            rdfs:comment        "A process variable can have a label"@en ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
                            owl:onProperty      rdfs:label
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      pplan:isInputVarOf ;
+                           owl:someValuesFrom  :Process
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "A process variable can have a unit"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      qudt:hasUnit
                          ] ;
         skos:example     [ rdf:type    :ProcessVariabele ;
                            rdfs:label  "Flour"@en ;
@@ -1462,20 +1449,35 @@ pplan:isOutputVarOf  owl:inverseOf  pplan:hasOutputVar .
                                                    ]
                              ] .
 
+[ rdf:type            owl:Class ;
+  rdfs:comment        "A process with an emission procedure must release or discharge substances at an emission point"@en ;
+  rdfs:subClassOf     [ rdf:type            owl:Restriction ;
+                        owl:onProperty      ssn:implementedBy ;
+                        owl:someValuesFrom  :Emissionpunt
+                      ] ;
+  owl:intersectionOf  ( :Process
+                        [ rdf:type            owl:Restriction ;
+                          owl:someValuesFrom  :EmissionProcedure
+                        ]
+                      )
+] .
+
 :OperatorContactPerson
         rdf:type         owl:Class ;
         rdfs:comment     "An operator contact person is a person who acts as a contact person for an operator."@en ;
         rdfs:label       "Operator Contact Person"@en ;
         rdfs:subClassOf  foaf:Person ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operator contact person must have a label"@en ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      rdfs:label
+                           rdfs:comment        "An operator contact person can have a phone number"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      foaf:phone
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operator contact person must have a role within the organization"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      org:memberOf ;
-                           owl:someValuesFrom  :Operation , :Operator
+                           owl:onProperty      org:hasRole
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "An operator contact person can have a validity end"@en ;
@@ -1485,41 +1487,11 @@ pplan:isOutputVarOf  owl:inverseOf  pplan:hasOutputVar .
                            owl:someValuesFrom  xsd:date
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operator contact person must have a name"@en ;
-                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      foaf:name
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operator contact person can have a validity start"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      dc:issued ;
-                           owl:someValuesFrom  xsd:date
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operator contact person must have a role within the organization"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      org:hasRole
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operator contact person can have an email address"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      foaf:mbox
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "An operator contact person can have a modification date"@en ;
                            owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
                            owl:onProperty      dc:modified ;
                            owl:someValuesFrom  xsd:dateTime
-                         ] ;
-        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
-                           rdfs:comment        "An operator contact person can have a phone number"@en ;
-                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
-                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
-                           owl:onProperty      foaf:phone
                          ] ;
         rdfs:subClassOf  [ rdf:type            owl:Restriction ;
                            rdfs:comment        "An operator contact person can have a comment"@en ;
@@ -1532,6 +1504,34 @@ pplan:isOutputVarOf  owl:inverseOf  pplan:hasOutputVar .
                            owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
                            owl:onProperty      dc:created ;
                            owl:someValuesFrom  xsd:dateTime
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      org:memberOf ;
+                           owl:someValuesFrom  :Operation , :Operator
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operator contact person can have an email address"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      foaf:mbox
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operator contact person must have a name"@en ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      foaf:name
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operator contact person must have a label"@en ;
+                           owl:minCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      rdfs:label
+                         ] ;
+        rdfs:subClassOf  [ rdf:type            owl:Restriction ;
+                           rdfs:comment        "An operator contact person can have a validity start"@en ;
+                           owl:maxCardinality  "1"^^xsd:nonNegativeInteger ;
+                           owl:minCardinality  "0"^^xsd:nonNegativeInteger ;
+                           owl:onProperty      dc:issued ;
+                           owl:someValuesFrom  xsd:date
                          ] ;
         hydra:search     [ rdf:type        hydra:IriTemplate ;
                            hydra:mapping   [ hydra:property  dc:created ;

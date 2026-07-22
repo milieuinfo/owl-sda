@@ -45,6 +45,7 @@ public class OWLSDA {
 
   private SessionManager sessionManager;
   private OutputValidator validator;
+  private OutputValidator finalizationValidator;
   private SupervisorWorkflow supervisorWorkflow;
   private ConcurrentWorkerBatch concurrentWorkerBatch;
 
@@ -153,6 +154,11 @@ public class OWLSDA {
     loadOrGenerateShacl();
 
     validator = new OutputValidator(config.getOutputPath(), defaultShacl);
+    // The supervisor/reviewer's own shacl_validator(source="file") tool call validates against
+    // inferredShacl (see SessionManager) - the finalization convergence gate must check the same
+    // shapes, or it can keep telling the supervisor "validation still reports issues" right after
+    // the supervisor's own tool call reported 0 violations on that same file.
+    finalizationValidator = new OutputValidator(config.getOutputPath(), inferredShacl);
     initializeSessions();
     buildSupervisorWorkflow();
   }
@@ -256,7 +262,8 @@ public class OWLSDA {
             concurrentWorkerBatch,
             defaultShacl,
             sessionManager.getSharedTripleStore(),
-            sessionManager.getShapeProcessingTracker());
+            sessionManager.getShapeProcessingTracker(),
+            finalizationValidator);
     int maxReviewAttempts =
         config.getClient() != null && config.getClient().getReviewer() != null
             ? config.getClient().getReviewer().getMaxReviewAttempts()

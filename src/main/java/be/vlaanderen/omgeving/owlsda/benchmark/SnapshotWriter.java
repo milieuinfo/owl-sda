@@ -84,10 +84,14 @@ class SnapshotWriter {
 
       writeRoleTokenUsage(w, "tokens.supervisor", supervisorSession);
       writeRoleTokenUsage(w, "tokens.reviewer", reviewerSession);
+      writeRoleLiveStatus(w, "supervisor", supervisorSession, supervisorContextWindow());
+      writeRoleLiveStatus(w, "reviewer", reviewerSession, reviewerContextWindow());
 
       if (workerSessions != null) {
         for (int i = 0; i < workerSessions.size(); i++) {
           writeRoleTokenUsage(w, "tokens.worker.worker_" + i, workerSessions.get(i));
+          writeRoleLiveStatus(
+              w, "worker.worker_" + i, workerSessions.get(i), workerContextWindow());
         }
       }
     }
@@ -102,6 +106,42 @@ class SnapshotWriter {
     writer.write(keyPrefix + ".input=" + inputTokens + "\n");
     writer.write(keyPrefix + ".output=" + outputTokens + "\n");
     writer.write(keyPrefix + ".total=" + totalTokens + "\n");
+  }
+
+  /**
+   * Writes whether a role is currently mid-prompt ({@code busy.<role>}) and how much of its context
+   * window the last completed call occupied ({@code context.<role>.used}/{@code .limit}), so the
+   * web UI can show a live "working" indicator and a context-usage gauge per agent. Unlike {@link
+   * #writeRoleTokenUsage}, {@code context.<role>.used} is the last call's prompt token count, not a
+   * cumulative sum - see {@link Session#getLastPromptTokens()}.
+   */
+  private void writeRoleLiveStatus(
+      BufferedWriter writer, String keyPrefix, Session session, int contextWindowTokens)
+      throws IOException {
+    boolean busy = session != null && session.isBusy();
+    long lastPromptTokens = session != null ? session.getLastPromptTokens() : 0L;
+
+    writer.write("busy." + keyPrefix + "=" + busy + "\n");
+    writer.write("context." + keyPrefix + ".used=" + lastPromptTokens + "\n");
+    writer.write("context." + keyPrefix + ".limit=" + contextWindowTokens + "\n");
+  }
+
+  private int supervisorContextWindow() {
+    return config.getClient() != null && config.getClient().getSupervisor() != null
+        ? config.getClient().getSupervisor().getContextWindowTokens()
+        : 0;
+  }
+
+  private int reviewerContextWindow() {
+    return config.getClient() != null && config.getClient().getReviewer() != null
+        ? config.getClient().getReviewer().getContextWindowTokens()
+        : 0;
+  }
+
+  private int workerContextWindow() {
+    return config.getClient() != null && config.getClient().getWorker() != null
+        ? config.getClient().getWorker().getContextWindowTokens()
+        : 0;
   }
 
   /**

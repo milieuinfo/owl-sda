@@ -1,0 +1,31 @@
+**WORKER POOL-1: Create & Validate EmissionPoint Instances**
+
+**Target Shape:** `EmissionPointShape` (from SHACL context)
+**Target Class:** `riepr:EmissionPoint`
+
+**TASK:**
+1. Read the SHACL Shapes context to understand constraints for `EmissionPointShape`.
+2. Read the Ontology context to identify available predicates and class definitions.
+3. Create at least 3 valid `riepr:EmissionPoint` instances that satisfy ALL SHACL constraints for `EmissionPointShape`.
+4. Use IRI pattern: `https://example.org/ns/riepr#EmissionPoint1`, `riepr#EmissionPoint2`, etc.
+5. Write ALL triples to the output file using `output_data_writer` (overwrite mode).
+6. Validate your output using `shacl_validator` with source="file".
+7. Submit worker_progress with: status="COMPLETED", target_shape="EmissionPointShape", target_class="riepr:EmissionPoint", changed_triples_count=<N>, validation_result=<conform/non-conform>, remaining_issues="<none>"
+
+**EXAMPLE STRUCTURE:**
+```turtle
+@prefix riepr: <https://example.org/ns/riepr#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+riepr:EmissionPoint1 a riepr:EmissionPoint ;
+    riepr:hasName "Emission Point 1" ;
+    # ... add other required predicates from ontology ...
+    .
+```
+
+**CRITICAL RULES:**
+- Only use prefixes/classes/predicates defined in the Ontology context.
+- No invented terms, no mixed prefix conventions.
+- Must pass SHACL validation for EmissionPointShape.
+- Use `output_data_writer` to write the complete file (not append).

@@ -1,0 +1,8 @@
+worker_id=POOL-1
+status=FIXED
+target_shape=EmissionPointShape
+target_class=https://example.org/ns/riepr#EmissionPoint
+changed_triples_count=17
+created_or_updated_subjects=:EmissionPoint_001, :EmissionPoint_002
+validation_result=CONFORMS
+remaining_issues=OperationLocation violations (dc:created, dc:issued, dc:modified, ogc:hasGeometry, prov:wasAttributedTo) are from another worker's scope - outside delegated target class :EmissionPoint

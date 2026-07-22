@@ -137,8 +137,25 @@ public class WorkerTripleStore {
       return new AddResult(triplesAdded, duplicates, (int) model.size());
     } catch (Exception e) {
       logger.error("[{}] Failed to add triples: {}", workerId, e.getMessage());
-      return AddResult.error("Invalid TURTLE data: " + e.getMessage());
+      return AddResult.error("Invalid TURTLE data: " + e.getMessage() + hintFor(e.getMessage()));
     }
+  }
+
+  /**
+   * Appends an actionable hint for parse failures whose raw Jena message alone doesn't tell the
+   * model what to change. In particular, a "[SLASH]" token error almost always means a {@code
+   * prefix:LocalName} prefixed name was used where its local part contains an unescaped {@code /}
+   * (typically a worker trying to reproduce a hydra IRI template's path segments as a CURIE instead
+   * of a full angle-bracketed IRI).
+   */
+  private static String hintFor(String parserMessage) {
+    if (parserMessage != null && parserMessage.contains("[SLASH]")) {
+      return " Hint: a prefixed name's local part (after the ':') cannot contain an unescaped '/'."
+          + " If you intended a hierarchical IRI (e.g. from a hydra:search template), write the"
+          + " full IRI in angle brackets instead, e.g. <https://your-namespace/YourClass/your-id>,"
+          + " rather than :YourClass/your-id.";
+    }
+    return "";
   }
 
   /**

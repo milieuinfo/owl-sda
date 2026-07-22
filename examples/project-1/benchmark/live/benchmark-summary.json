@@ -1,9 +1,9 @@
 [
   {
-    "timestamp": "20260717_091730_633",
+    "timestamp": "20260717_170956_169",
     "stage": "LIVE",
     "shapesProcessed": 0,
-    "durationMs": 15004,
+    "durationMs": 15003,
     "triplestoreSize": 0,
     "triplestoreEmpty": true,
     "currentViolations": -1,
@@ -14,7 +14,17 @@
           "output": 0,
           "total": 0
         },
+        "worker_2": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        },
         "worker_1": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        },
+        "worker_3": {
           "input": 0,
           "output": 0,
           "total": 0
@@ -26,9 +36,1643 @@
         "total": 0
       },
       "supervisor": {
-        "input": 12934,
-        "output": 279,
-        "total": 13213
+        "input": 0,
+        "output": 0,
+        "total": 0
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171011_198",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 30042,
+    "triplestoreSize": 0,
+    "triplestoreEmpty": true,
+    "currentViolations": -1,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        },
+        "worker_2": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        },
+        "worker_1": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        },
+        "worker_3": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 8261,
+        "output": 199,
+        "total": 8460
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171026_229",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 45072,
+    "triplestoreSize": 0,
+    "triplestoreEmpty": true,
+    "currentViolations": -1,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        },
+        "worker_2": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        },
+        "worker_1": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        },
+        "worker_3": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 22120,
+        "output": 302,
+        "total": 22422
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171041_245",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 60091,
+    "triplestoreSize": 0,
+    "triplestoreEmpty": true,
+    "currentViolations": -1,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        },
+        "worker_2": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        },
+        "worker_1": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        },
+        "worker_3": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 58729,
+        "output": 681,
+        "total": 59410
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171126_269",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 105114,
+    "triplestoreSize": 0,
+    "triplestoreEmpty": true,
+    "currentViolations": -1,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        },
+        "worker_2": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        },
+        "worker_1": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        },
+        "worker_3": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 95894,
+        "output": 4514,
+        "total": 100408
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171141_288",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 120132,
+    "triplestoreSize": 0,
+    "triplestoreEmpty": true,
+    "currentViolations": -1,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        },
+        "worker_2": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        },
+        "worker_1": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        },
+        "worker_3": {
+          "input": 0,
+          "output": 0,
+          "total": 0
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171156_309",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 135153,
+    "triplestoreSize": 0,
+    "triplestoreEmpty": true,
+    "currentViolations": -1,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 35096,
+          "output": 241,
+          "total": 35337
+        },
+        "worker_2": {
+          "input": 27557,
+          "output": 244,
+          "total": 27801
+        },
+        "worker_1": {
+          "input": 13416,
+          "output": 174,
+          "total": 13590
+        },
+        "worker_3": {
+          "input": 13439,
+          "output": 84,
+          "total": 13523
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171211_331",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 150175,
+    "triplestoreSize": 0,
+    "triplestoreEmpty": true,
+    "currentViolations": -1,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 49672,
+          "output": 337,
+          "total": 50009
+        },
+        "worker_2": {
+          "input": 63234,
+          "output": 442,
+          "total": 63676
+        },
+        "worker_1": {
+          "input": 20788,
+          "output": 274,
+          "total": 21062
+        },
+        "worker_3": {
+          "input": 13439,
+          "output": 84,
+          "total": 13523
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171226_386",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 165199,
+    "triplestoreSize": 7,
+    "triplestoreEmpty": false,
+    "currentViolations": 5,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 71037,
+          "output": 521,
+          "total": 71558
+        },
+        "worker_2": {
+          "input": 152790,
+          "output": 699,
+          "total": 153489
+        },
+        "worker_1": {
+          "input": 20788,
+          "output": 274,
+          "total": 21062
+        },
+        "worker_3": {
+          "input": 20716,
+          "output": 557,
+          "total": 21273
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171241_398",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 180240,
+    "triplestoreSize": 18,
+    "triplestoreEmpty": false,
+    "currentViolations": 10,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 71037,
+          "output": 521,
+          "total": 71558
+        },
+        "worker_2": {
+          "input": 183805,
+          "output": 790,
+          "total": 184595
+        },
+        "worker_1": {
+          "input": 20788,
+          "output": 274,
+          "total": 21062
+        },
+        "worker_3": {
+          "input": 36765,
+          "output": 1008,
+          "total": 37773
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171256_427",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 195267,
+    "triplestoreSize": 52,
+    "triplestoreEmpty": false,
+    "currentViolations": 10,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 99461,
+          "output": 1523,
+          "total": 100984
+        },
+        "worker_2": {
+          "input": 183805,
+          "output": 790,
+          "total": 184595
+        },
+        "worker_1": {
+          "input": 20788,
+          "output": 274,
+          "total": 21062
+        },
+        "worker_3": {
+          "input": 59203,
+          "output": 1622,
+          "total": 60825
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171311_447",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 210289,
+    "triplestoreSize": 88,
+    "triplestoreEmpty": false,
+    "currentViolations": 33,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 99461,
+          "output": 1523,
+          "total": 100984
+        },
+        "worker_2": {
+          "input": 215010,
+          "output": 1630,
+          "total": 216640
+        },
+        "worker_1": {
+          "input": 37289,
+          "output": 1777,
+          "total": 39066
+        },
+        "worker_3": {
+          "input": 71608,
+          "output": 1715,
+          "total": 73323
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171326_464",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 225306,
+    "triplestoreSize": 88,
+    "triplestoreEmpty": false,
+    "currentViolations": 33,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 99461,
+          "output": 1523,
+          "total": 100984
+        },
+        "worker_2": {
+          "input": 215010,
+          "output": 1630,
+          "total": 216640
+        },
+        "worker_1": {
+          "input": 67916,
+          "output": 2145,
+          "total": 70061
+        },
+        "worker_3": {
+          "input": 117716,
+          "output": 2072,
+          "total": 119788
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171341_483",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 240325,
+    "triplestoreSize": 86,
+    "triplestoreEmpty": false,
+    "currentViolations": 32,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 99461,
+          "output": 1523,
+          "total": 100984
+        },
+        "worker_2": {
+          "input": 279892,
+          "output": 2321,
+          "total": 282213
+        },
+        "worker_1": {
+          "input": 99373,
+          "output": 2431,
+          "total": 101804
+        },
+        "worker_3": {
+          "input": 189381,
+          "output": 2477,
+          "total": 191858
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171356_510",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 255349,
+    "triplestoreSize": 117,
+    "triplestoreEmpty": false,
+    "currentViolations": 34,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 159651,
+          "output": 2745,
+          "total": 162396
+        },
+        "worker_2": {
+          "input": 279892,
+          "output": 2321,
+          "total": 282213
+        },
+        "worker_1": {
+          "input": 116667,
+          "output": 2849,
+          "total": 119516
+        },
+        "worker_3": {
+          "input": 225541,
+          "output": 2539,
+          "total": 228080
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171411_535",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 270374,
+    "triplestoreSize": 114,
+    "triplestoreEmpty": false,
+    "currentViolations": 29,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 159651,
+          "output": 2745,
+          "total": 162396
+        },
+        "worker_2": {
+          "input": 319678,
+          "output": 3167,
+          "total": 322845
+        },
+        "worker_1": {
+          "input": 134421,
+          "output": 2930,
+          "total": 137351
+        },
+        "worker_3": {
+          "input": 262909,
+          "output": 2889,
+          "total": 265798
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171426_558",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 285400,
+    "triplestoreSize": 91,
+    "triplestoreEmpty": false,
+    "currentViolations": 9,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 275414,
+          "output": 3465,
+          "total": 278879
+        },
+        "worker_2": {
+          "input": 360928,
+          "output": 3313,
+          "total": 364241
+        },
+        "worker_1": {
+          "input": 152316,
+          "output": 3265,
+          "total": 155581
+        },
+        "worker_3": {
+          "input": 301244,
+          "output": 3397,
+          "total": 304641
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171441_584",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 300424,
+    "triplestoreSize": 90,
+    "triplestoreEmpty": false,
+    "currentViolations": 10,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 314763,
+          "output": 3503,
+          "total": 318266
+        },
+        "worker_2": {
+          "input": 444721,
+          "output": 3770,
+          "total": 448491
+        },
+        "worker_1": {
+          "input": 152316,
+          "output": 3265,
+          "total": 155581
+        },
+        "worker_3": {
+          "input": 340140,
+          "output": 3489,
+          "total": 343629
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171456_604",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 315444,
+    "triplestoreSize": 91,
+    "triplestoreEmpty": false,
+    "currentViolations": 9,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 314763,
+          "output": 3503,
+          "total": 318266
+        },
+        "worker_2": {
+          "input": 487254,
+          "output": 4080,
+          "total": 491334
+        },
+        "worker_1": {
+          "input": 152316,
+          "output": 3265,
+          "total": 155581
+        },
+        "worker_3": {
+          "input": 381426,
+          "output": 3854,
+          "total": 385280
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171511_625",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 330468,
+    "triplestoreSize": 120,
+    "triplestoreEmpty": false,
+    "currentViolations": 13,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 356364,
+          "output": 4246,
+          "total": 360610
+        },
+        "worker_2": {
+          "input": 530587,
+          "output": 4147,
+          "total": 534734
+        },
+        "worker_1": {
+          "input": 170744,
+          "output": 4493,
+          "total": 175237
+        },
+        "worker_3": {
+          "input": 381426,
+          "output": 3854,
+          "total": 385280
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171526_647",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 345490,
+    "triplestoreSize": 120,
+    "triplestoreEmpty": false,
+    "currentViolations": 13,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 356364,
+          "output": 4246,
+          "total": 360610
+        },
+        "worker_2": {
+          "input": 576285,
+          "output": 4749,
+          "total": 581034
+        },
+        "worker_1": {
+          "input": 190455,
+          "output": 4557,
+          "total": 195012
+        },
+        "worker_3": {
+          "input": 471403,
+          "output": 4588,
+          "total": 475991
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171541_668",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 360511,
+    "triplestoreSize": 120,
+    "triplestoreEmpty": false,
+    "currentViolations": 13,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 399942,
+          "output": 4947,
+          "total": 404889
+        },
+        "worker_2": {
+          "input": 622627,
+          "output": 4885,
+          "total": 627512
+        },
+        "worker_1": {
+          "input": 213201,
+          "output": 4852,
+          "total": 218053
+        },
+        "worker_3": {
+          "input": 519715,
+          "output": 5001,
+          "total": 524716
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171556_698",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 375539,
+    "triplestoreSize": 120,
+    "triplestoreEmpty": false,
+    "currentViolations": 12,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 399942,
+          "output": 4947,
+          "total": 404889
+        },
+        "worker_2": {
+          "input": 767646,
+          "output": 5313,
+          "total": 772959
+        },
+        "worker_1": {
+          "input": 260846,
+          "output": 5361,
+          "total": 266207
+        },
+        "worker_3": {
+          "input": 568620,
+          "output": 5271,
+          "total": 573891
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171611_720",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 390561,
+    "triplestoreSize": 118,
+    "triplestoreEmpty": false,
+    "currentViolations": 12,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 399942,
+          "output": 4947,
+          "total": 404889
+        },
+        "worker_2": {
+          "input": 767646,
+          "output": 5313,
+          "total": 772959
+        },
+        "worker_1": {
+          "input": 310289,
+          "output": 5703,
+          "total": 315992
+        },
+        "worker_3": {
+          "input": 568620,
+          "output": 5271,
+          "total": 573891
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171626_742",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 405582,
+    "triplestoreSize": 123,
+    "triplestoreEmpty": false,
+    "currentViolations": 14,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 444838,
+          "output": 6031,
+          "total": 450869
+        },
+        "worker_2": {
+          "input": 819010,
+          "output": 5762,
+          "total": 824772
+        },
+        "worker_1": {
+          "input": 360529,
+          "output": 5915,
+          "total": 366444
+        },
+        "worker_3": {
+          "input": 617822,
+          "output": 5935,
+          "total": 623757
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171641_768",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 420609,
+    "triplestoreSize": 134,
+    "triplestoreEmpty": false,
+    "currentViolations": 15,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 492043,
+          "output": 6130,
+          "total": 498173
+        },
+        "worker_2": {
+          "input": 1031559,
+          "output": 6287,
+          "total": 1037846
+        },
+        "worker_1": {
+          "input": 411573,
+          "output": 6269,
+          "total": 417842
+        },
+        "worker_3": {
+          "input": 667741,
+          "output": 6291,
+          "total": 674032
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171656_787",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 435632,
+    "triplestoreSize": 134,
+    "triplestoreEmpty": false,
+    "currentViolations": 15,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 492043,
+          "output": 6130,
+          "total": 498173
+        },
+        "worker_2": {
+          "input": 1253604,
+          "output": 6573,
+          "total": 1260177
+        },
+        "worker_1": {
+          "input": 411573,
+          "output": 6269,
+          "total": 417842
+        },
+        "worker_3": {
+          "input": 718071,
+          "output": 6594,
+          "total": 724665
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171711_804",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 450647,
+    "triplestoreSize": 134,
+    "triplestoreEmpty": false,
+    "currentViolations": 15,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 492043,
+          "output": 6130,
+          "total": 498173
+        },
+        "worker_2": {
+          "input": 1425910,
+          "output": 6777,
+          "total": 1432687
+        },
+        "worker_1": {
+          "input": 411573,
+          "output": 6269,
+          "total": 417842
+        },
+        "worker_3": {
+          "input": 769128,
+          "output": 6888,
+          "total": 776016
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171726_824",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 465668,
+    "triplestoreSize": 134,
+    "triplestoreEmpty": false,
+    "currentViolations": 15,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 590072,
+          "output": 7168,
+          "total": 597240
+        },
+        "worker_2": {
+          "input": 1425910,
+          "output": 6777,
+          "total": 1432687
+        },
+        "worker_1": {
+          "input": 411573,
+          "output": 6269,
+          "total": 417842
+        },
+        "worker_3": {
+          "input": 769128,
+          "output": 6888,
+          "total": 776016
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171741_850",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 480692,
+    "triplestoreSize": 134,
+    "triplestoreEmpty": false,
+    "currentViolations": 15,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 590072,
+          "output": 7168,
+          "total": 597240
+        },
+        "worker_2": {
+          "input": 1485040,
+          "output": 7512,
+          "total": 1492552
+        },
+        "worker_1": {
+          "input": 439006,
+          "output": 7556,
+          "total": 446562
+        },
+        "worker_3": {
+          "input": 769128,
+          "output": 6888,
+          "total": 776016
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171756_870",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 495713,
+    "triplestoreSize": 134,
+    "triplestoreEmpty": false,
+    "currentViolations": 15,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 590072,
+          "output": 7168,
+          "total": 597240
+        },
+        "worker_2": {
+          "input": 1485040,
+          "output": 7512,
+          "total": 1492552
+        },
+        "worker_1": {
+          "input": 439006,
+          "output": 7556,
+          "total": 446562
+        },
+        "worker_3": {
+          "input": 820664,
+          "output": 7822,
+          "total": 828486
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171811_893",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 510736,
+    "triplestoreSize": 133,
+    "triplestoreEmpty": false,
+    "currentViolations": 16,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 590072,
+          "output": 7168,
+          "total": 597240
+        },
+        "worker_2": {
+          "input": 1668536,
+          "output": 8243,
+          "total": 1676779
+        },
+        "worker_1": {
+          "input": 439006,
+          "output": 7556,
+          "total": 446562
+        },
+        "worker_3": {
+          "input": 820664,
+          "output": 7822,
+          "total": 828486
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171826_918",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 525759,
+    "triplestoreSize": 163,
+    "triplestoreEmpty": false,
+    "currentViolations": 20,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 590072,
+          "output": 7168,
+          "total": 597240
+        },
+        "worker_2": {
+          "input": 1854461,
+          "output": 8587,
+          "total": 1863048
+        },
+        "worker_1": {
+          "input": 497727,
+          "output": 8738,
+          "total": 506465
+        },
+        "worker_3": {
+          "input": 873181,
+          "output": 8442,
+          "total": 881623
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171841_942",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 540783,
+    "triplestoreSize": 164,
+    "triplestoreEmpty": false,
+    "currentViolations": 19,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 590072,
+          "output": 7168,
+          "total": 597240
+        },
+        "worker_2": {
+          "input": 1980246,
+          "output": 8907,
+          "total": 1989153
+        },
+        "worker_1": {
+          "input": 497727,
+          "output": 8738,
+          "total": 506465
+        },
+        "worker_3": {
+          "input": 873181,
+          "output": 8442,
+          "total": 881623
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171856_965",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 555807,
+    "triplestoreSize": 135,
+    "triplestoreEmpty": false,
+    "currentViolations": 15,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 590072,
+          "output": 7168,
+          "total": 597240
+        },
+        "worker_2": {
+          "input": 2171730,
+          "output": 9262,
+          "total": 2180992
+        },
+        "worker_1": {
+          "input": 635112,
+          "output": 9387,
+          "total": 644499
+        },
+        "worker_3": {
+          "input": 873181,
+          "output": 8442,
+          "total": 881623
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171911_986",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 570830,
+    "triplestoreSize": 135,
+    "triplestoreEmpty": false,
+    "currentViolations": 15,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 590072,
+          "output": 7168,
+          "total": 597240
+        },
+        "worker_2": {
+          "input": 2301138,
+          "output": 9394,
+          "total": 2310532
+        },
+        "worker_1": {
+          "input": 635112,
+          "output": 9387,
+          "total": 644499
+        },
+        "worker_3": {
+          "input": 927469,
+          "output": 9455,
+          "total": 936924
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171927_007",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 585850,
+    "triplestoreSize": 133,
+    "triplestoreEmpty": false,
+    "currentViolations": 14,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 590072,
+          "output": 7168,
+          "total": 597240
+        },
+        "worker_2": {
+          "input": 2370429,
+          "output": 9601,
+          "total": 2380030
+        },
+        "worker_1": {
+          "input": 669886,
+          "output": 9948,
+          "total": 679834
+        },
+        "worker_3": {
+          "input": 983320,
+          "output": 9876,
+          "total": 993196
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171942_025",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 600866,
+    "triplestoreSize": 126,
+    "triplestoreEmpty": false,
+    "currentViolations": 13,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 590072,
+          "output": 7168,
+          "total": 597240
+        },
+        "worker_2": {
+          "input": 2440078,
+          "output": 10083,
+          "total": 2450161
+        },
+        "worker_1": {
+          "input": 669886,
+          "output": 9948,
+          "total": 679834
+        },
+        "worker_3": {
+          "input": 1096473,
+          "output": 10329,
+          "total": 1106802
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
+      }
+    }
+  },
+  {
+    "timestamp": "20260717_171957_045",
+    "stage": "LIVE",
+    "shapesProcessed": 0,
+    "durationMs": 615888,
+    "triplestoreSize": 133,
+    "triplestoreEmpty": false,
+    "currentViolations": 14,
+    "tokens": {
+      "workers": {
+        "worker_0": {
+          "input": 590072,
+          "output": 7168,
+          "total": 597240
+        },
+        "worker_2": {
+          "input": 2510244,
+          "output": 10378,
+          "total": 2520622
+        },
+        "worker_1": {
+          "input": 669886,
+          "output": 9948,
+          "total": 679834
+        },
+        "worker_3": {
+          "input": 1153608,
+          "output": 10661,
+          "total": 1164269
+        }
+      },
+      "reviewer": {
+        "input": 0,
+        "output": 0,
+        "total": 0
+      },
+      "supervisor": {
+        "input": 137026,
+        "output": 4964,
+        "total": 141990
       }
     }
   }

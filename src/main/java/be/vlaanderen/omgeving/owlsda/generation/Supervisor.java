@@ -29,10 +29,33 @@ public record Supervisor(
     ConcurrentWorkerBatch concurrentWorkerBatch,
     Shacl shacl,
     WorkerTripleStore sharedTripleStore,
-    ShapeProcessingTracker shapeProcessingTracker) {
+    ShapeProcessingTracker shapeProcessingTracker,
+    OutputValidator finalizationValidator) {
 
   private static final Logger logger = LoggerFactory.getLogger(Supervisor.class);
   private static final String DELEGATION_CONTEXT_NAME = DelegationHandler.DELEGATION_CONTEXT_NAME;
+
+  /**
+   * Convenience constructor for callers that validate consistently everywhere (all current
+   * production wiring except {@link #finalizeOutput}'s gate, and every test). Defaults {@link
+   * #finalizationValidator} to the same {@code validator} passed in.
+   */
+  public Supervisor(
+      Session supervisorSession,
+      OutputValidator validator,
+      ConcurrentWorkerBatch concurrentWorkerBatch,
+      Shacl shacl,
+      WorkerTripleStore sharedTripleStore,
+      ShapeProcessingTracker shapeProcessingTracker) {
+    this(
+        supervisorSession,
+        validator,
+        concurrentWorkerBatch,
+        shacl,
+        sharedTripleStore,
+        shapeProcessingTracker,
+        validator);
+  }
 
   public boolean orchestrate(int shapes, boolean firstPass) {
     try {
@@ -383,6 +406,8 @@ public record Supervisor(
     }
   }
 
+  private static final int MAX_FINALIZATION_ITERATIONS = 5;
+
   /** Finalize output by directly editing for consistency and documentation. */
   public void finalizeOutput() {
     try {
@@ -398,15 +423,30 @@ public record Supervisor(
       flushSharedStoreBeforeSupervisorPrompt();
       supervisorSession.prompt(new RequestMessage(finalizationInstruction)).get();
 
-      // Validate
-      String validationReport = validator.validate();
+      // Validate using finalizationValidator - NOT validator - so this gate checks the file
+      // against the SAME shapes the supervisor's own shacl_validator(source="file") tool call
+      // just used (see SessionManager, where the supervisor/reviewer's tool is wired to
+      // inferredShacl while plain `validator` is wired to defaultShacl for worker-facing reports).
+      // Using `validator` here previously meant this loop could re-open finalization with
+      // "Validation still reports issues" right after the supervisor's own tool call reported 0
+      // violations on the same file - the supervisor, seeing its own check pass, never touches
+      // anything meaningfully different on the next iteration, so the mismatch could repeat.
+      String validationReport = finalizationValidator.validate();
+      int iteration = 0;
       while (validationReport != null && !validationReport.isEmpty()) {
+        iteration++;
+        if (iteration > MAX_FINALIZATION_ITERATIONS) {
+          logger.error(
+              "Stopping finalization: validation still reports issues after {} iterations",
+              MAX_FINALIZATION_ITERATIONS);
+          return;
+        }
         logger.info(
             "Output validation failed during finalization, iterating with supervisor edits");
         supervisorSession.addContext(new ValidationContext(validationReport));
         String iterationInstruction = InstructionFactory.load("supervisor-finalization-iteration");
         supervisorSession.prompt(new RequestMessage(iterationInstruction)).get();
-        validationReport = validator.validate();
+        validationReport = finalizationValidator.validate();
       }
 
       logger.info("Output finalization complete");

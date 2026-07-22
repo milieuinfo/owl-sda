@@ -1,0 +1,380 @@
+@prefix :           <https://example.org/ns/riepr#> .
+@prefix adms:       <http://www.w3.org/ns/adms#> .
+@prefix concept:    <https://example.org/id/concept/> .
+@prefix dbo:        <http://dbpedia.org/ontology/> .
+@prefix dc:         <http://purl.org/dc/terms/> .
+@prefix dct:        <http://purl.org/dc/terms/> .
+@prefix foaf:       <http://xmlns.com/foaf/0.1/> .
+@prefix hydra:      <http://www.w3.org/ns/hydra/core#> .
+@prefix locn:       <http://www.w3.org/ns/locn#> .
+@prefix nace:       <http://data.europa.eu/ux2/nace2.1/> .
+@prefix ogc:        <http://www.opengis.net/ont/geosparql#> .
+@prefix org:        <http://www.w3.org/ns/org#> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix pplan:      <http://purl.org/net/p-plan#> .
+@prefix prov:       <http://www.w3.org/ns/prov#> .
+@prefix qudt:       <http://qudt.org/schema/qudt/> .
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix riepr:      <https://example.org/ns/riepr#> .
+@prefix sh:         <http://www.w3.org/ns/shacl#> .
+@prefix skos:       <http://www.w3.org/2004/02/skos/core#> .
+@prefix sosa:       <http://www.w3.org/ns/sosa/> .
+@prefix ssn:        <http://www.w3.org/ns/ssn/> .
+@prefix ssn-system: <http://www.w3.org/ns/ssn/systems/> .
+@prefix vann:       <http://purl.org/vocab/vann/> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+
+riepr:Emission_001  rdf:type  riepr:Emission ;
+        rdfs:label   "CO2 emission from kiln" ;
+        dc:created   "2020-01-01T00:00:00" ;
+        dc:issued    "2020-01-01" ;
+        dc:modified  "2024-06-15T10:30:00" ;
+        adms:status  riepr:actief .
+
+riepr:ProcessVariable_001
+        rdf:type             riepr:ProcessVariable ;
+        rdfs:label           "Temperature" ;
+        pplan:isOutputVarOf  riepr:Process_001 ;
+        qudt:numericValue    850.5 .
+
+riepr:MeasurementInstrument_001
+        rdf:type         riepr:MeasurementInstrument ;
+        rdfs:label       "Gas analyzer main stack" ;
+        dc:created       "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued        "2020-01-01"^^xsd:date ;
+        dc:modified      "2024-06-15T10:30:00"^^xsd:dateTime ;
+        adms:status      riepr:actief ;
+        sosa:isHostedBy  riepr:OperationLocation_001 .
+
+riepr:OperatorContactPerson_002
+        rdf:type     riepr:OperatorContactPerson ;
+        rdfs:label   "Maria Van den Berghe" ;
+        dc:created   "2020-02-01T10:00:00"^^xsd:dateTime ;
+        dc:issued    "2020-02-01"^^xsd:date ;
+        dc:modified  "2024-06-15T10:30:00"^^xsd:dateTime ;
+        foaf:mbox    "maria.vdb@cementgroup.be" ;
+        foaf:name    "Maria Van den Berghe" .
+
+riepr:Operation_001  rdf:type   riepr:Operation ;
+        rdfs:label              "Cement production line A operation" ;
+        dc:created              "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued               "2020-01-01"^^xsd:date ;
+        dc:modified             "2024-06-15T10:30:00"^^xsd:dateTime ;
+        adms:status             riepr:actief ;
+        ssn:deployedOnPlatform  riepr:OperationLocation_001 ;
+        ssn:implements          riepr:Process_001 .
+
+riepr:Installation_003
+        rdf:type         riepr:Installation ;
+        rdfs:label       "Emission Monitoring Installation"@en ;
+        dc:created       "2024-03-10T10:00:00"^^xsd:dateTime ;
+        dc:issued        "2024-03-10"^^xsd:date ;
+        dc:modified      "2024-07-01T09:15:00"^^xsd:dateTime ;
+        adms:status      riepr:actief ;
+        sosa:isHostedBy  riepr:OperationLocation_001 .
+
+riepr:Observation_002
+        rdf:type                   riepr:Observation ;
+        rdfs:label                 "CO2 Emission Observation" ;
+        dc:created                 "2024-02-10T10:00:00Z"^^xsd:dateTime ;
+        dc:issued                  "2024-02-10"^^xsd:date ;
+        dc:modified                "2024-02-10T10:30:00Z"^^xsd:dateTime ;
+        adms:status                riepr:actief ;
+        prov:wasDerivedFrom        riepr:Emission_002 ;
+        sosa:hasFeatureOfInterest  riepr:Emission_002 ;
+        sosa:hasResultFeature      riepr:Emission_002 .
+
+riepr:ObservationResult_002
+        rdf:type                   riepr:ObservationResult ;
+        rdfs:label                 "SO2 Concentration Measurement Result" ;
+        dc:created                 "2024-03-10T10:00:00Z"^^xsd:dateTime ;
+        dc:issued                  "2024-03-10"^^xsd:date ;
+        dc:modified                "2024-03-10T10:30:00Z"^^xsd:dateTime ;
+        qudt:hasUnit               qudt:PARTSPERMILLIONBYVOLUME ;
+        qudt:numericValue          "18.7" ;
+        adms:status                riepr:actief ;
+        sosa:hasFeatureOfInterest  riepr:Emission_002 ;
+        sosa:resultTime            "2024-03-10T10:15:00Z"^^xsd:dateTime .
+
+riepr:EmissionPoint_001
+        rdf:type         riepr:EmissionPoint ;
+        rdfs:label       "Stack 1 Cement factory Antwerp"@en ;
+        dc:created       "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued        "2020-01-01"^^xsd:date ;
+        dc:modified      "2024-06-15T10:30:00"^^xsd:dateTime ;
+        adms:status      riepr:actief ;
+        sosa:isHostedBy  riepr:OperationLocation_001 .
+
+riepr:OperatorContactPerson_001
+        rdf:type     riepr:OperatorContactPerson ;
+        rdfs:label   "Jan Peeters" ;
+        dc:created   "2020-01-15T09:00:00"^^xsd:dateTime ;
+        dc:issued    "2020-01-15"^^xsd:date ;
+        dc:modified  "2024-06-15T10:30:00"^^xsd:dateTime ;
+        foaf:mbox    "jan.peeters@cementgroup.be" ;
+        foaf:name    "Jan Peeters" ;
+        foaf:phone   "+32 3 123 4567" .
+
+riepr:EmissionProcedure_002
+        rdf:type     riepr:EmissionProcedure ;
+        rdfs:label   "Particulate matter emission procedure" ;
+        dc:created   "2018-09-12T11:30:00" ;
+        dc:issued    "2018-09-12" ;
+        dc:modified  "2024-07-25T16:00:00" ;
+        adms:status  riepr:actief .
+
+riepr:Process_002  rdf:type  riepr:Process ;
+        rdfs:label   "Dust removal treatment" ;
+        dc:created   "2020-06-01T08:00:00"^^xsd:dateTime ;
+        dc:modified  "2024-03-20T14:00:00"^^xsd:dateTime ;
+        adms:status  riepr:actief .
+
+riepr:Installation_002
+        rdf:type         riepr:Installation ;
+        rdfs:label       "Gas Treatment Installation"@en ;
+        dc:created       "2024-01-15T08:30:00"^^xsd:dateTime ;
+        dc:issued        "2024-01-15"^^xsd:date ;
+        dc:modified      "2024-06-20T14:45:00"^^xsd:dateTime ;
+        adms:status      riepr:actief ;
+        sosa:isHostedBy  riepr:OperationLocation_001 .
+
+riepr:Observation_001
+        rdf:type                   riepr:Observation ;
+        rdfs:label                 "NOx Concentration Observation" ;
+        dc:created                 "2024-01-15T08:30:00Z"^^xsd:dateTime ;
+        dc:issued                  "2024-01-15"^^xsd:date ;
+        dc:modified                "2024-01-15T09:00:00Z"^^xsd:dateTime ;
+        adms:status                riepr:actief ;
+        prov:wasDerivedFrom        riepr:Emission_001 ;
+        sosa:hasFeatureOfInterest  riepr:Emission_001 ;
+        sosa:hasResultFeature      riepr:Emission_001 .
+
+riepr:WithdrawalPoint_002
+        rdf:type         riepr:WithdrawalPoint ;
+        rdfs:label       "Wastewater outfall" ;
+        dc:created       "2021-06-15T08:00:00"^^xsd:dateTime ;
+        dc:issued        "2021-06-15"^^xsd:date ;
+        dc:modified      "2024-03-20T14:00:00"^^xsd:dateTime ;
+        adms:status      riepr:actief ;
+        sosa:isHostedBy  riepr:OperationLocation_001 .
+
+riepr:AbstractEmissionPoint_002
+        rdf:type     riepr:AbstractEmissionPoint ;
+        rdfs:label   "Secondary vent emission point" ;
+        dc:created   "2020-02-15T12:00:00" ;
+        dc:issued    "2020-02-15" ;
+        dc:modified  "2024-09-01T16:45:00" ;
+        adms:status  riepr:actief .
+
+riepr:ObservationResult_001
+        rdf:type                   riepr:ObservationResult ;
+        rdfs:label                 "NOx Concentration Measurement Result" ;
+        dc:created                 "2024-01-15T08:30:00Z"^^xsd:dateTime ;
+        dc:issued                  "2024-01-15"^^xsd:date ;
+        dc:modified                "2024-01-15T09:00:00Z"^^xsd:dateTime ;
+        qudt:hasUnit               qudt:PPMV ;
+        qudt:numericValue          "42.5" ;
+        adms:status                riepr:actief ;
+        sosa:hasFeatureOfInterest  riepr:Emission_001 ;
+        sosa:resultTime            "2024-01-15T08:45:00Z"^^xsd:dateTime .
+
+riepr:InstallationProperty_002
+        rdf:type           riepr:InstallationProperty ;
+        rdfs:label         "Exhaust Emission Point Property" ;
+        dc:created         "2024-03-10T10:00:00Z"^^xsd:dateTime ;
+        dc:issued          "2024-03-10"^^xsd:date ;
+        dc:modified        "2024-07-01T09:15:00Z"^^xsd:dateTime ;
+        dc:type            riepr:EmissionProperty ;
+        qudt:hasUnit       qudt:GRAMSPERSECOND ;
+        qudt:numericValue  12.3 ;
+        adms:status        riepr:actief ;
+        sosa:isHostedBy    riepr:EmissionPoint_001 ;
+        ssn:isPropertyOf   riepr:Installation_003 .
+
+riepr:MeasurementProcedure_002
+        rdf:type         riepr:MeasurementProcedure ;
+        rdfs:label       "Stack SO2 Periodic Sampling Procedure" ;
+        dc:created       "2024-03-10T09:00:00Z"^^xsd:dateTime ;
+        dc:issued        "2024-03-10"^^xsd:date ;
+        dc:modified      "2024-03-20T11:00:00Z"^^xsd:dateTime ;
+        adms:identifier  "MEP-PSS-SO2-002" ;
+        adms:status      riepr:actief .
+
+riepr:EmissionProcedure_001
+        rdf:type     riepr:EmissionProcedure ;
+        rdfs:label   "Flue gas emission measurement procedure" ;
+        dc:created   "2017-11-05T09:00:00" ;
+        dc:issued    "2017-11-05" ;
+        dc:modified  "2024-04-18T13:20:00" ;
+        adms:status  riepr:actief .
+
+riepr:Process_001  rdf:type  riepr:Process ;
+        rdfs:label   "Cement clinker production" ;
+        dc:created   "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:modified  "2024-01-15T10:30:00"^^xsd:dateTime ;
+        adms:status  riepr:actief .
+
+riepr:Section_002  rdf:type  riepr:Section ;
+        rdfs:label       "Stack upper section" ;
+        dc:created       "2020-03-15T08:00:00" ;
+        dc:issued        "2020-03-15" ;
+        dc:modified      "2024-07-20T14:00:00" ;
+        dc:type          "Stack section" ;
+        skos:notation    "SEC-002" ;
+        adms:status      riepr:actief ;
+        sosa:isHostedBy  riepr:EmissionPoint_001 .
+
+riepr:ConsumptionProcedure_002
+        rdf:type     riepr:ConsumptionProcedure ;
+        rdfs:label   "Electricity consumption procedure" ;
+        dc:created   "2019-07-22T14:00:00" ;
+        dc:issued    "2019-07-22" ;
+        dc:modified  "2024-06-15T09:45:00" ;
+        adms:status  riepr:actief .
+
+riepr:Installation_001
+        rdf:type         riepr:Installation ;
+        rdfs:label       "Cement kiln installation"@en ;
+        dc:created       "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued        "2020-01-01"^^xsd:date ;
+        dc:modified      "2024-01-15T10:30:00"^^xsd:dateTime ;
+        adms:status      riepr:actief ;
+        sosa:isHostedBy  riepr:OperationLocation_001 .
+
+riepr:WithdrawalPoint_001
+        rdf:type         riepr:WithdrawalPoint ;
+        rdfs:label       "Effluent discharge point" ;
+        dc:created       "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued        "2020-01-01"^^xsd:date ;
+        dc:modified      "2024-01-15T10:30:00"^^xsd:dateTime ;
+        adms:status      riepr:actief ;
+        sosa:isHostedBy  riepr:OperationLocation_001 .
+
+riepr:AbstractEmissionPoint_001
+        rdf:type     riepr:AbstractEmissionPoint ;
+        rdfs:label   "Main stack emission point" ;
+        dc:created   "2019-06-01T00:00:00" ;
+        dc:issued    "2019-06-01" ;
+        dc:modified  "2024-08-10T09:15:00" ;
+        adms:status  riepr:actief .
+
+riepr:actief  rdf:type  skos:Concept , adms:Status ;
+        rdfs:label      "Active"@en ;
+        skos:prefLabel  "Active"@en .
+
+riepr:InstallationProperty_001
+        rdf:type           riepr:InstallationProperty ;
+        rdfs:label         "Main Gas Installation" ;
+        dc:created         "2024-01-15T08:30:00Z"^^xsd:dateTime ;
+        dc:issued          "2024-01-15"^^xsd:date ;
+        dc:modified        "2024-06-20T14:45:00Z"^^xsd:dateTime ;
+        dc:type            riepr:GasInstallation ;
+        qudt:hasUnit       qudt:PERCENT ;
+        qudt:numericValue  95.5 ;
+        adms:status        riepr:actief ;
+        sosa:isHostedBy    riepr:Installation_001 ;
+        ssn:isPropertyOf   riepr:Installation_002 .
+
+riepr:Filter_002  rdf:type  riepr:Filter ;
+        rdfs:label       "Baghouse filter unit" ;
+        dc:created       "2020-04-01T09:00:00"^^xsd:dateTime ;
+        dc:issued        "2020-04-01"^^xsd:date ;
+        dc:modified      "2024-06-15T10:30:00"^^xsd:dateTime ;
+        adms:status      riepr:actief ;
+        sosa:isHostedBy  riepr:OperationLocation_001 .
+
+riepr:MeasurementProcedure_001
+        rdf:type           riepr:MeasurementProcedure ;
+        rdfs:label         "Flue Gas NOx Continuous Emission Monitoring Procedure" ;
+        dc:created         "2024-02-01T07:00:00Z"^^xsd:dateTime ;
+        dc:issued          "2024-02-01"^^xsd:date ;
+        dc:modified        "2024-02-15T14:30:00Z"^^xsd:dateTime ;
+        adms:identifier    "MEP-CEM-NOx-001" ;
+        adms:status        riepr:actief ;
+        ssn:hasDeployment  riepr:Operation_001 .
+
+riepr:ProcessingProcedure_002
+        rdf:type         riepr:ProcessingProcedure ;
+        rdfs:label       "Selective Catalytic Reduction NOx Abatement Procedure" ;
+        dc:created       "2024-03-01T08:00:00Z"^^xsd:dateTime ;
+        dc:issued        "2024-03-01"^^xsd:date ;
+        dc:modified      "2024-03-15T16:00:00Z"^^xsd:dateTime ;
+        adms:identifier  "PPR-SCR-NOX-002" ;
+        adms:status      riepr:actief .
+
+riepr:OperationLocation_001
+        rdf:type              riepr:OperationLocation ;
+        rdfs:label            "Cement factory Antwerp"@en ;
+        dc:created            "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued             "2020-01-01"^^xsd:date ;
+        dc:modified           "2024-06-15T10:30:00"^^xsd:dateTime ;
+        ogc:hasGeometry       [ rdf:type   ogc:Geometry ;
+                                ogc:asWKT  "POINT(4.4025 51.2194)"^^ogc:wktLiteral
+                              ] ;
+        prov:wasAttributedTo  riepr:Operator_001 .
+
+riepr:Section_001  rdf:type  riepr:Section ;
+        rdfs:label       "Main kiln section" ;
+        dc:created       "2020-01-01T00:00:00" ;
+        dc:issued        "2020-01-01" ;
+        dc:modified      "2024-06-15T10:30:00" ;
+        dc:type          "Kiln section" ;
+        skos:notation    "SEC-001" ;
+        adms:status      riepr:actief ;
+        sosa:isHostedBy  riepr:Installation_001 .
+
+riepr:ConsumptionProcedure_001
+        rdf:type     riepr:ConsumptionProcedure ;
+        rdfs:label   "Natural gas consumption procedure" ;
+        dc:created   "2018-03-10T08:00:00" ;
+        dc:issued    "2018-03-10" ;
+        dc:modified  "2024-05-20T11:30:00" ;
+        adms:status  riepr:actief .
+
+riepr:Filter_001  rdf:type  riepr:Filter ;
+        rdfs:label       "Primary cyclone separator" ;
+        dc:created       "2020-03-15T08:00:00"^^xsd:dateTime ;
+        dc:issued        "2020-03-15"^^xsd:date ;
+        dc:modified      "2024-06-15T10:30:00"^^xsd:dateTime ;
+        adms:status      riepr:actief ;
+        sosa:isHostedBy  riepr:OperationLocation_001 .
+
+riepr:ProcessingProcedure_001
+        rdf:type           riepr:ProcessingProcedure ;
+        rdfs:label         "Flue Gas Desulfurization Process Control Procedure" ;
+        dc:created         "2024-01-20T06:00:00Z"^^xsd:dateTime ;
+        dc:issued          "2024-01-20"^^xsd:date ;
+        dc:modified        "2024-02-05T10:00:00Z"^^xsd:dateTime ;
+        adms:identifier    "PPR-FGD-CTRL-001" ;
+        adms:status        riepr:actief ;
+        ssn:hasDeployment  riepr:Operation_001 .
+
+riepr:MeasurementPoint_001
+        rdf:type         riepr:MeasurementPoint ;
+        rdfs:label       "Flow measurement point main duct" ;
+        dc:created       "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued        "2020-01-01"^^xsd:date ;
+        dc:modified      "2024-06-15T10:30:00"^^xsd:dateTime ;
+        adms:status      riepr:actief ;
+        sosa:isHostedBy  riepr:OperationLocation_001 .
+
+riepr:Operator_001  rdf:type  riepr:Operator ;
+        rdfs:label    "Cement Group Antwerp"@en ;
+        dc:type       <http://purl.org/linked-data/cube#SocialAccount> ;
+        locn:address  [ rdf:type    locn:Address ;
+                        rdfs:label  "Industriepark 1, 2000 Antwerpen"@en
+                      ] .
+
+riepr:Emission_002  rdf:type  riepr:Emission ;
+        rdfs:label   "NOx emission from stack" ;
+        dc:created   "2020-03-15T08:00:00" ;
+        dc:issued    "2020-03-15" ;
+        dc:modified  "2024-07-20T14:00:00" ;
+        adms:status  riepr:actief .
+
+riepr:ProcessVariable_002
+        rdf:type            riepr:ProcessVariable ;
+        rdfs:label          "Pressure" ;
+        pplan:isInputVarOf  riepr:Process_001 ;
+        qudt:numericValue   1013.25 .

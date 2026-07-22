@@ -12,6 +12,7 @@
     autoScroll: true,
     expandedByRole: {},
     lastMessageCountByRole: {},
+    runStartMs: null,
   };
 
   function expandedSetFor(role) {
@@ -65,12 +66,26 @@
     return n < 0 ? "--" : n;
   }
 
+  // metadata.duration_ms only covers the CURRENT stage (it resets every time a round/stage
+  // boundary snapshot - e.g. GENERATE - restarts the stage clock), so displaying it as "Duration"
+  // made a long run look like it had only been going for a few minutes. Total run duration is the
+  // latest known snapshot time minus the very first snapshot recorded for this run (state.runStartMs,
+  // set from history[0] in loadHistory), falling back to the per-stage value only before history
+  // has loaded for the first time.
+  function totalRunDurationMs(metadata) {
+    const latestSnapshotMs = parseSnapshotTimestamp(metadata.timestamp);
+    if (state.runStartMs === null || latestSnapshotMs === null) {
+      return Number(metadata.duration_ms || 0);
+    }
+    return Math.max(0, latestSnapshotMs - state.runStartMs);
+  }
+
   function renderStatRow(metadata, tokens) {
     const stats = [
       ["Shapes Processed", metadata.shapes_processed ?? "--"],
       ["Violations", fmtViolations(metadata.current_violations)],
       ["Triples", fmtNumber(metadata.triplestore_size)],
-      ["Duration", fmtDuration(Number(metadata.duration_ms || 0))],
+      ["Duration", fmtDuration(totalRunDurationMs(metadata))],
       ["Total Tokens", fmtNumber(tokensTotalFrom(tokens))],
     ];
     el("stat-row").innerHTML = stats
@@ -130,12 +145,21 @@
     }
   }
 
-  // Consecutive LIVE snapshots are just periodic ticks of the same wait, not distinct stages --
-  // collapse them into one entry (keeping the latest values) so the sidebar doesn't fill up with
-  // near-duplicate rows.
+  // LIVE snapshots are just periodic ticks of the wait between real stage transitions (e.g.
+  // GENERATE), not distinct stages themselves. A long run accumulates one such wait per round, so
+  // keeping every one of them as its own sidebar row would make "LIVE" show up over and over as
+  // the run progresses. Only the most recent snapshot can still be an active wait; every earlier
+  // LIVE tick is dropped, and consecutive LIVE snapshots at the tail are collapsed into one entry
+  // (keeping the latest values) so the sidebar stays bounded to real milestones plus at most one
+  // "still working" row.
   function collapseHistory(history) {
     const collapsed = [];
-    for (const snap of history) {
+    const lastIndex = history.length - 1;
+    for (let i = 0; i < history.length; i++) {
+      const snap = history[i];
+      if (snap.stage === "LIVE" && i !== lastIndex) {
+        continue;
+      }
       const prev = collapsed[collapsed.length - 1];
       if (prev && prev.stage === "LIVE" && snap.stage === "LIVE") {
         prev.snap = snap;
@@ -182,7 +206,14 @@
         state.activeRole = roles[0] || null;
       }
       el("role-tabs").innerHTML = roles
-        .map((role) => `<button class="role-tab" data-role="${role}">${role}</button>`)
+        .map(
+          (role) => `
+        <button class="role-tab" data-role="${role}">
+          <span class="role-busy-dot" title="idle"></span>
+          <span>${role}</span>
+          <span class="role-context"></span>
+        </button>`
+        )
         .join("");
       el("role-tabs")
         .querySelectorAll(".role-tab")
@@ -195,6 +226,46 @@
         );
     }
     updateActiveRoleTab();
+  }
+
+  // Maps a UI role name to the metadata.txt key segment SnapshotWriter uses for it: supervisor
+  // and reviewer are written under their own name, but workers are written as "worker.worker_N"
+  // (see SnapshotWriter#writeRoleLiveStatus) since "worker_N" alone would collide with the
+  // "tokens.worker.worker_N.*" convention already in use.
+  function roleMetadataKey(role) {
+    const m = /^worker_(\d+)$/.exec(role || "");
+    return m ? `worker.worker_${m[1]}` : role;
+  }
+
+  // Reflects each role's live status (busy dot + context-window usage) onto the already-rendered
+  // role tabs. Kept separate from renderRoleTabs so a plain metadata refresh (every poll tick)
+  // doesn't have to rebuild the tab buttons (which would drop the active/click state) just to
+  // update these two figures.
+  function updateRoleLiveStatus(metadata) {
+    el("role-tabs")
+      .querySelectorAll(".role-tab")
+      .forEach((btn) => {
+        const key = roleMetadataKey(btn.dataset.role);
+        const busy = metadata[`busy.${key}`] === "true";
+        const used = Number(metadata[`context.${key}.used`] || 0);
+        const limit = Number(metadata[`context.${key}.limit`] || 0);
+
+        btn.classList.toggle("role-busy", busy);
+        const dot = btn.querySelector(".role-busy-dot");
+        if (dot) dot.title = busy ? "working" : "idle";
+
+        const ctx = btn.querySelector(".role-context");
+        if (ctx) {
+          if (limit > 0) {
+            const pct = Math.min(100, Math.round((used / limit) * 100));
+            ctx.textContent = `${pct}%`;
+            ctx.title = `context window: ${fmtNumber(used)} / ${fmtNumber(limit)} tokens (last call)`;
+          } else {
+            ctx.textContent = "";
+            ctx.title = "";
+          }
+        }
+      });
   }
 
   function escapeHtml(str) {
@@ -315,13 +386,19 @@
     updateRunIndicator(data.metadata);
     renderStatRow(data.metadata, metadataTokens(data.metadata));
     renderRoleTabs(data.roles || []);
+    updateRoleLiveStatus(data.metadata);
     el("last-updated").textContent = "updated " + new Date().toLocaleTimeString();
     return data;
   }
 
   async function loadHistory() {
     const history = await getJson("/api/history");
-    renderHistory(Array.isArray(history) ? history : []);
+    const list = Array.isArray(history) ? history : [];
+    if (list.length > 0) {
+      state.runStartMs = parseSnapshotTimestamp(list[0].timestamp);
+    }
+    renderHistory(list);
+    renderTrends(list);
   }
 
   function scrollMessagesToBottom() {
@@ -352,6 +429,180 @@
 
   async function loadTriplestore() {
     renderFile("triplestore", await getJson("/api/triplestore"));
+  }
+
+  // --- Trends charts (triples / violations over time) ---------------------
+
+  const CHART_VB_W = 640;
+  const CHART_VB_H = 180;
+  const CHART_PAD = { top: 12, right: 16, bottom: 24, left: 42 };
+
+  // Each render replaces the container's innerHTML (fresh SVG from the latest history), so the
+  // tooltip node is (re)created fresh alongside it rather than persisted across polls.
+  function createTooltipEl(container) {
+    const tip = document.createElement("div");
+    tip.className = "chart-tooltip";
+    tip.innerHTML = `<div class="tt-value"></div><div class="tt-time"></div>`;
+    container.appendChild(tip);
+    return tip;
+  }
+
+  // Builds { elapsedMs, value } points from history, using -1/null/undefined as "not measured
+  // yet" gaps (e.g. currentViolations before the first SHACL validation of a run) rather than
+  // plotting them as real zero/negative values.
+  function trendPoints(history, extractValue) {
+    return history
+      .map((snap) => {
+        const ms = parseSnapshotTimestamp(snap.timestamp);
+        if (ms === null) return null;
+        const raw = extractValue(snap);
+        const value = raw === undefined || raw === null || Number(raw) < 0 ? null : Number(raw);
+        return { elapsedMs: ms - (state.runStartMs ?? ms), value };
+      })
+      .filter((p) => p !== null);
+  }
+
+  // Splits points into contiguous runs of non-null values, so gaps (unmeasured points) break the
+  // line instead of interpolating across them or being drawn as zero.
+  function contiguousSegments(points) {
+    const segments = [];
+    let current = [];
+    for (const p of points) {
+      if (p.value === null) {
+        if (current.length) segments.push(current);
+        current = [];
+      } else {
+        current.push(p);
+      }
+    }
+    if (current.length) segments.push(current);
+    return segments;
+  }
+
+  function renderLineChart(containerId, points, { color, formatValue }) {
+    const container = el(containerId);
+    if (!points.length) {
+      container.innerHTML = `<div class="chart-empty-hint">No data yet.</div>`;
+      return;
+    }
+
+    const xs = points.map((p) => p.elapsedMs);
+    const values = points.map((p) => p.value).filter((v) => v !== null);
+    const xMin = Math.min(...xs);
+    const xMax = Math.max(...xs);
+    const rawYMin = values.length ? Math.min(...values) : 0;
+    const rawYMax = values.length ? Math.max(...values) : 1;
+    const yPad = Math.max(1, (rawYMax - rawYMin) * 0.15);
+    const yMin = Math.max(0, Math.floor(rawYMin - yPad));
+    const yMax = Math.ceil(rawYMax + yPad) || 1;
+
+    const plotW = CHART_VB_W - CHART_PAD.left - CHART_PAD.right;
+    const plotH = CHART_VB_H - CHART_PAD.top - CHART_PAD.bottom;
+
+    const px = (ms) => CHART_PAD.left + (xMax === xMin ? plotW / 2 : ((ms - xMin) / (xMax - xMin)) * plotW);
+    const py = (v) => CHART_PAD.top + plotH - ((v - yMin) / (yMax - yMin || 1)) * plotH;
+
+    const segments = contiguousSegments(points);
+    const pathD = segments
+      .map((seg) => (seg.length === 1
+        ? `M ${px(seg[0].elapsedMs)} ${py(seg[0].value)} L ${px(seg[0].elapsedMs)} ${py(seg[0].value)}`
+        : "M " + seg.map((p) => `${px(p.elapsedMs)} ${py(p.value)}`).join(" L ")))
+      .join(" ");
+
+    const gridLines = [yMin, (yMin + yMax) / 2, yMax];
+    const gridSvg = gridLines
+      .map((v) => {
+        const y = py(v);
+        return `
+          <line class="chart-grid" x1="${CHART_PAD.left}" x2="${CHART_VB_W - CHART_PAD.right}" y1="${y}" y2="${y}" />
+          <text class="chart-axis-label" x="${CHART_PAD.left - 6}" y="${y + 3}" text-anchor="end">${formatValue(v)}</text>`;
+      })
+      .join("");
+
+    const lastValid = [...points].reverse().find((p) => p.value !== null);
+    const lastDotSvg = lastValid
+      ? `<circle class="chart-dot" cx="${px(lastValid.elapsedMs)}" cy="${py(lastValid.value)}" r="4" fill="${color}" />
+         <text class="chart-axis-label" x="${Math.min(px(lastValid.elapsedMs) + 6, CHART_VB_W - CHART_PAD.right - 24)}" y="${py(lastValid.value) - 8}" font-weight="700">${formatValue(lastValid.value)}</text>`
+      : "";
+
+    const startLabel = fmtDuration(xMin);
+    const endLabel = fmtDuration(xMax);
+
+    container.innerHTML = `
+      <svg viewBox="0 0 ${CHART_VB_W} ${CHART_VB_H}" preserveAspectRatio="none">
+        ${gridSvg}
+        <path class="chart-line" d="${pathD}" stroke="${color}" />
+        ${lastDotSvg}
+        <text class="chart-axis-label" x="${CHART_PAD.left}" y="${CHART_VB_H - 6}">${startLabel}</text>
+        <text class="chart-axis-label" x="${CHART_VB_W - CHART_PAD.right}" y="${CHART_VB_H - 6}" text-anchor="end">${endLabel}</text>
+        <line class="chart-crosshair" x1="0" x2="0" y1="${CHART_PAD.top}" y2="${CHART_VB_H - CHART_PAD.bottom}" />
+        <rect class="chart-hover-target" x="${CHART_PAD.left}" y="${CHART_PAD.top}" width="${plotW}" height="${plotH}" />
+      </svg>`;
+
+    const svg = container.querySelector("svg");
+    const crosshair = container.querySelector(".chart-crosshair");
+    const hoverTarget = container.querySelector(".chart-hover-target");
+    const tip = createTooltipEl(container);
+
+    function nearestPoint(elapsedMs) {
+      let best = points[0];
+      let bestDist = Infinity;
+      for (const p of points) {
+        const d = Math.abs(p.elapsedMs - elapsedMs);
+        if (d < bestDist) {
+          bestDist = d;
+          best = p;
+        }
+      }
+      return best;
+    }
+
+    hoverTarget.addEventListener("mousemove", (evt) => {
+      const rect = svg.getBoundingClientRect();
+      const scaleX = CHART_VB_W / rect.width;
+      const xInVb = (evt.clientX - rect.left) * scaleX;
+      const ms = xMin + ((xInVb - CHART_PAD.left) / plotW) * (xMax - xMin || 1);
+      const point = nearestPoint(ms);
+
+      crosshair.setAttribute("x1", px(point.elapsedMs));
+      crosshair.setAttribute("x2", px(point.elapsedMs));
+      crosshair.style.opacity = "1";
+
+      tip.style.opacity = point.value === null ? "0" : "1";
+      tip.querySelector(".tt-value").textContent = point.value === null ? "" : formatValue(point.value);
+      tip.querySelector(".tt-time").textContent = fmtDuration(point.elapsedMs) + " into run";
+
+      const containerRect = container.getBoundingClientRect();
+      const tipX = rect.left - containerRect.left + px(point.elapsedMs) / scaleX;
+      const tipY = rect.top - containerRect.top + (point.value === null ? py(yMax) : py(point.value)) / scaleX;
+      tip.style.left = `${tipX}px`;
+      tip.style.top = `${Math.max(0, tipY - 8)}px`;
+    });
+    hoverTarget.addEventListener("mouseleave", () => {
+      crosshair.style.opacity = "0";
+      tip.style.opacity = "0";
+    });
+  }
+
+  function renderTrends(history) {
+    if (!history.length) {
+      el("chart-triples").innerHTML = `<div class="chart-empty-hint">No data yet.</div>`;
+      el("chart-violations").innerHTML = `<div class="chart-empty-hint">No data yet.</div>`;
+      return;
+    }
+    const accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim();
+    const bad = getComputedStyle(document.documentElement).getPropertyValue("--bad").trim();
+
+    renderLineChart(
+      "chart-triples",
+      trendPoints(history, (s) => s.triplestoreSize),
+      { color: accent, formatValue: (v) => fmtNumber(Math.round(v)) }
+    );
+    renderLineChart(
+      "chart-violations",
+      trendPoints(history, (s) => s.currentViolations),
+      { color: bad, formatValue: (v) => fmtNumber(Math.round(v)) }
+    );
   }
 
   async function loadActiveTabData() {

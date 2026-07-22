@@ -1,0 +1,254 @@
+@prefix :           <https://example.org/ns/riepr#> .
+@prefix adms:       <http://www.w3.org/ns/adms#> .
+@prefix concept:    <https://example.org/id/concept/> .
+@prefix dbo:        <http://dbpedia.org/ontology/> .
+@prefix dc:         <http://purl.org/dc/terms/> .
+@prefix dct:        <http://purl.org/dc/terms/> .
+@prefix foaf:       <http://xmlns.com/foaf/0.1/> .
+@prefix hydra:      <http://www.w3.org/ns/hydra/core#> .
+@prefix locn:       <http://www.w3.org/ns/locn#> .
+@prefix nace:       <http://data.europa.eu/ux2/nace2.1/> .
+@prefix ogc:        <http://www.opengis.net/ont/geosparql#> .
+@prefix org:        <http://www.w3.org/ns/org#> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix pplan:      <http://purl.org/net/p-plan#> .
+@prefix prov:       <http://www.w3.org/ns/prov#> .
+@prefix qudt:       <http://qudt.org/schema/qudt/> .
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:         <http://www.w3.org/ns/shacl#> .
+@prefix skos:       <http://www.w3.org/2004/02/skos/core#> .
+@prefix sosa:       <http://www.w3.org/ns/sosa/> .
+@prefix ssn:        <http://www.w3.org/ns/ssn/> .
+@prefix ssn-system: <http://www.w3.org/ns/ssn/systems/> .
+@prefix vann:       <http://purl.org/vocab/vann/> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+
+<https://example.org/id/proces/cement-prod-001/input/raw-materials>
+        rdf:type           pplan:Variable ;
+        qudt:hasUnit       <http://qudt.org/unit/TONNE> ;
+        qudt:numericValue  500.0 .
+
+:gesloten  rdf:type  skos:Concept , adms:Status ;
+        rdfs:label  "Closed"@en .
+
+<https://example.org/id/proces/cement-prod-001/output/clinker>
+        rdf:type           pplan:Variable ;
+        qudt:hasUnit       <http://qudt.org/unit/TONNE> ;
+        qudt:numericValue  450.0 .
+
+<https://example.org/id/onttrekkingspunt/withdrawal-001/2024-01-01/2024-01-01T06:00:00>
+        rdf:type         :WithdrawalPoint ;
+        rdfs:label       "Main groundwater extraction well"@en ;
+        dbo:depth        25.5 ;
+        dc:created       "2024-01-01T06:00:00"^^xsd:dateTime ;
+        dc:issued        "2024-01-01"^^xsd:date ;
+        dc:modified      "2024-01-01T06:00:00"^^xsd:dateTime ;
+        dc:valid         "2034-12-31"^^xsd:date ;
+        ogc:hasGeometry  [ rdf:type   ogc:Geometry ;
+                           ogc:asWKT  "POINT(4.4050 51.2200)"^^ogc:wktLiteral
+                         ] ;
+        adms:status      :actief ;
+        sosa:isHostedBy  <https://example.org/id/OperationLocation/antwerp-cement-001/2024-01-01/2024-01-01T00:00:00> .
+
+:inactief  rdf:type  skos:Concept , adms:Status ;
+        rdfs:label  "Inactive"@en .
+
+<https://example.org/id/meetpunt/ambient-mp-001/2024-01-01/2024-01-01T13:00:00>
+        rdf:type          ssn:System , :MeasurementPoint ;
+        rdfs:label        "Ambient Air Quality Measurement Point"@en ;
+        dc:created        "2024-01-01T13:00:00"^^xsd:dateTime ;
+        dc:issued         "2024-01-01"^^xsd:date ;
+        dc:modified       "2024-01-01T13:00:00"^^xsd:dateTime ;
+        ogc:hasGeometry   [ rdf:type   ogc:Geometry ;
+                            ogc:asWKT  "POINT(4.4030 51.2200)"^^ogc:wktLiteral
+                          ] ;
+        adms:status       :actief ;
+        sosa:isHostedBy   <https://example.org/id/OperationLocation/antwerp-cement-001/2024-01-01/2024-01-01T00:00:00> ;
+        ssn:hasSubSystem  <https://example.org/id/meetinstrument/ambient-mp-001/2024-01-01/2024-01-01T11:00:00> .
+
+<https://example.org/id/proces/cement-prod-001/2024-01-01/2024-01-01T08:00:00>
+        rdf:type            :Process ;
+        rdfs:label          "Cement Production"@en ;
+        dc:created          "2024-01-01T08:00:00"^^xsd:dateTime ;
+        dc:issued           "2024-01-01"^^xsd:date ;
+        dc:modified         "2024-01-01T08:00:00"^^xsd:dateTime ;
+        dc:type             :VerwerkingProcedure ;
+        dc:valid            "2034-12-31"^^xsd:date ;
+        pplan:hasInputVar   <https://example.org/id/proces/cement-prod-001/input/raw-materials> ;
+        pplan:hasOutputVar  <https://example.org/id/proces/cement-prod-001/output/clinker> ;
+        adms:status         :actief ;
+        ssn:implementedBy   <https://example.org/id/Installation/install-001/2024-01-01/2024-01-01T00:00:00> .
+
+<https://example.org/id/proces/raw-mat-proc-001/input/limestone>
+        rdf:type           pplan:Variable ;
+        qudt:hasUnit       <http://qudt.org/unit/TONNE> ;
+        qudt:numericValue  600.0 .
+
+<https://example.org/id/OperationLocation/antwerp-cement-001/2024-01-01/2024-01-01T00:00:00>
+        rdf:type              :OperationLocation ;
+        rdfs:label            "Cement factory Antwerp"@en ;
+        dc:created            "2024-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued             "2024-01-01"^^xsd:date ;
+        dc:modified           "2024-01-01T00:00:00"^^xsd:dateTime ;
+        ogc:hasGeometry       [ rdf:type   ogc:Geometry ;
+                                ogc:asWKT  "POINT(4.4025 51.2194)"^^ogc:wktLiteral
+                              ] ;
+        prov:wasAttributedTo  <https://example.org/id/Operator/antwerp-cement-001/2024-01-01/2024-01-01T00:00:00> .
+
+<https://example.org/id/meetpunt/stack-mp-001/2024-01-01/2024-01-01T12:00:00>
+        rdf:type          ssn:System , :MeasurementPoint ;
+        rdfs:label        "Stack Air Quality Measurement Point"@en ;
+        dc:created        "2024-01-01T12:00:00"^^xsd:dateTime ;
+        dc:issued         "2024-01-01"^^xsd:date ;
+        dc:modified       "2024-01-01T12:00:00"^^xsd:dateTime ;
+        dc:valid          "2034-12-31"^^xsd:date ;
+        ogc:hasGeometry   [ rdf:type   ogc:Geometry ;
+                            ogc:asWKT  "POINT(4.4025 51.2194)"^^ogc:wktLiteral
+                          ] ;
+        adms:status       :actief ;
+        sosa:isHostedBy   <https://example.org/id/OperationLocation/antwerp-cement-001/2024-01-01/2024-01-01T00:00:00> ;
+        ssn:hasSubSystem  <https://example.org/id/meetinstrument/stack-mp-001/2024-01-01/2024-01-01T10:00:00> .
+
+<https://example.org/id/proces/raw-mat-proc-001/2024-01-01/2024-01-01T07:00:00>
+        rdf:type            :Process ;
+        rdfs:label          "Raw Material Processing"@en ;
+        dc:created          "2024-01-01T07:00:00"^^xsd:dateTime ;
+        dc:issued           "2024-01-01"^^xsd:date ;
+        dc:modified         "2024-01-01T07:00:00"^^xsd:dateTime ;
+        dc:type             :VerwerkingProcedure ;
+        pplan:hasInputVar   <https://example.org/id/proces/raw-mat-proc-001/input/limestone> ;
+        pplan:hasOutputVar  <https://example.org/id/proces/raw-mat-proc-001/output/crushed-material> ;
+        adms:status         :actief ;
+        ssn:implementedBy   <https://example.org/id/Installation/install-002/2024-01-01/2024-01-01T00:00:00> .
+
+<https://example.org/id/filter/air-filtration-001>
+        rdf:type         :Filter ;
+        rdfs:label       "General Air Filtration System"@en ;
+        dc:created       "2024-01-01T15:00:00"^^xsd:dateTime ;
+        dc:issued        "2024-01-01"^^xsd:date ;
+        dc:modified      "2024-01-01T15:00:00"^^xsd:dateTime ;
+        ogc:hasGeometry  [ rdf:type   ogc:Geometry ;
+                           ogc:asWKT  "POINT(4.4030 51.2200)"^^ogc:wktLiteral
+                         ] ;
+        adms:status      :actief ;
+        sosa:isHostedBy  <https://example.org/id/OperationLocation/antwerp-cement-001/2024-01-01/2024-01-01T00:00:00> .
+
+<https://example.org/id/Installation/install-002/2024-01-01/2024-01-01T00:00:00>
+        rdf:type         ssn:System , :Installation ;
+        rdfs:label       "Storage facility"@en ;
+        dc:created       "2024-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued        "2024-01-01"^^xsd:date ;
+        dc:modified      "2024-01-01T00:00:00"^^xsd:dateTime ;
+        adms:status      :actief ;
+        sosa:isHostedBy  <https://example.org/id/OperationLocation/antwerp-cement-001/2024-01-01/2024-01-01T00:00:00> .
+
+<https://example.org/id/meetinstrument/stack-mp-001/2024-01-01/2024-01-01T10:00:00>
+        rdf:type         ssn:System , :MeasurementInstrument ;
+        rdfs:label       "Stack Air Quality Sensor"@en ;
+        dc:created       "2024-01-01T10:00:00"^^xsd:dateTime ;
+        dc:issued        "2024-01-01"^^xsd:date ;
+        dc:modified      "2024-01-01T10:00:00"^^xsd:dateTime ;
+        adms:status      :actief ;
+        sosa:isHostedBy  <https://example.org/id/OperationLocation/antwerp-cement-001/2024-01-01/2024-01-01T00:00:00> .
+
+<https://example.org/id/exploitatielocatie/cement-factory-antwerp/2024-01-01/2024-01-01T00:00:00>
+        rdf:type     :OperationLocation ;
+        rdfs:label   "Cement factory Antwerp"@en ;
+        dc:created   "2024-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued    "2024-01-01"^^xsd:date ;
+        dc:modified  "2024-01-01T00:00:00"^^xsd:dateTime .
+
+:actief  rdf:type   skos:Concept , adms:Status ;
+        rdfs:label  "Active"@en .
+
+<https://example.org/id/proces/raw-mat-proc-001/output/crushed-material>
+        rdf:type           pplan:Variable ;
+        qudt:hasUnit       <http://qudt.org/unit/TONNE> ;
+        qudt:numericValue  580.0 .
+
+<https://example.org/id/Operator/antwerp-cement-001/2024-01-01/2024-01-01T00:00:00>
+        rdf:type      :Operator ;
+        rdfs:label    "Cement Factory Antwerp Operator"@en ;
+        dc:created    "2024-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued     "2024-01-01"^^xsd:date ;
+        dc:modified   "2024-01-01T00:00:00"^^xsd:dateTime ;
+        dc:type       :Operator ;
+        locn:address  [ rdf:type    locn:Address ;
+                        rdfs:label  "Antwerp Port Area"@en
+                      ] .
+
+<https://example.org/id/emissiepunt/discharge-001/2024-01-01/2024-01-01T09:00:00>
+        rdf:type         :EmissionPoint ;
+        rdfs:label       "Discharge Point 1"@en ;
+        dbo:depth        3.2 ;
+        dc:created       "2024-01-01T09:00:00"^^xsd:dateTime ;
+        dc:issued        "2024-01-01"^^xsd:date ;
+        dc:modified      "2024-01-01T09:00:00"^^xsd:dateTime ;
+        adms:status      :actief ;
+        sosa:isHostedBy  <https://example.org/id/exploitatielocatie/cement-factory-antwerp/2024-01-01/2024-01-01T00:00:00> .
+
+:voorgesteld  rdf:type  skos:Concept , adms:Status ;
+        rdfs:label  "Proposed"@en .
+
+:VerwerkingProcedure  rdf:type  sosa:Procedure .
+
+<https://example.org/id/Installation/install-001/2024-01-01/2024-01-01T00:00:00>
+        rdf:type         ssn:System , :Installation ;
+        rdfs:label       "Main production installation"@en ;
+        dc:created       "2024-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued        "2024-01-01"^^xsd:date ;
+        dc:modified      "2024-01-01T00:00:00"^^xsd:dateTime ;
+        dc:valid         "2034-12-31"^^xsd:date ;
+        adms:status      :actief ;
+        sosa:isHostedBy  <https://example.org/id/OperationLocation/antwerp-cement-001/2024-01-01/2024-01-01T00:00:00> .
+
+<https://example.org/id/meetinstrument/ambient-mp-001/2024-01-01/2024-01-01T11:00:00>
+        rdf:type         ssn:System , :MeasurementInstrument ;
+        rdfs:label       "Ambient Air Quality Sensor"@en ;
+        dc:created       "2024-01-01T11:00:00"^^xsd:dateTime ;
+        dc:issued        "2024-01-01"^^xsd:date ;
+        dc:modified      "2024-01-01T11:00:00"^^xsd:dateTime ;
+        adms:status      :actief ;
+        sosa:isHostedBy  <https://example.org/id/OperationLocation/antwerp-cement-001/2024-01-01/2024-01-01T00:00:00> .
+
+<https://example.org/id/emissiepunt/stack-001/2024-01-01/2024-01-01T08:00:00>
+        rdf:type         :EmissionPoint ;
+        rdfs:label       "Stack 1"@en ;
+        dbo:diameter     2.0 ;
+        dbo:height       45.5 ;
+        dc:created       "2024-01-01T08:00:00"^^xsd:dateTime ;
+        dc:issued        "2024-01-01"^^xsd:date ;
+        dc:modified      "2024-01-01T08:00:00"^^xsd:dateTime ;
+        dc:valid         "2034-12-31"^^xsd:date ;
+        ogc:hasGeometry  [ rdf:type   ogc:Geometry ;
+                           ogc:asWKT  "POINT(4.4025 51.2194)"^^ogc:wktLiteral
+                         ] ;
+        adms:status      :actief ;
+        sosa:isHostedBy  <https://example.org/id/exploitatielocatie/cement-factory-antwerp/2024-01-01/2024-01-01T00:00:00> .
+
+<https://example.org/id/onttrekkingspunt/withdrawal-002/2024-01-01/2024-01-01T06:00:00>
+        rdf:type         :WithdrawalPoint ;
+        rdfs:label       "Backup groundwater extraction well"@en ;
+        dbo:depth        18.3 ;
+        dc:created       "2024-01-01T06:00:00"^^xsd:dateTime ;
+        dc:issued        "2024-01-01"^^xsd:date ;
+        dc:modified      "2024-01-01T06:00:00"^^xsd:dateTime ;
+        ogc:hasGeometry  [ rdf:type   ogc:Geometry ;
+                           ogc:asWKT  "POINT(4.4055 51.2205)"^^ogc:wktLiteral
+                         ] ;
+        adms:status      :actief ;
+        sosa:isHostedBy  <https://example.org/id/OperationLocation/antwerp-cement-001/2024-01-01/2024-01-01T00:00:00> .
+
+<https://example.org/id/filter/dust-filter-001>
+        rdf:type         :Filter ;
+        rdfs:label       "Dust Filter Stack 1"@en ;
+        dc:created       "2024-01-01T14:00:00"^^xsd:dateTime ;
+        dc:issued        "2024-01-01"^^xsd:date ;
+        dc:modified      "2024-01-01T14:00:00"^^xsd:dateTime ;
+        dc:valid         "2034-12-31"^^xsd:date ;
+        ogc:hasGeometry  [ rdf:type   ogc:Geometry ;
+                           ogc:asWKT  "POINT(4.4025 51.2194)"^^ogc:wktLiteral
+                         ] ;
+        adms:status      :actief ;
+        sosa:isHostedBy  <https://example.org/id/OperationLocation/antwerp-cement-001/2024-01-01/2024-01-01T00:00:00> .

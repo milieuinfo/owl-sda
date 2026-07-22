@@ -1,0 +1,20 @@
+TARGET SHAPE: MeasurementPointShape
+TARGET CLASS: :MeasurementPoint (IRI: https://example.org/ns/riepr#MeasurementPoint)
+
+TASK: CREATE instances of :MeasurementPoint (output file exists from prior round).
+
+REQUIRED constraints (all minCount=1, maxCount=1):
+- adms:status → type adms:Status (use existing :actief or create another status concept)
+- dc:created → xsd:dateTime
+- dc:modified → xsd:dateTime
+- dc:issued → xsd:date
+- rdfs:label → string literal
+- sosa:isHostedBy → type :OperationLocation (USE EXISTING :OperationLocation_001 created in round 1)
+
+OPTIONAL: ogc:hasGeometry, prov:wasRevisionOf, ssn:hasSubSystem (:MeasurementInstrument or ssn:System), dc:issued, ssn:hasDeployment (:Operation), adms:identifier, dc:valid, :section (:Section), dc:type
+
+URI PATTERN: @prefix : <https://example.org/ns/riepr#> . Use :MeasurementPoint_001, :MeasurementPoint_002...
+
+PREDICATES/CLASSES FROM ONTOLOGY ONLY. Each triplestore_add validated standalone.
+
+Submit worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues).

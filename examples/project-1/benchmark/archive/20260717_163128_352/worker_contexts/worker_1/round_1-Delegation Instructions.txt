@@ -1,0 +1,32 @@
+TASK: Create :EmissionPoint instances conforming to EmissionPointShape.
+
+TARGET SHAPE: EmissionPointShape
+TARGET CLASS: :EmissionPoint (https://example.org/ns/riepr#EmissionPoint)
+IRI TEMPLATE: <https://example.org/id/emissiepunt/{uuid}/{issued}/{created}>
+  - Substitute {uuid} with a unique localId, {issued} with an xsd:date, {created} with an xsd:dateTime.
+  - Example IRI: <https://example.org/id/emissiepunt/emission-001/2024-01-01/2024-01-01T00:00:00>
+
+REQUIRED PROPERTIES (from SHACL):
+  - a :EmissionPoint
+  - rdfs:label "..."@en (required, min 1)
+  - adms:status :actief (required, max 1; use :actief, :inactief, :voorgesteld, or :gesloten)
+  - dc:created "YYYY-MM-DDThh:mm:ss"^^xsd:dateTime (required)
+  - dc:issued "YYYY-MM-DD"^^xsd:date (required)
+  - dc:modified "YYYY-MM-DDThh:mm:ss"^^xsd:dateTime (required)
+  - sosa:isHostedBy <...> a :OperationLocation; rdfs:label "..."@en (required, max 1 — create inline OperationLocation if needed)
+
+OPTIONAL PROPERTIES (include at least some for richness):
+  - dc:valid "YYYY-MM-DD"^^xsd:date
+  - dbo:height <number>^^xsd:decimal (for stack type)
+  - dbo:diameter <number>^^xsd:decimal (for stack type)
+  - dbo:depth <number>^^xsd:decimal (for discharge point type)
+  - dc:type <...>
+  - ogc:hasGeometry <...> a ogc:Geometry; ogc:asWKT "POINT(...)^^ogc:wktLiteral"
+  - ssn:hasSubSystem <...> a ssn:System (e.g., a Filter)
+
+SCENARIO: Create 2 EmissionPoint instances for the same cement factory — one stack emission point (with height, diameter, geometry) and one discharge point (with depth). Both hosted at an OperationLocation.
+
+PREDICATES/CLASSES MUST come from ontology/SHACL context only — never invent.
+Each triplestore_add call is validated as standalone Turtle.
+
+DELIVERABLE: Call worker_progress(status="CREATED", target_shape="EmissionPointShape", target_class=":EmissionPoint", changed_triples_count=N, validation_result=REPORT, remaining_issues="none" or details).

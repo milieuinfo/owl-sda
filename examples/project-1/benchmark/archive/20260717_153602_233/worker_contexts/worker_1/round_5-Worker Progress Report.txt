@@ -1,0 +1,8 @@
+worker_id=POOL-1
+status=CREATED
+target_shape=ProcessVariableShape
+target_class=https://example.org/ns/riepr#ProcessVariable
+changed_triples_count=8
+created_or_updated_subjects=https://example.org/ns/riepr#ProcessVariable_001,https://example.org/ns/riepr#ProcessVariable_002
+validation_result=CONFORMS
+remaining_issues=NONE

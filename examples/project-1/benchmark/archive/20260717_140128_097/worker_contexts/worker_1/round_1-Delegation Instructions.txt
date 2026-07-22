@@ -1,0 +1,33 @@
+TARGET SHAPE: EmissionPointShape | TARGET CLASS: :EmissionPoint
+
+TASK: CREATE new :EmissionPoint instances (none exist yet). Create 2 representative instances.
+
+URI PATTERN: Use exactly `@prefix : <https://example.org/ns/riepr#>` as prefix. URIs must be: `:EmissionPoint/emissionpoint-001` and `:EmissionPoint/emissionpoint-002`
+
+REQUIRED PROPERTIES (from SHACL EmissionPointShape):
+- dc:created (xsd:dateTime, min=1, max=1) - e.g., "2020-01-01T00:00:00"^^xsd:dateTime
+- dc:issued (xsd:date, min=1, max=1) - e.g., "2020-01-01"^^xsd:date
+- dc:modified (xsd:dateTime, min=1, max=1) - e.g., "2020-01-01T00:00:00"^^xsd:dateTime
+- rdfs:label (string, min=1) - English label like "Stack 1 Cement factory Antwerp"@en
+- adms:status (:actief) - use :actief from ontology
+- sosa:isHostedBy (:OperationLocation) - create inline or reference an OperationLocation
+
+OPTIONAL PROPERTIES (include if relevant):
+- dc:valid (xsd:date, max=1) - e.g., "2030-12-31"^^xsd:date
+- ogc:hasGeometry (ogc:Geometry with ogc:asWKT) - include for realistic emission points
+- adms:identifier (adms:Identifier)
+- dc:type (any type)
+- dbo:diameter (dbo:decimal, max=1) - for stack type
+- dbo:height (dbo:decimal, max=1) - for stack type
+- dbo:depth (dbo:decimal, max=1) - for discharge point type
+- ssn:hasSubSystem (ssn:System, min=0)
+- prov:wasRevisionOf (ssn:System, max=1)
+- ssn:hasDeployment (:Operation, min=0)
+
+CONSTRAINTS:
+- Use ONLY predicates/classes from the Ontology/SHACL context - NEVER invent new ones.
+- Each triplestore_add call must be valid standalone Turtle.
+- Include rdf:type :EmissionPoint for each instance.
+- Create inline nested resources (like OperationLocation, Geometry) as needed to satisfy required properties.
+
+SUBMIT: worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues)

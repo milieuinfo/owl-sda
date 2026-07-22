@@ -1,0 +1,27 @@
+TARGET SHAPE: OperationShape | TARGET CLASS: :Operation
+
+TASK: CREATE 2 new fully compliant :Operation instances.
+
+URI PATTERN: Use `@prefix : <https://example.org/ns/riepr#>`. URIs: `:Operation/oper-003`, `:Operation/oper-004`
+
+REQUIRED PROPERTIES (from SHACL OperationShape):
+- rdfs:label (string, min=1)
+- adms:status (:actief or adms:Status instance, min=1)
+- dc:modified (xsd:dateTime, min=1)
+- dc:created (xsd:dateTime, min=1)
+- dc:issued (xsd:date, min=1)
+- ssn:deployedOnPlatform (:OperationLocation, min=1) -> CREATE inline fully compliant :OperationLocation instance (must include: dc:created, dc:issued, dc:modified, rdfs:label, prov:wasAttributedTo(:Operator), ogc:hasGeometry).
+- ssn:implements (:Process, min=1) -> CREATE inline fully compliant :Process instance (must include: dc:created, adms:status(:actief), rdfs:label, dc:modified).
+
+OPTIONAL PROPERTIES:
+- ssn:deployedSystem (ssn:System, min=0)
+- dc:valid (xsd:date, max=1)
+- org:hasMember (:Contactpersoon, min=0)
+- adms:identifier (adms:Identifier, min=0)
+
+CONSTRAINTS:
+- Use ONLY predicates/classes from Ontology/SHACL context.
+- Each triplestore_add call must be valid standalone Turtle.
+- Include rdf:type :Operation for each instance.
+
+SUBMIT: worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues)

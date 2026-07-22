@@ -1,0 +1,14 @@
+TARGET SHAPE: ProcessVariableShape
+TARGET CLASS: :ProcessVariable (IRI: https://example.org/ns/riepr#ProcessVariable)
+
+TASK: CREATE instances of :ProcessVariable.
+
+REQUIRED constraints (none strictly required with minCount=1, but rdfs:label is recommended):
+- rdfs:label → string literal (recommended for consistency)
+
+OPTIONAL: qudt:numericValue (xsd:decimal), qudt:hasUnit (qudt:Unit), pplan:isOutputVarOf (:Process), pplan:isInputVarOf (:Process), dc:type
+
+URI PATTERN: @prefix : <https://example.org/ns/riepr#> . Use :ProcessVariable_001, :ProcessVariable_002...
+
+PREDICATES/CLASSES FROM ONTOLOGY ONLY. Each triplestore_add validated standalone.
+Submit worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues).

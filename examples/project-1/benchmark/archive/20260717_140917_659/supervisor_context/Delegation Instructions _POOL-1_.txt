@@ -1,0 +1,13 @@
+TASK: CREATE instances for class :EmissionPoint (target shape: EmissionPointShape).
+
+You must create at least 2 valid :EmissionPoint instances that satisfy ALL SHACL constraints.
+
+REQUIRED properties (minCount=1): rdfs:label, dc:issued (xsd:date), adms:status (:actief), dc:modified (xsd:dateTime), dc:created (xsd:dateTime), sosa:isHostedBy (:OperationLocation).
+
+OPTIONAL properties you may include: ogc:hasGeometry, ssn:hasDeployment (:Operation), dbo:height, dbo:diameter, dbo:depth, prov:wasRevisionOf (ssn:System), ssn:hasSubSystem (ssn:System), adms:identifier (adms:Identifier), dc:type.
+
+IRI PATTERN: Use exactly `@prefix : <https://example.org/ns/riepr#>` as the default prefix. Create instances like `:EmissionPoint_1`, `:EmissionPoint_2` etc.
+
+IMPORTANT: Each triplestore_add call is validated as a standalone Turtle document — include all necessary @prefix declarations.
+
+SUBMIT: worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues)

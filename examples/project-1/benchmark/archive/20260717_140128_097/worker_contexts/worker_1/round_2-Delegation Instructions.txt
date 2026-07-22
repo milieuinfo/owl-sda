@@ -1,0 +1,26 @@
+TARGET SHAPE: MeasurementPointShape | TARGET CLASS: :MeasurementPoint
+
+TASK: CREATE 2 new :MeasurementPoint instances.
+
+URI PATTERN: Use exactly `@prefix : <https://example.org/ns/riepr#>`. URIs: `:MeasurementPoint/mp-001`, `:MeasurementPoint/mp-002`
+
+REQUIRED PROPERTIES (from SHACL):
+- dc:created (xsd:dateTime, min=1)
+- dc:issued (xsd:date, min=1)
+- adms:status (:actief, min=1)
+- rdfs:label (string, min=1)
+- dc:modified (xsd:dateTime, min=1)
+- sosa:isHostedBy (:OperationLocation, min=1) -> CREATE inline OperationLocation with ALL its required props to avoid validation errors: dc:created, dc:issued, dc:modified, ogc:hasGeometry, prov:wasAttributedTo(:Operator), rdfs:label
+
+OPTIONAL PROPERTIES (include where relevant):
+- ogc:hasGeometry (ogc:Geometry, max=1) - highly recommended for measurement points
+- ssn:hasSubSystem (:MeasurementInstrument or ssn:System, min=0)
+- :section (:Section, min=0)
+- adms:identifier, dc:type, prov:wasRevisionOf, ssn:hasDeployment(:Operation)
+
+CONSTRAINTS:
+- Use ONLY predicates/classes from Ontology/SHACL context.
+- Each triplestore_add call must be valid standalone Turtle.
+- Include rdf:type :MeasurementPoint for each instance.
+
+SUBMIT: worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues)

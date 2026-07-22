@@ -1,0 +1,8 @@
+worker_id=POOL-0
+status=FIXED
+target_shape=https://example.org/ns/riepr#OperatorContactPersonShape
+target_class=https://example.org/ns/riepr#OperatorContactPerson
+changed_triples_count=2
+created_or_updated_subjects=:OperatorContactPerson_001, :OperatorContactPerson_002 (corrective removal of org:memberOf)
+validation_result=CONFORMS
+remaining_issues=0 violations in delegated scope. 3 pre-existing violations on :MeasurementPoint_001 (outside scope). Unrecognized vocabulary warnings are from non-targeted triples — no impact on SHACL conformance.

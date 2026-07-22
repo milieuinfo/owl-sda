@@ -1,0 +1,19 @@
+TARGET SHAPE: SectionShape
+TARGET CLASS: :Section (IRI: https://example.org/ns/riepr#Section)
+
+TASK: CREATE instances of :Section.
+
+REQUIRED constraints (minCount=1, maxCount=1):
+- rdfs:label → string literal
+- adms:status → type adms:Status (use existing :actief)
+- dc:created → xsd:dateTime
+- dc:modified → xsd:dateTime
+- dc:issued → xsd:date
+- sosa:isHostedBy → type :Installation or :EmissionPoint (USE EXISTING :Installation_001 or :EmissionPoint_001)
+
+OPTIONAL: ogc:hasGeometry, prov:wasRevisionOf (ssn:System), adms:identifier, dc:type, dc:valid (xsd:date), ssn:hasSubSystem (ssn:System), ssn:hasDeployment (:Operation)
+
+URI PATTERN: @prefix : <https://example.org/ns/riepr#> . Use :Section_001, :Section_002...
+
+PREDICATES/CLASSES FROM ONTOLOGY ONLY. Each triplestore_add validated standalone.
+Submit worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues).

@@ -1,0 +1,13 @@
+TASK: CREATE instances for class :Installation (target shape: InstallationShape).
+
+You must create at least 2 valid :Installation instances that satisfy ALL SHACL constraints.
+
+REQUIRED properties (minCount=1): rdfs:label, dc:issued (xsd:date), adms:status (:actief), dc:modified (xsd:dateTime), dc:created (xsd:dateTime), sosa:isHostedBy (:OperationLocation).
+
+OPTIONAL properties you may include: ssn:hasSubSystem (ssn:System), ssn:implements (:Process), ssn:hasProperty (:InstallationProperty), adms:identifier (adms:Identifier), dc:valid (xsd:date), :section (:Section), ssn:hasDeployment (:Operation), prov:wasRevisionOf (ssn:System), ogc:hasGeometry, dc:type.
+
+IRI PATTERN: Use exactly `@prefix : <https://example.org/ns/riepr#>` as the default prefix. Create instances like `:Installation_1`, `:Installation_2` etc.
+
+IMPORTANT: Each triplestore_add call is validated as a standalone Turtle document — include all necessary @prefix declarations.
+
+SUBMIT: worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues)

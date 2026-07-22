@@ -1,0 +1,8 @@
+worker_id=POOL-0
+status=CREATED
+target_shape=MeasurementProcedureShape
+target_class=https://example.org/ns/riepr#MeasurementProcedure
+changed_triples_count=15
+created_or_updated_subjects=https://example.org/ns/riepr#MeasurementProcedure_001, https://example.org/ns/riepr#MeasurementProcedure_002
+validation_result=CONFORMS
+remaining_issues=NONE - MeasurementProcedureShape has 0 violations. Unrecognized class/predicate warnings originate from other workers' data (geosparql, locn, adms#Status, prov wasDerivedFrom, sosa resultTime/hasResultFeature, skos prefLabel) and are outside delegated scope.

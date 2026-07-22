@@ -384,7 +384,12 @@ public class Config {
     // once the last reported prompt token usage reaches this fraction of the model's real context
     // window, e.g. 0.75 = compact once 75% of the actual context window is used.
     private double contextWindowThresholdRatio = 0.75;
-    // Secondary OR-trigger: raw message count. 0 disables this trigger.
+    // Fallback OR-trigger used only when context-window-tokens is unset (0), alongside
+    // #tokenThreshold: raw message count. 0 disables this trigger. NOT consulted when
+    // context-window-tokens IS configured - tool-call-heavy sessions (many small
+    // request/response pairs) hit a raw message count far sooner than they approach real context
+    // usage, which previously caused premature compaction despite context-window-tokens and
+    // #contextWindowThresholdRatio being configured correctly.
     private int messageCountThreshold = 40;
     // Number of most-recent messages (after the system message) preserved verbatim.
     private int keepRecentMessages = 8;

@@ -1,0 +1,33 @@
+TASK: Process ProcessShape (class :Process) and MeasurementInstrumentShape (class :MeasurementInstrument). CREATE new instances for both classes.
+
+IRI PATTERNS:
+- Process (from hydra:search): <https://example.org/id/proces/{localId}/{issued}/{created}> a :Process ; ...
+- MeasurementInstrument (NO hydra:search - use default prefix): <https://example.org/ns/riepr#MeasurementInstrument-{uuid}> a :MeasurementInstrument ; ...
+
+SUBSTITUTE real values for {localId} or {uuid}, {issued} (xsd:date), {created} (xsd:dateTime). Use xsd:dateTime format "2024-01-15T10:00:00" for created and xsd:date format "2024-01-15" for issued.
+
+MANDATORY SHACL CONSTRAINTS (minCount=1):
+- Process: rdfs:label, dc:created, dc:modified, adms:status
+  Optional: dc:issued, dc:valid, dc:type, pplan:hasInputVar, pplan:hasOutputVar, ssn:implementedBy, :section, prov:wasRevisionOf, sosa:isHostedBy (:Installation or :Process)
+- MeasurementInstrument: rdfs:label, dc:issued, dc:created, dc:modified, adms:status, sosa:isHostedBy (:OperationLocation)
+  Optional: ogc:hasGeometry, dc:type, dc:valid, ssn:hasSubSystem, prov:wasRevisionOf, adms:identifier, ssn:hasDeployment
+
+EXAMPLE Process:
+<https://example.org/id/proces/procs-001/2024-01-15/2024-01-15T10:00:00> a :Process ;
+  rdfs:label "Glass Melting Process"@en ;
+  dc:created "2024-01-15T10:00:00"^^xsd:dateTime ;
+  dc:modified "2024-01-15T10:00:00"^^xsd:dateTime ;
+  adms:status :actief .
+
+EXAMPLE MeasurementInstrument:
+<https://example.org/ns/riepr#MeasurementInstrument-inst-001> a :MeasurementInstrument ;
+  rdfs:label "Temperature Sensor TS-001"@en ;
+  dc:issued "2024-01-15"^^xsd:date ;
+  dc:created "2024-01-15T10:00:00"^^xsd:dateTime ;
+  dc:modified "2024-01-15T10:00:00"^^xsd:dateTime ;
+  adms:status :actief ;
+  sosa:isHostedBy <https://example.org/id/exploitatielocatie/geo-001/2024-01-15/2024-01-15T10:00:00> .
+
+PREDICATES MUST come from ontology/SHACL context only - never invent predicates. Each triplestore_add is validated as standalone Turtle.
+
+REPORT: worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues)

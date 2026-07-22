@@ -151,7 +151,9 @@ public class OutputReplaceHandler implements SessionHandler {
         return CompletableFuture.completedFuture(
             Map.of(
                 "error",
-                "Resulting output would not be valid Turtle and was not written: " + syntaxError));
+                "Resulting output would not be valid Turtle and was not written: "
+                    + syntaxError
+                    + boundaryHintFor(syntaxError)));
       }
 
       // Write to file
@@ -193,5 +195,33 @@ public class OutputReplaceHandler implements SessionHandler {
       logger.error("Error processing output replacement: {}", e.getMessage(), e);
       return errorResult("Error processing replacement: " + e.getMessage());
     }
+  }
+
+  /**
+   * Appends a hint for the most common cause of a failed replace: {@code start_line}/{@code
+   * end_line} that don't line up with the boundaries between complete top-level statements (each
+   * ending in a lone {@code .}). Splicing new content into the middle of a multi-line statement -
+   * e.g. a blank node or object list spanning several lines - reliably produces exactly these error
+   * shapes in the reassembled document, and callers otherwise tend to retry with only minor
+   * variations of the same misaligned range instead of re-reading wider context first.
+   */
+  private static String boundaryHintFor(String syntaxError) {
+    if (syntaxError == null) {
+      return "";
+    }
+    boolean looksLikeBoundaryMismatch =
+        syntaxError.contains("not terminated by DOT")
+            || syntaxError.contains("[RBRACKET]")
+            || syntaxError.contains("[LBRACKET]")
+            || syntaxError.contains("Out of place");
+    if (!looksLikeBoundaryMismatch) {
+      return "";
+    }
+    return " Hint: this usually means start_line/end_line cut through the middle of a multi-line"
+        + " statement (e.g. a blank node or object list spanning several lines), so splicing your"
+        + " replacement into the surrounding file broke syntax at the seam. Re-read a wider range"
+        + " first and make sure start_line/end_line each fall exactly on a complete-statement"
+        + " boundary (right after a line ending in a lone '.'), or use output_data_writer to"
+        + " rewrite the whole file instead of guessing the boundary again.";
   }
 }

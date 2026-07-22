@@ -1,0 +1,31 @@
+TARGET: ProcessShape (class :Process), MeasurementInstrumentShape (class :MeasurementInstrument)
+
+IRI PATTERNS:
+- Process: <https://example.org/id/proces/{localId}/{issued}/{created}> — substitute {localId}, {issued} with dc:date, {created} with dc:dateTime
+- MeasurementInstrument: NO hydra:search template. Use default prefix : = <https://example.org/ns/riepr#>. Generate IRIs as :MeasurementInstrument-{uuid} (e.g., :MeasurementInstrument-MI-001). Be consistent with casing and numbering across all workers.
+
+TASK: CREATE 2 instances per class (4 total). Each must be SHACL-conformant per the shape definitions.
+
+SHACL CONSTRAINTS (from shapes):
+Process: rdfs:label (min 1), dc:created (dateTime, min 1), dc:modified (dateTime, min 1), adms:status (adms:Status, min 1), pplan:isStepOfPlan (:Process, max *), prov:wasRevisionOf (:Process, max 1), ssn:implementedBy (ssn:System or :Installation, max *), dc:type (sosa:Procedure, max 1), dc:issued (date, max 1), dc:valid (date, max 1), :section (:Section, max *), pplan:hasOutputVar (pplan:Variable, max *), pplan:hasInputVar (pplan:Variable, max *)
+
+MeasurementInstrument: rdfs:label (min 1), dc:issued (date, min 1), dc:created (dateTime, min 1), dc:modified (dateTime, min 1), adms:status (adms:Status, min 1), sosa:isHostedBy (:OperationLocation, min 1), ogc:hasGeometry (max 1), dc:type (max 1), adms:identifier (max *), prov:wasRevisionOf (ssn:System, max 1), ssn:hasSubSystem (ssn:System, max *), [inverse ssn:hasSubSystem] (max *), ssn:hasDeployment (:Operation, max *), dc:valid (date, max 1)
+
+EXAMPLE instances:
+<https://example.org/id/proces/PROC-001/2024-01-15/2024-01-15T10:00:00> a :Process ;
+  rdfs:label "Cement Kiln Processing"@en ;
+  dc:issued "2024-01-15"^^xsd:date ;
+  dc:created "2024-01-15T10:00:00"^^xsd:dateTime ;
+  dc:modified "2024-01-15T10:00:00"^^xsd:dateTime ;
+  adms:status :actief .
+
+:MeasurementInstrument-MI-001 a :MeasurementInstrument ;
+  rdfs:label "SO2 Analyzer Unit 1"@en ;
+  dc:issued "2024-01-15"^^xsd:date ;
+  dc:created "2024-01-15T10:00:00"^^xsd:dateTime ;
+  dc:modified "2024-01-15T10:00:00"^^xsd:dateTime ;
+  adms:status :actief ;
+  sosa:isHostedBy <https://example.org/id/exploitatielocatie/geo-antwerp-001/2024-01-15/2024-01-15T10:00:00> .
+
+PREDICATES/CLASSES: Only from ontology/SHACL context. Each triplestore_add is validated as standalone Turtle.
+REPORT: worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues)

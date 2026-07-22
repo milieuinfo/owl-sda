@@ -1,0 +1,32 @@
+TARGET SHAPE: EmissionPointShape
+TARGET CLASS: :EmissionPoint (IRI: https://example.org/ns/riepr#EmissionPoint)
+
+TASK: CREATE instances of :EmissionPoint from scratch (output file does not exist yet).
+
+CONSTRAINTS from SHACL EmissionPointShape (all required unless noted):
+- adms:status: exactly 1, type adms:Status (use :actief, :inactief, :voorgesteld, or :gesloten)
+- dc:created: exactly 1, xsd:dateTime
+- dc:modified: exactly 1, xsd:dateTime  
+- dc:issued: exactly 1, xsd:date
+- rdfs:label: exactly 1 (string literal)
+- sosa:isHostedBy: exactly 1, type :OperationLocation
+
+OPTIONAL properties you may add:
+- dbo:depth (max 1, numeric)
+- dbo:diameter (max 1, numeric)
+- dbo:height (max 1, numeric)
+- ogc:hasGeometry (max 1, type ogc:Geometry with ogc:asWKT)
+- dc:type (max 1)
+- adms:identifier (min 0, type adms:Identifier)
+- prov:wasRevisionOf (max 1, type ssn:System)
+- dc:valid (max 1, xsd:date)
+- ssn:hasSubSystem (min 0, type ssn:System)
+- ssn:hasDeployment (min 0, type :Operation)
+
+URI PATTERN: Use prefix @prefix : <https://example.org/ns/riepr#> . Create instances like :EmissionPoint_001, :EmissionPoint_002, etc. with consistent numbering.
+
+IMPORTANT: Both Installation and EmissionPoint need :OperationLocation instances. Coordinate by using the shared OperationLocation instance (e.g., :OperationLocation_001) that POOL-0 will also create via sosa:isHostedBy. Do NOT create duplicate OperationLocations across rounds.
+
+PREDICATES/CLASSES MUST come ONLY from the ontology context - never invent new ones. Each triplestore_add call is validated as standalone Turtle.
+
+Submit worker_progress(status, target_shape, target_class, changed_triples_count, validation_result, remaining_issues).

@@ -1,0 +1,200 @@
+Data does NOT conform to SHACL shapes. Violations:
+
+@prefix :           <https://example.org/ns/riepr#> .
+@prefix adms:       <http://www.w3.org/ns/adms#> .
+@prefix concept:    <https://example.org/id/concept/> .
+@prefix dbo:        <http://dbpedia.org/ontology/> .
+@prefix dc:         <http://purl.org/dc/terms/> .
+@prefix dct:        <http://purl.org/dc/terms/> .
+@prefix foaf:       <http://xmlns.com/foaf/0.1/> .
+@prefix hydra:      <http://www.w3.org/ns/hydra/core#> .
+@prefix locn:       <http://www.w3.org/ns/locn#> .
+@prefix nace:       <http://data.europa.eu/ux2/nace2.1/> .
+@prefix ogc:        <http://www.opengis.net/ont/geosparql#> .
+@prefix org:        <http://www.w3.org/ns/org#> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix pplan:      <http://purl.org/net/p-plan#> .
+@prefix prov:       <http://www.w3.org/ns/prov#> .
+@prefix qudt:       <http://qudt.org/schema/qudt/> .
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:         <http://www.w3.org/ns/shacl#> .
+@prefix skos:       <http://www.w3.org/2004/02/skos/core#> .
+@prefix sosa:       <http://www.w3.org/ns/sosa/> .
+@prefix ssn:        <http://www.w3.org/ns/ssn/> .
+@prefix ssn-system: <http://www.w3.org/ns/ssn/systems/> .
+@prefix vann:       <http://purl.org/vocab/vann/> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+
+[ rdf:type     sh:ValidationReport ;
+  sh:conforms  false ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  <https://example.org/id/Installation/install-002/2024-01-15/2024-01-15T10:00:00> ;
+                 sh:resultMessage              "ClassConstraint[<http://www.w3.org/ns/adms#Status>]: Expected class :<http://www.w3.org/ns/adms#Status> for <https://example.org/ns/riepr#actief>" ;
+                 sh:resultPath                 adms:status ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:ClassConstraintComponent ;
+                 sh:sourceShape                _:b0 ;
+                 sh:value                      :actief
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  <https://example.org/id/onttrekkingspunt/ont-uuid-wp-001/2024-01-15/2024-01-15T10:00:00> ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 adms:status ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                _:b1
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  :Operator-op-001 ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 locn:address ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                _:b2
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  :Filter-new-001 ;
+                 sh:resultMessage              "ClassConstraint[<http://www.w3.org/ns/adms#Status>]: Expected class :<http://www.w3.org/ns/adms#Status> for <https://example.org/ns/riepr#actief>" ;
+                 sh:resultPath                 adms:status ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:ClassConstraintComponent ;
+                 sh:sourceShape                _:b3 ;
+                 sh:value                      :actief
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  <https://example.org/id/meetpunt/meet-uuid-mt-001/2024-01-15/2024-01-15T10:00:00> ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 adms:status ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                _:b4
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  :Operator-op-new ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 locn:address ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                _:b2
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  :Operator-op-new ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 dc:type ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                _:b5
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  :Operator-op-999 ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 dc:type ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                _:b5
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  <https://example.org/id/meetpunt/meet-uuid-mt-002/2024-01-16/2024-01-16T11:00:00> ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 adms:status ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                _:b4
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  :Filter-uuid-a001 ;
+                 sh:resultMessage              "ClassConstraint[<http://www.w3.org/ns/adms#Status>]: Expected class :<http://www.w3.org/ns/adms#Status> for <https://example.org/ns/riepr#actief>" ;
+                 sh:resultPath                 adms:status ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:ClassConstraintComponent ;
+                 sh:sourceShape                _:b3 ;
+                 sh:value                      :actief
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  <https://example.org/id/meetpunt/meet-uuid-wp-001/2024-01-15/2024-01-15T10:00:00> ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 adms:status ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                _:b1
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  <https://example.org/id/proces/procs-001/2024-01-15/2024-01-15T10:00:00> ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 rdfs:label ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                [] 
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  <https://example.org/id/meetpunt/meet-uuid-mp-001/2024-01-15/2024-01-15T10:00:00> ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 adms:status ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                _:b4
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  <https://example.org/id/Installation/install-001/2024-01-15/2024-01-15T10:00:00> ;
+                 sh:resultMessage              "ClassConstraint[<http://www.w3.org/ns/adms#Status>]: Expected class :<http://www.w3.org/ns/adms#Status> for <https://example.org/ns/riepr#actief>" ;
+                 sh:resultPath                 adms:status ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:ClassConstraintComponent ;
+                 sh:sourceShape                _:b0 ;
+                 sh:value                      :actief
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  <https://example.org/id/onttrekkingspunt/ont-uuid-wp-002/2024-01-16/2024-01-16T11:00:00> ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 adms:status ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                _:b1
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  <https://example.org/id/proces/procs-001/2024-01-15/2024-01-15T10:00:00> ;
+                 sh:resultMessage              "ClassConstraint[<http://www.w3.org/ns/adms#Status>]: Expected class :<http://www.w3.org/ns/adms#Status> for <https://example.org/ns/riepr#actief>" ;
+                 sh:resultPath                 adms:status ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:ClassConstraintComponent ;
+                 sh:sourceShape                []  ;
+                 sh:value                      :actief
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  :Operator-op-001 ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 dc:type ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                _:b5
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  :MeasurementInstrument-inst-001 ;
+                 sh:resultMessage              "ClassConstraint[<http://www.w3.org/ns/adms#Status>]: Expected class :<http://www.w3.org/ns/adms#Status> for <https://example.org/ns/riepr#actief>" ;
+                 sh:resultPath                 adms:status ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:ClassConstraintComponent ;
+                 sh:sourceShape                []  ;
+                 sh:value                      :actief
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  <https://example.org/id/meetpunt/meet-uuid-wp-002/2024-01-16/2024-01-16T11:00:00> ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 adms:status ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                _:b1
+               ] ;
+  sh:result    [ rdf:type                      sh:ValidationResult ;
+                 sh:focusNode                  <https://example.org/id/meetpunt/meet-uuid-mp-002/2024-01-16/2024-01-16T11:00:00> ;
+                 sh:resultMessage              "minCount[1]: Invalid cardinality: expected min 1: Got count = 0" ;
+                 sh:resultPath                 adms:status ;
+                 sh:resultSeverity             sh:Violation ;
+                 sh:sourceConstraintComponent  sh:MinCountConstraintComponent ;
+                 sh:sourceShape                _:b4
+               ]
+] .
+
+
+VOCABULARY CHECK: 2 instance(s) are typed with class(es) not part of the ontology/SHACL vocabulary (no shape targets them, so they are never actually validated): http://www.opengis.net/ont/geosparql#Geometry, http://www.w3.org/ns/locn#Address. 4 predicate(s) are not part of the ontology/SHACL vocabulary (invented rather than reused): http://www.w3.org/ns/locn#addressCountry, http://www.opengis.net/ont/geosparql#asWKT, http://www.w3.org/ns/locn#streetAddress, http://publications.europarl.europa.eu/dataset-http-adms.rdf#status. Reuse the EXACT class/predicate URIs from the ontology/SHACL context instead of inventing new ones.

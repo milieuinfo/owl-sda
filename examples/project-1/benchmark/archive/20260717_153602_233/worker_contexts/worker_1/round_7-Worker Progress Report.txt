@@ -1,0 +1,8 @@
+worker_id=POOL-1
+status=CREATED
+target_shape=EmissionShape
+target_class=https://example.org/ns/riepr#Emission
+changed_triples_count=12
+created_or_updated_subjects=https://example.org/ns/riepr#Emission_001,https://example.org/ns/riepr#Emission_002
+validation_result=CONFORMS
+remaining_issues=NONE
