@@ -1,0 +1,13 @@
+\section{Conclusion and Future Work}
+OWL-SDA provides ontology engineers with a practical way to generate synthetic RDF examples for validation and documentation when real data cannot be shared. Across both scenarios, richer ontology constraints and documentation led to faster convergence and more useful output, whereas sparse ontologies demanded more supervisor intervention and still produced less detailed instances~\cite{alharbi2021assessing,soares2025exploring}. The approach therefore helps both to produce example data and to expose where an ontology remains underspecified. Because the generation loop does not require constant user supervision, it can also run alongside ontology design and return examples for later inspection. In the industrial emissions reporting use case, generated examples are already being used to help illustrate the ontology while the ontology is still under development.
+
+Future work should add human-in-the-loop steering~\cite{WU2022364} and broaden the evaluation with expert assessment and, where legally possible, comparisons against reference data. More generally, the current reviewer and supervisor routine could be extended with human checkpoints and alternative validation strategies, so that domain experts can assess usefulness, plausibility and fitness for purpose in addition to SHACL conformance.
+
+In its current state, OWL-SDA can already help with the validation and documentation of ontologies; either directly by creating example RDF, or indirectly by highlighting where an ontology is underspecified.
+
+\vspace{-0.9em}
+\paragraph*{Supplemental Material.}
+OWL-SDA and the benchmark results from the intiail release are available in the project repository~\cite{owlsda2026}.
+\vspace{-1.2em}
+\paragraph*{Declaration on Generative AI.}
+During the creation of OWL-SDA, the authors used GitHub Copilot to help with the documentation and development. The authors take full responsibility for the content in the repository.

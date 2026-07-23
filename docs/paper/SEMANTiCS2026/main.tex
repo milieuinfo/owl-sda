@@ -1,0 +1,50 @@
+% !TEX program = pdflatex
+\PassOptionsToPackage{numbers,sort&compress}{natbib}
+\documentclass{ceurart}
+
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{microtype}
+\usepackage{etoolbox}
+\apptocmd{\thebibliography}{\sloppy}{}{}
+\emergencystretch=2em
+\makeatletter
+\def\Hy@Warning#1{}
+\def\Hy@WarningNoLine#1{}
+\makeatother
+
+\begin{document}
+
+\title{OWL-SDA: A Multi-Agent System for Generating Synthetic Data to Support Ontology Evaluation}
+
+\author[a,b]{Maxim {Van de Wynckel}}[%
+orcid=0000-0003-0314-7107,
+email=maxim.vandewynckel@vlaanderen.be
+]
+\cormark[1]
+\author[c,d]{Emmelien {De Roock}}[%
+orcid=0000-0001-9680-5222
+]
+
+\address[a]{Department of Environment and Spatial Development, Flemish Government, Belgium}
+\address[b]{Web \& Information Systems Engineering Lab, Vrije Universiteit Brussel, Belgium}
+\address[c]{UZ Brussel, Belgium}
+\address[d]{Data Analytics Laboratory, Vrije Universiteit Brussel, Belgium}
+
+\copyrightyear{2026}
+\copyrightclause{Copyright for this paper by its authors. Use permitted under Creative Commons License Attribution 4.0 International (CC BY 4.0).}
+\conference{Posters, Demos, Blue Sky, and Tutorials at SEMANTiCS 2026, Sep 2026, Ghent, Belgium}
+
+\input{sections/abstract}
+\maketitle
+
+\input{sections/introduction}
+\input{sections/relatedwork}
+\input{sections/solution}
+\input{sections/evaluation}
+\input{sections/conclusion}
+
+\clearpage
+\bibliography{bibliography}
+\end{document}

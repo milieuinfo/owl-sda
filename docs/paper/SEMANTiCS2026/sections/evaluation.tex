@@ -1,0 +1,34 @@
+\section{Evaluation} \label{sec:evaluation}
+We evaluate OWL-SDA on two contrasting ontologies: an industrial emissions ontology that motivated the toolkit and a healthcare ontology with fewer constraints. The evaluation is exploratory: we focus on convergence behaviour, review findings and the practical usefulness of the generated examples rather than on baseline comparisons or statistical similarity to gold-standard datasets. Although OWL-SDA supports multiple backends, including self-hosted and OpenAI-compatible deployments, all runs reported here used \texttt{gpt-5-mini} workers, a \texttt{gpt-5.4} supervisor and a \texttt{claude-4.6-sonnet} reviewer.
+
+\begin{figure}[t]
+    \centering
+    \begin{minipage}[b]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/benchmark_plot.pdf}
+        \\[-0.2em]
+        {\small IED-IEPR benchmark}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/benchmark_plot2.pdf}
+        \\[-0.2em]
+        {\small OpenCareOntology benchmark}
+    \end{minipage}
+    \caption{Benchmark comparison for the two evaluation scenarios.}
+    \label{fig:riepr:benchmark}
+\end{figure}
+
+Figure~\ref{fig:riepr:benchmark} shows the per-iteration processing times. The first iterations are consistently slower because the agents load ontology and task context, after which later batches benefit from narrower scopes and lower-complexity shapes. Both runs, LLM messages and their results are available as benchmarks in the OWL-SDA repository.
+
+\subsection{Industrial Emissions Ontology}
+The first scenario uses a domain-specific ontology for Industrial Emissions Directive reporting~\cite{EU2024_1244}. It models industrial systems and measurement setups as \texttt{ssn:System} instances and relates them to operational plans and steps from P-Plan, namely \texttt{p-plan:Plan} and \texttt{p-plan:Step}. The ontology was one of the catalysts for OWL-SDA and was selected because it combines rich constraints with a concrete documentation need. The ontology used in this evaluation is available on GitHub but was translated to English for the purposes of this paper\footnote{\url{https://github.com/milieuinfo/RIE-IEPR/}}. This scenario produced the strongest results: richer constraints and property descriptions enabled SHACL-conformant output with limited supervisor steering, although qualitative inspection still exposed underspecified ontology ranges such as \texttt{prov:Agent}.
+
+\subsection{Healthcare Ontology}
+The second scenario uses the OpenCareOntology\footnote{\url{https://bioportal.bioontology.org/ontologies/OCO}}~\cite{dutta_bain_oco_bioportal_2024} to generate synthetic patient history records. This scenario is relevant because using real patient data as prompt context is often undesirable or prohibited~\cite{vallevik2025processing,Kaabachi2025}; self-hosted alternatives can mitigate that, but may be too costly in smaller settings~\cite{potluri2026lois}. Moreover, pseudonymisation does not remove all re-identification risk~\cite{10.1371/journal.pone.0028071}, while full anonymisation may remove information needed for correct relation generation~\cite{Sarmin2025}. Compared with the industrial ontology, OpenCareOntology provides broader healthcare coverage but fewer constraints and less in-ontology documentation. As a result, OWL-SDA required more iterations and more supervisor intervention, and the generated instances had fewer properties on average, although the output remained useful as documentation.
+
+This difference between scenarios was also visible in review feedback. In the industrial case, most fixes concerned missing links or underspecified ranges in an otherwise rich graph. In the healthcare case, the reviewer more often had to judge whether the produced combinations were merely SHACL-conformant or also clinically plausible, which reinforces the need for a separate review stage beyond validation alone.
+
+\subsection{Limitations}
+The current evaluation does not claim statistical fidelity to real-world data. Repeated runs may differ because LLM behaviour is non-deterministic, and our results are limited to two ontologies and to the specific model combination used. Most importantly, SHACL conformance is necessary but not sufficient for quality: data can satisfy all shapes while remaining semantically implausible, for example when a clinically unlikely diagnosis and treatment combination is represented with valid classes and properties. This is precisely why OWL-SDA retains a separate review stage.
