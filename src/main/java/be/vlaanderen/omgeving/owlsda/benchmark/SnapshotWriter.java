@@ -82,6 +82,10 @@ class SnapshotWriter {
       }
       w.write("current_violations=" + currentViolations + "\n");
 
+      writeRoleModelInfo(w, "supervisor", supervisorRoleProperties());
+      writeRoleModelInfo(w, "reviewer", reviewerRoleProperties());
+      writeRoleModelInfo(w, "worker", workerRoleProperties());
+
       writeRoleTokenUsage(w, "tokens.supervisor", supervisorSession);
       writeRoleTokenUsage(w, "tokens.reviewer", reviewerSession);
       writeRoleLiveStatus(w, "supervisor", supervisorSession, supervisorContextWindow());
@@ -124,6 +128,58 @@ class SnapshotWriter {
     writer.write("busy." + keyPrefix + "=" + busy + "\n");
     writer.write("context." + keyPrefix + ".used=" + lastPromptTokens + "\n");
     writer.write("context." + keyPrefix + ".limit=" + contextWindowTokens + "\n");
+  }
+
+  /**
+   * Writes {@code model.<role>}/{@code provider.<role>} so the web UI can show which model/provider
+   * each agent is running, resolving the role's provider override (falling back to {@code
+   * client.provider} when unset) the same way {@link
+   * be.vlaanderen.omgeving.owlsda.agent.ClientFactory} does when actually creating the client.
+   */
+  private void writeRoleModelInfo(BufferedWriter writer, String keyPrefix, RoleModelInfo info)
+      throws IOException {
+    writer.write(
+        "model." + keyPrefix + "=" + (info != null ? nullToEmpty(info.model()) : "") + "\n");
+    writer.write(
+        "provider." + keyPrefix + "=" + (info != null ? nullToEmpty(info.provider()) : "") + "\n");
+  }
+
+  private String nullToEmpty(String value) {
+    return value == null ? "" : value;
+  }
+
+  private record RoleModelInfo(String model, String provider) {}
+
+  private RoleModelInfo supervisorRoleProperties() {
+    if (config.getClient() == null || config.getClient().getSupervisor() == null) {
+      return null;
+    }
+    Config.ClientProperties.SupervisorProperties props = config.getClient().getSupervisor();
+    return new RoleModelInfo(props.getModel(), effectiveProvider(props.getProvider()));
+  }
+
+  private RoleModelInfo reviewerRoleProperties() {
+    if (config.getClient() == null || config.getClient().getReviewer() == null) {
+      return null;
+    }
+    Config.ClientProperties.ReviewerProperties props = config.getClient().getReviewer();
+    return new RoleModelInfo(props.getModel(), effectiveProvider(props.getProvider()));
+  }
+
+  private RoleModelInfo workerRoleProperties() {
+    if (config.getClient() == null || config.getClient().getWorker() == null) {
+      return null;
+    }
+    Config.ClientProperties.WorkerProperties props = config.getClient().getWorker();
+    return new RoleModelInfo(props.getModel(), effectiveProvider(props.getProvider()));
+  }
+
+  /** Falls back to {@code client.provider} when a role has no provider override configured. */
+  private String effectiveProvider(String roleProvider) {
+    if (roleProvider != null && !roleProvider.isBlank()) {
+      return roleProvider;
+    }
+    return config.getClient() != null ? config.getClient().getProvider() : null;
   }
 
   private int supervisorContextWindow() {

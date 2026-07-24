@@ -14,6 +14,7 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.shacl.ValidationReport;
 import org.slf4j.Logger;
@@ -332,19 +333,36 @@ public record Supervisor(
         return;
       }
 
-      List<String> reopenedShapeNames =
+      List<Shacl.Shape> reopenedShapes =
           ShapeValidationMatcher.reopenProcessedShapesWithViolations(
               shacl.getShapes(), model, shacl.getOntology(), validationReport);
 
-      if (!reopenedShapeNames.isEmpty()) {
+      if (!reopenedShapes.isEmpty()) {
+        prioritizeShapes(reopenedShapes);
         logger.warn(
             "Reopened {} processed shape(s) due to active class-related violations: {}",
-            reopenedShapeNames.size(),
-            String.join(", ", reopenedShapeNames));
+            reopenedShapes.size(),
+            reopenedShapes.stream().map(Shacl.Shape::getName).collect(Collectors.joining(", ")));
       }
     } catch (Exception e) {
       logger.warn("Failed to reopen shapes with outstanding violations: {}", e.getMessage());
     }
+  }
+
+  /**
+   * Moves {@code priority} shapes to the front of {@link #shacl}'s shape list, preserving their
+   * relative order. {@link ShaclContext} and {@link ShapeDistributionFormatter} both build the
+   * supervisor's "what to delegate this round" view by taking the first N unprocessed shapes in
+   * list order - when N is smaller than the total unprocessed count, a shape that was just reopened
+   * for an outstanding violation but happens to sit later in the list is silently excluded from
+   * that view, so the supervisor never sees it and never delegates a fix for it. Without this, that
+   * pattern repeats every round: violations accumulate faster than the (fixed-size) window ever
+   * reaches them.
+   */
+  private void prioritizeShapes(List<Shacl.Shape> priority) {
+    List<Shacl.Shape> allShapes = shacl.getShapes();
+    allShapes.removeAll(priority);
+    allShapes.addAll(0, priority);
   }
 
   private void markDelegatedShapesAsProcessed(int delegatedWorkerCount) {

@@ -82,13 +82,16 @@ final class ShapeValidationMatcher {
 
   /**
    * Reopens (marks unprocessed) any already-processed shape whose target class still has
-   * outstanding validation violations in {@code report}. Returns the names of shapes reopened.
-   * Shared by {@link Supervisor} and {@link SupervisorWorkflow}, which call this against slightly
-   * different validation snapshots but apply the same reopen-on-violation rule.
+   * outstanding validation violations in {@code report}. Returns the reopened shapes themselves
+   * (not just their names) so callers can prioritize them - see {@link
+   * Supervisor#reopenShapesWithOutstandingViolations}, which moves them to the front of the shape
+   * list so they aren't silently dropped by later index-windowed views of "the next N unprocessed
+   * shapes". Shared by {@link Supervisor} and {@link SupervisorWorkflow}, which call this against
+   * slightly different validation snapshots but apply the same reopen-on-violation rule.
    */
-  static List<String> reopenProcessedShapesWithViolations(
+  static List<Shacl.Shape> reopenProcessedShapesWithViolations(
       List<Shacl.Shape> shapes, Model dataModel, Model ontologyModel, ValidationReport report) {
-    List<String> reopened = new ArrayList<>();
+    List<Shacl.Shape> reopened = new ArrayList<>();
     for (Shacl.Shape shape : shapes) {
       if (!shape.isProcessed()) {
         continue;
@@ -102,7 +105,7 @@ final class ShapeValidationMatcher {
       Resource targetClass = dataModel.createResource(targetClassUri);
       if (hasViolationsForTargetClass(dataModel, ontologyModel, report, targetClass)) {
         shape.setProcessed(false);
-        reopened.add(shape.getName());
+        reopened.add(shape);
       }
     }
     return reopened;

@@ -125,7 +125,10 @@ public class OutputValidatorHandler implements SessionHandler {
 
     try {
       Model dataModel = ModelFactory.createDefaultModel();
-      dataModel.read(new StringReader(data), null, "TURTLE");
+      // A relative/scheme-less IRI (worker mistake) resolves against this base instead of Jena's
+      // file://<cwd> fallback - see WorkerTripleStore#baseUri for why that matters.
+      dataModel.read(
+          new StringReader(data), shacl != null ? shacl.resolvePrimaryNamespace() : null, "TURTLE");
       ValidationReport report = shacl.validate(dataModel);
       return buildResponse(report, formatOnError, "data", dataModel);
     } catch (Exception e) {

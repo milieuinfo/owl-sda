@@ -2,6 +2,7 @@ package be.vlaanderen.omgeving.owlsda.generation;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -294,6 +295,41 @@ public class SupervisorTest {
     invokeVoid(supervisor, "reopenShapesWithOutstandingViolations");
 
     assertTrue(shape.isProcessed());
+  }
+
+  @Test
+  public void reopenShapesWithOutstandingViolations_MovesReopenedShapeToFrontOfShapeList()
+      throws Exception {
+    // ShaclContext and ShapeDistributionFormatter both build "what to delegate this round" by
+    // taking the first N unprocessed shapes in list order. A shape reopened for an outstanding
+    // violation must move to the front of that list, or a later, smaller window can silently
+    // exclude it every round and the violation never gets delegated to anyone.
+    Shacl shacl = shaclWithHasNameRestriction();
+    Shacl otherShapes = shaclWithClasses("Widget", "Gadget");
+    shacl.getShapes().addAll(otherShapes.getShapes());
+
+    Shacl.Shape personShape =
+        shacl.getShapes().stream()
+            .filter(s -> "PersonShape".equals(s.getName()))
+            .findFirst()
+            .orElseThrow();
+    // Force it to the back first, so a no-op (bug) reordering would leave it there - proving the
+    // fix actively moves it rather than it coincidentally already being in front.
+    shacl.getShapes().remove(personShape);
+    shacl.getShapes().add(personShape);
+    personShape.setProcessed(true);
+
+    WorkerTripleStore store = new WorkerTripleStore(null);
+    store.addTriples("<" + NS + "p1> <" + RDF.type.getURI() + "> <" + NS + "Person> .", "TEST");
+
+    Supervisor supervisor = new Supervisor(null, null, null, shacl, store, null);
+    invokeVoid(supervisor, "reopenShapesWithOutstandingViolations");
+
+    assertFalse(personShape.isProcessed());
+    assertSame(
+        "reopened shape must be moved to the front of the shape list",
+        personShape,
+        shacl.getShapes().get(0));
   }
 
   // ---------------------------------------------------------------------

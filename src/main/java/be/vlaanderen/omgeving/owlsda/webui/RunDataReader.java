@@ -136,6 +136,89 @@ class RunDataReader {
     return readTextFile(file);
   }
 
+  private static final Pattern ROUND_PREFIXED_FILE = Pattern.compile("^round_\\d+-.*");
+
+  /**
+   * The role's context directory, e.g. {@code supervisor_context}, {@code reviewer_context}, or
+   * {@code worker_contexts/worker_N} - see {@link SnapshotWriter#writeSessionContexts} and {@link
+   * SnapshotWriter#writeWorkerContexts}, which is what populates these directories.
+   */
+  private Path contextDir(String role) {
+    Path dir = benchmarkDir();
+    if (dir == null || role == null) {
+      return null;
+    }
+    if ("supervisor".equals(role)) {
+      return dir.resolve("supervisor_context");
+    }
+    if ("reviewer".equals(role)) {
+      return dir.resolve("reviewer_context");
+    }
+    Matcher matcher = WORKER_ROLE.matcher(role);
+    if (matcher.matches()) {
+      return dir.resolve("worker_contexts").resolve(role);
+    }
+    return null;
+  }
+
+  /**
+   * Named context files (e.g. {@code Delegation Instructions}, {@code Validation Report}) currently
+   * held by {@code role} - the same context a worker/supervisor/reviewer session sees for the round
+   * in progress. Files from earlier rounds (prefixed {@code round_N-}, see {@link
+   * SnapshotWriter#writeWorkerContexts}) are excluded so this reflects only the current assignment.
+   */
+  List<ContextFile> readContexts(String role) {
+    Path dir = contextDir(role);
+    if (dir == null || !Files.isDirectory(dir)) {
+      return List.of();
+    }
+
+    List<ContextFile> contexts = new ArrayList<>();
+    try (Stream<Path> files = Files.list(dir)) {
+      files
+          .filter(p -> !ROUND_PREFIXED_FILE.matcher(p.getFileName().toString()).matches())
+          .filter(p -> p.getFileName().toString().endsWith(".txt"))
+          .sorted(Comparator.comparing(p -> p.getFileName().toString()))
+          .forEach(
+              p -> {
+                String fileName = p.getFileName().toString();
+                String name = fileName.substring(0, fileName.length() - ".txt".length());
+                String content = readFileOrDefault(p, "");
+                contexts.add(new ContextFile(name, content));
+              });
+    } catch (IOException e) {
+      return List.of();
+    }
+    return contexts;
+  }
+
+  /**
+   * The most recently known SHACL validation report text (see {@code ValidationContext}), or an
+   * empty file if no role currently holds one. Every role that receives a "Validation Report"
+   * context gets the same content for a given round (supervisor and reviewer are checked first
+   * since they hold it independently of any single worker's assignment), so the first role that has
+   * one is enough.
+   */
+  TextFile readViolationsReport() {
+    List<String> searchOrder = new ArrayList<>(List.of("supervisor", "reviewer"));
+    searchOrder.addAll(listRoles().stream().filter(r -> WORKER_ROLE.matcher(r).matches()).toList());
+
+    for (String role : searchOrder) {
+      Path dir = contextDir(role);
+      if (dir == null) {
+        continue;
+      }
+      Path file = dir.resolve("Validation Report.txt");
+      if (Files.exists(file)) {
+        return readTextFile(file);
+      }
+    }
+    return new TextFile(null, false, 0, "");
+  }
+
+  /** A single named context file's content, e.g. {@code Delegation Instructions}. */
+  record ContextFile(String name, String content) {}
+
   /** Content of the run's configured final output file, if present. */
   TextFile readFinalOutput() {
     String outputPath = config.getOutputPath();

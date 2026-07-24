@@ -51,11 +51,18 @@
   }
 
   function tokensTotalFrom(tokens) {
+    return tokensSumFrom(tokens, "total");
+  }
+
+  // Sums a single token field ("input", "output", or "total") across supervisor, reviewer, and
+  // every worker, so the stat row can show input/output separately in addition to the combined
+  // total.
+  function tokensSumFrom(tokens, field) {
     if (!tokens) return 0;
-    let total = (tokens.supervisor?.total || 0) + (tokens.reviewer?.total || 0);
+    let total = (tokens.supervisor?.[field] || 0) + (tokens.reviewer?.[field] || 0);
     const workers = tokens.workers || {};
     for (const key of Object.keys(workers)) {
-      total += workers[key]?.total || 0;
+      total += workers[key]?.[field] || 0;
     }
     return total;
   }
@@ -81,19 +88,27 @@
   }
 
   function renderStatRow(metadata, tokens) {
+    const inputTokens = tokensSumFrom(tokens, "input");
+    const outputTokens = tokensSumFrom(tokens, "output");
+    const tokensSub =
+      inputTokens || outputTokens
+        ? `${fmtNumber(inputTokens)} in / ${fmtNumber(outputTokens)} out`
+        : "";
+
     const stats = [
-      ["Shapes Processed", metadata.shapes_processed ?? "--"],
-      ["Violations", fmtViolations(metadata.current_violations)],
-      ["Triples", fmtNumber(metadata.triplestore_size)],
-      ["Duration", fmtDuration(totalRunDurationMs(metadata))],
-      ["Total Tokens", fmtNumber(tokensTotalFrom(tokens))],
+      ["shapes", "Shapes Processed", metadata.shapes_processed ?? "--", ""],
+      ["violations", "Violations", fmtViolations(metadata.current_violations), ""],
+      ["triples", "Triples", fmtNumber(metadata.triplestore_size), ""],
+      ["duration", "Duration", fmtDuration(totalRunDurationMs(metadata)), ""],
+      ["tokens", "Total Tokens", fmtNumber(tokensTotalFrom(tokens)), tokensSub],
     ];
     el("stat-row").innerHTML = stats
       .map(
-        ([label, value]) => `
-        <div class="stat-card">
+        ([id, label, value, sub]) => `
+        <div class="stat-card${id === "violations" ? " clickable" : ""}" data-stat="${id}">
           <div class="stat-label">${label}</div>
           <div class="stat-value">${value}</div>
+          ${sub ? `<div class="stat-sub">${sub}</div>` : ""}
         </div>`
       )
       .join("");
@@ -211,6 +226,7 @@
         <button class="role-tab" data-role="${role}">
           <span class="role-busy-dot" title="idle"></span>
           <span>${role}</span>
+          <span class="role-model"></span>
           <span class="role-context"></span>
         </button>`
         )
@@ -237,6 +253,12 @@
     return m ? `worker.worker_${m[1]}` : role;
   }
 
+  // Model/provider metadata (see SnapshotWriter#writeRoleModelInfo) is written once per role, not
+  // per worker index -- all workers in the pool share one configured model/provider.
+  function roleModelMetadataKey(role) {
+    return /^worker_\d+$/.test(role || "") ? "worker" : role;
+  }
+
   // Reflects each role's live status (busy dot + context-window usage) onto the already-rendered
   // role tabs. Kept separate from renderRoleTabs so a plain metadata refresh (every poll tick)
   // doesn't have to rebuild the tab buttons (which would drop the active/click state) just to
@@ -253,6 +275,15 @@
         btn.classList.toggle("role-busy", busy);
         const dot = btn.querySelector(".role-busy-dot");
         if (dot) dot.title = busy ? "working" : "idle";
+
+        const modelKey = roleModelMetadataKey(btn.dataset.role);
+        const model = metadata[`model.${modelKey}`];
+        const provider = metadata[`provider.${modelKey}`];
+        const modelEl = btn.querySelector(".role-model");
+        if (modelEl) {
+          modelEl.textContent = model ? model : "";
+          modelEl.title = model ? `${model}${provider ? " · " + provider : ""}` : "";
+        }
 
         const ctx = btn.querySelector(".role-context");
         if (ctx) {
@@ -284,6 +315,60 @@
     }
   }
 
+  function renderMsgBody(entry) {
+    if (entry.tool) {
+      return `<span class="tool-name">${escapeHtml(entry.tool.name)}</span>(${prettyIfJson(
+        entry.tool.arguments,
+        entry.tool.argumentsAreJson
+      )})`;
+    }
+    return escapeHtml(entry.content || "");
+  }
+
+  // Wraps a message body in the collapse/expand chrome shared by plain messages and each half of a
+  // merged tool-call block, keyed so toggle state (`expanded`, keyed by role in expandedSetFor)
+  // survives re-renders across polls.
+  function collapsibleContent(key, content, bodyHtml, expanded) {
+    const collapsible = (content || "").length > LONG_CONTENT_CHARS;
+    const isCollapsed = collapsible && !expanded.has(key);
+    const toggle = collapsible
+      ? `<button class="msg-toggle" data-key="${key}">${isCollapsed ? "Show more" : "Show less"}</button>`
+      : "";
+    return `<div class="msg-content ${isCollapsed ? "collapsed" : ""}" data-key="${key}">${bodyHtml}</div>${toggle}`;
+  }
+
+  function renderSingleMessage(entry, idx, expanded) {
+    const dirClass = `dir-${entry.direction || "UNKNOWN"}`;
+    return `
+        <div class="msg">
+          <div class="msg-head">
+            <span class="msg-direction ${dirClass}">${entry.direction || "?"}</span>
+            <span>${entry.timestamp || ""}</span>
+          </div>
+          ${collapsibleContent(String(idx), entry.content, renderMsgBody(entry), expanded)}
+        </div>`;
+  }
+
+  // A TOOL_INVOCATION immediately followed by its TOOL_RESULT (see MessageLogHandler/SessionManager
+  // logging) is rendered as one card with two sub-sections, rather than two separate message cards,
+  // so it's visually a single "call + result" unit while still labeling each half.
+  function renderToolBlock(invocation, result, idx, expanded) {
+    return `
+        <div class="msg tool-block">
+          <div class="tool-call">
+            <div class="msg-head">
+              <span class="msg-direction dir-TOOL_INVOCATION">TOOL CALL</span>
+              <span>${invocation.timestamp || ""}</span>
+            </div>
+            ${collapsibleContent(`${idx}-call`, invocation.content, renderMsgBody(invocation), expanded)}
+          </div>
+          <div class="tool-result">
+            <span class="tool-result-label">RESULT</span>
+            ${collapsibleContent(`${idx}-result`, result.content, renderMsgBody(result), expanded)}
+          </div>
+        </div>`;
+  }
+
   function renderMessages(entries, role) {
     if (!entries.length) {
       el("messages").innerHTML = `<div class="empty-hint">No messages logged for this role yet.</div>`;
@@ -291,45 +376,32 @@
     }
 
     const expanded = expandedSetFor(role);
+    const blocks = [];
+    for (let idx = 0; idx < entries.length; idx++) {
+      const entry = entries[idx];
+      const next = entries[idx + 1];
+      if (entry.direction === "TOOL_INVOCATION" && next && next.direction === "TOOL_RESULT") {
+        blocks.push(renderToolBlock(entry, next, idx, expanded));
+        idx++; // consumed the paired TOOL_RESULT too
+        continue;
+      }
+      blocks.push(renderSingleMessage(entry, idx, expanded));
+    }
 
-    el("messages").innerHTML = entries
-      .map((entry, idx) => {
-        const dirClass = `dir-${entry.direction || "UNKNOWN"}`;
-        let body;
-        if (entry.tool) {
-          body = `<span class="tool-name">${escapeHtml(entry.tool.name)}</span>(${prettyIfJson(
-            entry.tool.arguments,
-            entry.tool.argumentsAreJson
-          )})`;
-        } else {
-          body = escapeHtml(entry.content || "");
-        }
-        const collapsible = (entry.content || "").length > LONG_CONTENT_CHARS;
-        const isCollapsed = collapsible && !expanded.has(idx);
-        return `
-        <div class="msg">
-          <div class="msg-head">
-            <span class="msg-direction ${dirClass}">${entry.direction || "?"}</span>
-            <span>${entry.timestamp || ""}</span>
-          </div>
-          <div class="msg-content ${isCollapsed ? "collapsed" : ""}" data-idx="${idx}">${body}</div>
-          ${collapsible ? `<button class="msg-toggle" data-idx="${idx}">${isCollapsed ? "Show more" : "Show less"}</button>` : ""}
-        </div>`;
-      })
-      .join("");
+    el("messages").innerHTML = blocks.join("");
 
     el("messages")
       .querySelectorAll(".msg-toggle")
       .forEach((btn) =>
         btn.addEventListener("click", () => {
-          const idx = Number(btn.dataset.idx);
-          const content = el("messages").querySelector(`.msg-content[data-idx="${idx}"]`);
+          const key = btn.dataset.key;
+          const content = el("messages").querySelector(`.msg-content[data-key="${key}"]`);
           const nowCollapsed = content.classList.toggle("collapsed");
           btn.textContent = nowCollapsed ? "Show more" : "Show less";
           if (nowCollapsed) {
-            expanded.delete(idx);
+            expanded.delete(key);
           } else {
-            expanded.add(idx);
+            expanded.add(key);
           }
         })
       );
@@ -409,6 +481,7 @@
   async function loadMessages() {
     if (!state.activeRole) {
       el("messages").innerHTML = `<div class="empty-hint">No session roles yet.</div>`;
+      el("context-panel").innerHTML = "";
       return;
     }
     const role = state.activeRole;
@@ -417,10 +490,103 @@
     state.lastMessageCountByRole[role] = entries.length;
 
     renderMessages(entries, role);
+    await loadContexts(role);
 
     if (state.autoScroll && grewSinceLastLoad) {
       scrollMessagesToBottom();
     }
+  }
+
+  // --- Delegation / context panel --------------------------------------------
+
+  // Which context files stay expanded by default when a role's context panel first renders (a
+  // worker's assignment for the round, or the supervisor/reviewer's validation state) -- everything
+  // else (ontology dumps, example files) starts collapsed since it's rarely what's being checked.
+  const DEFAULT_OPEN_CONTEXTS = new Set(["Delegation Instructions", "Validation Report"]);
+
+  const contextPanelOpenState = {};
+
+  function renderContexts(contexts, role) {
+    const panel = el("context-panel");
+    if (!contexts.length) {
+      panel.innerHTML = "";
+      return;
+    }
+
+    const openState = (contextPanelOpenState[role] = contextPanelOpenState[role] || {});
+
+    panel.innerHTML = contexts
+      .map((ctx) => {
+        const isOpen = openState[ctx.name] ?? DEFAULT_OPEN_CONTEXTS.has(ctx.name);
+        const looksLikeTurtle = ctx.content.includes("@prefix") || ctx.content.includes("sh:conforms");
+        const body = looksLikeTurtle ? highlightTurtle(ctx.content) : escapeHtml(ctx.content);
+        return `
+        <details class="context-item" data-name="${escapeHtml(ctx.name)}" ${isOpen ? "open" : ""}>
+          <summary>${escapeHtml(ctx.name)}</summary>
+          <div class="context-body">${body}</div>
+        </details>`;
+      })
+      .join("");
+
+    panel.querySelectorAll(".context-item").forEach((details) => {
+      details.addEventListener("toggle", () => {
+        openState[details.dataset.name] = details.open;
+      });
+    });
+  }
+
+  async function loadContexts(role) {
+    try {
+      const contexts = await getJson(`/api/contexts?role=${encodeURIComponent(role)}`);
+      renderContexts(Array.isArray(contexts) ? contexts : [], role);
+    } catch (e) {
+      // Leave the previous panel content in place on a transient fetch failure.
+    }
+  }
+
+  // --- Violations modal -----------------------------------------------------
+
+  async function openViolationsModal() {
+    const overlay = el("violations-modal");
+    overlay.classList.remove("hidden");
+    el("violations-modal-meta").textContent = "Loading…";
+    el("violations-modal-body").innerHTML = "";
+    try {
+      const file = await getJson("/api/violations");
+      if (!file.exists || !file.content) {
+        el("violations-modal-meta").textContent = "No violation report available yet.";
+        return;
+      }
+      el("violations-modal-meta").textContent = `${file.path || ""} -- ${fmtNumber(
+        file.sizeBytes
+      )} bytes${file.truncated ? " (truncated for display)" : ""}`;
+      el("violations-modal-body").innerHTML = highlightTurtle(file.content);
+    } catch (e) {
+      el("violations-modal-meta").textContent = "Failed to load violations.";
+    }
+  }
+
+  function closeViolationsModal() {
+    el("violations-modal").classList.add("hidden");
+  }
+
+  function setupViolationsModal() {
+    el("stat-row").addEventListener("click", (evt) => {
+      if (evt.target.closest('[data-stat="violations"]')) {
+        openViolationsModal();
+      }
+    });
+    el("violations-modal-close").addEventListener("click", closeViolationsModal);
+    el("violations-modal").addEventListener("click", (evt) => {
+      if (evt.target.id === "violations-modal") {
+        closeViolationsModal();
+      }
+    });
+    document.addEventListener("keydown", (evt) => {
+      if (evt.key === "Escape") {
+        closeViolationsModal();
+      }
+    });
   }
 
   async function loadOutput() {
@@ -588,10 +754,12 @@
     if (!history.length) {
       el("chart-triples").innerHTML = `<div class="chart-empty-hint">No data yet.</div>`;
       el("chart-violations").innerHTML = `<div class="chart-empty-hint">No data yet.</div>`;
+      el("chart-shapes").innerHTML = `<div class="chart-empty-hint">No data yet.</div>`;
       return;
     }
     const accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim();
     const bad = getComputedStyle(document.documentElement).getPropertyValue("--bad").trim();
+    const good = getComputedStyle(document.documentElement).getPropertyValue("--good").trim();
 
     renderLineChart(
       "chart-triples",
@@ -602,6 +770,11 @@
       "chart-violations",
       trendPoints(history, (s) => s.currentViolations),
       { color: bad, formatValue: (v) => fmtNumber(Math.round(v)) }
+    );
+    renderLineChart(
+      "chart-shapes",
+      trendPoints(history, (s) => s.shapesProcessed),
+      { color: good, formatValue: (v) => fmtNumber(Math.round(v)) }
     );
   }
 
@@ -650,6 +823,7 @@
 
   setupTabs();
   setupAutoScrollToggle();
+  setupViolationsModal();
   tick();
   setInterval(tick, POLL_MS);
 })();

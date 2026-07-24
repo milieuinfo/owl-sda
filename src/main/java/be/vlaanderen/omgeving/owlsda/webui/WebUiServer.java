@@ -36,8 +36,10 @@ public class WebUiServer {
     server.createContext("/api/state", new RunStateHandler(reader));
     server.createContext("/api/history", new HistoryHandler(reader));
     server.createContext("/api/messages", new MessageLogHandler(reader));
+    server.createContext("/api/contexts", new ContextHandler(reader));
     server.createContext("/api/triplestore", new FileContentHandler(reader::readTriplestore));
     server.createContext("/api/output", new FileContentHandler(reader::readFinalOutput));
+    server.createContext("/api/violations", new FileContentHandler(reader::readViolationsReport));
 
     server.start();
     log.info("Web UI dashboard listening on http://localhost:{}", port);

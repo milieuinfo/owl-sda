@@ -1,0 +1,267 @@
+@prefix :           <https://example.org/ns/riepr#> .
+@prefix adms:       <http://www.w3.org/ns/adms#> .
+@prefix concept:    <https://example.org/id/concept/> .
+@prefix dbo:        <http://dbpedia.org/ontology/> .
+@prefix dc:         <http://purl.org/dc/terms/> .
+@prefix dct:        <http://purl.org/dc/terms/> .
+@prefix foaf:       <http://xmlns.com/foaf/0.1/> .
+@prefix hydra:      <http://www.w3.org/ns/hydra/core#> .
+@prefix locn:       <http://www.w3.org/ns/locn#> .
+@prefix nace:       <http://data.europa.eu/ux2/nace2.1/> .
+@prefix ogc:        <http://www.opengis.net/ont/geosparql#> .
+@prefix org:        <http://www.w3.org/ns/org#> .
+@prefix owl:        <http://www.w3.org/2002/07/owl#> .
+@prefix pplan:      <http://purl.org/net/p-plan#> .
+@prefix prov:       <http://www.w3.org/ns/prov#> .
+@prefix qudt:       <http://qudt.org/schema/qudt/> .
+@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh:         <http://www.w3.org/ns/shacl#> .
+@prefix skos:       <http://www.w3.org/2004/02/skos/core#> .
+@prefix sosa:       <http://www.w3.org/ns/sosa/> .
+@prefix ssn:        <http://www.w3.org/ns/ssn/> .
+@prefix ssn-system: <http://www.w3.org/ns/ssn/systems/> .
+@prefix vann:       <http://purl.org/vocab/vann/> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+
+:MeasurementInstrument-inst-002
+        rdf:type         :MeasurementInstrument ;
+        rdfs:label       "NOx Sensor"@en ;
+        dc:created       "2020-07-20T14:00:00"^^xsd:dateTime ;
+        dc:issued        "2020-07-20"^^xsd:date ;
+        dc:modified      "2020-09-15T10:00:00"^^xsd:dateTime ;
+        adms:status      :geacht ;
+        sosa:isHostedBy  :OperationLocation-location-cement-antwerp .
+
+<https://example.org/id/contactpersoon/cp-001/2024-01-01/2024-01-01T00:00:00>
+        rdf:type    :OperatorContactPerson ;
+        rdfs:label  "Jan Janssen - Operations Contact"@en ;
+        foaf:name   "Jan Janssen"@en .
+
+:OperationLocation-location-cement-antwerp
+        rdf:type              :OperationLocation ;
+        rdfs:label            "Cement factory Antwerp"@en ;
+        dc:created            "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued             "2020-01-01"^^xsd:date ;
+        dc:modified           "2020-01-01T00:00:00"^^xsd:dateTime ;
+        ogc:hasGeometry       [ rdf:type   ogc:Geometry ;
+                                ogc:asWKT  "POLYGON((4.4025 51.2194, 4.4030 51.2194, 4.4030 51.2199, 4.4025 51.2199, 4.4025 51.2194))"^^ogc:wktLiteral
+                              ] ;
+        prov:wasAttributedTo  :VCM-Belgium .
+
+:Operator-operator-002
+        rdf:type      :Operator ;
+        rdfs:label    "MyGlass Factory Operations"@en ;
+        dc:type       concept:operator-type-industrial ;
+        locn:address  :MyGlass-address-001 .
+
+:MeasurementInstrument-inst-001
+        rdf:type         :MeasurementInstrument ;
+        rdfs:label       "SO2 Analyzer"@en ;
+        dc:created       "2020-06-15T09:30:00"^^xsd:dateTime ;
+        dc:issued        "2020-06-15"^^xsd:date ;
+        dc:modified      "2020-08-20T14:30:00"^^xsd:dateTime ;
+        adms:status      :geacht ;
+        sosa:isHostedBy  :OperationLocation-location-cement-antwerp .
+
+:geacht  rdf:type       adms:Status ;
+        rdfs:label      "Active"@en , "Geacht"@nl ;
+        skos:prefLabel  "Geacht"@nl .
+
+:VCM-Belgium-address-001
+        rdf:type      locn:Address ;
+        rdfs:label    "VKBO Belgium Industrial Site"@en ;
+        locn:country  <http://example.org/country/Belgium> .
+
+<https://example.org/id/emissiepunt/emiss-001/2024-01-01/2024-01-01T00:00:00>
+        rdf:type         :EmissionPoint ;
+        rdfs:label       "Stack 1 Cement factory Antwerp"@en ;
+        dbo:diameter     2.5 ;
+        dbo:height       "45"^^xsd:decimal ;
+        dc:created       "2024-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued        "2024-01-01"^^xsd:date ;
+        dc:modified      "2024-01-01T00:00:00"^^xsd:dateTime ;
+        adms:status      :geacht ;
+        sosa:isHostedBy  :OperationLocation-location-cement-antwerp .
+
+<https://example.org/id/exploitatie/op-glass-002/2024-02-15/2024-02-15T08:00:00>
+        rdf:type                :Operation ;
+        rdfs:label              "Glass Quality Control Operation"@en ;
+        dc:created              "2024-02-15T08:00:00"^^xsd:dateTime ;
+        dc:issued               "2024-02-15"^^xsd:date ;
+        dc:modified             "2024-02-20T09:00:00"^^xsd:dateTime ;
+        adms:status             :geacht ;
+        ssn:deployedOnPlatform  :OperationLocation-location-cement-antwerp ;
+        ssn:implements          <https://example.org/id/proces/glass-proc-002/2024-02-10/2024-02-10T08:00:00> .
+
+<https://example.org/id/procesvariabele/pv-raw-materials-temperature>
+        rdf:type    :ProcessVariable ;
+        rdfs:label  "Raw Materials Temperature"@en ;
+        dc:type     concept:process-variable-temperature .
+
+<https://example.org/id/proces/glass-proc-001/2024-01-15/2024-01-15T10:00:00>
+        rdf:type     :Process ;
+        rdfs:label   "Glass Melting and Forming Process"@en ;
+        dc:created   "2024-01-15T10:00:00"^^xsd:dateTime ;
+        dc:modified  "2024-01-20T14:30:00"^^xsd:dateTime ;
+        adms:status  :geacht .
+
+<https://example.org/id/onttrekkingspunt/wtr-001/2024-06-01/2024-06-01T00:00:00>
+        rdf:type         :WithdrawalPoint ;
+        rdfs:label       "Groundwater Extraction Point 1 - MyGlassFactory"@en ;
+        dbo:depth        15.5 ;
+        dc:created       "2024-06-01T00:00:00"^^xsd:dateTime ;
+        dc:issued        "2024-06-01"^^xsd:date ;
+        dc:modified      "2024-06-02T09:00:00"^^xsd:dateTime ;
+        ogc:hasGeometry  [ rdf:type   ogc:Geometry ;
+                           ogc:asWKT  "POINT(4.4035 51.2200)"^^ogc:wktLiteral
+                         ] ;
+        adms:status      :geacht ;
+        sosa:isHostedBy  :OperationLocation-location-cement-antwerp .
+
+<https://example.org/id/proces/glass-proc-002/2024-02-10/2024-02-10T08:00:00>
+        rdf:type     :Process ;
+        rdfs:label   "Glass Finishing and Quality Control"@en ;
+        dc:created   "2024-02-10T08:00:00"^^xsd:dateTime ;
+        dc:modified  "2024-02-15T16:00:00"^^xsd:dateTime ;
+        adms:status  :geacht .
+
+<file:///Users/maximvdw/workspaces/OWLLM/Operator-operator-002>
+        rdf:type      :Operator ;
+        rdfs:label    "MyGlass Factory Operations"@en ;
+        locn:address  [ rdf:type    locn:Address ;
+                        rdfs:label  "MyGlass Belgium Site"@en
+                      ] ;
+        locn:address  [ rdf:type      locn:Address ;
+                        rdfs:label    "Belgium Industrial Park"@en ;
+                        locn:country  <http://example.org/country/Belgium>
+                      ] .
+
+<https://example.org/id/meetpunt/meet-002/2023-02-10/2023-02-10T08:00:00>
+        rdf:type         :MeasurementPoint ;
+        rdfs:label       "Air Quality Measurement Point Ambient Air 2"@en ;
+        dc:created       "2023-02-10T08:00:00"^^xsd:dateTime ;
+        dc:issued        "2023-02-10"^^xsd:date ;
+        dc:modified      "2023-02-10T08:00:00"^^xsd:dateTime ;
+        adms:status      :geacht ;
+        sosa:isHostedBy  <https://example.org/id/exploitatielocatie/op-loc-001/2019-06-01/2019-06-01T00:00:00> .
+
+<https://example.org/id/procesvariabele/pv-crucible-level>
+        rdf:type    :ProcessVariable ;
+        rdfs:label  "Crucible Level"@en ;
+        dc:type     concept:process-variable-volume .
+
+<https://example.org/id/procesvariabele/pv-temper-mixing-time>
+        rdf:type    :ProcessVariable ;
+        rdfs:label  "Tempering Mix Duration"@en ;
+        dc:type     concept:process-variable-duration .
+
+:MyGlass-address-001  rdf:type  locn:Address ;
+        rdfs:label    "MyGlass Factory Operations Site"@en ;
+        locn:country  <http://example.org/country/Belgium> .
+
+:Filter-filter-002  rdf:type  :Filter ;
+        rdfs:label       "Electrostatic Precipitator Secondary"@en ;
+        dc:created       "2023-08-15T11:30:00"^^xsd:dateTime ;
+        dc:issued        "2023-08-15"^^xsd:date ;
+        dc:modified      "2023-09-20T10:30:00"^^xsd:dateTime ;
+        adms:status      :geacht ;
+        sosa:isHostedBy  :OperationLocation-location-cement-antwerp .
+
+<https://example.org/id/meetpunt/meet-001/2023-01-15/2023-01-15T09:00:00>
+        rdf:type         :MeasurementPoint ;
+        rdfs:label       "Air Quality Measurement Point Stack 1"@en ;
+        dc:created       "2023-01-15T09:00:00"^^xsd:dateTime ;
+        dc:issued        "2023-01-15"^^xsd:date ;
+        dc:modified      "2023-01-15T09:00:00"^^xsd:dateTime ;
+        adms:status      :geacht ;
+        sosa:isHostedBy  <https://example.org/id/exploitatielocatie/op-loc-001/2019-06-01/2019-06-01T00:00:00> .
+
+<https://example.org/id/exploitatie/op-glass-001/2024-01-01/2024-01-01T00:00:00>
+        rdf:type                :Operation ;
+        rdfs:label              "Glass Production Operation"@en ;
+        dc:created              "2024-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued               "2024-01-01"^^xsd:date ;
+        dc:modified             "2024-01-05T00:00:00"^^xsd:dateTime ;
+        adms:status             :geacht ;
+        ssn:deployedOnPlatform  <https://example.org/id/exploitatielocatie/op-loc-001/2019-06-01/2019-06-01T00:00:00> ;
+        ssn:implements          <https://example.org/id/proces/glass-proc-001/2024-01-15/2024-01-15T10:00:00> .
+
+<https://example.org/id/onttrekkingspunt/wtr-002/2024-06-02/2024-06-02T00:00:00>
+        rdf:type         :WithdrawalPoint ;
+        rdfs:label       "Surface Water Extraction Point 1 - MyGlassFactory"@en ;
+        dbo:depth        5.0 ;
+        dc:created       "2024-06-02T00:00:00"^^xsd:dateTime ;
+        dc:issued        "2024-06-02"^^xsd:date ;
+        dc:modified      "2024-06-03T10:00:00"^^xsd:dateTime ;
+        ogc:hasGeometry  [ rdf:type   ogc:Geometry ;
+                           ogc:asWKT  "POINT(4.4038 51.2205)"^^ogc:wktLiteral
+                         ] ;
+        adms:status      :geacht ;
+        sosa:isHostedBy  :OperationLocation-location-cement-antwerp .
+
+<https://example.org/id/procesvariabele/pv-cooling-rapid-rate>
+        rdf:type    :ProcessVariable ;
+        rdfs:label  "Rapid Cooling Rate"@en ;
+        dc:type     concept:process-variable-temperature .
+
+<https://example.org/id/exploitatielocatie/op-loc-001/2019-06-01/2019-06-01T00:00:00>
+        rdf:type              :OperationLocation ;
+        rdfs:label            "Cement factory Antwerp Air Quality Zone"@en ;
+        dc:created            "2019-06-01T00:00:00"^^xsd:dateTime ;
+        dc:issued             "2019-06-01"^^xsd:date ;
+        dc:modified           "2019-06-01T00:00:00"^^xsd:dateTime ;
+        ogc:hasGeometry       [ rdf:type   ogc:Geometry ;
+                                ogc:asWKT  "POLYGON((4.4025 51.2194, 4.4035 51.2194, 4.4035 51.2204, 4.4025 51.2204, 4.4025 51.2194))"^^ogc:wktLiteral
+                              ] ;
+        prov:wasAttributedTo  :VCM-Belgium .
+
+:Filter-filter-001  rdf:type  :Filter ;
+        rdfs:label       "Baghouse Filter Primary"@en ;
+        dc:created       "2023-06-01T09:00:00"^^xsd:dateTime ;
+        dc:issued        "2023-06-01"^^xsd:date ;
+        dc:modified      "2023-06-15T14:00:00"^^xsd:dateTime ;
+        adms:status      :geacht ;
+        sosa:isHostedBy  :OperationLocation-location-cement-antwerp .
+
+<file:///Users/maximvdw/workspaces/OWLLM/VCM-Belgium>
+        rdf:type      :Operator ;
+        rdfs:label    "VKBO Cement Belgium"@en , "VCM Belgium"@en ;
+        dc:type       concept:operator-type-industrial ;
+        locn:address  [ rdf:type    locn:Address ;
+                        rdfs:label  "Belgian Industrial Park - VCM Site"@en
+                      ] ;
+        locn:address  [ rdf:type    locn:Address ;
+                        rdfs:label  "Belgian Industrial Park"@en
+                      ] .
+
+<https://example.org/id/emissiepunt/emiss-002/2024-01-01/2024-01-01T00:00:00>
+        rdf:type         :EmissionPoint ;
+        rdfs:label       "Discharge Point 1 Cement factory Antwerp"@en ;
+        dbo:depth        3.5 ;
+        dc:created       "2024-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued        "2024-01-01"^^xsd:date ;
+        dc:modified      "2024-01-01T00:00:00"^^xsd:dateTime ;
+        adms:status      :geacht ;
+        sosa:isHostedBy  :OperationLocation-location-cement-antwerp .
+
+<https://example.org/id/contactpersoon/cp-002/2024-02-15/2024-02-15T09:00:00>
+        rdf:type    :OperatorContactPerson ;
+        rdfs:label  "Maria de Vries - Safety Officer"@en ;
+        foaf:name   "Maria de Vries"@en .
+
+<https://example.org/id/exploitatielocatie/vkbo-12345/2020-01-01/2020-01-01T00:00:00>
+        rdf:type              :OperationLocation ;
+        rdfs:label            "Cement factory Antwerp"@en ;
+        dc:created            "2020-01-01T00:00:00"^^xsd:dateTime ;
+        dc:issued             "2020-01-01"^^xsd:date ;
+        dc:modified           "2020-06-30T12:00:00"^^xsd:dateTime ;
+        ogc:hasGeometry       [ rdf:type   ogc:Geometry ;
+                                ogc:asWKT  "POINT(4.4025 51.2194)"^^ogc:wktLiteral
+                              ] ;
+        prov:wasAttributedTo  :Operator-operator-002 .
+
+:VCM-Belgium  rdf:type  :Operator ;
+        rdfs:label    "VKBO Cement Belgium"@en ;
+        dc:type       concept:operator-type-industrial ;
+        locn:address  :VCM-Belgium-address-001 .

@@ -91,6 +91,242 @@ public class WorkerTripleStore {
     return header.isEmpty() ? turtleData : header + turtleData;
   }
 
+  // Fallback used only when the ontology declares no default (":") prefix; keeps a stray relative
+  // IRI resolving to something obviously synthetic instead of whatever fallback Jena would pick.
+  private static final String FALLBACK_BASE_URI = "urn:owlsda:no-default-namespace/";
+
+  /**
+   * Base URI for parsing a {@code triplestore_add} submission. {@link #rewriteRelativeIrisAsCuries}
+   * already turns the common case of a bare relative IRI into a proper CURIE before parsing even
+   * starts, so this base URI is a second line of defense for whatever it doesn't catch (e.g. a
+   * relative IRI containing '/', which isn't safe to rewrite into a CURIE local part). With no base
+   * URI, Jena resolves an unhandled relative reference against the JVM's current working directory
+   * (a {@code file://...} IRI) instead - this at least keeps that from leaking the local filesystem
+   * path into the shared store, even though it can't reproduce the exact CURIE-expansion URI for a
+   * hash-style namespace the way the textual rewrite does (relative-reference resolution against a
+   * "#"-terminated base drops everything from the "#", per RFC 3986). Has no effect on prefixed
+   * names or already-absolute IRIs, which don't use the base at all.
+   */
+  private String baseUri() {
+    String primaryNamespace = knownPrefixes.get("");
+    return primaryNamespace != null ? primaryNamespace : FALLBACK_BASE_URI;
+  }
+
+  /**
+   * Drops a {@code '.'} that appears (ignoring whitespace) immediately before a {@code ']'} or
+   * {@code ')'} outside of a string/IRI/comment. Smaller worker models frequently close the last
+   * predicate-object pair of a blank-node property list (or the last item of a collection) with a
+   * full stop, e.g. {@code [ ... ; qudt:hasUnit "g/s" . ]} - valid Turtle never allows a full stop
+   * there (a {@code predicateObjectList}/collection has no statement terminator of its own, only
+   * the enclosing triple does), so Jena reports "Triples not terminated properly in []-list" and
+   * the whole submission is rejected. The stray '.' is unambiguous: it can never be part of a legal
+   * document at that position, so removing it is always a safe, purely mechanical repair rather
+   * than a guess at the worker's intent.
+   */
+  static String sanitizeStrayListTerminators(String turtleData) {
+    if (turtleData == null || turtleData.indexOf('.') < 0) {
+      return turtleData;
+    }
+
+    int n = turtleData.length();
+    StringBuilder out = new StringBuilder(n);
+    boolean inIri = false;
+    char stringQuote = 0;
+    boolean tripleQuoted = false;
+
+    int i = 0;
+    while (i < n) {
+      char c = turtleData.charAt(i);
+
+      if (stringQuote != 0) {
+        if (c == '\\' && i + 1 < n) {
+          out.append(c).append(turtleData.charAt(i + 1));
+          i += 2;
+          continue;
+        }
+        if (tripleQuoted) {
+          if (c == stringQuote
+              && i + 2 < n
+              && turtleData.charAt(i + 1) == stringQuote
+              && turtleData.charAt(i + 2) == stringQuote) {
+            out.append(c).append(stringQuote).append(stringQuote);
+            stringQuote = 0;
+            tripleQuoted = false;
+            i += 3;
+            continue;
+          }
+        } else if (c == stringQuote) {
+          stringQuote = 0;
+        }
+        out.append(c);
+        i++;
+        continue;
+      }
+
+      if (inIri) {
+        out.append(c);
+        if (c == '>') {
+          inIri = false;
+        }
+        i++;
+        continue;
+      }
+
+      if (c == '#') {
+        while (i < n && turtleData.charAt(i) != '\n') {
+          out.append(turtleData.charAt(i));
+          i++;
+        }
+        continue;
+      }
+
+      if (c == '"' || c == '\'') {
+        if (i + 2 < n && turtleData.charAt(i + 1) == c && turtleData.charAt(i + 2) == c) {
+          out.append(c).append(c).append(c);
+          stringQuote = c;
+          tripleQuoted = true;
+          i += 3;
+          continue;
+        }
+        out.append(c);
+        stringQuote = c;
+        tripleQuoted = false;
+        i++;
+        continue;
+      }
+
+      if (c == '<') {
+        out.append(c);
+        inIri = true;
+        i++;
+        continue;
+      }
+
+      if (c == '.') {
+        int j = i + 1;
+        while (j < n && Character.isWhitespace(turtleData.charAt(j))) {
+          j++;
+        }
+        if (j < n && (turtleData.charAt(j) == ']' || turtleData.charAt(j) == ')')) {
+          i++; // drop the stray '.'; keep the whitespace that follows as-is
+          continue;
+        }
+      }
+
+      out.append(c);
+      i++;
+    }
+
+    return out.toString();
+  }
+
+  // A safe PN_LOCAL: simple identifier characters only. Deliberately conservative - e.g. a
+  // relative IRI containing '/' would become an invalid CURIE local part (PN_LOCAL forbids
+  // unescaped '/'), so those are left as IRIREFs for #baseUri to handle instead of risking turning
+  // a parseable (if wrong) IRI into an unparseable one.
+  private static final Pattern SAFE_PN_LOCAL = Pattern.compile("^[A-Za-z0-9_][A-Za-z0-9_.-]*$");
+
+  // A URI scheme per RFC 3986: a letter followed by letters/digits/+/-/. and a ':'.
+  private static final Pattern HAS_SCHEME = Pattern.compile("^[A-Za-z][A-Za-z0-9+.-]*:");
+
+  /**
+   * Rewrites a bare, scheme-less {@code <LocalName>} IRIREF (a worker mistake - it should have been
+   * written {@code :LocalName} or a full absolute IRI) into the {@code :LocalName} CURIE it was
+   * almost certainly meant to be. Left alone, that IRIREF has no scheme and no base URI would ever
+   * make it match the correctly-prefixed form: relative-reference resolution against a hash
+   * namespace (e.g. {@code https://example.org/ns#}) drops everything from the "#" per RFC 3986
+   * merge rules, and against a slash namespace it still requires a base to be set up in the first
+   * place. Rewriting the CURIE textually - the same string-concatenation semantics Turtle itself
+   * uses to expand {@code :LocalName} - is the one transform that produces the identical URI a
+   * correctly-prefixed reference would have, for either namespace style, and self-heals the exact
+   * split-subject bug this causes (the same logical resource ending up under two different URIs).
+   */
+  static String rewriteRelativeIrisAsCuries(String turtleData) {
+    if (turtleData == null || turtleData.indexOf('<') < 0) {
+      return turtleData;
+    }
+
+    int n = turtleData.length();
+    StringBuilder out = new StringBuilder(n);
+    char stringQuote = 0;
+    boolean tripleQuoted = false;
+
+    int i = 0;
+    while (i < n) {
+      char c = turtleData.charAt(i);
+
+      if (stringQuote != 0) {
+        if (c == '\\' && i + 1 < n) {
+          out.append(c).append(turtleData.charAt(i + 1));
+          i += 2;
+          continue;
+        }
+        if (tripleQuoted) {
+          if (c == stringQuote
+              && i + 2 < n
+              && turtleData.charAt(i + 1) == stringQuote
+              && turtleData.charAt(i + 2) == stringQuote) {
+            out.append(c).append(stringQuote).append(stringQuote);
+            stringQuote = 0;
+            tripleQuoted = false;
+            i += 3;
+            continue;
+          }
+        } else if (c == stringQuote) {
+          stringQuote = 0;
+        }
+        out.append(c);
+        i++;
+        continue;
+      }
+
+      if (c == '#') {
+        while (i < n && turtleData.charAt(i) != '\n') {
+          out.append(turtleData.charAt(i));
+          i++;
+        }
+        continue;
+      }
+
+      if (c == '"' || c == '\'') {
+        if (i + 2 < n && turtleData.charAt(i + 1) == c && turtleData.charAt(i + 2) == c) {
+          out.append(c).append(c).append(c);
+          stringQuote = c;
+          tripleQuoted = true;
+          i += 3;
+          continue;
+        }
+        out.append(c);
+        stringQuote = c;
+        tripleQuoted = false;
+        i++;
+        continue;
+      }
+
+      if (c == '<') {
+        int closeIndex = turtleData.indexOf('>', i + 1);
+        if (closeIndex < 0) {
+          out.append(c);
+          i++;
+          continue;
+        }
+        String content = turtleData.substring(i + 1, closeIndex);
+        if (!HAS_SCHEME.matcher(content).find() && SAFE_PN_LOCAL.matcher(content).matches()) {
+          out.append(':').append(content);
+        } else {
+          out.append('<').append(content).append('>');
+        }
+        i = closeIndex + 1;
+        continue;
+      }
+
+      out.append(c);
+      i++;
+    }
+
+    return out.toString();
+  }
+
   /**
    * Add triples from TURTLE data to the shared store. Returns information about duplicates to help
    * workers coordinate. If an output path is configured, writes the complete merged model to the
@@ -103,8 +339,10 @@ public class WorkerTripleStore {
   public synchronized AddResult addTriples(String turtleData, String workerId) {
     try {
       Model tempModel = ModelFactory.createDefaultModel();
-      RDFDataMgr.read(
-          tempModel, new StringReader(withMissingKnownPrefixes(turtleData)), null, Lang.TURTLE);
+      String sanitized =
+          withMissingKnownPrefixes(
+              rewriteRelativeIrisAsCuries(sanitizeStrayListTerminators(turtleData)));
+      RDFDataMgr.read(tempModel, new StringReader(sanitized), baseUri(), Lang.TURTLE);
 
       int sizeBefore = (int) model.size();
 

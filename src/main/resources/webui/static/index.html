@@ -47,6 +47,7 @@
 
       <div id="tab-messages" class="tab-panel active">
         <div class="role-tabs" id="role-tabs"></div>
+        <div class="context-panel" id="context-panel"></div>
         <label class="autoscroll-toggle">
           <input type="checkbox" id="autoscroll-toggle" checked />
           Auto-scroll to latest
@@ -73,10 +74,26 @@
           <div class="chart-title">SHACL violations</div>
           <div class="chart-wrap" id="chart-violations"></div>
         </div>
+        <div class="chart-card">
+          <div class="chart-title">Shapes processed</div>
+          <div class="chart-wrap" id="chart-shapes"></div>
+        </div>
       </div>
     </section>
   </main>
 </div>
+
+<div id="violations-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>SHACL Violations</h3>
+      <button id="violations-modal-close" class="modal-close" aria-label="Close">&times;</button>
+    </div>
+    <div class="file-meta" id="violations-modal-meta"></div>
+    <pre class="file-view" id="violations-modal-body"></pre>
+  </div>
+</div>
+
 <script src="/app.js"></script>
 </body>
 </html>
