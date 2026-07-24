@@ -1,2 +1,3 @@
 **/external/*.ttl
 **/inferred.ttl
+**/benchmark/
