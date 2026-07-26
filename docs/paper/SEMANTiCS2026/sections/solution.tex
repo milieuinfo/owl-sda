@@ -10,7 +10,18 @@ The final design follows role-based task decomposition~\cite{NEURIPS2023_a3621ee
     \label{fig:architecture}
 \end{figure}
 
-Figure~\ref{fig:architecture} summarises the workflow. During preparation, OWL-SDA loads the ontology, downloads imported vocabularies and derives two SHACL views: one used by workers for strict conformance checks and one used later by the reviewer for broader assessment. The supervisor then assigns shape-level tasks to workers, who add and remove triples in a shared concurrent store rather than editing Turtle text directly. The store performs duplicate checks and supports immediate syntax validation, allowing workers to repair local violations before moving on.
+Figure~\ref{fig:architecture} summarises the workflow. During preparation, OWL-SDA loads the ontology, downloads imported vocabularies and derives two SHACL views: one used by workers for strict conformance checks and one used later by the reviewer for broader assessment. The supervisor (1) then assigns shape-level tasks to workers (2), who add and remove triples in a shared concurrent store rather than editing Turtle text directly. Once all shapes are processed, the supervisor (3) performs the final check before sending it to the reviewer (4), who inspects the serialised output.
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.8\linewidth]{images/access.pdf}
+    \vspace{-0.8cm}
+    \caption{Output data read and write operations by the workers, supervisor and reviewer}
+    \label{fig:solution:access}
+\end{figure}
+
+In order to enable collaboration between multiple workers and to facilitate consistency, workers do not directly edit the output data. As illustrated in Figure~\ref{fig:solution:access}, the workers have access to a shared concurrent triple store that enables them to add, remove and read triples. The triple store provides workers with instant feedback on syntax issues, duplicated triples and helps with the deletion of orphaned blank nodes. Workers can validate the output of the triple store during generation and correct problems immediately.
+
 In a typical run, the supervisor reads the ontology, SHACL shapes and user context; workers generate triples for a small set of target shapes; each worker validates and repairs its own output; the supervisor validates the combined graph and dispatches targeted fixes for cross-shape inconsistencies; and finally a reviewer inspects the serialised output for broader plausibility issues. This keeps workers focused on local conformance while reserving global quality control for the more capable roles. OWL-SDA currently supports GitHub Copilot, Ollama and OpenAI-compatible endpoints, with provider selection configurable globally or per role. In practice, we used smaller, faster models for workers and stronger models for supervision and review, which follows cost-quality trade-offs also observed in multi-agent systems~\cite{chen2023less}.
 
 During its development, we tweaked the workflow to introduce additional guardrails to catch common errors. For example, workers would sometimes create instance data that was using a different URI scheme than the ontology, which was not caught by SHACL validation. Additional checks were added as system prompts to the supervisor and reviewer to help guide workers towards producing more consistent output.

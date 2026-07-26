@@ -1,0 +1,19 @@
+Academic poster titled "OWL-SDA: A Multi-Agent System for Generating Synthetic Data to Support Ontology Evaluation", presented at SEMANTiCS 2026 in Ghent, Belgium, by Dr. Maxim Van de Wynckel (Flemish Government, Department of Environment and Spatial Development; Vrije Universiteit Brussel, Web & Information Systems Engineering Lab) and Dr. Emmelien De Roock (UZ Brussel and Vrije Universiteit Brussel, Data Analytics Laboratory).
+
+Abstract: "Ontology engineers often need representative RDF instances to validate and document an ontology, but such data may be unavailable, incomplete, too sensitive to share or simply too much work. We present OWL-SDA, an open-source toolkit that uses worker, supervisor and reviewer AI agents to generate synthetic RDF data from ontology context and SHACL constraints. The workflow combines shape-level task decomposition, direct manipulation of an in-memory triple store, iterative SHACL repair and a final review stage aimed at catching issues that remain possible even after SHACL conformance. We evaluate OWL-SDA on two contrasting ontologies, one for industrial emissions reporting and one for healthcare records. The results show that richer ontology constraints lead to faster convergence and more informative examples, while sparse ontologies require more supervision and still yield less detailed data. We therefore position the toolkit for ontology engineers to help document their ontology, but also to validate if the ontology alone is sufficiently rich to be understood by non-experts."
+
+The poster's main figure shows a workflow diagram with seven numbered steps:
+
+1. Ontology context, user context and application context are provided to three AI agents: worker, supervisor and reviewer.
+2. External ontologies are fetched and an OWL reasoner infers new relations and constraints.
+3. Two sets of SHACL shapes are created: basic shapes derived from the ontology alone, and shapes derived from the inferred model.
+4. The supervisor delegates work to a fixed pool of worker agents, distributing tasks (SHACL shapes) sorted by complexity, with the most-restricted shapes first.
+5. Workers generate instance data in a shared triple store to enable parallelism, validating SHACL conformance against the basic (non-inferred) shapes.
+6. The supervisor oversees the final iteration, adding comments and edits before sending the output for review, and validates conformance against the inferred shapes.
+7. The reviewer performs a read-only review and gives feedback, which the supervisor resolves; the review can end in an accept or reject decision.
+
+A second, smaller diagram alongside it shows data-flow ownership: the reviewer (blue) and supervisor (pink) can read the output Turtle data and the triple store; the workers (green) can read and write the triple store, which is serialized to Turtle after each run.
+
+The evaluation section presents line charts for two contrasting ontologies (an industrial emissions ontology and a healthcare ontology), plotting duration, shapes processed, triples generated, and per-agent token usage across processing iterations. Richer ontology constraints lead to faster convergence and more detailed output, while the sparser ontology requires more iterations of supervision and still yields less detailed data.
+
+The poster also includes screenshots of a web UI dashboard for monitoring agent communication and tool calls, a note that the toolkit is open source under the GNU GPL 3.0 license, and a QR code linking to more information.
