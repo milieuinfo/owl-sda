@@ -8,7 +8,8 @@ import lombok.Getter;
 @Builder
 public class BenchmarkSnapshot {
   private String timestamp;
-  private String stage; // GENERATE, FINALIZING, or REVIEW
+  // LIVE, GENERATE, FINALIZING, REVIEW_ITERATION_<n>, REVIEW_ACCEPTED or REVIEW_REJECTED
+  private String stage;
   private int shapesProcessed;
   private long durationMs;
   private long triplestoreSize;

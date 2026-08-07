@@ -13,6 +13,8 @@ import picocli.CommandLine.Option;
 @Command(
     name = "owlsda",
     description = "OWL-SDA | OWL Synthetic Data AI-Agent",
+    mixinStandardHelpOptions = true,
+    // keep in sync with <version> in pom.xml
     version = "1.0-SNAPSHOT")
 public class Main implements Runnable {
 
@@ -25,9 +27,10 @@ public class Main implements Runnable {
 
   @Option(
       names = {"-c", "--config"},
-      description = "Configuration file path",
-      required = true,
-      defaultValue = "examples/project-1/config.yml")
+      description =
+          "Configuration file path. Accepts a plain path, or an explicit file: or classpath:"
+              + " prefix.",
+      required = true)
   private String configLocation;
 
   @Option(
@@ -51,7 +54,7 @@ public class Main implements Runnable {
   @Override
   public void run() {
     try {
-      Config config = Config.loadFile(configLocation);
+      Config config = Config.load(configLocation);
       String ll = config.getLogLevel();
       if (ll != null && !ll.isEmpty()) {
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", ll.toUpperCase());

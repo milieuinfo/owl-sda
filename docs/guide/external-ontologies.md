@@ -68,11 +68,16 @@ Both `mirrors` (list) and `mirror` (single string) are accepted. Prefix matching
 
 The extractor recognises the `Content-Type` header returned by the server and falls back to filename extension heuristics:
 
-| Content-Type / extension | Format |
-|--------------------------|--------|
-| `text/turtle`, `.ttl` | Turtle |
-| `application/ld+json`, `.jsonld` | JSON-LD |
-| `application/rdf+xml`, `.rdf`, `.xml` | RDF/XML |
-| `application/n-triples`, `.nt` | N-Triples |
-| `text/n3`, `.n3` | N3 |
+| Content-Type | Extension | Format |
+|--------------|-----------|--------|
+| `text/turtle`, `application/x-turtle`, `application/turtle`, `text/ttl` | *(default)* | Turtle |
+| `application/ld+json`, `application/json` | `.jsonld`, `.json` | JSON-LD |
+| `application/rdf+xml`, `application/xml`, `text/xml` | `.rdf`, `.xml` | RDF/XML |
+| `application/n-triples`, `application/ntriples`, `text/plain` | `.nt`, `.ntriples` | N-Triples |
+| `text/n3` | `.n3` | N3 |
+
+The two heuristics are independent. The `Content-Type` header is tried first; if it is missing or
+unrecognised, the extension is used instead. A reference matching no extension is parsed as
+Turtle. If parsing produces an empty model the extractor retries with the other formats, so a
+server that mislabels its content usually still works.
 

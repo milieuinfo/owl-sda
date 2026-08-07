@@ -1,74 +1,45 @@
 # OWL-SDA: A Multi-Agent System for Generating Synthetic Data to Support Ontology Evaluation
 
-## Quickstart
+OWL-SDA generates synthetic RDF instance data from an OWL ontology using a supervisor/worker/reviewer team of LLM agents, validating the result against SHACL shapes derived from that ontology.
 
-Build the executable jar:
+📖 **Documentation: <https://milieuinfo.github.io/owl-sda/>**
+
+## Prerequisites
+
+- **JDK 25 or later** (the project builds with `--enable-preview` and a JEP 512 entry point; Java 21 will not work)
+- **Maven 3.9+**
+- An LLM provider: the standalone [GitHub Copilot CLI](https://github.com/features/copilot/cli) (default), an Ollama server, or any OpenAI-compatible endpoint. Install and sign-in steps are in [docs/guide/installation.md](./docs/guide/installation.md).
+
+## Build
 
 ```bash
 mvn -DskipTests clean package
 ```
 
-This produces a single runnable jar at `target/owlsda.jar` (all dependencies bundled, requires JDK 25+).
+This produces a single runnable jar with all dependencies bundled at `target/owlsda.jar`.
 
-Run example 1 (a glass production facility ontology, using a local [Ollama](https://ollama.com/) model):
+## Run
 
 ```bash
-java -jar target/owlsda.jar -c examples/project-1/config.yml
+java -jar target/owlsda.jar --config examples/project-1/config.yml
 ```
 
-The generated RDF instance data is written to `examples/project-1/output.ttl`. See `examples/project-1/config.yml` to see how the example is configured, and the [Installation](#installation) and [Configuration](#configuration) sections below to point OWL-SDA at GitHub Copilot or an OpenAI-compatible endpoint instead.
+`--config` is required - there is no default. The example above generates instance data for a glass production facility ontology and writes it to the `output-path` set in `examples/project-1/config.yml`, which is also where you set the model provider, models, and timeouts.
 
-## Installation
+Add `--web-ui` (optionally with `--web-ui-port`, default `8080`) to watch the run live in a browser - messages, tool calls, stages, output, and the triple store. It needs `benchmark.enabled: true` in the configuration:
 
-> Supports GitHub Copilot, Ollama (self-hosted models), and any OpenAI-compatible endpoint
-> (bring-your-own-key — OpenAI itself, Azure OpenAI, or self-hosted gateways). See
-> `docs/guide/configuration.md` for `client.provider` setup.
-
-1. **GitHub Copilot** (default): install the Copilot CLI and sign in.
-   - Install: https://github.com/features/copilot/cli
-   - Sign in: `gh copilot auth`
-2. **Ollama**: run a local/self-hosted Ollama server and set `client.provider: "ollama"` with `client.ollama.base-url`.
-3. **OpenAI-compatible (BYOK)**: set `client.provider: "openai-compatible"`, `client.openai-compatible.base-url`, and supply an API key via `client.openai-compatible.api-key` or the `OPENAI_API_KEY` environment variable.
-
-## Configuration
-
-### User Context
-
-You can provide custom context files to the language model by adding them to the configuration:
-
-```yaml
-user-context:
-  - name: 'example file'
-    path: 'example/input-example.txt'
-  - name: 'additional context'
-    path: 'path/to/another-file.ttl'
-  - name: 'web reference'
-    url: 'https://example.org/specification'
+```bash
+java -jar target/owlsda.jar --config examples/project-2/config.yml --web-ui
 ```
 
-These context sources can be local files (`path`) or web pages (`url`). They are loaded and provided to both the generator and reviewer sessions, allowing you to give examples or additional information to guide the data generation process.
+## Documentation
 
-### Client Configuration
-
-Configure the models and timeouts for each agent role:
-
-```yaml
-client:
-  worker:
-    model: "gpt-5-mini"
-    timeout-ms: 350000
-    between-message-timeout-ms: 200000
-    batch-size: 1
-    pool-count: 5
-  supervisor:
-    model: "gpt-5.4"
-    timeout-ms: 360000
-  reviewer:
-    model: "claude-4.6-sonnet"
-    timeout-ms: 360000
-    max-review-attempts: 3
-```
-
+- [Installation](./docs/guide/installation.md) - prerequisites, build, and provider setup
+- [Quick Start](./docs/guide/quickstart.md)
+- [CLI Reference](./docs/guide/cli.md)
+- [Configuration Reference](./docs/guide/configuration.md)
+- [Web UI](./docs/guide/web-ui.md) and [Benchmarking](./docs/guide/benchmarking.md)
+- [Architecture](./docs/guide/architecture.md) and [Examples](./docs/guide/examples.md)
 
 ## Contributing
 
@@ -108,4 +79,3 @@ mvn test
 This project is released under the **GNU General Public License v3.0 (GPL-3.0)** and is further detailed in [LICENSE](./LICENSE). By contributing to this project, you agree that your contributions will be licensed under the same terms. Please review the license for more information on your rights and responsibilities when using or contributing to this software.
 
 (c) 2025-2026: Vlaamse Overheid, Maxim Van de Wynckel, Emmelien De Roock, and contributors. All rights reserved. See [LICENSE](./LICENSE) for details.
-

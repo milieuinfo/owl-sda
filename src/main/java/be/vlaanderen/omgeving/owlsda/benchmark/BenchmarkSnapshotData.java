@@ -6,7 +6,10 @@ import java.util.List;
 
 /** Snapshot input container for benchmark creation. */
 public interface BenchmarkSnapshotData {
-  String stage(); // GENERATE, FINALIZING, or REVIEW
+  /**
+   * LIVE, GENERATE, FINALIZING, REVIEW_ITERATION_&lt;n&gt;, REVIEW_ACCEPTED or REVIEW_REJECTED.
+   */
+  String stage();
 
   /** Monotonically increasing round number within the current run. */
   int round();

@@ -2,6 +2,15 @@
 
 OWL-SDA is configured through a YAML file. All keys use **kebab-case** and map to camelCase Java properties automatically.
 
+You point OWL-SDA at that file with the required `--config` option:
+
+```bash
+java -jar target/owlsda.jar --config examples/project-1/config.yml
+```
+
+The value is a plain path, or an explicit `file:` or `classpath:` prefix. See the
+[CLI Reference](./cli) for the full option list and prefix semantics.
+
 ## Top-Level Properties
 
 | Key | Type | Default | Description |
@@ -12,6 +21,7 @@ OWL-SDA is configured through a YAML file. All keys use **kebab-case** and map t
 | `user-context` | list | `[]` | Additional context files provided to all agents. See [User Context](#user-context). |
 | `program-timeout-ms` | long | `0` | Hard wall-clock timeout for the entire run in milliseconds. `0` disables it. |
 | `generation.data-richness` | string | `minimal` | Generation richness profile: `minimal`, `balanced`, or `rich`. Controls how much optional/invented data workers may add while staying SHACL-conformant. |
+| `ontology.provide-full-to-workers` | boolean | `true` | Whether workers receive the full ontology in addition to the always-on summary. See [`ontology`](#ontology). |
 | `log-level` | string | `INFO` | SLF4J log level: `TRACE`, `DEBUG`, `INFO`, `WARN`, `ERROR`. |
 | `log-to-file` | boolean | `false` | Write logs to a file in addition to stdout. |
 | `log-file-path` | string | `logs/owlsda.log` | Log file path (only used when `log-to-file: true`). |
@@ -48,17 +58,20 @@ client:
     between-message-timeout-ms: 0
     batch-size: 5
     pool-count: 1
+    context-window-tokens: 0
   supervisor:
     provider: "copilot"
     model: "gpt-5.4"
     timeout-ms: 120000
     between-message-timeout-ms: 0
+    context-window-tokens: 0
   reviewer:
     provider: "copilot"
     model: "claude-4.6-sonnet"
     timeout-ms: 60000
     between-message-timeout-ms: 0
     max-review-attempts: 3
+    context-window-tokens: 0
 ```
 
 `client.provider` remains the default provider for all roles. Set `client.worker.provider`,
@@ -93,6 +106,7 @@ if no key can be resolved from either source, and the key is never written to lo
 | `between-message-timeout-ms` | int | `0` | Maximum idle time between assistant events within a single response. `0` disables. |
 | `batch-size` | int | `5` | Number of SHACL shapes assigned to each worker per round. |
 | `pool-count` | int | `1` | Number of parallel worker sessions. |
+| `context-window-tokens` | int | `0` | The model's real context window, as configured on the inference server (for example llama.cpp / llama-swap `--ctx-size`). `0` means unset. See [Context windows and compaction](#context-windows-and-compaction). |
 
 ### `client.supervisor`
 
@@ -102,6 +116,7 @@ if no key can be resolved from either source, and the key is never written to lo
 | `model` | string | `gpt-5.4` | LLM model identifier for the supervisor agent. |
 | `timeout-ms` | int | `120000` | Maximum time to wait for a supervisor response. |
 | `between-message-timeout-ms` | int | `0` | Maximum idle time between assistant events. `0` disables. |
+| `context-window-tokens` | int | `0` | The supervisor model's real context window. `0` means unset. See [Context windows and compaction](#context-windows-and-compaction). |
 
 ### `client.reviewer`
 
@@ -112,6 +127,29 @@ if no key can be resolved from either source, and the key is never written to lo
 | `timeout-ms` | int | `60000` | Maximum time to wait for a reviewer response. |
 | `between-message-timeout-ms` | int | `0` | Maximum idle time between assistant events. `0` disables. |
 | `max-review-attempts` | int | `3` | Soft review iteration limit. Before this limit, reviewer may return `REVISION_REQUESTED`. On the final attempt, reviewer is instructed to make a terminal decision: `ACCEPTED` or `REJECTED`. |
+| `context-window-tokens` | int | `0` | The reviewer model's real context window. `0` means unset. See [Context windows and compaction](#context-windows-and-compaction). |
+
+## `ontology`
+
+Controls how much of the input ontology is injected into each agent session.
+
+```yaml
+ontology:
+  provide-full-to-workers: true
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `provide-full-to-workers` | boolean | `true` | Whether worker sessions also receive the complete ontology serialized to Turtle. The supervisor and reviewer always receive it. |
+
+A short ontology summary — class and property counts plus a capped sample of names — is added to
+**every** session regardless of this setting. `provide-full-to-workers` only decides whether workers
+additionally get the full serialization on top of that summary.
+
+Ontologies can run to hundreds of kilobytes, and that cost is paid once per worker session. Set this
+to `false` when the summary plus tool-based lookups (`context_reader`, `triplestore_read`) give
+workers enough to work with; it frees a large part of the worker context budget and reduces how
+often [compaction](#compaction) has to run.
 
 ## `shacl`
 
@@ -124,9 +162,18 @@ shacl:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `output-dir` | string | `""` | Directory where `default-shacl.ttl` and `inferred-shacl.ttl` are saved/loaded. If empty, shapes are generated in-memory every run. |
+| `output-dir` | string | `""` | Directory where `default-shacl.ttl` and `inferred-shacl.ttl` are cached. Blank (the default) keeps shapes in memory only. |
 
-When `output-dir` is set and both files already exist, they are loaded instead of regenerated, significantly speeding up repeated runs.
+The value is treated as blank when it is missing, `null`, or empty/whitespace:
+
+- **Blank (default)** — shapes are derived from the ontology in memory on every run and never
+  written to disk. Nothing is read back either, so every run reflects the current ontology.
+- **Set** — after generation, shapes are written to `<output-dir>/default-shacl.ttl` and
+  `<output-dir>/inferred-shacl.ttl`. On a later run, if **both** files already exist they are loaded
+  instead of regenerated, which noticeably speeds up repeated runs against the same ontology.
+
+Because a set directory makes runs reuse cached shapes, delete those two files (or point at a fresh
+directory) after you change the ontology or the [reasoner](./reasoner) settings.
 
 ## `reasoner`
 
@@ -143,6 +190,24 @@ See the [External Ontologies](./external-ontologies) page for details.
 ## `benchmark`
 
 Enables benchmark snapshots captured after each generation round, plus periodic `LIVE` snapshots while a round is still in progress.
+
+```yaml
+benchmark:
+  enabled: true
+  output-dir: "target/benchmarks"
+  live-interval-seconds: 15
+```
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `enabled` | boolean | `false` | Whether snapshots are captured at all. Also required by the [Web UI](./web-ui) — it has no data to show without it. |
+| `output-dir` | string | `target/benchmarks` | Directory receiving the `live/` and `archive/<timestamp>/` snapshot trees. |
+| `live-interval-seconds` | long | `15` | How often a live snapshot is captured while a round or review iteration is still in progress. |
+
+The documented default is `target/benchmarks`, but every shipped example config overrides it to
+`examples/project-N/benchmark/`, which is gitignored — so a run of an example writes there, not into
+`target/`. Do not confuse that directory with `examples/project-N/benchmark_paper/`, which is a
+hand-curated snapshot committed to the repository and is not produced by a run.
 
 See the [Benchmarking](./benchmarking) page for details.
 
@@ -234,28 +299,62 @@ long delegation runs, instead of resending the full unbounded history on every r
 compaction:
   enabled: true
   token-threshold: 6000
+  context-window-threshold-ratio: 0.75
   message-count-threshold: 40
   keep-recent-messages: 8
+  ollama-enabled: true
+  openai-compatible-enabled: true
+  copilot-enabled: false
 ```
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `enabled` | boolean | `true` | Whether automatic compaction runs at all. |
-| `token-threshold` | int | `6000` | When the most recent request's prompt token count reaches this value, the history is compacted. Set to `0` to disable this trigger. |
-| `message-count-threshold` | int | `40` | Secondary trigger: compact once the message history reaches this many entries, regardless of token count. Set to `0` to disable this trigger. |
+| `enabled` | boolean | `true` | Master switch for automatic compaction. |
+| `token-threshold` | int | `6000` | **Fallback** trigger, used only when the role's `context-window-tokens` is `0`: compact once the last reported prompt token count reaches this absolute value. `0` disables this trigger. |
+| `context-window-threshold-ratio` | double | `0.75` | **Primary** trigger when the role's `context-window-tokens` is set: compact once the last reported prompt token count reaches this fraction of the real context window (`0.75` = 75% used). `0` disables this trigger. |
+| `message-count-threshold` | int | `40` | **Fallback** trigger, used only when the role's `context-window-tokens` is `0`: compact once the message history reaches this many entries, regardless of token count. `0` disables this trigger. |
 | `keep-recent-messages` | int | `8` | Number of most-recent messages kept verbatim (in addition to the system message); everything older is summarized. |
+| `ollama-enabled` | boolean | `true` | Whether compaction applies to `ollama` sessions. |
+| `openai-compatible-enabled` | boolean | `true` | Whether compaction applies to `openai-compatible` sessions. |
+| `copilot-enabled` | boolean | `false` | Whether compaction applies to `copilot` sessions. Off by default — see below. |
 
 When triggered, OWL-SDA sends a separate summarization request to the same model, replaces the
 summarized window with a single synthetic message capturing triples added/removed, outstanding
 TODOs, and key decisions, and continues the conversation. If summarization fails for any reason,
 the original history is left untouched (compaction fails open — it never blocks a run).
 
-**Compaction is currently only implemented for the `ollama` provider.** Sessions backed by
-`copilot` manage their conversation state opaquely on the server side, so there is no local history
-to compact. Sessions backed by `openai-compatible` keep a local history too but are not yet wired
-into automatic compaction. For both, `token-threshold`/`keep-recent-messages` have no effect;
-`Session.reset()` (already invoked automatically between delegation rounds) remains the only
-context-management lever there for now.
+### Context windows and compaction
+
+Which triggers apply depends entirely on whether you configured `context-window-tokens` for that
+role. The decision is made per session, in this order:
+
+1. `compaction.enabled` must be `true`, and compaction must be enabled for that session's provider
+   (`ollama-enabled`, `openai-compatible-enabled`, or `copilot-enabled`).
+2. **If the role's `client.<role>.context-window-tokens` is greater than `0`**, only the
+   window-relative trigger is evaluated: compact once the last reported prompt token usage reaches
+   `context-window-tokens × context-window-threshold-ratio`. `token-threshold` and
+   `message-count-threshold` are **not** consulted at all in this branch.
+3. **If `context-window-tokens` is `0`** (the default), the two fallback triggers apply as an OR:
+   compact once the last reported prompt token count reaches `token-threshold`, **or** once the
+   message history reaches `message-count-threshold` entries.
+
+Prefer setting `context-window-tokens` per role to the window your inference server actually serves.
+Once a real window is known it is the authoritative signal, and the raw message count is
+deliberately ignored: tool-call-heavy sessions — a worker doing many small
+`triplestore_read`/`triplestore_add`/`shacl_validator` round trips — accumulate messages far faster
+than they accumulate tokens, and would otherwise compact long before approaching the real limit.
+The example configs under `examples/project-1/` set all three roles to `131072`.
+
+### Provider support
+
+Compaction is implemented for the `ollama` and `openai-compatible` providers, and both are enabled
+by default. Both keep the conversation history locally, so there is something to summarize and
+replace.
+
+`copilot` is disabled by default and enabling it has no useful effect: the Copilot SDK manages its
+conversation state opaquely on the server side and exposes only a full `reset()`, not partial
+compaction. For `copilot` sessions, that automatic reset between delegation rounds remains the only
+context-management lever.
 
 ## User Context
 
@@ -291,6 +390,9 @@ log-level: "INFO"
 generation:
   data-richness: "balanced"
 
+ontology:
+  provide-full-to-workers: false
+
 client:
   provider: "copilot"
   ollama:
@@ -305,10 +407,12 @@ client:
     between-message-timeout-ms: 120000
     batch-size: 3
     pool-count: 3
+    context-window-tokens: 32768
   supervisor:
     provider: "openai-compatible"
     model: "gpt-5.4"
     timeout-ms: 300000
+    context-window-tokens: 131072
   reviewer:
     provider: "copilot"
     model: "claude-4.6-sonnet"
@@ -340,6 +444,10 @@ tools:
 
 compaction:
   enabled: true
+  # worker and supervisor declare context-window-tokens, so this ratio drives their compaction;
+  # the reviewer runs on copilot here, which is not compacted at all
+  context-window-threshold-ratio: 0.75
   token-threshold: 6000
+  message-count-threshold: 40
   keep-recent-messages: 8
 ```

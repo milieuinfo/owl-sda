@@ -27,7 +27,9 @@ pipeline {
 
   environment {
     GH_PAGES_BRANCH         = 'gh-pages'
-    DOCS_BASE               = ''
+    // Must match the GitHub Pages path (milieuinfo.github.io/owl-sda/); an empty
+    // value makes VitePress emit root-relative asset URLs that 404 once deployed.
+    DOCS_BASE               = '/owl-sda/'
   }
 
   stages {

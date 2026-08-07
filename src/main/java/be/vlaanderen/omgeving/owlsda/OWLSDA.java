@@ -163,8 +163,18 @@ public class OWLSDA {
     buildSupervisorWorkflow();
   }
 
+  /**
+   * A blank output directory means "keep the shapes in memory". Guarding on null only would
+   * turn the default empty string into an absolute path at the filesystem root.
+   */
+  private boolean hasShaclOutputDir() {
+    return config.getShacl() != null
+        && config.getShacl().getOutputDir() != null
+        && !config.getShacl().getOutputDir().isBlank();
+  }
+
   private void loadOrGenerateShacl() {
-    if (config.getShacl() != null && config.getShacl().getOutputDir() != null) {
+    if (hasShaclOutputDir()) {
       String defaultPath = config.getShacl().getOutputDir() + "/default-shacl.ttl";
       String inferredPath = config.getShacl().getOutputDir() + "/inferred-shacl.ttl";
       if (Files.exists(Path.of(defaultPath)) && Files.exists(Path.of(inferredPath))) {
@@ -193,7 +203,7 @@ public class OWLSDA {
   private void generateAndSaveShacl() {
     defaultShacl.generate();
     inferredShacl.generate();
-    if (config.getShacl() != null && config.getShacl().getOutputDir() != null) {
+    if (hasShaclOutputDir()) {
       defaultShacl.save(config.getShacl().getOutputDir() + "/default-shacl.ttl");
       inferredShacl.save(config.getShacl().getOutputDir() + "/inferred-shacl.ttl");
     }

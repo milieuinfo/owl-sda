@@ -1,0 +1,5 @@
+# Fixture for ConfigLoadPrefixTest: proves that Config.load() can resolve a
+# configuration from the classpath, which is what the "classpath:" prefix promises.
+input-path: "classpath-input.ttl"
+output-path: "classpath-output.ttl"
+user-input: "loaded from the classpath"

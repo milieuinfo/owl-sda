@@ -30,18 +30,39 @@ All of a run's state lives directly under `live/` (no per-round sub-directories 
 
 | File | Description |
 |------|-------------|
-| `metadata.txt` | Stage name, round number, shapes processed, duration, violation count, and per-agent token usage - reflects the most recent snapshot only. |
+| `metadata.txt` | Key/value properties for the most recent snapshot only - see below. |
 | `triplestore.ttl` | Full contents of the shared triple store at the time of the snapshot. |
-| `triplestore-summary.txt` | Summary of triple store size. |
-| `supervisor_context/` | All context entries active in the supervisor session. |
+| `triplestore-summary.txt` | Triple count and snapshot time. |
+| `triplestore-error.txt` | Written *instead of* the summary when serialising the triple store failed; contains the error message. Its presence means `triplestore.ttl` is stale or missing. |
+| `supervisor_context/` | All context entries active in the supervisor session, one `.txt` file per context. |
 | `reviewer_context/` | All context entries active in the reviewer session. |
-| `worker_contexts/worker_N/` | Context entries for each worker session. |
-| `message_logs/` | Full JSON message transcripts for supervisor, reviewer, and all workers, as they stand right now. |
-| `output.ttl` | Copy of the generated output file at snapshot time. |
+| `worker_contexts/worker_N/` | Context entries for each worker session, prefixed `round_N-` once delegation rounds start. |
+| `*/Validation Report.txt` | The current SHACL validation report, written inside whichever role's context directory holds it. This is what the dashboard's violations view reads. |
+| `message_logs/` | Full JSON message transcripts (`supervisor-messages.json`, `reviewer-messages.json`, `worker_N-messages.json`), as they stand right now. |
+| `output.ttl` | Copy of the generated output file at snapshot time (named after your configured `output-path`). |
 | `owlsda.log` | Copy of the log file (only when `log-to-file: true`). |
 | `benchmark-summary.json` | The one file that is *not* overwritten - see below. |
 
 A snapshot is skipped (nothing is written) when nothing has changed since the previous one - by content hash of the message logs, contexts, triple store, and token counts - so a quiet run doesn't waste writes. Both the round/review-boundary snapshot and the periodic `LIVE` ticker call into the same synchronized write path, so a tick landing right as a round finishes can't corrupt or drop the round's own entry.
+
+### metadata.txt
+
+A flat `key=value` properties file describing the latest snapshot. Beyond the run counters it also records, per role, which model and provider are in use, whether the role is mid-prompt, and how full its context window is - these are the fields the web dashboard's live indicator and context gauge are built on.
+
+| Key | Description |
+|-----|-------------|
+| `stage` | Stage of this snapshot (see [Stages](#stages)). |
+| `shapes_processed` | Number of shapes processed so far. |
+| `duration_ms` | Duration of the round or iteration this snapshot closes. |
+| `timestamp` | Snapshot id, e.g. `20260409_150145_970`. |
+| `triplestore_size` / `triplestore_empty` | Triple count, and whether the store is empty. |
+| `current_violations` | Outstanding SHACL violations. |
+| `model.<role>` / `provider.<role>` | Model name and effective provider per role (`supervisor`, `reviewer`, `worker`), with the role's provider override resolved against `client.provider`. |
+| `tokens.<role>.{input,output,total}` | Cumulative token usage for `supervisor` and `reviewer`. |
+| `tokens.worker.worker_N.{input,output,total}` | Cumulative token usage per worker. |
+| `busy.<role>` | `true` while that role is waiting on a model call. Worker keys are `busy.worker.worker_N`. |
+| `context.<role>.used` | Prompt tokens of that role's **last** call - a point-in-time figure, not a cumulative sum. |
+| `context.<role>.limit` | The role's configured `context-window-tokens` (`0` when unset). |
 
 ## JSON Summary
 
@@ -50,26 +71,28 @@ Every snapshot appends one entry to `live/benchmark-summary.json` - this is the 
 ```json
 [
   {
-    "timestamp": "20260407_090654_779",
+    "timestamp": "20260409_140831_530",
     "stage": "GENERATE",
-    "shapesProcessed": 5,
-    "durationMs": 174572,
-    "currentViolations": 6,
-    "triplestoreSize": 84,
+    "shapesProcessed": 10,
+    "durationMs": 93059,
+    "triplestoreSize": 128,
+    "triplestoreEmpty": false,
+    "currentViolations": 0,
     "tokens": {
-      "supervisor": 24990,
-      "reviewer": 0,
       "workers": {
-        "worker_0": 13569,
-        "worker_1": 11382,
-        "worker_2": 14494,
-        "worker_3": 10911,
-        "worker_4": 13724
-      }
+        "worker_0": { "input": 0, "output": 0, "total": 8363 },
+        "worker_1": { "input": 0, "output": 0, "total": 7042 }
+      },
+      "reviewer": { "input": 0, "output": 0, "total": 0 },
+      "supervisor": { "input": 0, "output": 0, "total": 6946 }
     }
   }
 ]
 ```
+
+Every token figure - workers, reviewer, and supervisor alike - is an object with `input`, `output`, and `total`. Providers that don't report a directional split leave `input` and `output` at `0` and only fill `total`.
+
+Older summaries look different: they store each role's tokens as a bare integer (`"supervisor": 24990`) and carry an extra `snapshotDirectory` field that current runs no longer write. `examples/project-1/benchmark_paper/benchmark-summary.json` is in that older shape; `examples/project-2/benchmark_paper/benchmark-summary.json` uses the nested one. The plotting script accepts both.
 
 ## Stages
 
@@ -78,39 +101,60 @@ Every snapshot appends one entry to `live/benchmark-summary.json` - this is the 
 | `LIVE` | Every `live-interval-seconds` while a round/review iteration is still in progress. |
 | `GENERATE` | After each supervisor delegation round. |
 | `FINALIZING` | After the supervisor finalises the assembled output for consistency. |
-| `REVIEW` | After the reviewer accepts or completes the review loop. |
+| `REVIEW_ITERATION_<n>` | After review iteration `n` completes without a verdict, e.g. `REVIEW_ITERATION_1`. |
 | `REVIEW_ACCEPTED` | When the reviewer signals ACCEPTED. |
 | `REVIEW_REJECTED` | When the reviewer signals REJECTED. |
-| `REVIEW_ITERATION_N` | After each individual review revision iteration. |
 
-## Web UI Dashboard
+Those six are the complete set - there is no plain `REVIEW` stage. The plotting script groups every `REVIEW_*` stage under a single "REVIEW" band when colouring its charts, which is presentation only.
 
-Pass `--web-ui` on the command line to start a local dashboard for watching a run live - messages, tool calls, stages, and output - instead of reading files off disk by hand:
+## Watching a Run Live
+
+Pass `--web-ui` to watch messages, tool calls, stages, and output in a browser instead of reading these files by hand. It reads `benchmark.output-dir/live` straight from disk on every request, so it needs `benchmark.enabled: true`:
 
 ```bash
 java -jar target/owlsda.jar --config config.yml --web-ui
-java -jar target/owlsda.jar --config config.yml --web-ui --web-ui-port 9090  # default: 8080
 ```
 
-The dashboard reads `benchmark.output-dir/live` straight from disk on every request (no caching), so it reflects the run as it happens - it polls automatically every few seconds. It requires `benchmark.enabled: true`; without it there's nothing to show. It shows:
-
-- **Stages** - the `benchmark-summary.json` history in the sidebar, newest first.
-- **Messages** - the full transcript per role (supervisor, reviewer, each worker), with `TOOL_INVOCATION` entries parsed into a tool name and arguments where the format allows it.
-- **Output** - the run's configured `output-path`.
-- **Triple Store** - the live `triplestore.ttl`.
-
-The server keeps running after the pipeline finishes so you can review the completed run; stop it with Ctrl+C. It currently only shows `live/` (the most recent run) - archived runs under `output-dir/archive/` aren't browsable from the dashboard yet, only from disk or via `scripts/plot_benchmark.py`.
+See [Web UI](./web-ui) for what the dashboard shows, and [Command Line Interface](./cli) for the related options.
 
 ## Visualising Results
 
-A Python plotting script is included in `scripts/plot_benchmark.py` and produces PDF/PNG/SVG charts from a JSON summary file:
+`scripts/plot_benchmark.py` turns a run's `benchmark-summary.json` into charts and summary statistics. It takes **no positional argument** - point it at a *directory* containing `benchmark-summary.json`:
 
 ```bash
-python scripts/plot_benchmark.py examples/project-1/benchmark_paper/benchmark-summary.json
-python scripts/plot_benchmark.py examples/project-2/benchmark_paper/benchmark-summary.json
+# a specific run directory
+python scripts/plot_benchmark.py --benchmark-dir examples/project-2/benchmark_paper
+
+# every examples/*/benchmark_paper directory in one go
+python scripts/plot_benchmark.py --all
+
+# also open the chart in an interactive window
+python scripts/plot_benchmark.py --benchmark-dir target/benchmarks/live --show
 ```
 
-You can inspect generated sample visuals directly in the [Examples](./examples) page, or use these embedded charts:
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--benchmark-dir` | `../examples/project-2/benchmark_paper` | Directory holding `benchmark-summary.json`. Relative paths are resolved against the repository root, and a leading `../` is stripped, so the same value works from the repo root or from `scripts/`. |
+| `--all` | off | Process every `examples/*/benchmark_paper` directory instead of a single one. |
+| `--show` | off | Display the chart interactively as well as saving it. Without it, a non-interactive backend is used. |
+
+It writes five files **into that same directory**:
+
+| File | Contents |
+|------|----------|
+| `benchmark_plot.png` | Three stacked charts (duration, shapes/triples, tokens) at 150 dpi. |
+| `benchmark_plot.svg` | The same chart as vector graphics. |
+| `benchmark_plot.pdf` | The same chart as a PDF with embedded TrueType fonts. |
+| `benchmark_stats.txt` | Human-readable totals: iteration count, total/mean/median/min/max duration, shape and triple counts, shapes per second, and per-role token totals. |
+| `benchmark_stats.json` | The same statistics as JSON. |
+
+Requires Python 3 with `matplotlib`.
+
+## About the Bundled `benchmark_paper` Directories
+
+`examples/project-N/benchmark_paper/` is a hand-curated snapshot kept for the paper, produced by an **earlier version** of OWL-SDA (see each directory's `NOTE.txt`). It uses the old flat layout - one directory per snapshot at the top level - from before `live/` and `archive/` existed, so it is not what a run produces today.
+
+Actual runs write to whatever you configure as `benchmark.output-dir`; for the bundled examples that is `examples/project-N/benchmark/`, which is gitignored. Use `benchmark_paper/` as reference data for the plotting script, not as a description of the current output layout.
 
 ### Example benchmark chart - Project 1
 
@@ -120,7 +164,4 @@ You can inspect generated sample visuals directly in the [Examples](./examples) 
 
 ![Project 2 benchmark chart](/benchmarks/project-2-benchmark.svg)
 
-Raw benchmark data used for these images:
-
-- `examples/project-1/benchmark_paper/benchmark-summary.json`
-- `examples/project-2/benchmark_paper/benchmark-summary.json`
+The numbers behind these charts are discussed in [Examples](./examples).
