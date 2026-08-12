@@ -25,14 +25,36 @@ pipeline {
     }
   }
 
+  options {
+    disableConcurrentBuilds()
+  }
+
   environment {
     GH_PAGES_BRANCH         = 'gh-pages'
+    GITHUB_REPO             = 'milieuinfo/owl-sda'
     // Must match the GitHub Pages path (milieuinfo.github.io/owl-sda/); an empty
     // value makes VitePress emit root-relative asset URLs that 404 once deployed.
     DOCS_BASE               = '/owl-sda/'
   }
 
   stages {
+
+    stage('Setup') {
+      steps {
+        script {
+          if (env.BRANCH_IS_PRIMARY) {
+            properties([versions.releaseParameters()])
+            if (versions.isRelease()) {
+              def currentVersion = maven.version()
+              def version = versions.bump(currentVersion)
+              git.validateTag(version)
+              maven.validateVersion(version)
+              env.VERSION = version
+            }
+          }
+        }
+      }
+    }
 
     stage('CI') {
       when {
@@ -115,6 +137,117 @@ pipeline {
                     else
                       echo "No changes to deploy"
                     fi
+                  '''
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    stage('Primary branch') {
+      when {
+        expression { env.BRANCH_IS_PRIMARY }
+      }
+
+      stages {
+
+        stage('Maven prepare') {
+          when {
+            expression { versions.isRelease() }
+          }
+          steps {
+            script {
+              maven.goal([
+                goal     : 'release:clean release:prepare',
+                version  : env.VERSION,
+                skipTests: true
+              ])
+            }
+          }
+        }
+
+        stage('Maven deploy') {
+          when {
+            expression { !versions.isRelease() }
+          }
+          steps {
+            script {
+              maven.goal([goal: 'deploy', skipTests: true])
+            }
+          }
+        }
+
+        stage('Maven release') {
+          when {
+            expression { versions.isRelease() }
+          }
+          steps {
+            script {
+              maven.goal([
+                goal     : 'release:perform',
+                version  : env.VERSION,
+                skipTests: true
+              ])
+            }
+          }
+        }
+
+        stage('GitHub release') {
+          when {
+            expression { versions.isRelease() }
+          }
+          steps {
+            container('jnlp') {
+              script {
+                git.withGitAuth {
+                  sh '''
+                    set -e
+                    TAG="v${VERSION}"
+
+                    JAR=""
+                    if [ -f target/checkout/target/owlsda.jar ]; then
+                      JAR=target/checkout/target/owlsda.jar
+                    elif [ -f target/owlsda.jar ]; then
+                      JAR=target/owlsda.jar
+                    fi
+                    if [ -z "$JAR" ]; then
+                      echo "No release jar found to attach to the GitHub release"
+                      exit 1
+                    fi
+
+                    TOKEN="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
+                    if [ -z "$TOKEN" ]; then
+                      TOKEN=$(printf 'protocol=https\nhost=github.com\n\n' | git credential fill 2>/dev/null | sed -n 's/^password=//p')
+                    fi
+                    if [ -z "$TOKEN" ]; then
+                      echo "Unable to obtain a GitHub token (set GITHUB_TOKEN/GH_TOKEN or configure git credentials)"
+                      exit 1
+                    fi
+
+                    AUTH="Authorization: token ${TOKEN}"
+                    JSON_BODY=$(printf '{"tag_name":"%s","name":"%s","body":"OWL-SDA release %s"}' "$TAG" "$TAG" "$VERSION")
+                    if curl -fsS -H "${AUTH}" "https://api.github.com/repos/${GITHUB_REPO}/releases/tags/${TAG}" >/dev/null 2>&1; then
+                      echo "GitHub release ${TAG} already exists"
+                    else
+                      curl -fsS -X POST -H "${AUTH}" -H "Accept: application/vnd.github+json" \
+                        -d "${JSON_BODY}" \
+                        "https://api.github.com/repos/${GITHUB_REPO}/releases"
+                      echo "GitHub release ${TAG} created"
+                    fi
+
+                    RELEASE_ID=$(curl -fsS -H "${AUTH}" "https://api.github.com/repos/${GITHUB_REPO}/releases/tags/${TAG}" \
+                      | grep -o '"id": *[0-9][0-9]*' | head -n 1 | grep -o '[0-9][0-9]*')
+                    if [ -z "$RELEASE_ID" ]; then
+                      echo "Unable to resolve the release id for ${TAG}"
+                      exit 1
+                    fi
+
+                    curl -fsS -X POST -H "${AUTH}" -H "Content-Type: application/java-archive" \
+                      --data-binary "@${JAR}" \
+                      "https://uploads.github.com/repos/${GITHUB_REPO}/releases/${RELEASE_ID}/assets?name=owlsda.jar"
+                    echo "Attached ${JAR} to GitHub release ${TAG}"
                   '''
                 }
               }
